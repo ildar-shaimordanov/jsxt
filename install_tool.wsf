@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+
+<package>
+<job id="install_tool">
+<?job error="true" debug="true" ?>
+
+<runtime>
+<description><![CDATA[Installer of CUJS tools Copyright (C) 2008 Ildar Shaimordanov
+
+]]></description>
+<unnamed
+	name="FILENAME"
+	helpstring="The filename of tool to be installed"
+	many="false"
+	required="true"
+/>
+<unnamed
+	name="PATH"
+	helpstring="The path where the tool should be installed"
+	many="false"
+	required="true"
+/>
+<example>
+Example: install_tool.wsf NetCalc.hta C:\
+</example>
+</runtime>
+<object id="fso" progid="Scripting.FileSystemObject" />
+<object id="wshShell" progid="WScript.Shell" />
+<script language="javascript" src="js/Obfuscate.js"></script>
+<script language="javascript"><![CDATA[
+
+if ( WScript.Arguments.length != 2 ) {
+	WScript.Arguments.ShowUsage();
+	WScript.Quit();
+}
+
+var filename = WScript.Arguments(0);
+var target = WScript.Arguments(1);
+
+function readText(filename)
+{
+	var f, h, s;
+	f = fso.GetFile(filename);
+	h = f.OpenAsTextStream();
+	s = h.ReadAll();
+	h.Close();
+	return s;
+}
+
+function writeText(filename, text)
+{
+	var f, h;
+	fso.CreateTextFile(filename);
+	f = fso.GetFile(filename);
+	h = f.OpenAsTextStream(2);
+	h.Write(text);
+	h.Close();
+}
+
+var content = readText(filename);
+
+content = content.replace(/<script.*?src="(js\/.+\.js)".*?\/script>/g, function($0, $1)
+{
+	var obfuscator = new Obfuscator(function(text)
+	{
+		WScript.Echo(text);
+	});
+
+	var s;
+	s = readText($1);
+//	s = obfuscator.parse(s);
+
+	return "<script type=\"text/javascript\">\n// " + $1 + "\n\n" + s + "\n</script>";
+});
+
+writeText(target + "\\" + filename.replace(/.*\\/, ""), content);
+
+
+]]></script>
+</job>
+</package>
+

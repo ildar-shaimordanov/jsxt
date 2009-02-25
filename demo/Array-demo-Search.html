@@ -1,0 +1,50 @@
+<script src="../js/Core.js"></script>
+<script src="../js/Array-experimental.js"></script>
+
+<pre>
+<script>
+
+// функция поиска в массиве, отсортированном в порядке возрастания чисел
+fwrdCmp = function(a, b) { return (a == b) ? 0 : (a < b) ? -1 : +1; }
+
+// функция поиска в массиве, отсортированном в порядке убывания чисел
+backCmp = function(a, b) { return (a == b) ? 0 : (a > b) ? -1 : +1; }
+
+// несортированный массив
+var x = [9, 1, 2, 5, 4, 9, 3, 4, 4, 1, 3];
+// сортированный массив в возрастающем порядке
+var y = Core.clone(x).sort(fwrdCmp);
+//var y = x.clone().sort(fwrdCmp);
+// сортированный массив в убывающем порядке
+var z = Core.clone(x).sort(backCmp);
+//var z = x.clone().sort(backCmp);
+
+// искомая величина
+var value = 1;
+
+// поиск элемента в массивах
+var by1 = y.indexOf(value, fwrdCmp);
+var by2 = y.lastIndexOf(value, fwrdCmp);
+
+var bz1 = z.indexOf(value, backCmp);
+var bz2 = z.lastIndexOf(value, backCmp);
+
+document.writeln("unsorted array: " + x);
+document.writeln("searching value = " + value);
+
+document.writeln("array: [" + y + "]");
+if (by1 < 0) {
+    document.writeln("insert index: " + y.insertIndex);
+} else {
+    document.writeln("found indexes: " + [by1, by2]);
+}
+
+document.writeln("array: [" + z + "]");
+if (bz1 < 0) {
+    document.writeln("insert index: " + z.insertIndex);
+} else {
+    document.writeln("found indexes: " + [bz1, bz2]);
+}
+
+</script>
+</pre>

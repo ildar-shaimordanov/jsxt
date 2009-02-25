@@ -1,0 +1,565 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+
+<!--
+
+Network Calculator
+Copyright (c) 2007 by Ildar Shaimordanov
+
+-->
+
+<head>
+<HTA:APPLICATION ID="oHTA"
+	APPLICATIONNAME="Network Calculator"
+	BORDER="dialog"
+	BORDERSTYLE="normal"
+	CAPTION="yes"
+	CONTEXTMENU="yes"
+	ICON=""
+	INNERBORDER="no"
+	MAXIMIZEBUTTON="no"
+	MINIMIZEBUTTON="yes"
+	NAVIGABLE="no"
+	SCROLL="no"
+	SCROLLFLAT="no"
+	SELECTION="no"
+	SHOWINTASKBAR="yes"
+	SINGLEINSTANCE="no"
+	SYSMENU="yes"
+	VERSION="1.0"
+	WINDOWSTATE="normal" />
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Network Calculator</title>
+
+<style type="text/css">
+
+/**
+ *
+ * Common styles
+ *
+ */
+*	{
+	font-family: Verdana, Tahoma, Helvetica, sans-serif;
+	font-size: 12px;
+}
+body	{
+	margin: 0;
+	padding: 0;
+}
+#body	{
+	background-color: #ccc;
+	height: 500px;
+	padding-left: 1px;
+	padding-right: 1px;
+	width: 500px;
+}
+
+#body #hostNetworkContainer	{
+	background-color: #ccc;
+	border: 2px outset #ccc;
+	position: absolute;
+	left: 142px;
+	top: 135px;
+	width: 200px;
+}
+#body #hostNetworkContainer select	{
+	font-family: sans-serif;
+	font-size: 11px;
+	width: 100%;
+}
+
+#body #netmaskMapContainer	{
+	background-color: #ccc;
+	border: 2px outset #ccc;
+	position: absolute;
+	left: 162px;
+	top: 135px;
+	width: 180px;
+}
+#body #netmaskMapContainer select	{
+	font-family: sans-serif;
+	font-size: 11px;
+	margin: 0;
+	width: 100%;
+}
+
+form#netCalc	{
+	margin: 0;
+}
+form#netCalc h1	{
+	font-size: 1.2em;
+	margin: 0;
+}
+form#netCalc fieldset	{
+	padding: 5px;
+}
+form#netCalc .leftPanel	{
+	float: left;
+	width: 50%;
+}
+form#netCalc .rightPanel	{
+	margin-left: 50%;
+}
+form#netCalc label,
+form#netCalc .label	{
+	float: left;
+	margin-right: 3px;
+	text-align: right;
+	width: 85px;
+}
+form#netCalc input	{
+	font-family: sans-serif;
+	font-size: 11px;
+	margin: 0;
+	width: 145px;
+}
+form#netCalc input.longinput	{
+	width: 234px;
+}
+form#netCalc input.netClass	{
+	border: 1px solid #999;
+	font-family: 'Courier New';
+	font-size: 10px;
+	font-weight: bold;
+	height: 20px;
+	width: 20px;
+}
+form#netCalc select	{
+	margin-left: 33px;
+	width: 110px;
+}
+
+</style>
+<script type="text/javascript" src="js/NetIP.js"></script>
+<script type="text/javascript">
+
+(function()
+{
+
+	function netCalc()
+	{
+		var element = document.getElementById('addr');
+		var addr = element.value;
+		if ( ! NetIP.isIP(addr) ) {
+			alert('Illegal IP address');
+			element.focus();
+			element.select();
+			return;
+		}
+
+		var element = document.getElementById('mask');
+		var mask = element.value;
+		if ( ! NetIP.isBitmask(mask) && ! NetIP.isNetmask(mask) ) {
+			alert('Illegal netmask or bitmask');
+			element.focus();
+			element.select();
+			return;
+		}
+
+		var radix = [2, 8, 10, 16][document.getElementById('radix').selectedIndex];
+
+		var ip = new NetIP(addr, mask);
+
+		// Address frame
+		document.getElementById('address').value = ip.getAddress().itoa();
+		document.getElementById('netmaskd').value = ip.getNetmask().itoa();
+		document.getElementById('netmaski').value = ip.getNetmask(true).itoa();
+		document.getElementById('bitmask').value = ip.getBitmask();
+
+		if ( radix == 10 ) {
+			document.getElementById('address_').value = ip.getAddress();
+			document.getElementById('netmaskd_').value = ip.getNetmask();
+			document.getElementById('netmaski_').value = ip.getNetmask(true);
+		} else {
+			document.getElementById('address_').value = ip.getAddress().itoa(radix);
+			document.getElementById('netmaskd_').value = ip.getNetmask().itoa(radix);
+			document.getElementById('netmaski_').value = ip.getNetmask(true).itoa(radix);
+		}
+
+		// Network frame
+		document.getElementById('network').value = ip.getNetwork().itoa();
+		document.getElementById('address1').value = ip.getFirstAddress().itoa();
+		document.getElementById('addressN').value = ip.getLastAddress().itoa();
+		document.getElementById('broadcast').value = ip.getBroadcast().itoa();
+		document.getElementById('length').value = ip.length();
+		document.getElementById('length_').value = [ip.getFirstAddress().itoa(), ip.getLastAddress().itoa()].join(' - ');
+
+		if ( radix == 10 ) {
+			document.getElementById('network_').value = ip.getNetwork();
+			document.getElementById('address1_').value = ip.getFirstAddress();
+			document.getElementById('addressN_').value = ip.getLastAddress();
+			document.getElementById('broadcast_').value = ip.getBroadcast();
+		} else {
+			document.getElementById('network_').value = ip.getNetwork().itoa(radix);
+			document.getElementById('address1_').value = ip.getFirstAddress().itoa(radix);
+			document.getElementById('addressN_').value = ip.getLastAddress().itoa(radix);
+			document.getElementById('broadcast_').value = ip.getBroadcast().itoa(radix);
+		}
+	}
+
+	function setNetmask(value)
+	{
+		document.getElementById('mask').value = value;
+		netCalc();
+	}
+
+	function setNetwork(addr, mask)
+	{
+		document.getElementById('addr').value = addr;
+		setNetmask(mask);
+	}
+
+	function showHostNetwork()
+	{
+		document.getElementById('hostNetworkContainer').style.display = '';
+
+		var hostNetwork = document.getElementById('hostNetwork');
+		hostNetwork.focus();
+
+		var notation = [document.getElementById('addr').value, document.getElementById('mask').value].join('/');
+
+		hostNetwork.options.selectedIndex = -1;
+		for (var i = 0; i < hostNetwork.options.length; i++) {
+			if ( hostNetwork.options[i].text.indexOf(notation) == 0 ) {
+				hostNetwork.options.selectedIndex = i;
+				break;
+			}
+		}
+	}
+
+	function hideHostNetwork()
+	{
+		document.getElementById('hostNetworkContainer').style.display = 'none';
+
+		var hostNetwork = document.getElementById('hostNetwork');
+		hostNetwork.blur();
+
+		// Hide only - called from the toggleXXX() routine
+		if ( arguments.length == 0 ) {
+			return;
+		}
+
+		if ( hostNetwork.options.selectedIndex == -1 ) {
+			return;
+		}
+
+		var notation = hostNetwork.options[hostNetwork.options.selectedIndex].text.split('/');
+		setNetwork(notation[0], notation[1]);
+	}
+
+	function toggleHostNetwork()
+	{
+		if ( document.getElementById('hostNetworkContainer').style.display == '' ) {
+			hideHostNetwork();
+		} else {
+			showHostNetwork();
+		}
+	}
+
+	function selectNetmaskMap()
+	{
+		var netmaskMap = document.getElementById('netmaskMap');
+		var mask = document.getElementById('mask').value;
+		var isBitmask = NetIP.isBitmask(mask);
+		for (var i = 0; i < netmaskMap.options.length; i++) {
+			var text = netmaskMap.options[i].text;
+			if ( ! isBitmask && text.indexOf(mask) == 0 || isBitmask && text.lastIndexOf(mask) == text.length - mask.length ) {
+				netmaskMap.options.selectedIndex = i;
+				break;
+			}
+		}
+	}
+
+	function showNetmaskMap()
+	{
+		document.getElementById('netmaskMapContainer').style.display = '';
+
+		var netmaskMap = document.getElementById('netmaskMap');
+		netmaskMap.focus();
+
+		selectNetmaskMap();
+	}
+
+	function hideNetmaskMap()
+	{
+		document.getElementById('netmaskMapContainer').style.display = 'none';
+
+		var netmaskMap = document.getElementById('netmaskMap');
+		netmaskMap.blur();
+
+		// Hide only - called from the toggleXXX() routine
+		if ( arguments.length == 0 ) {
+			return;
+		}
+
+		setNetmask(netmaskMap.options[netmaskMap.options.selectedIndex].text.split(/\s+/)[0]);
+	}
+
+	function toggleNetmaskMap()
+	{
+		if ( document.getElementById('netmaskMapContainer').style.display == '' ) {
+			hideNetmaskMap();
+		} else {
+			showNetmaskMap();
+		}
+	}
+
+	function initWin(network)
+	{
+		// private-use network (RFC1918)
+		setNetwork('192.168.0.0', '255.255.255.0');
+
+		if ( document.attachEvent ) {
+			document.getElementById('radix').attachEvent('onchange', netCalc);
+			document.getElementById('netmaskMap').attachEvent('onchange', hideNetmaskMap);
+			document.getElementById('hostNetwork').attachEvent('onchange', hideHostNetwork);
+		} else {
+			document.getElementById('radix').addEventListener('change', netCalc, true);
+			document.getElementById('netmaskMap').addEventListener('change', hideNetmaskMap, true);
+			document.getElementById('hostNetwork').addEventListener('change', hideHostNetwork, true);
+		}
+	}
+
+	function initHta()
+	{
+		// 1.1. set the window size
+		var w = 508, h = 450;
+//		window.moveTo((window.screen.width - w) / 2, (window.screen.height - h) / 2);
+		window.resizeTo(w, h);
+
+		// 2. create list of all available networks for this host
+		var hostNetwork = document.getElementById('hostNetwork');
+		var nets = NetIP.win32IPConfig();
+		for (var i = 0; i < nets.length; i++) {
+			var option = new Option(nets[i].join('/'));
+			hostNetwork.options[i] = option;
+		}
+
+		var network;
+		if ( nets.length ) {
+			network = nets[0];
+		}
+
+		// 3. initialize the frame of application or use private-use network (RFC1918) internally
+		initWin();
+
+		// 4. first available network for this host
+		if ( nets.length ) {
+			setNetwork(nets[0][0], nets[0][1]);
+		}
+
+		// 5. Enables select of all networks
+		document.getElementById('hostNetworkButton').disabled = false;
+	}
+
+	function handleClick(e)
+	{
+		var e = e || event;
+		var target = e.target || e.srcElement;
+
+		if ( ! target || target.tagName.toUpperCase() != 'INPUT' || target.type.toUpperCase() != 'BUTTON' || target.className != 'netClass' || target.disabled ) {
+			return;
+		}
+
+		switch (target.value) {
+		case '#':
+			hideNetmaskMap();
+			toggleHostNetwork();
+			target.blur();
+			break;
+		case 'Calculate':
+			netCalc();
+			target.blur();
+			break;
+		case 'A':
+			setNetmask('255.0.0.0');
+			selectNetmaskMap();
+			target.blur();
+			break;
+		case 'B':
+			setNetmask('255.255.0.0');
+			selectNetmaskMap();
+			target.blur();
+			break;
+		case 'C':
+			setNetmask('255.255.255.0');
+			selectNetmaskMap();
+			target.blur();
+			break;
+		case 'i':
+			hideHostNetwork();
+			toggleNetmaskMap();
+			target.blur();
+			break;
+		}
+	}
+
+	/**
+	 * Handles keystrokes (for HTA only)
+	 *
+	 * @access	private
+	 */
+	function handleKeydown(e)
+	{
+		var e = e || event;
+		var target = e.target || e.srcElement;
+
+		// F5
+		if ( e.keyCode == 116 ) {
+			return false;
+		}
+
+		// Esc
+		if ( e.keyCode == 27 ) {
+			return false;
+		}
+
+		// Enter
+		if ( target && target.tagName.toUpperCase() == 'INPUT' && target.type.toUpperCase() == 'TEXT' ) {
+			if ( e.keyCode == 13 ) {
+				netCalc();
+				return false;
+			}
+		}
+	}
+
+	if ( window.attachEvent ) {
+		if ( window.oHTA && oHTA.applicationName ) {
+			window.attachEvent('onload', initHta);
+		} else {
+			window.attachEvent('onload', initWin);
+		}
+		document.attachEvent('onclick', handleClick);
+		document.attachEvent('onkeydown', handleKeydown);
+	} else {
+		window.addEventListener('load', initWin, true);
+		window.addEventListener('click', handleClick, true);
+		window.addEventListener('keydown', handleKeydown, true);
+	}
+
+})();
+
+</script>
+
+</head>
+<body>
+
+<div id="body">
+
+<form action="" id="netCalc" onsubmit="return false">
+
+<h1>Network Calculator</h1>
+<div style="font-size: 9px;">Copyright &copy; 2007 by Ildar Shaimordanov</div>
+
+<fieldset>
+<legend>Request</legend>
+<div style="font-size: 9px; padding: 10px 0;">Enter address and netmask in a dot notation. It is available both direct and inverse netmask (like 255.255.255.0 and 0.0.0.255). Enter bitmask as an integer value in range from 1 to 32.</div>
+<div class="leftPanel">
+<label for="addr">Address</label><input type="text" id="addr" value="" tabindex="1" title="Enter IP address" onfocus="this.select()" />
+<label for="mask">Netmask</label><input type="text" id="mask" value="" tabindex="1" title="Enter netmask or bitmask" onfocus="this.select()" />
+</div>
+<div class="rightPanel">
+<input type="button" class="netClass" id="hostNetworkButton" value="#" tabindex="32767" title="Networks of this host" disabled="disabled" />
+<input type="button" class="netClass" value="Calculate" tabindex="32767" title="Calculate" style="width: 68px;" />
+<div style="font-size: 2px;">&nbsp;</div>
+<input type="button" class="netClass" value="A" tabindex="32767" title="Mask of subnet A" />
+<input type="button" class="netClass" value="B" tabindex="32767" title="Mask of subnet B" />
+<input type="button" class="netClass" value="C" tabindex="32767" title="Mask of subnet C" />
+<input type="button" class="netClass" value="i" tabindex="32767" title="Netmasks" />
+<select id="radix" tabindex="1" title="Change IP presentation">
+<option>Binary</option>
+<option>Octal</option>
+<option>Decimal</option>
+<option>Hexadecimal</option>
+</select>
+</div>
+</fieldset>
+
+<fieldset>
+<legend>Address</legend>
+<div class="leftPanel">
+<span class="label">Address</span><input type="text" readonly="readonly" maxlength="35" id="address" value="" tabindex="2" onfocus="this.select()" />
+<span class="label">Netmask</span><input type="text" readonly="readonly" maxlength="35" id="netmaskd" value="" tabindex="2" onfocus="this.select()" />
+<span class="label">Inv.Netmask</span><input type="text" readonly="readonly" maxlength="35" id="netmaski" value="" tabindex="2" onfocus="this.select()" />
+<span class="label">Bitmask</span><input type="text" readonly="readonly" maxlength="35" id="bitmask" value="" tabindex="2" onfocus="this.select()" />
+</div>
+<div class="rightPanel">
+<input type="text" class="longinput" readonly="readonly" maxlength="35" id="address_" value="" tabindex="2" onfocus="this.select()" />
+<input type="text" class="longinput" readonly="readonly" maxlength="35" id="netmaskd_" value="" tabindex="2" onfocus="this.select()" />
+<input type="text" class="longinput" readonly="readonly" maxlength="35" id="netmaski_" value="" tabindex="2" onfocus="this.select()" />
+</div>
+</fieldset>
+
+<fieldset>
+<legend>Network</legend>
+<div class="leftPanel">
+<span class="label">Network</span><input type="text" readonly="readonly" maxlength="35" id="network" value="" tabindex="3" onfocus="this.select()" />
+<span class="label">First Address</span><input type="text" readonly="readonly" maxlength="35" id="address1" value="" tabindex="3" onfocus="this.select()" />
+<span class="label">Last Address</span><input type="text" readonly="readonly" maxlength="35" id="addressN" value="" tabindex="3" onfocus="this.select()" />
+<span class="label">Broadcast</span><input type="text" readonly="readonly" maxlength="35" id="broadcast" value="" tabindex="3" onfocus="this.select()" />
+<span class="label">Length</span><input type="text" readonly="readonly" maxlength="35" id="length" value="" tabindex="3" onfocus="this.select()" />
+</div>
+<div class="rightPanel">
+<input type="text" class="longinput" readonly="readonly" maxlength="35" id="network_" value="" tabindex="3" onfocus="this.select()" />
+<input type="text" class="longinput" readonly="readonly" maxlength="35" id="address1_" value="" tabindex="3" onfocus="this.select()" />
+<input type="text" class="longinput" readonly="readonly" maxlength="35" id="addressN_" value="" tabindex="3" onfocus="this.select()" />
+<input type="text" class="longinput" readonly="readonly" maxlength="35" id="broadcast_" value="" tabindex="3" onfocus="this.select()" />
+<input type="text" class="longinput" readonly="readonly" maxlength="35" id="length_" value="" tabindex="3" onfocus="this.select()" />
+</div>
+</fieldset>
+
+</form>
+
+<form action="" id="hostNetworkContainer" style="display: none;" onsubmit="return false">
+<fieldset>
+<legend>Networks of this host</legend>
+<select id="hostNetwork" size="8">
+</select>
+</fieldset>
+</form>
+
+<form action="" id="netmaskMapContainer" style="display: none;" onsubmit="return false">
+<fieldset>
+<legend>Netmasks</legend>
+<select id="netmaskMap" size="16">
+<option value="128.0.0.0">128.0.0.0 /1</option>
+<option value="192.0.0.0">192.0.0.0 /2</option>
+<option value="224.0.0.0">224.0.0.0 /3</option>
+<option value="240.0.0.0">240.0.0.0 /4</option>
+<option value="248.0.0.0">248.0.0.0 /5</option>
+<option value="252.0.0.0">252.0.0.0 /6</option>
+<option value="254.0.0.0">254.0.0.0 /7</option>
+<option value="255.0.0.0">255.0.0.0 /8</option>
+<option value="255.128.0.0">255.128.0.0 /9</option>
+<option value="255.192.0.0">255.192.0.0 /10</option>
+<option value="255.224.0.0">255.224.0.0 /11</option>
+<option value="255.240.0.0">255.240.0.0 /12</option>
+<option value="255.248.0.0">255.248.0.0 /13</option>
+<option value="255.252.0.0">255.252.0.0 /14</option>
+<option value="255.254.0.0">255.254.0.0 /15</option>
+<option value="255.255.0.0">255.255.0.0 /16</option>
+<option value="255.255.128.0">255.255.128.0 /17</option>
+<option value="255.255.192.0">255.255.192.0 /18</option>
+<option value="255.255.224.0">255.255.224.0 /19</option>
+<option value="255.255.240.0">255.255.240.0 /20</option>
+<option value="255.255.248.0">255.255.248.0 /21</option>
+<option value="255.255.252.0">255.255.252.0 /22</option>
+<option value="255.255.254.0">255.255.254.0 /23</option>
+<option value="255.255.255.0">255.255.255.0 /24</option>
+<option value="255.255.255.128">255.255.255.128 /25</option>
+<option value="255.255.255.192">255.255.255.192 /26</option>
+<option value="255.255.255.224">255.255.255.224 /27</option>
+<option value="255.255.255.240">255.255.255.240 /28</option>
+<option value="255.255.255.248">255.255.255.248 /29</option>
+<option value="255.255.255.252">255.255.255.252 /30</option>
+<option value="255.255.255.254">255.255.255.254 /31</option>
+<option value="255.255.255.255">255.255.255.255 /32</option>
+</select>
+</fieldset>
+</form>
+
+</div>
+
+</body>
+</html>

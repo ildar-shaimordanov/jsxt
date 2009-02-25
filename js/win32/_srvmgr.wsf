@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<package>
+<job id="ASSERTATION">
+<?job error="true" debug="true" ?>
+
+<script language="javascript" src="../Core.js"></script>
+<script language="javascript" src="../Array.js"></script>
+
+<script language="javascript" src="common.js"></script>
+<script language="javascript" src="Services.js"></script>
+<script language="javascript"><![CDATA[
+
+
+function showSrv(srv)
+{
+	ASSERT(srv.Name);
+}
+
+var srvmgr = new ServiceManager();
+
+var s;
+
+s = srvmgr.search({ Name: 'RasAuto' });
+
+s.forEach(function(a)
+{
+	var x;
+
+	ASSERT(a.Name);
+
+	ASSERT('This service depends on the following system components');
+	x = srvmgr.antecedent(a);
+	x.forEach(showSrv);
+
+	ASSERT('The following system components depend on this service');
+	x = srvmgr.dependent(a);
+	x.forEach(showSrv);
+	ASSERT();
+});
+
+]]></script>
+
+</job>
+</package>
+
