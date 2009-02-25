@@ -1,5 +1,8 @@
+
+if ( ! Array.prototype.binarySearch ) {
+
 /**
- * int Array.prototype.search(searchItem [ , compare [ , right ]] )
+ * int Array.prototype.binarySearch(searchItem [ , compare [ , right ]] )
  * Binary search of the 'searchIem' element within an array.
  * Returned value may be one of them:
  * 1. value '-1' means the missing item at the array. In this case the new
@@ -14,46 +17,58 @@
  *
  * @result integer
  */
-Array.prototype.search = function(searchItem, compare, right)
+Array.prototype.binarySearch = function(searchItem, compare, right)
 {
-    if (searchItem === undefined) return null;
-    if (!compare) {
-        compare = function(a, b)
-        {
-            return (String(a) == String(b)) ? 0 : (String(a) < String(b)) ? -1 : +1;
-        }
-    }
-    var found = false, l = 0, u = this.length - 1;
-    while (l <= u) {
-        var m = parseInt((l + u) / 2);
-        switch (compare(this[m], searchItem)) {
-        case -1:
-            var ml = m;
-            l = m + 1;
-            break;
-        case +1:
-            var mu = m;
-            u = m - 1;
-            break;
-        default:
-            found = true;
-            if (right) {
-                l = m + 1;
-            } else {
-                u = m - 1;
-            }
-        }
-    }
-    if (!found) {
-        this.insertIndex = (ml + 1) || mu || 0;
-//        this.insertIndex = (ml) ? ml + 1 : mu;
-        return -1;
-    }
-    return (right) ? u : l;
+	if ( searchItem === undefined ) {
+		return null;
+	}
+	if ( ! compare ) {
+		compare = function(a, b)
+		{
+			return (String(a) == String(b)) ? 0 : (String(a) < String(b)) ? -1 : +1;
+		}
+	}
+
+	var found = false;
+	var l = 0;
+	var u = this.length - 1;
+	var ml, mu;
+
+	while (l <= u) {
+		var m = parseInt((l + u) / 2);
+		switch ( compare(this[m], searchItem) ) {
+		case -1:
+			ml = m;
+			l = m + 1;
+			break;
+		case +1:
+			mu = m;
+			u = m - 1;
+			break;
+		default:
+			found = true;
+			if ( right ) {
+				l = m + 1;
+			} else {
+				u = m - 1;
+			}
+		}
+	}
+
+	if ( ! found ) {
+		this.insertIndex = (ml + 1) || mu || 0;
+//		this.insertIndex = (ml) ? ml + 1 : mu;
+		return -1;
+	}
+		return (right) ? u : l;
 }
 
+}
+
+if ( ! Array.prototype.binaryIndexOf ) {
+
 /**
- * int Array.prototype.indexOf(searchItem [ , compare ] )
+ * int Array.prototype.binaryIndexOf(searchItem [ , compare ] )
  * binary search of elements within an array. Returned value is interpreted as
  * index of the most left 'searchItem' item in the array and may be one of them
  *
@@ -64,13 +79,17 @@ Array.prototype.search = function(searchItem, compare, right)
  *
  * @see    'Array.protoptype.search'
  */
-Array.prototype.indexOf = function(searchItem, compare)
+Array.prototype.binaryIndexOf = function(searchItem, compare)
 {
-    return this.search(searchItem, compare, false);
+	return this.binarySearch(searchItem, compare, false);
 }
 
+}
+
+if ( ! Array.prototype.binaryLastIndexOf ) {
+
 /**
- * int Array.prototype.lastIndexOf(searchItem [ , compare ] )
+ * int Array.prototype.binaryLastIndexOf(searchItem [ , compare ] )
  * binary search of elements within an array. Returned value is interpreted as
  * index of the most right 'searchItem' item in the array and may be one of them
  *
@@ -81,10 +100,14 @@ Array.prototype.indexOf = function(searchItem, compare)
  *
  * @see    'Array.protoptype.search'
  */
-Array.prototype.lastIndexOf = function(searchItem, compare)
+Array.prototype.binaryLastIndexOf = function(searchItem, compare)
 {
-    return this.search(searchItem, compare, true);
+	return this.binarySearch(searchItem, compare, true);
 }
+
+}
+
+if ( ! String.prototype.splitLimit ) {
 
 /**
  * Corrects the result of the standard method like described below:
@@ -107,41 +130,45 @@ Array.prototype.lastIndexOf = function(searchItem, compare)
  * @return	Array
  * @access	public
  */
-String.prototype.__split__ = String.prototype.split;
-
-String.prototype.split = function(delim, limit)
+String.prototype.splitLimit = function(delim, limit)
 {
-	if ( limit && limit > 0 ) {
-		var isRegExp = delim && delim.constructor == RegExp;
-		if ( isRegExp ) {
-			var res = delim.source;
-			var ref = "";
-			if ( delim.ignoreCase ) {
-				ref += "i";
-			}
-			if ( delim.multiline ) {
-				ref += "m";
-			}
-//			if (delim.global) {
-//				ref += "g";
-//			}
-		} else {
-			var res = delim;
-			var ref = "";
-		}
-
-		var x = this.match(new RegExp("^((?:.*?" + res + "){" + (limit - 1) + "})(.*)", ref));
-		if ( x ) {
-			var result = x[1].__split__(delim, limit);
-			var n = result.length;
-			if ( ! isRegExp && n ) {
-				n--;
-			}
-			result[n] = x[2];
-			return result;
-		}
-		return this.valueOf();
+	if ( ! limit && Number(limit) <= 0 ) {
+		return this.split(delim, limit);
 	}
-	return this.__split__(delim, limit);
+
+	var isRegExp = delim && delim.constructor == RegExp;
+	var res;
+	var ref;
+
+	if ( isRegExp ) {
+		res = delim.source;
+		ref = "";
+		if ( delim.ignoreCase ) {
+			ref += "i";
+		}
+		if ( delim.multiline ) {
+			ref += "m";
+		}
+//		if (delim.global) {
+//			ref += "g";
+//		}
+	} else {
+		res = delim;
+		ref = "";
+	}
+
+	var x = this.match(new RegExp("^((?:.*?" + res + "){" + (limit - 1) + "})(.*)", ref));
+	if ( x ) {
+		var result = x[1].__split__(delim, limit);
+		var n = result.length;
+		if ( ! isRegExp && n ) {
+			n--;
+		}
+		result[n] = x[2];
+		return result;
+	}
+	return this.valueOf();
+}
+
 }
 
