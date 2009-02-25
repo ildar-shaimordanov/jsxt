@@ -1,0 +1,193 @@
+<html>
+
+<head>
+<HTA:APPLICATION ID="oHTA"
+  APPLICATIONNAME="RGB"
+  BORDER="dialog"
+  BORDERSTYLE="static"
+  CAPTION="yes"
+  CONTEXTMENU="no"
+  ICON=""
+  INNERBORDER="no"
+  MAXIMIZEBUTTON="yes"
+  MINIMIZEBUTTON="yes"
+  NAVIGABLE="no"
+  SCROLL="yes"
+  SCROLLFLAT="scroll"
+  SELECTION="no"
+  SHOWINTASKBAR="yes"
+  SINGLEINSTANCE="no"
+  SYSMENU="yes"
+  VERSION="1.0"
+  WINDOWSTATE="normal"/>
+
+<title>Web-Based Safe Palette</title>
+<style>
+body {
+  bgcolor: #FFFFFF;
+  color: #000000;
+  font-family: Arial;
+  margin: 5px;
+}
+.equWidth {
+  width: 49%;
+}
+.safeColor {
+  color: white;
+  font-size: 11;
+  text-align: center;
+  width: 45;
+}
+#rgbParser {
+  border-color: #000000;
+  border-style: solid;
+  border-width: 1;
+  left: 360;
+  position: absolute;
+  width: 300;
+}
+#stdTempl {
+  border-color: #000000;
+  border-style: solid;
+  border-width: 1;
+  font-size: 24;
+  font-weight: bold;
+  height: 60;
+  text-align: center;
+  vertical-align: center;
+  width: 100%;
+}
+</style>
+
+<script>
+function leftPad(x) { return (x.length < 2) ? "0" + x : x; }
+function hex(x) { return leftPad(x.toString(0x10).toUpperCase()); }
+
+// Generating of the table and it's content
+function getColorCell(r, g, b, color) {
+  var rgb = hex(r) + hex(g) + hex(b);
+  var color = (g > 0x80) ? "#000000" : "#FFFFFF";
+  var cell = "<TD CLASS=safeColor STYLE=\"background-color: #" + rgb + "; color: " + color + ";\">" + rgb + "</TD>";
+  return cell;
+}
+
+function initTables() {
+  var rgbDec = "<TR><TH>RGB</TH>";
+  var rgbHex = "<TR><TH>HEX</TH>";
+
+  var s = "<TABLE BORDER=0 CELLPADDING=5 CELLSPACING=0 STYLE=\"float: left;\">";
+  for (var r = 0x00; r < 0x100; r += 0x33) {
+    rgbDec += "<TD ALIGN=right>" + r + "</TD>";
+    rgbHex += "<TD ALIGN=right>" + hex(r) + "</TD>";
+    for (var g = 0x00; g < 0x100; g += 0x33) {
+      s += "<TR>";
+      for (var b = 0x00; b < 0x100; b += 0x33) { s += getColorCell(r, g, b); }
+      s += "</TR>";
+    }
+  }
+  s += "</TABLE>";
+  rgbTable.innerHTML += s;
+
+  rgbDec += "</TR>";
+  rgbHex += "</TR>";
+  descr.innerHTML += "<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=3 WIDTH=100%>" + rgbDec + rgbHex + "</TABLE>";
+}
+
+// Floating panel control
+var parserLeft = "";
+var parserTop = "";
+
+function initRGBParser() {
+//  parserLeft = rgbParser.offsetLeft;
+  parserTop = rgbParser.offsetTop;
+}
+
+function setRGBParser() {
+//  rgbParser.style.pixelLeft = document.body.scrollLeft + parserLeft;
+  rgbParser.style.pixelTop = document.body.scrollTop + parserTop;
+}
+
+window.onload = initRGBParser;
+window.onscroll = setRGBParser;
+
+// Working with the floating panel
+var rgb, r, g, b;
+
+function resetAll() {
+  rgb = false;
+  f.reset();
+  f.rgbHex.checked = true;
+  f.copyButton.disabled = true;
+  stdTempl.style.backgroundColor = "";
+  stdTempl.style.color = "#000000";
+  stdTempl.innerText = "Example";
+}
+
+function changeRGBValue() {
+  if (rgb === false) return;
+  stdTempl.innerText = (f.rgbDec.checked) ? [r, g, b] : hex(r) + hex(g) + hex(b);
+  stdTempl.style.backgroundColor = "#" + hex(r) + hex(g) + hex(b);
+  stdTempl.style.color = (g > 0x80) ? "#000000" : "#FFFFFF";
+}
+
+function clickHandle() {
+  var e = window.event.srcElement;
+  if (e.className == "safeColor") {
+    f.copyButton.disabled = false;
+    rgb = parseInt(e.innerText, 0x10);
+    r = rgb >> 0x10 & 0xFF;
+    g = rgb >> 0x08 & 0xFF;
+    b = rgb         & 0xFF;
+    changeRGBValue();
+  }
+}
+
+document.onclick = clickHandle;
+
+function getMSIEversion() {
+  var browser_name_start = navigator.appVersion.indexOf("MSIE");
+  return parseInt(navigator.appVersion.substr(browser_name_start + 5, 1));
+}
+
+// originally got from decompiled `php_manual_en.chm`
+function copyColor() {
+  if (getMSIEversion() < 5) {
+    alert("MS Internet Explorer 5+ is required.");
+  } else {
+    BodyRange = document.body.createTextRange();
+    BodyRange.moveToElementText(stdTempl);
+    BodyRange.execCommand("Copy");
+  }
+}
+</script>
+</head>
+
+<body
+  onkeydown="
+    if (window.event.keyCode == 116) ;//window.event.returnValue = false;
+    if (window.event.keyCode == 27) window.close();
+  "
+  onload="initTables(); initRGBParser(); resetAll();">
+
+<H3>Web-Based Safe Palette</H3>
+
+<!-- Container for palette table -->
+<div id=rgbTable></div>
+
+<form id=f><table id=rgbParser align=center bgcolor=silver border=0 cellpadding=5 cellspacing=15>
+<tr><td style="font-size: 11; font-weight: bold;">Use left click on the left cell and apply the preferable radix</td></tr>
+<tr><td>
+  <input type=radio name=rgbSel id=rgbDec onclick="changeRGBValue();"><label for="rgbDec">Decimal</label>
+  <input type=radio name=rgbSel id=rgbHex onclick="changeRGBValue();"><label for="rgbHex">Hexadecimal</label>
+  <input type=button class=equWidth id=copyButton value="Copy" onclick="copyColor();">
+  <input type=button class=equWidth value="Clear" onclick="resetAll();">
+</td></tr>
+<tr><td id=stdTempl></td></tr>
+<tr><td id=descr style="font-size: 11;" title="Brief description">
+  <hr size=1>The most browsers supports safe palette where red, green and blue components are limited by the next values:
+  <!-- here is place for dynamical inserting of palette table -->
+</td></tr>
+</table></form>
+
+</body>
+</html>

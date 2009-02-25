@@ -1,0 +1,174 @@
+<html>
+
+<head>
+<HTA:APPLICATION ID="oHTA"
+  APPLICATIONNAME="RGB"
+  BORDER="dialog"
+  BORDERSTYLE="static"
+  CAPTION="yes"
+  CONTEXTMENU="no"
+  ICON=""
+  INNERBORDER="no"
+  MAXIMIZEBUTTON="no"
+  MINIMIZEBUTTON="no"
+  NAVIGABLE="no"
+  SCROLL="no"
+  SCROLLFLAT="no"
+  SELECTION="no"
+  SHOWINTASKBAR="yes"
+  SINGLEINSTANCE="no"
+  SYSMENU="yes"
+  VERSION="1.0"
+  WINDOWSTATE="normal"/>
+
+<title>RGB Palette</title>
+
+<style>
+body {
+  background-color: #CCCCCC;
+  font-family: Verdana;
+  margin: 0;
+}
+#Sample {
+  border: 3 inset;
+  font-family: Verdana;
+  font-weight: bold;
+  text-align: center;
+  width: 210;
+}
+.RGBValue {
+  background-color: #FFFFFF;
+  border: 1 inset #000000;
+  font-family: "Courier New";
+  font-size: 12;
+  width: 100%;
+}
+.btnCopy {
+  border: 1 inset #000000;
+  font-family: "Courier New";
+  font-size: 10;
+  width: 100%;
+}
+</style>
+
+<script type="text/javascript" language="javascript">
+function InitWin() {
+  if (oHTA.applicationName === "RGB") with (window.screen) {
+    var w = 220, h = 280;
+    moveTo((width - w) / 2, (height - h) / 2);
+    resizeTo(w, h);
+  }
+}
+
+function InitScrollBar(c, v) {
+  document.write("<TD WIDTH=25>"
+    + "<OBJECT CLASSID=\"CLSID:DFD181E0-5E2F-11CE-A449-00AA004A803D\""
+      + "NAME=" + c + "Bar ID=" + c + "Bar HEIGHT=100 WIDTH=100%>"
+      + "<PARAM NAME=Min VALUE=255>"
+      + "<PARAM NAME=Max VALUE=0>"
+      + "<PARAM NAME=LargeChange VALUE=15>"
+      + "<PARAM NAME=Orientation VALUE=0>"
+      + "<PARAM NAME=Position VALUE=" + v + ">"
+    + "</OBJECT>"
+  + "</TD>");
+}
+
+function InitIndicator(c, t) {
+  document.write("<TD COLSPAN=3 WIDTH=50%>" + t
+    + "<SPAN CLASS=RGBValue ID=" + c + "RGBValue></SPAN>"
+    + "<INPUT TYPE=button CLASS=btnCopy VALUE=\"Copy " + t + "\" ONCLICK=\"CopyColor(" + c + "RGBValue)\">"
+  + "</TD>");
+}
+
+function InitRGB() {
+  rgbHex.checked = true;
+  SetRGB();
+}
+
+function leftPad(x) { return (x.length < 2) ? "0" + x : x; }
+function Hex(x) { return leftPad(x.toString(0x10).toUpperCase()); }
+
+function GetRGBValue(r, g, b) {
+  return (rgbHex.checked)
+    ? Hex(r.Value) + Hex(g.Value)  + Hex(b.Value)
+    : r.Value + "," + g.Value + "," + b.Value;
+}
+
+function SetRGBValue() {
+  FRGBValue.innerText = GetRGBValue(FRBar, FGBar, FBBar);
+  BRGBValue.innerText = GetRGBValue(BRBar, BGBar, BBBar);
+}
+
+function GetRGBColor(r, g, b) {
+  return "rgb(" + r.Value + "," + g.Value + "," + b.Value + ")";
+}
+
+function SetRGB() {
+  SetRGBValue();
+  Sample.style.color           = GetRGBColor(FRBar, FGBar, FBBar);
+  Sample.style.backgroundColor = GetRGBColor(BRBar, BGBar, BBBar);
+}
+
+function GetMSIEVersion() {
+  var browser_name_start = navigator.appVersion.indexOf("MSIE");
+  return parseInt(navigator.appVersion.substr(browser_name_start + 5, 1));
+}
+
+// originally got from decompiled `php_manual_en.chm`
+function CopyColor(obj) {
+  if (GetMSIEVersion() < 5) {
+    alert("MS Internet Explorer 5+ is required.");
+  } else {
+    BodyRange = document.body.createTextRange();
+    BodyRange.moveToElementText(obj);
+    BodyRange.execCommand("Copy");
+  }
+}
+</script>
+</head>
+
+<body
+  oncontextmenu="
+    window.event.returnValue = false;
+  "
+  onkeydown="
+    if (window.event.keyCode == 116) window.event.returnValue = false;
+    if (window.event.keyCode ==  27) window.close();
+  "
+  onload="
+    InitWin();
+    InitRGB();
+  ">
+
+<div style="margin: 0; padding: 0; text-align: center;">
+<div id=Sample>TEXT</div>
+<table align=center border=0 cellpadding=0 cellspacing=5 width=210>
+<tr align=center><script>
+  InitIndicator("F", "color");
+  InitIndicator("B", "bgcolor");
+</script></tr>
+<tr align=center><script>
+  InitScrollBar("FR", 0x00);
+  InitScrollBar("FG", 0x00);
+  InitScrollBar("FB", 0x00);
+  InitScrollBar("BR", 0xFF);
+  InitScrollBar("BG", 0xFF);
+  InitScrollBar("BB", 0xFF);
+</script></tr>
+<tr><td align=center colspan=6><input type=radio name=RGBSel id=rgbDec onclick="SetRGBValue();"><label for="rgbDec">Dec</label></td></tr>
+<tr><td align=center colspan=6><input type=radio name=RGBSel id=rgbHex onclick="SetRGBValue();"><label for="rgbHex">Hex</label></td></tr>
+</script>
+</table>
+</div>
+
+<script type="text/javascript" language="javascript">
+function FRBar::change() { SetRGB(); this.blur(); }
+function FGBar::change() { SetRGB(); this.blur(); }
+function FBBar::change() { SetRGB(); this.blur(); }
+function BRBar::change() { SetRGB(); this.blur(); }
+function BGBar::change() { SetRGB(); this.blur(); }
+function BBBar::change() { SetRGB(); this.blur(); }
+</script>
+
+</body>
+</html>

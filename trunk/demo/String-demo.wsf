@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<package>
+<job id="mainScript">
+<?job error="true" debug="true" ?>
+
+<script language="javascript" src="../js/Core.js"></script>
+<script language="javascript" src="../js/String-experimental.js"></script>
+<script language="javascript"><![CDATA[
+
+var s = "item1 \t item2 item3\titem4\titem5";
+var n = 3;
+
+var r1 = s.split("\t", n);
+var r2 = s.split(/\s+/, n);
+
+ASSERT(Core.dump(s));
+ASSERT(Core.dump(r1));
+ASSERT(Core.dump(r2));
+
+]]></script>
+</job>
+</package>
+

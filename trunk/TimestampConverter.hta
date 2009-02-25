@@ -1,0 +1,553 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+
+<!--
+
+Timestamp Converter
+Copyright (c) 2007 by Ildar Shaimordanov
+
+-->
+
+<head>
+<HTA:APPLICATION ID="oHTA"
+  APPLICATIONNAME="Timestamp Converter"
+  BORDER="dialog"
+  BORDERSTYLE="normal"
+  CAPTION="yes"
+  CONTEXTMENU="no"
+  ICON=""
+  INNERBORDER="no"
+  MAXIMIZEBUTTON="no"
+  MINIMIZEBUTTON="yes"
+  NAVIGABLE="no"
+  SCROLL="no"
+  SCROLLFLAT="no"
+  SELECTION="no"
+  SHOWINTASKBAR="yes"
+  SINGLEINSTANCE="yes"
+  SYSMENU="yes"
+  VERSION="1.0"
+  WINDOWSTATE="normal" />
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Timestamp Converter</title>
+
+<style type="text/css">
+
+/**
+ *
+ * Common styles
+ *
+ */
+*	{
+	font-family: Verdana, Tahoma, Helvetica, sans-serif;
+	font-size: 12px;
+}
+body	{
+	margin: 0;
+	padding: 0;
+}
+#body	{
+	background-color: #ccc;
+	height: 300px;
+	padding-left: 1px;
+	padding-right: 1px;
+	width: 390px;
+}
+
+form#timestampConverter h1	{
+	font-size: 1.2em;
+	margin: 0;
+}
+form#timestampConverter	{
+	margin: 0;
+}
+form#timestampConverter fieldset	{
+	padding: 5px;
+}
+form#timestampConverter #datePanel	{
+	float: left;
+	width: 50%;
+}
+form#timestampConverter #timePanel	{
+	margin-left: 50%;
+}
+form#timestampConverter label	{
+	float: left;
+	margin-right: 3px;
+	text-align: right;
+	width: 75px;
+}
+form#timestampConverter input	{
+	margin: 0;
+	width: 96px !important;
+	width: 94px;
+}
+form#timestampConverter select	{
+	width: 100px;
+}
+form#timestampConverter #unixEpoch	{
+	width: 285px !important;
+	width: 285px;
+}
+form#timestampConverter #formatter	{
+	width: 100%;
+}
+form#timestampConverter #formatted	{
+	background-color: #ccc;
+	font-weight: bold;
+	width: 100% !important;
+	width: 100%;
+}
+
+</style>
+<script type="text/javascript" src="js/Date.js"></script>
+<script type="text/javascript">
+
+(function()
+{
+
+	/**
+	 * Saved value of the last timestamp in seconds
+	 *
+	 * @var	Integer
+	 * @access	public
+	 */
+	var timestamp;
+
+	/**
+	 * Copies human-friendly formatted date to the windows clipboard
+	 *
+	 * @param	void
+	 * @return	void
+	 * @access	public
+	 */
+	function copyToClipboard()
+	{
+		var formatted = document.getElementById('formatted');
+		var e;
+		try {
+			window.clipboardData.setData('Text', formatted.value);
+		} catch (e) {
+			alert('Sorry. This feature is available for MSIE only.');
+		}
+		formatted.blur();
+	}
+
+	/**
+	 * Formats time to the human-friendly view
+	 *
+	 * @param	void
+	 * @return	void
+	 * @access	public
+	 */
+	function formatForClipboard()
+	{
+		var formatter = document.getElementById('formatter');
+		var format = formatter.options[formatter.options.selectedIndex].text;
+
+		var time = new Date(timestamp * 1000);
+
+		format = format
+			.replace('YYYY', time.getFullYear())
+			.replace('MMM', time.getMonthName())
+			.replace('MM', ('00' + (time.getMonth() + 1)).replace(/.+?(\d\d)$/, '$1'))
+			.replace('DD', ('00' + time.getDate()).replace(/.+(\d\d)$/, '$1'))
+			.replace('hh', ('00' + time.getHours()).replace(/.+(\d\d)$/, '$1'))
+			.replace('h',  time.getHours() < 12 ? time.getHours() : time.getHours() - 12)
+			.replace('mm', ('00' + time.getMinutes()).replace(/.+(\d\d)$/, '$1'))
+			.replace('ss', ('00' + time.getSeconds()).replace(/.+(\d\d)$/, '$1'))
+			.replace('TZ', time.getTZ())
+			.replace('DT', time.getDaytime());
+
+		document.getElementById('formatted').value = format;
+		formatter.blur();
+	}
+
+	/**
+	 * Converts a time presentation from human-friendly view to the timestamp and back to front
+	 *
+	 * @param	void
+	 * @return	void
+	 * @access	private
+	 */
+	setInterval(function()
+	{
+		var Y = document.getElementById('year');
+		var M = document.getElementById('month');
+		var D = document.getElementById('day');
+
+		var h = document.getElementById('hour');
+		var m = document.getElementById('minute');
+		var s = document.getElementById('second');
+
+		var T = document.getElementById('unixEpoch');
+
+		if ( T.value != timestamp ) {
+			if ( isNaN(T.value) || Math.abs(T.value) > 8640000000000 ) {
+				return;
+			}
+
+			timestamp = T.value;
+			formatForClipboard();
+
+			var time = new Date(T.value * 1000);
+			Y.value = time.getFullYear();
+			M.options.selectedIndex = time.getMonth();
+			D.options.selectedIndex = time.getDate() - 1;
+			h.options.selectedIndex = time.getHours();
+			m.options.selectedIndex = time.getMinutes();
+			s.options.selectedIndex = time.getSeconds();
+		} else {
+			if ( isNaN(Y.value) ) {
+				return;
+			}
+
+			// Prevent convert of [00 ... 99] to [1900 ... 1999]
+			var time = new Date(
+				0,
+				M.options.selectedIndex,
+				D.options.selectedIndex + 1,
+				h.options.selectedIndex,
+				m.options.selectedIndex,
+				s.options.selectedIndex);
+			time.setFullYear(Number(Y.value));
+
+			if ( isNaN(time) || time.getTime() == timestamp * 1000 ) {
+				return;
+			}
+
+			T.value = parseInt(time.getTime() / 1000);
+			timestamp = T.value;
+			formatForClipboard();
+		}
+	}, 300);
+
+	/**
+	 * Initialize the frame of application
+	 * Create the window and show it
+	 *
+	 * @access	private
+	 */
+	function initWin()
+	{
+		if ( document.attachEvent ) {
+			document.getElementById('formatter').attachEvent('onchange', formatForClipboard);
+			document.getElementById('formatted').attachEvent('onclick', copyToClipboard);
+		} else {
+			document.getElementById('formatter').addEventListener('change', formatForClipboard, true);
+			document.getElementById('formatted').addEventListener('click', copyToClipboard, true);
+		}
+
+		var unixEpoch = document.getElementById('unixEpoch');
+		unixEpoch.value = parseInt((new Date()).getTime() / 1000);
+		unixEpoch.select();
+		unixEpoch.focus();
+	}
+
+	function initHta()
+	{
+		// set the window size
+		var w = 398, h = 300;
+		window.moveTo((window.screen.width - w) / 2, (window.screen.height - h) / 2);
+		window.resizeTo(w, h);
+
+		// initialize timestamp converter
+		initWin();
+	}
+
+	/**
+	 * Handles keystrokes (for HTA only)
+	 *
+	 * @access	private
+	 */
+	function handleKeydown(e)
+	{
+		var e = e || event;
+
+		// F5
+		if ( e.keyCode == 116 ) {
+			initWin();
+			return false;
+		}
+
+		// Esc
+		if ( e.keyCode == 27 ) {
+			window.close();
+			return false;
+		}
+	}
+
+	if ( window.attachEvent ) {
+		if ( window.oHTA && oHTA.applicationName ) {
+			window.attachEvent('onload', initHta);
+			document.attachEvent('onkeydown', handleKeydown);
+		} else {
+			window.attachEvent('onload', initWin);
+		}
+	} else {
+		window.addEventListener('load', initWin, true);
+	}
+
+})();
+
+</script>
+
+</head>
+<body>
+
+<div id="body">
+
+<form action="" id="timestampConverter" onsubmit="return false">
+
+<h1>Timestamp Converter</h1>
+<div style="font-size: 9px;">Copyright &copy; 2007 by Ildar Shaimordanov</div>
+
+<fieldset>
+<legend>Timestamp view</legend>
+<label for="unixEpoch">Timestamp</label>
+<input type="text" id="unixEpoch" value="" />
+</fieldset>
+
+<fieldset>
+<legend>Human-friendly view</legend>
+
+<div id="datePanel">
+<label for="year">Year</label>
+<input type="text" id="year" value="" />
+
+<label for="month">Month</label>
+<select id="month">
+<option>January</option>
+<option>February</option>
+<option>March</option>
+<option>April</option>
+<option>May</option>
+<option>June</option>
+<option>July</option>
+<option>August</option>
+<option>September</option>
+<option>October</option>
+<option>November</option>
+<option>December</option>
+</select>
+
+<label for="day">Day</label>
+<select id="day">
+<option>1</option>
+<option>2</option>
+<option>3</option>
+<option>4</option>
+<option>5</option>
+<option>6</option>
+<option>7</option>
+<option>8</option>
+<option>9</option>
+<option>10</option>
+<option>11</option>
+<option>12</option>
+<option>13</option>
+<option>14</option>
+<option>15</option>
+<option>16</option>
+<option>17</option>
+<option>18</option>
+<option>19</option>
+<option>20</option>
+<option>21</option>
+<option>22</option>
+<option>23</option>
+<option>24</option>
+<option>25</option>
+<option>26</option>
+<option>27</option>
+<option>28</option>
+<option>29</option>
+<option>30</option>
+<option>31</option>
+</select>
+</div>
+
+<div id="timePanel">
+<label for="hour">Hour</label>
+<select id="hour">
+<option>0</option>
+<option>1</option>
+<option>2</option>
+<option>3</option>
+<option>4</option>
+<option>5</option>
+<option>6</option>
+<option>7</option>
+<option>8</option>
+<option>9</option>
+<option>10</option>
+<option>11</option>
+<option>12</option>
+<option>13</option>
+<option>14</option>
+<option>15</option>
+<option>16</option>
+<option>17</option>
+<option>18</option>
+<option>19</option>
+<option>20</option>
+<option>21</option>
+<option>22</option>
+<option>23</option>
+</select>
+
+<label for="minute">Minute</label>
+<select id="minute">
+<option>0</option>
+<option>1</option>
+<option>2</option>
+<option>3</option>
+<option>4</option>
+<option>5</option>
+<option>6</option>
+<option>7</option>
+<option>8</option>
+<option>9</option>
+<option>10</option>
+<option>11</option>
+<option>12</option>
+<option>13</option>
+<option>14</option>
+<option>15</option>
+<option>16</option>
+<option>17</option>
+<option>18</option>
+<option>19</option>
+<option>20</option>
+<option>21</option>
+<option>22</option>
+<option>23</option>
+<option>24</option>
+<option>25</option>
+<option>26</option>
+<option>27</option>
+<option>28</option>
+<option>29</option>
+<option>30</option>
+<option>31</option>
+<option>32</option>
+<option>33</option>
+<option>34</option>
+<option>35</option>
+<option>36</option>
+<option>37</option>
+<option>38</option>
+<option>39</option>
+<option>40</option>
+<option>41</option>
+<option>42</option>
+<option>43</option>
+<option>44</option>
+<option>45</option>
+<option>46</option>
+<option>47</option>
+<option>48</option>
+<option>49</option>
+<option>50</option>
+<option>51</option>
+<option>52</option>
+<option>53</option>
+<option>54</option>
+<option>55</option>
+<option>56</option>
+<option>57</option>
+<option>58</option>
+<option>59</option>
+</select>
+
+<label for="second">Second</label>
+<select id="second">
+<option>0</option>
+<option>1</option>
+<option>2</option>
+<option>3</option>
+<option>4</option>
+<option>5</option>
+<option>6</option>
+<option>7</option>
+<option>8</option>
+<option>9</option>
+<option>10</option>
+<option>11</option>
+<option>12</option>
+<option>13</option>
+<option>14</option>
+<option>15</option>
+<option>16</option>
+<option>17</option>
+<option>18</option>
+<option>19</option>
+<option>20</option>
+<option>21</option>
+<option>22</option>
+<option>23</option>
+<option>24</option>
+<option>25</option>
+<option>26</option>
+<option>27</option>
+<option>28</option>
+<option>29</option>
+<option>30</option>
+<option>31</option>
+<option>32</option>
+<option>33</option>
+<option>34</option>
+<option>35</option>
+<option>36</option>
+<option>37</option>
+<option>38</option>
+<option>39</option>
+<option>40</option>
+<option>41</option>
+<option>42</option>
+<option>43</option>
+<option>44</option>
+<option>45</option>
+<option>46</option>
+<option>47</option>
+<option>48</option>
+<option>49</option>
+<option>50</option>
+<option>51</option>
+<option>52</option>
+<option>53</option>
+<option>54</option>
+<option>55</option>
+<option>56</option>
+<option>57</option>
+<option>58</option>
+<option>59</option>
+</select>
+</div>
+</fieldset>
+
+<fieldset>
+<legend>Formatted view</legend>
+<select id="formatter">
+<option>MMM DD, YYYY hh:mm:ss TZ</option>
+<option>YYYY/MM/DD hh:mm:ss</option>
+<option>DD.MM.YYYY hh:mm:ss</option>
+<option>DD-MM-YYYY hh:mm:ss</option>
+<option>DD-MM-YYYY</option>
+<option>DD.MM.YYYY</option>
+<option>DD MMM YYYY</option>
+<option>MMM DD YYYY</option>
+<option>hh:mm:ss</option>
+<option>h:mm:ss DT</option>
+</select>
+<input type="button" id="formatted" value="" />
+<div style="font-size: 9px;">Click on the button above to copy a formatted time to clipboard</div>
+</fieldset>
+
+</form>
+
+</div>
+
+</body>
+</html>
