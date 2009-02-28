@@ -120,6 +120,7 @@ textarea	{
 }
 
 </style>
+<script type="text/javascript" src="js/jsmin.js"></script>
 <script type="text/javascript" src="js/Obfuscate.js"></script>
 <script type="text/javascript">//<![CDATA[
 
@@ -131,15 +132,14 @@ textarea	{
 	var code_output;
 	var helpBox;
 
-	var obfuscator;
-
-	function obfuscate()
+	function doObfuscate()
 	{
 		if ( code_input.value.length == 0 ) {
 			return;
 		}
 
-		code_output.value = obfuscator.parse(code_input.value);
+		code_output.value = jsmin(code_input.value, document.getElementById('level').options.selectedIndex + 1);
+//		code_output.value = obfuscate(code_input.value, function(text) { statusLine.innerHTML = text; });
 
 		var iLen = code_input.value.length;
 		var oLen = code_output.value.length;
@@ -159,12 +159,6 @@ textarea	{
 
 		// Make the input box focused
 		code_input.focus();
-
-		// Create the obfuscator
-		obfuscator	= new Obfuscator(function(text)
-		{
-			statusLine.innerHTML = text;
-		});
 
 		var start = document.getElementById('start');
 		var copy = document.getElementById('copy');
@@ -240,7 +234,8 @@ textarea	{
 
 		switch (target.id) {
 		case 'start':
-			obfuscate();
+			statusLine.innerHTML = '';
+			doObfuscate();
 			break;
 		case 'copy':
 			code_output.select();
@@ -287,7 +282,7 @@ textarea	{
 		// Ctrl+Enter
 		if ( target && target.tagName.toUpperCase() == 'TEXTAREA' ) {
 			if ( e.keyCode == 13 && ( e.ctrlKey || e.altKey ) ) {
-				obfuscate();
+				doObfuscate();
 				return false;
 			}
 		}
@@ -329,14 +324,21 @@ textarea	{
 
 <fieldset>
 <legend>Output</legend>
-<textarea id="code_output" tabindex="4" accesskey="O" wrap="soft" onfocus="this.select()" readonly="readonly"></textarea>
+<textarea id="code_output" tabindex="5" accesskey="O" wrap="soft" onfocus="this.select()" readonly="readonly"></textarea>
 </fieldset>
 
 <div class="buttonGroup">
+Level: 
+<select id="level" tabindex="3" accesskey="L" title="Alt-L">
+<option >Minimal</option>
+<option selected="selected">Normal</option>
+<option >Agressive</option>
+</select>
+
 <input class="button" type="button" id="start" tabindex="2" accesskey="S" title="Alt-S" value="Start" />
-<input class="button" type="button" id="copy"  tabindex="3" accesskey="C" title="Alt-C" value="Copy" />
-<input class="button" type="button" id="clear" tabindex="5" accesskey="L" title="Alt-L" value="Clear" />
-<input class="button" type="button" id="help"  tabindex="6" accesskey="H" title="Alt-H" value="Help" />
+<input class="button" type="button" id="copy"  tabindex="4" accesskey="C" title="Alt-C" value="Copy" />
+<input class="button" type="button" id="clear" tabindex="6" accesskey="R" title="Alt-R" value="Clear" />
+<input class="button" type="button" id="help"  tabindex="7" accesskey="H" title="Alt-H" value="Help" />
 </div>
 
 </form>
