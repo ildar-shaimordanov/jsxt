@@ -13,20 +13,20 @@
  * Copyright 2009 by Ildar Shaimordanov.
  *
  * Following my own habit of the namespace usage I have wrapped all functions
- * into the simply callable class. Also, in order to use this class as well as
+ * into the single public function. Also, in order to use this function as well as
  * in both JavaScript and JScript (WSH) I added a callback to output 
  * debugging information (step-by-step parsing visualization).
  */
 
 /**
- * Obfuscator class for obfuscating of JavaScript and JScript codes
+ * Obfuscates JavaScript and JScript codes
  *
- * @param	debugfunc	Callback outputing step-by-step information
+ * @param	String	input
+ * @param	Mixed	debugfunc
+ * @result	String
  */
-function Obfuscator(debugfunc)
+function obfuscate(input, debugfunc)
 {
-
-	var self = this;
 
 	/**
 	 * Temporary storage of literal strings
@@ -36,6 +36,13 @@ function Obfuscator(debugfunc)
 	 */
 	var literalStrings;
 
+	/**
+	 * Temporarily replaces litelrals
+	 *
+	 * @param	String
+	 * @result	String
+	 * @access	private
+	 */
 	function replaceLiteralStrings(s)
 	{
 		var i, j, c, t, lines, escaped, quoteChar, inQuote, literal;
@@ -82,6 +89,13 @@ function Obfuscator(debugfunc)
 		return t;
 	}
 
+	/**
+	 * Removes comments
+	 *
+	 * @param	String
+	 * @result	String
+	 * @access	private
+	 */
 	function removeComments(s)
 	{
 		var lines, i, t;
@@ -106,6 +120,13 @@ function Obfuscator(debugfunc)
 		return t;
 	}
 
+	/**
+	 * Compresses whitespaces
+	 *
+	 * @param	String
+	 * @result	String
+	 * @access	private
+	 */
 	function compressWhiteSpace(s)
 	{
 		return s
@@ -118,11 +139,25 @@ function Obfuscator(debugfunc)
 			.replace(/([\x21\x25\x26\x28\x29\x2a\x2b\x2c\x2d\x2f\x3a\x3b\x3c\x3d\x3e\x3f\x5b\x5d\x5c\x7b\x7c\x7d\x7e])\s/g, "$1");
 	}
 
+	/**
+	 * Fix function assignments
+	 *
+	 * @param	String
+	 * @result	String
+	 * @access	private
+	 */
 	function fixFunctionAssignment(s)
 	{
 		return s;
 	}
 
+	/**
+	 * restores temporarily saved litelrals
+	 *
+	 * @param	String
+	 * @result	String
+	 * @access	private
+	 */
 	function restoreLiteralStrings(s)
 	{
 		for (var i = 0; i < literalStrings.length; i++) {
@@ -131,71 +166,72 @@ function Obfuscator(debugfunc)
 		return s;
 	}
 
+	/**
+	 * Combines litelrals
+	 *
+	 * @param	String
+	 * @result	String
+	 * @access	private
+	 */
 	function combineLiteralStrings(s)
 	{
 		return s.replace(/"\+"/g, "").replace(/'\+'/g, "");
 	}
 
 	/**
-	 * Parses an input string and obfuscates assuming as JavaScript/JScript code.
-	 * Uses callbacks defined in the constructor.
 	 *
-	 * @param	String	input
-	 * @result	String
-	 * @access	public
+	 * Main loop
+	 *
 	 */
-	self.parse = function(input)
-	{
-		if ( input.length <= 0 ) {
-			return input;
-		}
-
-		var output;
-
-		// Get input script code, process it and display output.
-
-		if ( debugfunc ) {
-			debugfunc("Working...");
-		}
-
-		output = input;
-
-		if ( debugfunc ) {
-			debugfunc("Replacing literal strings...");
-		}
-		output = replaceLiteralStrings(output);
-
-		if ( debugfunc ) {
-			debugfunc("Removing comments...");
-		}
-		output = removeComments(output);
-
-		if ( debugfunc ) {
-			debugfunc("Compressing white space...");
-		}
-		output = compressWhiteSpace(output);
-
-		if ( debugfunc ) {
-			debugfunc("Fixing function assignments...");
-		}
-		output = fixFunctionAssignment(output);
-
-		if ( debugfunc ) {
-			debugfunc("Restoring literal strings...");
-		}
-		output = restoreLiteralStrings(output);
-
-		if ( debugfunc ) {
-			debugfunc("Combining literal strings...");
-		}
-		output = combineLiteralStrings(output);
-
-		if ( debugfunc ) {
-			debugfunc("Done.");
-		}
-
-		return output;
+	if ( input.length <= 0 ) {
+		return input;
 	}
+
+	var output;
+
+	// Get input script code, process it and display output.
+
+	if ( debugfunc ) {
+		debugfunc("Working...");
+	}
+
+	output = input;
+
+	if ( debugfunc ) {
+		debugfunc("Replacing literal strings...");
+	}
+	output = replaceLiteralStrings(output);
+
+	if ( debugfunc ) {
+		debugfunc("Removing comments...");
+	}
+	output = removeComments(output);
+
+	if ( debugfunc ) {
+		debugfunc("Compressing white space...");
+	}
+	output = compressWhiteSpace(output);
+
+	if ( debugfunc ) {
+		debugfunc("Fixing function assignments...");
+	}
+	output = fixFunctionAssignment(output);
+
+	if ( debugfunc ) {
+		debugfunc("Restoring literal strings...");
+	}
+	output = restoreLiteralStrings(output);
+
+	if ( debugfunc ) {
+		debugfunc("Combining literal strings...");
+	}
+	output = combineLiteralStrings(output);
+
+	if ( debugfunc ) {
+		debugfunc("Done.");
+	}
+
+	return output;
 
 }
 

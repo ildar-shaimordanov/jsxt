@@ -44,28 +44,45 @@ Update:
 
 Updates:
 
-2009/02/26	by Ildar shaimordanov
-		String.prototype.has was removed
+2009/02/26	String.prototype.has was removed
+2009/02/28	The order of arguments was modified
 
 */
+
 
 //String.prototype.has = function(c) {
 //	return this.indexOf(c) > -1;
 //};
 
-function jsmin(comment, input, level) {
 
-	if (input === undefined) {
-		input = comment;
+function jsmin(input, level, comment)
+{
+
+	if (level === undefined || level < 1 || level > 3) {
+		level = 2;
+	}
+
+	if ( ! comment ) {
 		comment = '';
-		level = 2;
-	} else if (level === undefined || level < 1 || level > 3) {
-		level = 2;
+	}
+	if ( comment.constructor == Array ) {
+		comment = comment.join('\n// ');
+	}
+	if ( comment.length > 0 ) {
+		comment = '// ' + comment + '\n';
 	}
 
-	if (comment.length > 0) {
-		comment += '\n';
-	}
+//	if (input === undefined) {
+//		input = comment;
+//		comment = '';
+//		level = 2;
+//	} else if (level === undefined || level < 1 || level > 3) {
+//		level = 2;
+//	}
+//
+//	if (comment.length > 0) {
+//		comment += '\n';
+//	}
 
 	var a = '',
 		b = '',
@@ -325,3 +342,4 @@ function jsmin(comment, input, level) {
 	return comment + ret;
 
 }
+
