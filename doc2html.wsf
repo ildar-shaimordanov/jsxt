@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+
+<package>
+<job id="install_tool">
+<?job error="true" debug="false" ?>
+
+<runtime>
+<description><![CDATA[DOC2HTML Converter
+Copyright (C) 2004, 2009 Ildar Shaimordanov
+
+]]></description>
+<unnamed
+	name="FILENAME"
+	helpstring="The MsWord document filename"
+	many="true"
+	required="true"
+/>
+<named
+	name="fg"
+	helpstring="Specify this if you want to launch MsWord in foreground"
+	type="boolean"
+	required="false"
+/>
+<example>
+Example: doc2html.wsf document.doc
+</example>
+</runtime>
+<object id="fso" progid="Scripting.FileSystemObject" />
+<object id="wshShell" progid="WScript.Shell" />
+<script language="javascript"><![CDATA[
+
+if ( WScript.Arguments.length < 1 ) {
+	WScript.Arguments.ShowUsage();
+	WScript.Quit();
+}
+
+var e;
+try {
+
+	var fso = new ActiveXObject("Scripting.FileSystemObject");
+
+	var args = WScript.Arguments.Unnamed;
+
+	var filelist = [];
+	for (var i = 0; i < args.length; i++) {
+		var f = args.Item(i);
+		if ( ! fso.FileExists(f) ) {
+			continue;
+		}
+		filelist[filelist.length] = fso.GetAbsolutePathName(f);
+	}
+	if ( filelist.length < 1 ) {
+		throw new Error('Empty file list');
+	}
+
+	var word = new ActiveXObject("Word.Application");
+
+	if ( WScript.Arguments.Named.Exists('fg') ) {
+		word.Visible = true;
+		word.Activate();
+	}
+
+	for (var i = 0; i < filelist.length; i++) {
+		var docfile = filelist[i];
+		var htmfile = docfile.replace(/\.[^\.]+$/, '.html');
+
+		word.Documents.Open(docfile);
+		word.ActiveDocument.SaveAs(htmfile, 8); // 8 means "Save As Web-Page"
+	}
+
+} catch (e) {
+
+	WScript.Echo('Error encountered: ' 
+//		+ '[' 
+//		+ (e.number >> 0x10) 
+//		+ ':' 
+//		+ (e.number & 0xFFFF) 
+//		+ '] - ' 
+		+ e.description);
+
+} finally {
+
+	if ( word ) {
+		word.Quit();
+	}
+
+}
+
+]]></script>
+</job>
+</package>
+

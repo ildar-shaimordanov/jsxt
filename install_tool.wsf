@@ -5,7 +5,7 @@
 <?job error="true" debug="true" ?>
 
 <runtime>
-<description><![CDATA[Installer of CUJS tools Copyright (C) 2008 Ildar Shaimordanov
+<description><![CDATA[Installer of JSXT tools Copyright (C) 2009 Ildar Shaimordanov
 
 ]]></description>
 <unnamed
@@ -26,6 +26,7 @@ Example: install_tool.wsf NetCalc.hta C:\
 </runtime>
 <object id="fso" progid="Scripting.FileSystemObject" />
 <object id="wshShell" progid="WScript.Shell" />
+<script language="javascript" src="js/jsmin.js"></script>
 <script language="javascript" src="js/Obfuscate.js"></script>
 <script language="javascript"><![CDATA[
 
@@ -61,16 +62,13 @@ var content = readText(filename);
 
 content = content.replace(/<script.*?src="(js\/.+\.js)".*?\/script>/g, function($0, $1)
 {
-	var obfuscator = new Obfuscator(function(text)
-	{
-		WScript.Echo(text);
-	});
-
+	var f = $1;
 	var s;
-	s = readText($1);
-//	s = obfuscator.parse(s);
+	s = readText(f);
+//	s = jsmin(s, 3, '');
+//	s = "\n" + obfuscate(s, function(text) { WScript.Echo(text); });
 
-	return "<script type=\"text/javascript\">\n// " + $1 + "\n\n" + s + "\n</script>";
+	return "<script type=\"text/javascript\">\n// " + f + "\n" + s + "\n</script>";
 });
 
 writeText(target + "\\" + filename.replace(/.*\\/, ""), content);
