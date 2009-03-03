@@ -10,6 +10,8 @@ Copyright (C) 2004, 2009 Ildar Shaimordanov
 
 This script allows to convert any DOC file to TXT, RTF, HTML (default), MHT (Web Archive), XML, PDF or XPS
 
+To make an easy access from the context menu 'Send To' lauch once this script with /help:sendto.
+
 NOTES:
 This script requires the "Microsoft Save as PDF or XPS Add-in for 2007 Microsoft Office programs", available at:
 http://www.microsoft.com/downloads/details.aspx?familyid=4D951911-3E7E-4AE6-B059-A2E79ED87041&displaylang=en
@@ -43,7 +45,7 @@ Example: doc2html.wsf document.doc
 </example>
 </runtime>
 <object id="fso" progid="Scripting.FileSystemObject" />
-<object id="wsh" progid="WScript.Shell" />
+<object id="wshShell" progid="WScript.Shell" />
 <script language="javascript" src="js/win32/FileSystem.js"></script>
 <script language="javascript" src="js/Globals.js"></script>
 <script language="javascript"><![CDATA[
@@ -87,9 +89,32 @@ var fileFormat = 'html';
 var e;
 try {
 
+	// Creating of 'Send To' context menu
+	if ( WScript.Arguments.Named.Exists('help') && WScript.Arguments.Named.item('help').toLowerCase() == 'sendto' ) {
+
+		var sendTo = wshShell.SpecialFolders('SendTo');
+		var folder = sendTo + '\\doc2xxx';
+		try {
+			fso.CreateFolder(folder);
+		} catch (e) {
+		}
+
+		var lnk;
+		for (var p in formats) {
+			lnk = wshShell.CreateShortcut(folder + '\\doc2' + p + '.lnk');
+			lnk.TargetPath = 'wscript';
+			lnk.Arguments = WScript.ScriptFullName + ' /f:' + p;
+			lnk.Description = 'Convert .DOC to .' + p.toUpperCase();
+			lnk.Save();
+		}
+
+		WScript.Quit();
+
+	}
+
 	// Validate output format
-	if ( WScript.Arguments.Named.Exists('F') ) {
-		fileFormat = WScript.Arguments.Named.item('F').toLowerCase();
+	if ( WScript.Arguments.Named.Exists('f') ) {
+		fileFormat = WScript.Arguments.Named.item('f').toLowerCase();
 		if ( ! fileFormat ) {
 			throw new Error('Unknown output format');
 		}
