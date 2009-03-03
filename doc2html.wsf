@@ -26,7 +26,8 @@ Example: doc2html.wsf document.doc
 </example>
 </runtime>
 <object id="fso" progid="Scripting.FileSystemObject" />
-<object id="wshShell" progid="WScript.Shell" />
+<object id="wsh" progid="WScript.Shell" />
+<script language="javascript" src="js/win32/FileSystem.js"></script>
 <script language="javascript"><![CDATA[
 
 if ( WScript.Arguments.length < 1 ) {
@@ -44,10 +45,7 @@ try {
 	var filelist = [];
 	for (var i = 0; i < args.length; i++) {
 		var f = args.Item(i);
-		if ( ! fso.FileExists(f) ) {
-			continue;
-		}
-		filelist[filelist.length] = fso.GetAbsolutePathName(f);
+		filelist = filelist.concat(FileSystem.glob(f));
 	}
 	if ( filelist.length < 1 ) {
 		throw new Error('Empty file list');
@@ -61,7 +59,7 @@ try {
 	}
 
 	for (var i = 0; i < filelist.length; i++) {
-		var docfile = filelist[i];
+		var docfile = String(filelist[i]);
 		var htmfile = docfile.replace(/\.[^\.]+$/, '.html');
 
 		word.Documents.Open(docfile);

@@ -21,7 +21,7 @@
 	required="true"
 />
 <example>
-Example: install_tool.wsf NetCalc.hta C:\
+Example: install_tool.wsf install_tool.wsf C:\MyTools
 </example>
 </runtime>
 <object id="fso" progid="Scripting.FileSystemObject" />
@@ -66,12 +66,12 @@ content = content.replace(/<script.*?src="(js\/.+\.js)".*?\/script>/g, function(
 	var s;
 	s = readText(f);
 //	s = jsmin(s, 3, '');
-//	s = "\n" + obfuscate(s, function(text) { WScript.Echo(text); });
+//	s = '\n' + obfuscate(s, function(text) { WScript.Echo(text); });
 
-	return "<script type=\"text/javascript\">\n// " + f + "\n" + s + "\n</script>";
+	return '<scr' + 'ipt language="text/javascript"><' + '![CDATA[\n\n// ' + f + '\n\n' + s + '\n]' + ']></scr' + 'ipt>';
 });
 
-writeText(target + "\\" + filename.replace(/.*\\/, ""), content);
+writeText(target + '\\' + filename.replace(/.*\\/, ''), content);
 
 
 ]]></script>
