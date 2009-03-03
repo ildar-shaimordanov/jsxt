@@ -8,16 +8,33 @@
 <description><![CDATA[DOC2HTML Converter
 Copyright (C) 2004, 2009 Ildar Shaimordanov
 
+This script allows to convert any DOC file to TXT, RTF, HTML (default), MHT (Web Archive), XML, PDF or XPS
+
+NOTES:
+This script requires the "Microsoft Save as PDF or XPS Add-in for 2007 Microsoft Office programs", available at:
+http://www.microsoft.com/downloads/details.aspx?familyid=4D951911-3E7E-4AE6-B059-A2E79ED87041&displaylang=en
 ]]></description>
 <unnamed
 	name="FILENAME"
-	helpstring="The MsWord document filename"
+	helpstring="The WINWORD document filename"
 	many="true"
 	required="true"
 />
 <named
+	name="F"
+	helpstring="Specifies output format such as TXT, RTF, HTML (default), MHT, XML, PDF or XPS"
+	type="string"
+	required="false"
+/>
+<named
+	name="V"
+	helpstring="Verbosely list files processed"
+	type="boolean"
+	required="false"
+/>
+<named
 	name="FG"
-	helpstring="Specify this if you want to launch MsWord in foreground"
+	helpstring="Specify this if you want to launch WINWORD in foreground"
 	type="boolean"
 	required="false"
 />
@@ -28,6 +45,7 @@ Example: doc2html.wsf document.doc
 <object id="fso" progid="Scripting.FileSystemObject" />
 <object id="wsh" progid="WScript.Shell" />
 <script language="javascript" src="js/win32/FileSystem.js"></script>
+<script language="javascript" src="js/Globals.js"></script>
 <script language="javascript"><![CDATA[
 
 if ( WScript.Arguments.length < 1 ) {
@@ -35,10 +53,53 @@ if ( WScript.Arguments.length < 1 ) {
 	WScript.Quit();
 }
 
+var verbose = false;
+
+function logInfo(text)
+{
+	if ( ! verbose ) {
+		return;
+	}
+	var now = new Date();
+	var date = "%04d/%02d/%02d %02d:%02d:%02d.%03d".sprintf(
+			now.getFullYear(),
+			now.getMonth(),
+			now.getDay(),
+			now.getHours(),
+			now.getMinutes(),
+			now.getSeconds(),
+			now.getMilliseconds());
+
+	WScript.Echo(date, text);
+}
+
+var formats = {
+	'txt':	4,
+	'rtf':	6,
+	'html':	8,
+	'mht':	9,
+	'xml':	11,
+	'pdf':	17,
+	'xps':	18};
+
+var fileFormat = 'html';
+
 var e;
 try {
 
-	var fso = new ActiveXObject("Scripting.FileSystemObject");
+	// Validate output format
+	if ( WScript.Arguments.Named.Exists('F') ) {
+		fileFormat = WScript.Arguments.Named.item('F').toLowerCase();
+		if ( ! fileFormat ) {
+			throw new Error('Unknown output format');
+		}
+	}
+
+	// Verbosely ?
+	verbose = ! WScript.FullName.match(/wscript/i) && WScript.Arguments.Named.Exists('V');
+
+	// Process file list
+	logInfo('Processing arguments');
 
 	var args = WScript.Arguments.Unnamed;
 
@@ -51,19 +112,30 @@ try {
 		throw new Error('Empty file list');
 	}
 
+	logInfo('Files to be processed:\n\t' + filelist.join('\n\t'));
+
+	// Launch the WINWORD application and start a file converting loop
+	logInfo('WINWORD is starting');
 	var word = new ActiveXObject("Word.Application");
 
 	if ( WScript.Arguments.Named.Exists('fg') ) {
+		logInfo('Activating and displaying of the WINWORD');
 		word.Visible = true;
 		word.Activate();
 	}
 
 	for (var i = 0; i < filelist.length; i++) {
 		var docfile = String(filelist[i]);
-		var htmfile = docfile.replace(/\.[^\.]+$/, '.html');
+		var newfile = docfile.replace(/\.[^\.]+$/, '.' + fileFormat);
 
+		logInfo('Open "' + docfile + '"');
 		word.Documents.Open(docfile);
-		word.ActiveDocument.SaveAs(htmfile, 8); // 8 means "Save As Web-Page"
+
+		logInfo('Save as "' + newfile + '"');
+		word.ActiveDocument.SaveAs(newfile, formats[fileFormat]);
+
+		logInfo('Close this document');
+		word.ActiveDocument.Close();
 	}
 
 } catch (e) {
@@ -79,7 +151,10 @@ try {
 } finally {
 
 	if ( word ) {
+		logInfo('WINWORD is closing');
 		word.Quit();
+		WScript.Sleep(100);
+		logInfo('Done');
 	}
 
 }
