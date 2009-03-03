@@ -1,12 +1,10 @@
-/*
 
-FileSystem.js
-
-Extension for FileSystemObject
-
-Copyright (C) 2009 by Ildar Shaimordanov
-
-*/
+//
+// FileSystem.js
+// Extension for FileSystemObject
+//
+// Copyright (c) 2009 by Ildar Shaimordanov
+//
 
 if ( ! FileSystem ) {
 
