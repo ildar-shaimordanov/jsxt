@@ -7,6 +7,22 @@
 <runtime>
 <description><![CDATA[Installer of JSXT tools Copyright (C) 2009 Ildar Shaimordanov
 
+This is not mandatory action. You can use all these tools "as is". 
+You do not need run this untility. Download archive and place it's 
+content to the appropriate directory.
+
+This utility allows you to install CUJS tools to the comfortable 
+location. It makes two things:
+-- embeds JS scripts from the "js" directory into the tool
+-- copies a resulting file to the directory specified in the 
+argument.
+
+Reasonable question arises: 
+"Why I should make install if it works fine without this?"
+
+This was made to provide easy way to make each tool independent of 
+many files. Once downlanded and installed into the single file the 
+tool can be used without emergency of lost some parts of tool.
 ]]></description>
 <unnamed
 	name="FILENAME"
