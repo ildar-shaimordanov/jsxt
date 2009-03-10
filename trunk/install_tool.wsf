@@ -75,6 +75,9 @@ function writeText(filename, text)
 }
 
 var content = readText(filename);
+var cdata = filename.match(/\.wsf$/) 
+	? ['<' + '![CDATA[', ']' + ']>'] 
+	: ['', ''];
 
 content = content.replace(/<script.*?src="(js\/.+\.js)".*?\/script>/g, function($0, $1)
 {
@@ -84,7 +87,7 @@ content = content.replace(/<script.*?src="(js\/.+\.js)".*?\/script>/g, function(
 //	s = jsmin(s, 3, '');
 //	s = '\n' + obfuscate(s, function(text) { WScript.Echo(text); });
 
-	return '<scr' + 'ipt language="javascript"><' + '![CDATA[\n\n// ' + f + '\n\n' + s + '\n]' + ']></scr' + 'ipt>';
+	return '<scr' + 'ipt language="javascript">' + cdata[0] + '\n\n// ' + f + '\n\n' + s + '\n' + cdata[1] + '</scr' + 'ipt>';
 });
 
 writeText(target + '\\' + filename.replace(/.*\\/, ''), content);
