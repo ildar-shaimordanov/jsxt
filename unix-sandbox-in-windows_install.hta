@@ -675,13 +675,17 @@ function setTimerInterval(time)
 		return;
 	}
 
+	if ( time == 0 ) {
+		time = 200;
+	}
+
 	timerInterval = setInterval(function()
 	{
 		setDefaultDisk();
 		setIcons();
 
 		modifyExecuteButton();
-	}, 200);
+	}, time);
 }
 
 function initForm()
@@ -721,7 +725,7 @@ function initWin()
 	if ( matches = oHTA.commandLine.match(/project=(\w+)/) ) {
 		sandbox.setProjectName(matches[1]);
 	} else if (matches = oHTA.commandLine.match(/project="([^"]+)"/) ) {
-		sandbox.setProjectName(macthes[1]);
+		sandbox.setProjectName(matches[1]);
 	}
 
 	if ( matches = oHTA.commandLine.match(/install=(\w+)/) ) {
