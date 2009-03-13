@@ -305,8 +305,6 @@ function setDefaultPath()
 	document.getElementById("SANDBOX_PATH").value = "C:\\" + sandbox.getProjectName();
 }
 
-var defaultDiskList = "";
-
 function setDefaultDisk()
 {
 	var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -341,11 +339,11 @@ function setDefaultDisk()
 		list += c;
 	}
 
-	if ( list == defaultDiskList ) {
+	if ( list == arguments.callee.list ) {
 		return;
 	}
 
-	defaultDiskList = list;
+	arguments.callee.list = list;
 
 	var sandbox_disk = document.getElementById("SANDBOX_DISK");
 
@@ -356,11 +354,13 @@ function setDefaultDisk()
 	}
 
 	// Set default disk "S:" or the last disk from the list
-	sandbox_disk.options.selectedIndex = defaultDiskList.search(/S/);
+	sandbox_disk.options.selectedIndex = arguments.callee.list.search(/S/);
 	if ( sandbox_disk.options.selectedIndex < 0 ) {
 		sandbox_disk.options.selectedIndex = sandbox_disk.options.length - 1;
 	}
 }
+
+setDefaultDisk.list = "";
 
 function setDefaultPersist()
 {
@@ -443,23 +443,20 @@ function isSandboxPath(spec)
 function modifyExecuteButton()
 {
 	var path = document.getElementById("SANDBOX_PATH").value;
-	document.getElementById("execute").disabled = ! defaultDiskList.length || path == "" || isSandboxPath(path);
+	document.getElementById("execute").disabled = ! setDefaultDisk.list.length || path == "" || isSandboxPath(path);
 }
 
-function alerter(err, msg)
+function alarm(err, msg)
 {
 	alert((msg ? msg + "\n" : "") + "\nError Code: " + (err.number & 0xFFFF) + "\nError Message: " + err.description);
 }
-
-var uninstallFolders = [];
-var uninstallFiles = [];
 
 function createSandboxFolder(path, overwrite)
 {
 	var e, f;
 
 	try {
-		uninstallFolders.unshift(path);
+		arguments.callee.list.unshift(path);
 
 		if ( ! fso.FolderExists(path) ) {
 			f = fso.CreateFolder(path);
@@ -474,19 +471,21 @@ function createSandboxFolder(path, overwrite)
 
 		return true;
 	} catch(e) {
-		alerter(e, "Folder: " + path);
+		alarm(e, "Folder: " + path);
 
 		throw new Error("Sandbox Error");
 		return false;
 	}
 }
 
+createSandboxFolder.list = [];
+
 function createSandboxFile(path, container, attr, replacer)
 {
 	var e, f, t;
 
 	try {
-		uninstallFiles.push(path);
+		arguments.callee.list.push(path);
 
 		f = fso.CreateTextFile(path, true);
 		if ( container ) {
@@ -503,12 +502,14 @@ function createSandboxFile(path, container, attr, replacer)
 
 		return true;
 	} catch(e) {
-		alerter(e, "File: " + path);
+		alarm(e, "File: " + path);
 
 		throw new Error("Sandbox Error");
 		return false;
 	}
 }
+
+createSandboxFile.list = [];
 
 function createSandboxShortcut(path, action, folder)
 {
@@ -520,7 +521,7 @@ function createSandboxShortcut(path, action, folder)
 
 	loc += "\\" + sandbox.getProjectName() + " " + action + ".lnk";
 
-	uninstallFiles.push(loc);
+	createSandboxFile.list.push(loc);
 
 	var lnk = wsh.CreateShortcut(loc);
 	lnk.TargetPath		= path;
@@ -628,13 +629,13 @@ function installSandbox()
 		createSandboxFile(path + "\\etc\\uninstall_sandbox.bat", "rc_uninstall", 0, function(t)
 		{
 			var del_files = [];
-			for (var i = 0; i < uninstallFiles.length; i++) {
-				del_files[i] = "call :del_file \"" + uninstallFiles[i] + "\" 2>nul";
+			for (var i = 0; i < createSandboxFile.list.length; i++) {
+				del_files[i] = "call :del_file \"" + createSandboxFile.list[i] + "\" 2>nul";
 			}
 
 			var del_dirs = [];
-			for (var i = 0; i < uninstallFolders.length; i++) {
-				del_dirs[i] = "call :del_dir \"" + uninstallFolders[i] + "\" 2>nul";
+			for (var i = 0; i < createSandboxFolder.list.length; i++) {
+				del_dirs[i] = "call :del_dir \"" + createSandboxFolder.list[i] + "\" 2>nul";
 			}
 
 			var uninstaller = sandbox.getContentUninstaller();
@@ -652,7 +653,7 @@ function installSandbox()
 				.replace(/@SANDBOX_DISK@/g, disk);
 		});
 	} catch(e) {
-		alerter(e, "The error caused the installation have not been performed properly.\nRemove the folder manually and try again.");
+		alarm(e, "The error caused the installation have not been performed properly.\nRemove the folder manually and try again.");
 		return;
 	}
 
@@ -666,20 +667,14 @@ function installSandbox()
 
 // Initialization routines
 
-var timerInterval;
-
 function setTimerInterval(time)
 {
-	if ( ! time || time < 0 ) {
-		clearInterval(timerInterval);
+	if ( ! time || time <= 0 ) {
+		clearInterval(arguments.callee.timerInterval);
 		return;
 	}
 
-	if ( time == 0 ) {
-		time = 200;
-	}
-
-	timerInterval = setInterval(function()
+	arguments.callee.timerInterval = setInterval(function()
 	{
 		setDefaultDisk();
 		setIcons();
