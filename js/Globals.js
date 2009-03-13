@@ -489,33 +489,34 @@ if ( ! String.prototype.sprintf ) {
 String.prototype.sprintf = function()
 {
 	var args = arguments;
-	var frmt = this.replace(/%%/g, "\0\0");
-//	var frmt = arguments[0].replace(/%%/g, "\0\0");
-	var result = "";
-	var prev = 0;
 	var index = 0;
+
 	var x;
 	var ins;
 	var fn;
-	var re = /%(\d+[\$#])?([+-])?('.|0| )?(\d*)(\.\d*)?([bcdfosuxX])/g;
-	/*
-	* The re.exec() method returns the array with the following properties
-	* wich are used in this function
-	*	x.index contains the substring position found at the origin string
-	*	x[0] contains the found substring
-	*	x[1] contains the index specifier (as \d+\$ or \d+#)
-	*	x[2] contains the alignment specifier ("+" or "-" or empty)
-	*	x[3] contains the padding specifier (space char, "0" or defined as '.)
-	*	x[4] contains the width specifier (as \d*)
-	*	x[5] contains the floating-point precision specifier (as \.\d*)
-	*	x[6] contains the type specifier (as [bcdfosuxX])
-	*/
 
-	while ( x = re.exec(frmt) ) {
-		for (var i = 0; i < x.length; i++) {
-			if (x[i] == undefined) {
-				x[i] = "";
-			}
+	/*
+	 * The callback function accepts the following properties
+	 *	x.index contains the substring position found at the origin string
+	 *	x[0] contains the found substring
+	 *	x[1] contains the index specifier (as \d+\$ or \d+#)
+	 *	x[2] contains the alignment specifier ("+" or "-" or empty)
+	 *	x[3] contains the padding specifier (space char, "0" or defined as '.)
+	 *	x[4] contains the width specifier (as \d*)
+	 *	x[5] contains the floating-point precision specifier (as \.\d*)
+	 *	x[6] contains the type specifier (as [bcdfosuxX])
+	 */
+	return this.replace(arguments.callee.re, function()
+	{
+		if ( arguments[0] == "%%" ) {
+			return "%";
+		}
+
+		x = [];
+		for (var i = 0; i < arguments.length; i++) {
+			x[i] = arguments[i] === undefined 
+				? "" 
+				: arguments[i];
 		}
 
 //		index++;
@@ -573,19 +574,14 @@ String.prototype.sprintf = function()
 			fn = Number.prototype.hex;
 			break;
 		}
-		result += frmt.substring(prev, x.index);
-		prev = x.index + x[0].length;
-//		result += ins.padding(x[2] + x[4], x[3].substr(x[3].length - 1));
-		result += fn.call(ins, 
+
+		return fn.call(ins, 
 			x[2] + x[4], 
 			x[3].substr(x[3].length - 1) || " ");
-	}
-	if ( prev < frmt.length ) {
-		result += frmt.substr(prev);
-	}
-	result = result.replace(/\0\0/g, "%");
-	return result;
+	});
 }
+
+String.prototype.sprintf.re = /%%|%(\d+[\$#])?([+-])?('.|0| )?(\d*)(\.\d*)?([bcdfosuxX])/g;
 
 }
 
