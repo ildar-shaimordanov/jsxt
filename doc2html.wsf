@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1251" ?>
 
 <package>
-<job id="install_tool">
+<job id="doc2html">
 <?job error="true" debug="false" ?>
 
 <runtime>
