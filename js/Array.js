@@ -701,6 +701,38 @@ SEARCH_UNIQUE:
 
 }
 
+if ( ! Array.linearize ) {
+
+/**
+ * Array.linearize()
+ *
+ * @description
+ * Converts some array-like objects in JavaScript to native arrays
+ * It can be useful for: 
+ * -- function arguments 
+ * -- or results of String.prototype.match()
+ *
+ * @param	Object
+ * @return	Array
+ * @access	static
+ */
+Array.linearize = function(object)
+{
+	var result = [];
+
+	if ( ! object || ! object.length ) {
+		return result;
+	}
+
+	for (var i = 0; i < object.length; i++) {
+		result.push(object[i]);
+	}
+
+	return result;
+}
+
+}
+
 if ( ! Array.enumerate ) {
 
 /**
