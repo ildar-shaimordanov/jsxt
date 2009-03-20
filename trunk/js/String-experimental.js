@@ -58,3 +58,36 @@ String.prototype.split = function(delim, limit)
     return this.__split__(delim, limit);
 }
 
+
+String.prototype.camelize = function()
+{
+	return this
+		.replace(/^[^-]+/, function($0)
+		{
+			return $0.toLowerCase();
+		})
+		.replace(/-(.)([^-]+)/g, function($0, $1, $2)
+		{
+			return $1.toUpperCase() + $2.toLowerCase();
+		});
+}
+
+String.prototype.uncamelize = function()
+{
+	return this
+		.replace(/[A-Z]/g, function($0)
+		{
+			return '-' + $0.toLowerCase();
+		});
+}
+
+
+var x = 'STRING-TO-STRING';
+var x = x.camelize();
+
+WScript.Echo(x);
+
+var x = x.uncamelize();
+
+WScript.Echo(x);
+
