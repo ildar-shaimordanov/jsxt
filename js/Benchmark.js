@@ -82,7 +82,7 @@ Function.prototype.eval = function()
 	var start = (new Date()).getTime();
 
 	for ( ; n--; ) {
-		var result = this.apply(arguments.callee, args);
+		result = this.apply(arguments.callee, args);
 	}
 
 	var stop = (new Date()).getTime();
