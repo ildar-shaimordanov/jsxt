@@ -94,20 +94,24 @@ function MHTML()
 			for (var i = 0; i < _postFiles[p].length; i++) {
 				var filename = _postFiles[p][i];
 				var content = readFile(filename);
+
 				req += '--' + _boundary + '\n';
 				req += 'Content-Location: ' + filename + '\n';
 				req += 'Content-Location: ' + fso.GetBaseName(filename) + '\n';
 				req += 'Content-Type: ' + p + '\n';
+
 				req += 'Content-Transfer-Encoding: ';
+
 				if ( p.match(/^text/i) ) {
 					req += 'quoted-printable\n';
 				} else {
 					req += 'base64\n';
-					content = Base64.encode(content);
-					content = content.replace(/.{64}/g, function($0)
-					{
-						return $0 + '\n';
-					});
+					content = content
+						.base64()
+						.replace(/.{64}/g, function($0)
+						{
+							return $0 + '\n';
+						});
 				}
 				req += '\n' + content + '\n';
 			}
