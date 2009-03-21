@@ -101,7 +101,7 @@ Function.prototype.print = function()
 {
 	var e;
 	try {
-		document.writeln([this.count, this.duration]);
+		document.writeln(this.count, this.duration);
 	} catch (e) {
 		WScript.Echo(this.count, this.duration);
 	}
