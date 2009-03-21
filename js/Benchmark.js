@@ -15,14 +15,14 @@ if ( ! Function.prototype.eval ) {
  * This method allows to measure the JavaScript/JScript code performance. 
  * There are several parameters available for handling of benchmark.
  *
- * Function.prototype.count
+ * Function.prototype.evalCount
  * This integer parameter keeps the number of iterations or the number 
  * of times of execution of the code. The default value is 1000.
  *
- * Function.prototype.duration
+ * Function.prototype.evalDuration
  * The integer parameter keeps a calculated duration of the function execution.
  *
- * Function.prototype.print
+ * Function.prototype.evalPrint
  * The helper function for output of benchmark statistics. 
  * By default, it outputs the duration of function execution and the number of iterations.
  *
@@ -77,7 +77,7 @@ Function.prototype.eval = function()
 	}
 
 	var result;
-	var n = Number(this.count) || 1000;
+	var n = Number(this.evalCount) || 1000;
 
 	var start = (new Date()).getTime();
 
@@ -87,23 +87,23 @@ Function.prototype.eval = function()
 
 	var stop = (new Date()).getTime();
 
-	this.duration = stop - start;
+	this.evalDuration = stop - start;
 
-	if ( 'function' == typeof this.print ) {
-		this.print();
+	if ( 'function' == typeof this.evalPrint ) {
+		this.evalPrint();
 	}
 
 	return result;
 }
 
-Function.prototype.count = 1000;
-Function.prototype.print = function()
+Function.prototype.evalCount = 1000;
+Function.prototype.evalPrint = function()
 {
 	var e;
 	try {
-		document.writeln(this.count, this.duration);
+		document.writeln(this.evalCount, this.evalDuration);
 	} catch (e) {
-		WScript.Echo(this.count, this.duration);
+		WScript.Echo(this.evalCount, this.evalDuration);
 	}
 }
 
