@@ -85,8 +85,9 @@ function MHTML()
 			hdr += '\n';
 		}
 
+		var body = _body;
 		if ( _body.length != 0 ) {
-			_body += '\n\n';
+			body += '\n\n';
 		}
 
 		var req = '';
@@ -120,7 +121,7 @@ function MHTML()
 			req += '--' + _boundary + '--\n';
 		}
 
-		return hdr + _body + req;
+		return hdr + body + req;
 	}
 
 }
