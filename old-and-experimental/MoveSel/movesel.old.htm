@@ -1,0 +1,80 @@
+<html>
+
+<head>
+<script src="movesel.js"></script>
+<script>
+function initForm()
+{
+    // левый список: не сортировать, запретить выбор элементов, содержащих указанные слова
+    setMovableSelect(document.forms[0][0], false, "Фантастика|Фэнтези|Сказки");
+    // правый список: не сортировать, запрета нет
+    setMovableSelect(document.forms[0][3], false);
+    // левый список: сортировать, запретить выбор элементов, содержащих указанные слова
+    setMovableSelect(document.forms[0][6], true,  "роман|Детектив|литература");
+    // правый список: сортировать, запрета нет
+    setMovableSelect(document.forms[0][9], true);
+}
+</script>
+
+<style>
+select, input {
+  width: 100%;
+}
+</style>
+</head>
+
+<body onload="initForm()">
+
+<form action="" method="POST" onsubmit="">
+<table align=center>
+<tr>
+<td width=250>
+  <select id="FROM1" multiple size=10>
+    <option value="sci-tech">Научно-техническая литература</option>
+    <option value="sci-ficn">Фантастика</option>
+    <option value="fantasy">Фэнтези</option>
+    <option value="fairy">Сказки</option>
+    <option value="detective">Детектив</option>
+    <option value="love-story">Любовный роман</option>
+    <option value="love-story">Исторический роман</option>
+    <option value="poetry">Поэзия</option>
+    <option value="classic">Классическая литература</option>
+  </select>
+  <input type=button value="&gt;" onclick="moveOption(this.form.FROM1, this.form.TO1)">
+  <input type=button value="&gt;&gt;" onclick="moveAllOptions(this.form.FROM1, this.form.TO1)"></td>
+
+<td width=250>
+  <select id="TO1" multiple size=10 name="var1[]"></select>
+  <input type=button value="&lt;" onclick="moveOption(this.form.TO1, this.form.FROM1)">
+  <input type=button value="&lt;&lt;" onclick="moveAllOptions(this.form.TO1, this.form.FROM1)"></td></tr>
+
+<tr>
+<td width=250>
+  <select id="FROM2" multiple size=10>
+    <option value="sci-tech">Научно-техническая литература</option>
+    <option value="sci-ficn">Фантастика</option>
+    <option value="fantasy">Фэнтези</option>
+    <option value="fairy">Сказки</option>
+    <option value="detective">Детектив</option>
+    <option value="love-story">Любовный роман</option>
+    <option value="love-story">Исторический роман</option>
+    <option value="poetry">Поэзия</option>
+    <option value="classic">Классическая литература</option>
+  </select>
+  <input type=button value="&gt;" onclick="moveOption(this.form.FROM2, this.form.TO2)">
+  <input type=button value="&gt;&gt;" onclick="moveAllOptions(this.form.FROM2, this.form.TO2)"></td>
+
+<td width=250>
+  <select id="TO2" multiple size=10 name="var2[]"></select>
+  <input type=button value="&lt;" onclick="moveOption(this.form.TO2, this.form.FROM2)">
+  <input type=button value="&lt;&lt;" onclick="moveAllOptions(this.form.TO2, this.form.FROM2)"></td></tr>
+
+<tr>
+  <td></td>
+  <td><input type=button value="Отправить" onclick="selectAllLists(this.form.TO1, this.form.TO2)"></td></tr>
+</table>
+</form>
+
+</body>
+</html>
+
