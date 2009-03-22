@@ -129,6 +129,9 @@ if ( ! String.prototype.splitLimit ) {
  * @param	Integer
  * @return	Array
  * @access	public
+ * @see		http://forum.dklab.ru/viewtopic.php?p=74826
+ * 		http://msdn.microsoft.com/library/default.asp?url=/library/en-us/jscript7/html/jsmthsplit.asp
+ * 		http://wdh.suncloud.ru/js09.htm#hsplit
  */
 String.prototype.splitLimit = function(delim, limit)
 {
