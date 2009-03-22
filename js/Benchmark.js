@@ -71,10 +71,10 @@ if ( ! Function.prototype.eval ) {
  */
 Function.prototype.eval = function()
 {
-	var args = [];
-	for (var i = 0; i < arguments.length; i++) {
-		args.push(arguments[i]);
-	}
+//	var args = [];
+//	for (var i = 0; i < arguments.length; i++) {
+//		args.push(arguments[i]);
+//	}
 
 	var result;
 	var n = Number(this.evalCount) || 1000;
@@ -82,7 +82,8 @@ Function.prototype.eval = function()
 	var start = (new Date()).getTime();
 
 	for ( ; n--; ) {
-		result = this.apply(arguments.callee, args);
+//		result = this.apply(arguments.callee, args);
+		result = this.apply(arguments.callee, arguments);
 	}
 
 	var stop = (new Date()).getTime();
