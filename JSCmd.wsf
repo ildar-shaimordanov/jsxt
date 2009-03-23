@@ -32,7 +32,7 @@ Example: JSCmd.wsf /F:filename
 </example>
 </runtime>
 <object id="fso" progid="Scripting.FileSystemObject" />
-<object id="wshShell" progid="WScript.Shell" />
+<object id="shell" progid="WScript.Shell" />
 <script language="javascript" src="js/Core.js"></script>
 <script language="javascript" src="js/Benchmark.js"></script>
 <script language="javascript" src="js/Globals.js"></script>
@@ -69,7 +69,7 @@ var argn = {};
 
 	var named = WScript.Arguments.Named;
 	var f = new Enumerator(named);
-	for ( ; f.moveNext(); ) {
+	for ( ; !f.atEnd(); f.moveNext()) {
 		var name = f.item();
 		if ( name.match(/^[EFef]$/) ) {
 			continue;
