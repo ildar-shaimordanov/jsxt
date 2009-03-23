@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+
+<package>
+<job id="JSCmd">
+<?job error="true" debug="true" ?>
+
+<runtime>
+<description><![CDATA[JavaScript / JScript Command Interpreter Version 0.1 Beta
+Copyright (C) 2009 Ildar Shaimordanov
+]]></description>
+<named
+	name="E"
+	helpstring="Execute a value as a JavaScript code"
+	type="string"
+	required="false"
+/>
+<named
+	name="F"
+	helpstring="Execute a JavaScript code from the file"
+	type="string"
+	required="false"
+/>
+<named
+	name="H"
+	helpstring="Display this help"
+	type="boolean"
+	required="false"
+/>
+<example>
+Example: JSCmd.wsf /E:code
+Example: JSCmd.wsf /F:filename
+</example>
+</runtime>
+<object id="fso" progid="Scripting.FileSystemObject" />
+<object id="wshShell" progid="WScript.Shell" />
+<script language="javascript" src="js/Core.js"></script>
+<script language="javascript" src="js/Benchmark.js"></script>
+<script language="javascript" src="js/Globals.js"></script>
+<script language="javascript" src="js/Array.js"></script>
+<script language="javascript" src="js/Date.js"></script>
+<script language="javascript" src="js/NetIP.js"></script>
+<script language="javascript" src="js/win32/FileSystem.js"></script>
+<script language="javascript"><![CDATA[
+
+var help = function()
+{
+	WScript.Arguments.ShowUsage();
+}
+
+var echo = print = function()
+{
+	WScript.Echo(Array.linearize(arguments).join(' '));
+}
+
+var quit = exit = function()
+{
+	WScript.Quit(arguments[0]);
+}
+
+var argu = [];
+var argn = {};
+
+(function()
+{
+	var unnamed = WScript.Arguments.Unnamed;
+	for (var i = 0; i < unnamed.length; i++) {
+		argu.push(unnamed.item(i));
+	}
+
+	var named = WScript.Arguments.Named;
+	var f = new Enumerator(named);
+	for ( ; f.moveNext(); ) {
+		var name = f.item();
+		if ( name.match(/^[EFef]$/) ) {
+			continue;
+		}
+		argn[name] = named.item(name);
+	}
+})();
+
+var script;
+
+(function()
+{
+	if ( ! WScript.FullName.match(/cscript/i) ) {
+		help();
+		exit();
+	}
+
+	var named = WScript.Arguments.Named;
+	var e = named.Exists('e');
+	var f = named.Exists('f');
+
+	if ( e && ! f ) {
+
+		script = named.item('e');
+
+	} else if ( ! e && f ) {
+
+		var filename = named.item('f');
+		if ( ! fso.FileExists(filename) ) {
+			print(filename, 'not found');
+			exit(255);
+		}
+
+		filename = fso.GetAbsolutePathName(filename);
+		var f, h;
+
+		h = fso.GetFile(filename);
+		f = h.OpenAsTextStream();
+
+		script = f.ReadAll();
+
+		f.Close();
+
+	} else if ( e && f ) {
+		print('You have to define both inline script or filename');
+		exit(255);
+	} else {
+		help();
+		exit();
+	}
+})();
+
+var e;
+try {
+	eval(script);
+} catch (e) {
+	ASSERT(e);
+}
+
+]]></script>
+</job>
+</package>
+
