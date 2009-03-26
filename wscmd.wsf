@@ -33,9 +33,7 @@ Example: wscmd.wsf /F:filename
 </runtime>
 <object id="fso" progid="Scripting.FileSystemObject" />
 <object id="shell" progid="WScript.Shell" />
-<!--
 <script language="javascript" src="js/Core.js"></script>
--->
 <script language="javascript" src="js/Benchmark.js"></script>
 <script language="javascript" src="js/Globals.js"></script>
 <script language="javascript" src="js/Array.js"></script>
@@ -44,35 +42,24 @@ Example: wscmd.wsf /F:filename
 <script language="javascript" src="js/win32/FileSystem.js"></script>
 <script language="javascript"><![CDATA[
 
-var echo, print, alert, write, writeln;
-echo = 
-print = 
-alert = 
-write = 
-writeln = 
-function()
+var echo = print = function()
 {
 	WScript.Echo(Array.linearize(arguments).join(' '));
 }
 
-var quit, exit;
-quit = 
-exit = 
-function()
+var quit = exit = function()
 {
 	WScript.Quit(arguments[0]);
+}
+
+var help = function()
+{
+	WScript.Arguments.ShowUsage();
 }
 
 var uarg = [];
 var narg = {};
 var narg_len = 0;
-
-var help;
-help = 
-function()
-{
-	WScript.Arguments.ShowUsage();
-}
 
 ]]></script>
 <!-- BEGIN COMPILER -->
@@ -147,15 +134,15 @@ var script;
 		var name = fc.item();
 		var value = WScript.Arguments.Named.item(name) || '';
 
-		/**
-		 * Looking for special arguments:
-		 *     /E, /EID, /ELANG, /EIDLANG
-		 *     /F, /FID
-		 *
-		 * where
-		 *     ID   - the numeric identifier of this code
-		 *     LANG - one of the 'js' or 'vbs'
-		 */
+		//
+		// Looking for special arguments:
+		//     /E, /EID, /ELANG, /EIDLANG
+		//     /F, /FID
+		//
+		// where
+		//     ID   - the numeric identifier of this code
+		//     LANG - one of the 'js' or 'vbs'
+		//
 		var matches = name.match(/^(e)(\d+)?(js|vbs)?$|^(f)(\d+)?$|^(compile-and-output)$/i);
 
 		if ( ! matches ) {
@@ -211,13 +198,17 @@ var script;
 		if ( narg_len ) {
 			var result = [];
 			for (var p in narg) {
-				result.push('"' + p + '": "' + narg[p] + '"');
+				// Skip methods
+				if ( p && narg[p].constructor == Function ) {
+					continue;
+				}
+				result.push('"%s": "%s"'.sprintf(p, narg[p]));
 			}
 			compiled.unshift(scriptOuter.sprintf(
 				'NAMED ARGUMENTS', 
 				lang.js, 
 				'', 
-				scriptInner.sprintf('var narg = {' + result.join('", "') + '};\nvar narg_len = ' + narg_len + ';\n')
+				scriptInner.sprintf('var narg = {' + result.join(', ') + '};\nvar narg_len = ' + narg_len + ';\n')
 			));
 		}
 
