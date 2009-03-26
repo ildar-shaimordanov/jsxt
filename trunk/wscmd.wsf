@@ -33,7 +33,9 @@ Example: wscmd.wsf /F:filename
 </runtime>
 <object id="fso" progid="Scripting.FileSystemObject" />
 <object id="shell" progid="WScript.Shell" />
+<!--
 <script language="javascript" src="js/Core.js"></script>
+-->
 <script language="javascript" src="js/Benchmark.js"></script>
 <script language="javascript" src="js/Globals.js"></script>
 <script language="javascript" src="js/Array.js"></script>
@@ -42,25 +44,21 @@ Example: wscmd.wsf /F:filename
 <script language="javascript" src="js/win32/FileSystem.js"></script>
 <script language="javascript"><![CDATA[
 
-if ( 'undefined' == typeof document ) {
-
-var document = {};
-
-}
-
-var echo, print, alert;
+var echo, print, alert, write, writeln;
 echo = 
 print = 
 alert = 
-document.write = 
-document.writeln = function()
+write = 
+writeln = 
+function()
 {
 	WScript.Echo(Array.linearize(arguments).join(' '));
 }
 
 var quit, exit;
 quit = 
-exit = function()
+exit = 
+function()
 {
 	WScript.Quit(arguments[0]);
 }
@@ -69,7 +67,9 @@ var uarg = [];
 var narg = {};
 var narg_len = 0;
 
-var help = function()
+var help;
+help = 
+function()
 {
 	WScript.Arguments.ShowUsage();
 }
@@ -272,9 +272,13 @@ var script;
 
 var e;
 try {
+
 	eval(script);
+
 } catch (e) {
-	ASSERT(e);
+
+	e.format().print();
+
 }
 
 ]]></script>
