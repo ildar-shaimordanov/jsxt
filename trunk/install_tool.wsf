@@ -2,7 +2,7 @@
 
 <package>
 <job id="install_tool">
-<?job error="true" debug="true" ?>
+<?job error="true" debug="false" ?>
 
 <runtime>
 <description><![CDATA[Installer of JSXT tools Copyright (C) 2009 Ildar Shaimordanov
@@ -42,6 +42,11 @@ Example: install_tool.wsf install_tool.wsf C:\MyTools
 </runtime>
 <object id="fso" progid="Scripting.FileSystemObject" />
 <object id="wshShell" progid="WScript.Shell" />
+<script language="javascript" src="js/Core.js"></script>
+<script language="javascript" src="js/Benchmark.js"></script>
+<script language="javascript" src="js/Globals.js"></script>
+<script language="javascript" src="js/Array.js"></script>
+<script language="javascript" src="js/Date.js"></script>
 <script language="javascript" src="js/jsmin.js"></script>
 <script language="javascript" src="js/Obfuscate.js"></script>
 <script language="javascript"><![CDATA[
@@ -51,10 +56,7 @@ if ( WScript.Arguments.length != 2 ) {
 	WScript.Quit();
 }
 
-var filename = WScript.Arguments(0);
-var target = WScript.Arguments(1);
-
-function readText(filename)
+function readFile(filename)
 {
 	var f, h, s;
 	f = fso.GetFile(filename);
@@ -64,7 +66,7 @@ function readText(filename)
 	return s;
 }
 
-function writeText(filename, text)
+function writeFile(filename, text)
 {
 	var f, h;
 	fso.CreateTextFile(filename);
@@ -74,24 +76,28 @@ function writeText(filename, text)
 	h.Close();
 }
 
-var content = readText(filename);
-var cdata = filename.match(/\.wsf$/) 
-	? ['<' + '![CDATA[', ']' + ']>'] 
-	: ['', ''];
+var filename = WScript.Arguments(0);
+var target = WScript.Arguments(1);
+
+var scriptOuter = filename.match(/\.wsf$/i) 
+	? '\x3Cscript language="javascript">\x3C![CDATA[\n\n//%s\n\n%s\n]]\x3E</script\x3E' 
+	: '\x3Cscript language="javascript">\n\n//%s\n\n%s\n</script\x3E';
+
+var content = readFile(filename);
 
 content = content.replace(/<script.*?src="(js\/.+\.js)".*?\/script>/g, function($0, $1)
 {
 	var f = $1;
 	var s;
-	s = readText(f);
+
+	s = readFile(f);
 //	s = jsmin(s, 3, '');
 //	s = '\n' + obfuscate(s, function(text) { WScript.Echo(text); });
 
-	return '<scr' + 'ipt language="javascript">' + cdata[0] + '\n\n// ' + f + '\n\n' + s + '\n' + cdata[1] + '</scr' + 'ipt>';
+	return scriptOuter.sprintf(f, s);
 });
 
-writeText(target + '\\' + filename.replace(/.*\\/, ''), content);
-
+writeFile(target + '\\' + filename.replace(/.*\\/, ''), content);
 
 ]]></script>
 </job>
