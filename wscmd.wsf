@@ -31,6 +31,41 @@ Example: wscmd.wsf /E:code
 Example: wscmd.wsf /F:filename
 </example>
 </runtime>
+<!--
+@echo off
+
+
+set wscmd_file=$$$%~n0.wsf
+set wscmd_main=%~d0\PROGS\TOOLS\.DEVEL\jsxt\wscmd.wsf
+set wscmd_cmnd=cscript //NoLogo //H:CScript
+
+
+call :check_for_help %*
+if errorlevel 1 goto :EOF
+
+
+%wscmd_cmnd% "%wscmd_main%" /compile-and-output %* >"%wscmd_file%"
+
+
+if not exist "%wscmd_file%" goto :EOF
+
+
+%wscmd_cmnd% "%wscmd_file%"
+del "%wscmd_file%"
+
+
+goto :EOF
+
+
+:check_for_help
+if    "%~1" == "" goto :EOF
+if /i "%~1" == "/h" (
+	%wscmd_cmnd% "%wscmd_main%" /h
+	exit /b 1
+)
+shift
+goto check_for_help
+-->
 <object id="fso" progid="Scripting.FileSystemObject" />
 <object id="shell" progid="WScript.Shell" />
 <script language="javascript" src="js/Core.js"></script>
