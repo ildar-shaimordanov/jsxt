@@ -137,14 +137,11 @@ try {
 
 	// Process file list
 	logInfo('Processing arguments');
+	var filelist = Array.enumerate(WScript.Arguments.Unnamed, function(i, fc)
+	{
+		return FileSystem.glob(i);
+	}).flatten();
 
-	var args = WScript.Arguments.Unnamed;
-
-	var filelist = [];
-	for (var i = 0; i < args.length; i++) {
-		var f = args.Item(i);
-		filelist = filelist.concat(FileSystem.glob(f));
-	}
 	if ( filelist.length < 1 ) {
 		throw new Error('Empty file list');
 	}

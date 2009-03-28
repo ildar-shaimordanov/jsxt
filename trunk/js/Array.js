@@ -148,6 +148,33 @@ Array.prototype.filter = function(fun, thisp)
 
 }
 
+if ( ! Array.prototype.flatten ) {
+
+/**
+ * Returns a "flat" (one-dimensional) version of the array. Nested arrays are recursively processed.
+ *
+ * @param	void
+ * @return	Array
+ * @access	public
+ */
+Array.prototype.flatten = function()
+{
+	var result = [];
+
+	var len = this.length;
+	for (var i = 0; i < len; i++) {
+		var value = this[i];
+		if ( ! value || this[i].constructor != Array ) {
+			value = [value];
+		}
+		result = result.concat(value);
+	}
+
+	return result;
+};
+
+}
+
 if ( ! Array.prototype.forEach ) {
 
 /**

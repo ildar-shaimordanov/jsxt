@@ -5,6 +5,212 @@
 // Copyright (c) 2009 by Ildar Shaimordanov
 //
 
+if ( ! Object.isa ) {
+
+/**
+ * Evaluates the value is defined and has constructor
+ *
+ * @param	mixed	value
+ * @param	mixed	constructor
+ * @return	boolean
+ * @access	static
+ */
+Object.isa = function(value, constructor)
+{
+	return value !== undefined && value !== null && value.constructor == constructor;
+};
+
+}
+
+if ( ! Object.isArray ) {
+
+/**
+ * Evaluates the value as Array
+ *
+ * @param	mixed	value
+ * @return	boolean
+ * @access	static
+ */
+Object.isArray = function(value)
+{
+	return Object.isa(value, Array);
+//	return value !== undefined && value !== null && value.constructor == Array;
+};
+
+}
+
+if ( ! Object.isBoolean ) {
+
+/**
+ * Evaluates the value as Boolean
+ *
+ * @param	mixed	value
+ * @return	boolean
+ * @access	static
+ */
+Object.isBoolean = function(value)
+{
+	return Object.isa(value, Boolean);
+//	return value !== undefined && value !== null && value.constructor == Boolean;
+};
+
+}
+
+if ( ! Object.isEmpty ) {
+
+/**
+ * Evaluates the value as Empty
+ * The empty value is as follow:
+ * - Undefined
+ * - Null
+ * - Boolean == false
+ * - String == ''
+ * - Number == +0, -0 or NaN
+ *
+ * @param	mixed	value
+ * @return	boolean
+ * @access	static
+ */
+Object.isEmpty = function(value)
+{
+	return ! Boolean(value);
+};
+
+}
+
+if ( ! Object.isFunction ) {
+
+/**
+ * Evaluates the value as Function
+ *
+ * @param	mixed	value
+ * @return	boolean
+ * @access	static
+ */
+Object.isFunction = function(value)
+{
+	return Object.isa(value, Function);
+//	return value !== undefined && value !== null && value.constructor == Function;
+};
+
+}
+
+if ( ! Object.isIndefinite ) {
+
+/**
+ * Evaluates the value as Undefined or Null
+ *
+ * @param	mixed	value
+ * @return	boolean
+ * @access	static
+ */
+Object.isIndefinite = function(value)
+{
+	return value === undefined || value === null;
+};
+
+}
+
+if ( ! Object.isNull ) {
+
+/**
+ * Evaluates the value as Null
+ *
+ * @param	mixed	value
+ * @return	boolean
+ * @access	static
+ */
+Object.isNull = function(value)
+{
+	return value === null;
+};
+
+}
+
+if ( ! Object.isNumber ) {
+
+/**
+ * Evaluates the value as Number
+ *
+ * @param	mixed	value
+ * @return	boolean
+ * @access	static
+ */
+Object.isNumber = function(value)
+{
+	return Object.isa(value, Number);
+//	return value !== undefined && value !== null && value.constructor == Number;
+};
+
+}
+
+if ( ! Object.isObject ) {
+
+/**
+ * Evaluates the value as Object
+ *
+ * @param	mixed	value
+ * @return	boolean
+ * @access	static
+ */
+Object.isObject = function(value)
+{
+	return Object.isa(value, Object);
+//	return value !== undefined && value !== null && value.constructor == Object;
+};
+
+}
+
+if ( ! Object.isRegExp ) {
+
+/**
+ * Evaluates the value as RegExp
+ *
+ * @param	mixed	value
+ * @return	boolean
+ * @access	static
+ */
+Object.isRegExp = function(value)
+{
+	return Object.isa(value, RegExp);
+//	return value !== undefined && value !== null && value.constructor == RegExp;
+};
+
+}
+
+if ( ! Object.isString ) {
+
+/**
+ * Evaluates the value as String
+ *
+ * @param	mixed	value
+ * @return	boolean
+ * @access	static
+ */
+Object.isString = function(value)
+{
+	return Object.isa(value, String);
+//	return value !== undefined && value !== null && value.constructor == String;
+};
+
+}
+
+if ( ! Object.isUndefined ) {
+
+/**
+ * Evaluates the value as Undefined
+ *
+ * @param	mixed	value
+ * @return	boolean
+ * @access	static
+ */
+Object.isUndefined = function(value)
+{
+	return value === undefined;
+};
+
+}
+
 if ( ! Object.prototype.forEach ) {
 
 /**
