@@ -120,20 +120,6 @@ var script;
 		exit(255);
 	};
 
-	var fileRead = function(filename)
-	{
-		var f, h;
-
-		h = fso.GetFile(filename);
-		f = h.OpenAsTextStream(1, 0);
-
-		var content = f.ReadAll();
-
-		f.Close();
-
-		return content;
-	};
-
 	/**
 	 *
 	 * Unnamed arguments
@@ -256,7 +242,8 @@ var script;
 			));
 		}
 
-		content = fileRead(WScript.ScriptFullName).split(/<!-- \w+ COMPILER -->/);
+		content = FileSystem.readFile(WScript.ScriptFullName).split(/<!-- \w+ COMPILER -->/);
+
 		content[0] = parse_link(content[0], fso.GetParentFolderName(WScript.ScriptFullName) + '\\');
 		content[1] = parse_link(compiled.join('\n'), shell.CurrentDirectory + '\\');
 
@@ -285,7 +272,7 @@ var script;
 			file_not_found(filename);
 		}
 
-		script = fileRead(filename);
+		script = FileSystem.readFile(filename);
 
 	} else if ( e && f ) {
 		print('You have to define both inline script or filename');

@@ -108,6 +108,7 @@ pre.rc	{
 }
 
 </style>
+<script language="javascript" src="js/win32/FileSystem.js"></script>
 <script type="text/javascript" language="javascript">
 
 // System dependent handlers
@@ -129,47 +130,6 @@ var FA_HIDDEN		= 2;
 var FA_SYSTEM		= 4;
 var FA_DIRECTORY	= 16;
 var FA_ARCHIVE		= 32;
-
-/**
- * Creates a dialog box that enables the user to select a folder and then returns the selected folder's path.
- *
- * @param	Integer	Hwnd		The handle to the parent window of the dialog box. This value can be zero. 
- * @param	String	sTitle		A String value that represents the title displayed inside the Browse dialog box.
- * @param	Integer	iOptions	An Integer value that contains the options for the method. This can be zero or a combination of the BIF_xxx values.
- * @param	Mixed	vRootFolder	The root folder to use in the dialog box. The user cannot browse higher in the tree than this folder. If this value is not specified, the root folder used in the dialog box is the desktop. This value can be a string that specifies the path of the folder or one of the ssfXXX values. 
- * @return	String	Fully qualified path to folder
- *
- * @see		http://msdn.microsoft.com/en-us/library/bb774065(VS.85).aspx
- * @see		http://msdn.microsoft.com/en-us/library/bb773205(VS.85).aspx
- * @see		http://msdn.microsoft.com/en-us/library/bb774096(VS.85).aspx
- * @see		http://blogs.msdn.com/gstemp/archive/2004/02/17/74868.aspx#ctl00___ctl00___ctl00_ctl00_bcr_ctl00___Comments___Comments_ctl07_NameLink
- */
-function BrowseForFolder(Hwnd, sTitle, iOptions, vRootFolder)
-{
-	var shell = new ActiveXObject("Shell.Application");
-	var folder = shell.BrowseForFolder(Hwnd, sTitle, iOptions, vRootFolder);
-
-	// Dialog has been closed (by the Close command or the Cancel button)
-	if ( folder == null ) {
-		return null;
-	}
-
-	var e;
-	var path = null;
-
-	try {
-		path = folder.ParentFolder.ParseName(folder.Title).Path;
-	} catch (e) {
-		var colon = folder.Title.lastIndexOf(":");
-		if ( colon == -1 ) {
-			return null;
-		}
-
-		path = folder.Title.slice(colon - 1, colon + 1) + "\\";
-	}
-
-	return path;
-};
 
 </script>
 <script type="text/javascript" language="javascript">
@@ -773,7 +733,7 @@ function initWin()
 
 <input type="text" id="SANDBOX_PATH" />
 
-<input type="button" value="..." onclick="var p = BrowseForFolder(0, this.title, 0, 17); if ( p ) document.getElementById('SANDBOX_PATH').value = p;" title="Browse folder for the sandbox" />
+<input type="button" value="..." onclick="var p = FileSystem.dialogBrowseForFolder(0, this.title, 0, 17); if ( p ) document.getElementById('SANDBOX_PATH').value = p;" title="Browse folder for the sandbox" />
 
 </td>
 </tr>
