@@ -47,13 +47,19 @@ if errorlevel 1 goto :EOF
 %wscmd_cmnd% "%wscmd_main%" /compile-and-output %* >"%wscmd_file%"
 
 
+if errorlevel 1 type "%wscmd_file%" && call :del_compiled
 if not exist "%wscmd_file%" goto :EOF
 
 
 %wscmd_cmnd% "%wscmd_file%" %*
+call :del_compiled
+
+
+goto :EOF
+
+
+:del_compiled
 del "%wscmd_file%"
-
-
 goto :EOF
 
 
