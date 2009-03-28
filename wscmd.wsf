@@ -50,7 +50,7 @@ if errorlevel 1 goto :EOF
 if not exist "%wscmd_file%" goto :EOF
 
 
-%wscmd_cmnd% "%wscmd_file%"
+%wscmd_cmnd% "%wscmd_file%" %*
 del "%wscmd_file%"
 
 
@@ -119,7 +119,6 @@ var script;
 	var file_not_found = function(filename)
 	{
 		'File "%s" not found'.sprintf(filename).print();
-//		print('File "' + filename + '" not found.');
 		exit(255);
 	};
 
@@ -128,9 +127,10 @@ var script;
 	 * Unnamed arguments
 	 *
 	 */
-	for (var i = 0; i < WScript.Arguments.Unnamed.length; i++) {
-		uarg.push(WScript.Arguments.Unnamed.item(i));
-	}
+	uarg = Array.enumerate(WScript.Arguments.Unnamed, function(i)
+	{
+		return i;
+	});
 
 	/**
 	 *
@@ -153,9 +153,8 @@ var script;
 	var scriptOuter = '<!-- ID: %s -->\n\x3Cscript language="%s"%s>%s</script\x3E';
 	var scriptInner = '\x3C![CDATA[\n\n%s\n\n]]\x3E';
 
-	var fc = new Enumerator(WScript.Arguments.Named);
-	for ( ; ! fc.atEnd(); fc.moveNext()) {
-		var name = fc.item();
+	Array.enumerate(WScript.Arguments.Named, function(name)
+	{
 		var value = WScript.Arguments.Named.item(name) || '';
 
 		//
@@ -172,11 +171,11 @@ var script;
 		if ( ! matches ) {
 			narg_len++;
 			narg[name] = value;
-			continue;
+			return;
 		}
 
 		if ( ! compile_and_output || ! value || matches[6] ) {
-			continue;
+			return;
 		}
 
 		var e = matches[1];
@@ -196,7 +195,7 @@ var script;
 			e ? '' : ' src="%s"'.sprintf(value), 
 			f ? '' : scriptInner.sprintf(value)
 		));
-	}
+	});
 
 	/**
 	 *
@@ -220,14 +219,11 @@ var script;
 
 	if ( compile_and_output ) {
 		if ( narg_len ) {
-			var result = [];
-			for (var p in narg) {
-				// Skip methods
-				if ( p && narg[p].constructor == Function ) {
-					continue;
-				}
-				result.push('"%s": "%s"'.sprintf(p, narg[p]));
-			}
+			var result = narg.toArray(function(value, key)
+			{
+				return '"%s": "%s"'.sprintf(key, value);
+			}, true);
+
 			compiled.unshift(scriptOuter.sprintf(
 				'NAMED ARGUMENTS', 
 				lang.js, 
