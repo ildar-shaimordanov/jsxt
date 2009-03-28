@@ -19,7 +19,7 @@ function XMLHttpRequest()
 	}
 
 	return null;
-}
+};
 
 }
 

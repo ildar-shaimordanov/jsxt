@@ -35,7 +35,7 @@ function ServiceManager()
 	self.antecedent = function(service, refresh)
 	{
 		return self.associated(service, 'Antecedent');
-	}
+	};
 
 	/**
 	 * The list of system components depend on the specified service
@@ -48,7 +48,7 @@ function ServiceManager()
 	self.dependent = function(service, refresh)
 	{
 		return self.associated(service, 'Dependent');
-	}
+	};
 
 	/**
 	 * Recieves the list of services associated with the specified service
@@ -103,7 +103,7 @@ function ServiceManager()
 
 		var sql = 'SELECT * FROM Win32_Service WHERE ( ' + names + ' )';
 		return self.query(sql);
-	}
+	};
 
 	/**
 	 * Execute specified query to the WMI and 
@@ -116,7 +116,7 @@ function ServiceManager()
 	self.query = function(sql)
 	{
 		return Array.enumerate(WMI.ExecQuery(sql));
-	}
+	};
 
 	/**
 	 * Searches services specified by names
@@ -145,12 +145,12 @@ function ServiceManager()
 		}
 
 		return self.query(sql);
-	}
+	};
 
 	self.updateDependentService = function()
 	{
 		deps = self.query('SELECT * FROM Win32_DependentService');
-	}
+	};
 
 	/**
 	 * Returns a message describing an exit code
@@ -197,7 +197,7 @@ function ServiceManager()
 		}
 
 		return messages[code];
-	}
+	};
 
 	/**
 	 * Applies the specific method for the Win32_Service class
@@ -239,7 +239,7 @@ function ServiceManager()
 		}
 
 		return objOutParam.ReturnValue;
-	}
+	};
 
 	/**
 	 * Changes startup mode of the selected service
@@ -257,7 +257,7 @@ function ServiceManager()
 		}
 
 		return self.exec(service, 'ChangeStartMode', {StartMode: mode});
-	}
+	};
 
 	/**
 	 * Pauses the selected service that is running
@@ -269,7 +269,7 @@ function ServiceManager()
 	self.servicePause = function(service)
 	{
 		return self.exec(service, 'PauseService');
-	}
+	};
 
 	/**
 	 * Restarts the selected service that is paused
@@ -281,7 +281,7 @@ function ServiceManager()
 	self.serviceResume = function(service)
 	{
 		return self.exec(service, 'ResumeService');
-	}
+	};
 
 	/**
 	 * Starts the selected service that is stopped
@@ -293,7 +293,7 @@ function ServiceManager()
 	self.serviceStart = function(service)
 	{
 		return self.exec(service, 'StartService');
-	}
+	};
 
 	/**
 	 * Stops the selected service that is running
@@ -305,7 +305,7 @@ function ServiceManager()
 	self.serviceStop = function(service)
 	{
 		return self.exec(service, 'StopService');
-	}
+	};
 
 	/**
 	 * Pauses/resumes the selected service
@@ -319,9 +319,9 @@ function ServiceManager()
 		return service.State == 'Running' 
 			? self.servicePause(service) 
 			: self.serviceResume(service);
-	}
+	};
 
-}
+};
 
 }
 
@@ -364,7 +364,7 @@ function ServiceView()
 			+ result 
 			+ '</table>';
 
-	}
+	};
 
 	/**
 	 * Displays a list of services
@@ -377,7 +377,7 @@ function ServiceView()
 	{
 		self.contentDraw();
 		self.contentFocus();
-	}
+	};
 
 	/**
 	 * Puts focus to the content
@@ -389,7 +389,7 @@ function ServiceView()
 	self.contentFocus = function()
 	{
 		document.getElementById('content').focus();
-	}
+	};
 
 	/**
 	 * Hides the search form
@@ -402,7 +402,7 @@ function ServiceView()
 	{
 		document.getElementById('searchForm').style.display = 'none';
 		self.contentFocus();
-	}
+	};
 
 	/**
 	 * Shows the search form
@@ -415,7 +415,7 @@ function ServiceView()
 	{
 		document.getElementById('searchForm').style.display = '';
 		document.getElementById('searchName').select();
-	}
+	};
 
 	/**
 	 * Submits a value from the search form
@@ -428,7 +428,7 @@ function ServiceView()
 	{
 		self.formSearchHide();
 		self.search();
-	}
+	};
 
 	/**
 	 * Shows/hides the search form
@@ -445,7 +445,7 @@ function ServiceView()
 		} else {
 			self.formSearchHide();
 		}
-	}
+	};
 
 	/**
 	 * Hides the startup mode form
@@ -458,7 +458,7 @@ function ServiceView()
 	{
 		document.getElementById('startupForm').style.display = 'none';
 		self.contentFocus();
-	}
+	};
 
 	/**
 	 * Shows the startup mode form
@@ -477,7 +477,7 @@ function ServiceView()
 		for (var i = 0; i < startupType.options.length; i++) {
 			startupType.options[i].selected = startupType.options[i].text == service.StartMode;
 		}
-	}
+	};
 
 	/**
 	 * Submits a value from the startup mode form
@@ -491,7 +491,7 @@ function ServiceView()
 		self.formStartupHide();
 		self.serviceConfigure();
 		self.search();
-	}
+	};
 
 	/**
 	 * Shows/hides the startup mode form
@@ -508,7 +508,7 @@ function ServiceView()
 		} else {
 			self.formStartupHide();
 		}
-	}
+	};
 
 	/**
 	 * Validates the row index
@@ -530,7 +530,7 @@ function ServiceView()
 		}
 
 		return true;
-	}
+	};
 
 	/**
 	 * Selects/unselects a row and service matching this row.
@@ -562,7 +562,7 @@ function ServiceView()
 			self.serviceSelect(rowIndex, true);
 			selectedRowIndex = rowIndex;
 		}
-	}
+	};
 
 	/**
 	 * Recieves the list of services associated with the specified service
@@ -603,7 +603,7 @@ function ServiceView()
 		}
 
 		return result;
-	}
+	};
 
 	/**
 	 * Configure startup mode of the selected service
@@ -619,7 +619,7 @@ function ServiceView()
 
 		var service = services[selectedRowIndex - 1];
 		self.serviceCmd(service, 'ChangeStartMode', {'StartMode': list[type]});
-	}
+	};
 
 	/**
 	 * Pauses the selected service that is running
@@ -632,7 +632,7 @@ function ServiceView()
 	{
 		var service = services[selectedRowIndex - 1];
 		self.serviceCmd(service, 'PauseService');
-	}
+	};
 
 	/**
 	 * Restarts the selected service that is running
@@ -644,7 +644,7 @@ function ServiceView()
 	self.serviceRestart = function()
 	{
 		self.serviceStopStart(true);
-	}
+	};
 
 	/**
 	 * Restarts the selected service that is paused
@@ -657,7 +657,7 @@ function ServiceView()
 	{
 		var service = services[selectedRowIndex - 1];
 		self.serviceCmd(service, 'ResumeService');
-	}
+	};
 
 	/**
 	 * Selects/unselects a service specified by the row index.
@@ -691,7 +691,7 @@ function ServiceView()
 			document.getElementById('serviceDesc').innerHTML = (service.Description || '').htmlize();
 			document.getElementById('servicePath').innerHTML = service.PathName.htmlize();
 		}
-	}
+	};
 
 	/**
 	 * Starts the selected service that is stopped
@@ -704,7 +704,7 @@ function ServiceView()
 	{
 		var service = services[selectedRowIndex - 1];
 		self.serviceCmd(service, 'StartService');
-	}
+	};
 
 	/**
 	 * Stops the selected service that is running
@@ -716,7 +716,7 @@ function ServiceView()
 	self.serviceStop = function()
 	{
 		self.serviceStopStart(false);
-	}
+	};
 
 	/**
 	 * Stops and restarts the selected service that is running
@@ -780,7 +780,7 @@ function ServiceView()
 			}
 			return true;
 		});
-	}
+	};
 
 	/**
 	 * Pauses/resumes the selected service
@@ -797,7 +797,7 @@ function ServiceView()
 		} else {
 			self.serviceResume();
 		}
-	}
+	};
 
 	/**
 	 * Adds a  customized button on the toolbar
@@ -830,7 +830,7 @@ function ServiceView()
 		result += ' />';
 
 		document.getElementById('customContainer').innerHTML = result;
-	}
+	};
 
 	/**
 	 * Handles a click event on the customized button
@@ -848,7 +848,7 @@ function ServiceView()
 		var service = services[selectedRowIndex - 1];
 		CustomControlServiceManager.click(service, shell);
 		self.contentFocus();
-	}
+	};
 
 	/**
 	 * Modifies a state of controls on the toolbar
@@ -897,7 +897,7 @@ function ServiceView()
 		if ( custom ) {
 			custom.disabled = ! CustomControlServiceManager.state(service);
 		}
-	}
+	};
 
 	// }}}
 	// {{{ contructor
@@ -906,7 +906,7 @@ function ServiceView()
 
 	// }}}
 
-}
+};
 
 }
 

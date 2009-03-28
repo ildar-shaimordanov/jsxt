@@ -57,7 +57,7 @@ Number.cartesian = function()
 	}
 
 	return Number.NaN;
-}
+};
 
 }
 
@@ -110,7 +110,7 @@ Number.prototype.toAngular = function(isLongitude)
 	}
 
 	return null;
-}
+};
 
 }
 
@@ -126,7 +126,7 @@ if ( ! Number.prototype.toLatitude ) {
 Number.prototype.toLatitude = function()
 {
 	return this.toAngular(false);
-}
+};
 
 }
 
@@ -142,7 +142,7 @@ if ( ! Number.prototype.toLongitude ) {
 Number.prototype.toLongitude = function()
 {
 	return this.toAngular(true);
-}
+};
 
 }
 

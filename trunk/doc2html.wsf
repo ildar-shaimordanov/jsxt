@@ -73,7 +73,7 @@ function logInfo(text)
 			now.getMilliseconds());
 
 	WScript.Echo(date, text);
-}
+};
 
 var formats = {
 	'txt':	4,

@@ -39,7 +39,7 @@ String.prototype.utf8 = function()
 					0x80 + (n & 0x3F));
 			}
 		});
-}
+};
 
 }
 
@@ -82,7 +82,7 @@ function()
 				+  ($0.charCodeAt(3) & 0x3F);
 			return String.fromCharCode(n);
 		});
-}
+};
 
 }
 
@@ -121,7 +121,7 @@ String.prototype.base64 = function()
 				+ String.prototype.base64string.charAt(k) 
 				+ String.prototype.base64string.charAt(l);
 		});
-}
+};
 
 }
 
@@ -156,7 +156,7 @@ String.prototype.unbase64 = function()
 				+ ( c ? String.fromCharCode(c) : '' );
 		})
 		.unutf8();
-}
+};
 
 }
 

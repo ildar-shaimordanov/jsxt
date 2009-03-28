@@ -25,5 +25,5 @@ sandbox.launchContentInstaller = function(sandbox_path)
 	var result = wsh.Run('explorer ' + sandbox_path, 1, true);
 
 	return true;
-}
+};
 

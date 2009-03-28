@@ -196,19 +196,19 @@ form#netCalc select	{
 			document.getElementById('addressN_').value = ip.getLastAddress().itoa(radix);
 			document.getElementById('broadcast_').value = ip.getBroadcast().itoa(radix);
 		}
-	}
+	};
 
 	function setNetmask(value)
 	{
 		document.getElementById('mask').value = value;
 		netCalc();
-	}
+	};
 
 	function setNetwork(addr, mask)
 	{
 		document.getElementById('addr').value = addr;
 		setNetmask(mask);
-	}
+	};
 
 	function showHostNetwork()
 	{
@@ -226,7 +226,7 @@ form#netCalc select	{
 				break;
 			}
 		}
-	}
+	};
 
 	function hideHostNetwork()
 	{
@@ -246,7 +246,7 @@ form#netCalc select	{
 
 		var notation = hostNetwork.options[hostNetwork.options.selectedIndex].text.split('/');
 		setNetwork(notation[0], notation[1]);
-	}
+	};
 
 	function toggleHostNetwork()
 	{
@@ -255,7 +255,7 @@ form#netCalc select	{
 		} else {
 			showHostNetwork();
 		}
-	}
+	};
 
 	function selectNetmaskMap()
 	{
@@ -269,7 +269,7 @@ form#netCalc select	{
 				break;
 			}
 		}
-	}
+	};
 
 	function showNetmaskMap()
 	{
@@ -279,7 +279,7 @@ form#netCalc select	{
 		netmaskMap.focus();
 
 		selectNetmaskMap();
-	}
+	};
 
 	function hideNetmaskMap()
 	{
@@ -294,7 +294,7 @@ form#netCalc select	{
 		}
 
 		setNetmask(netmaskMap.options[netmaskMap.options.selectedIndex].text.split(/\s+/)[0]);
-	}
+	};
 
 	function toggleNetmaskMap()
 	{
@@ -303,7 +303,7 @@ form#netCalc select	{
 		} else {
 			showNetmaskMap();
 		}
-	}
+	};
 
 	function initWin(network)
 	{
@@ -319,7 +319,7 @@ form#netCalc select	{
 			document.getElementById('netmaskMap').addEventListener('change', hideNetmaskMap, true);
 			document.getElementById('hostNetwork').addEventListener('change', hideHostNetwork, true);
 		}
-	}
+	};
 
 	function initHta()
 	{
@@ -351,7 +351,7 @@ form#netCalc select	{
 
 		// 5. Enables select of all networks
 		document.getElementById('hostNetworkButton').disabled = false;
-	}
+	};
 
 	function handleClick(e)
 	{
@@ -393,7 +393,7 @@ form#netCalc select	{
 			target.blur();
 			break;
 		}
-	}
+	};
 
 	/**
 	 * Handles keystrokes (for HTA only)
@@ -422,7 +422,7 @@ form#netCalc select	{
 				return false;
 			}
 		}
-	}
+	};
 
 	if ( window.attachEvent ) {
 		if ( window.oHTA && oHTA.applicationName ) {

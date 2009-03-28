@@ -26,7 +26,7 @@ Array.prototype.binarySearch = function(searchItem, compare, right)
 		compare = function(a, b)
 		{
 			return (String(a) == String(b)) ? 0 : (String(a) < String(b)) ? -1 : +1;
-		}
+		};
 	}
 
 	var found = false;
@@ -61,7 +61,7 @@ Array.prototype.binarySearch = function(searchItem, compare, right)
 		return -1;
 	}
 		return (right) ? u : l;
-}
+};
 
 }
 
@@ -82,7 +82,7 @@ if ( ! Array.prototype.binaryIndexOf ) {
 Array.prototype.binaryIndexOf = function(searchItem, compare)
 {
 	return this.binarySearch(searchItem, compare, false);
-}
+};
 
 }
 
@@ -103,7 +103,7 @@ if ( ! Array.prototype.binaryLastIndexOf ) {
 Array.prototype.binaryLastIndexOf = function(searchItem, compare)
 {
 	return this.binarySearch(searchItem, compare, true);
-}
+};
 
 }
 
@@ -171,7 +171,7 @@ String.prototype.splitLimit = function(delim, limit)
 		return result;
 	}
 	return this.valueOf();
-}
+};
 
 }
 

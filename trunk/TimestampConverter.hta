@@ -132,7 +132,7 @@ form#timestampConverter #formatted	{
 			alert('Sorry. This feature is available for MSIE only.');
 		}
 		formatted.blur();
-	}
+	};
 
 	/**
 	 * Formats time to the human-friendly view
@@ -162,7 +162,7 @@ form#timestampConverter #formatted	{
 
 		document.getElementById('formatted').value = format;
 		formatter.blur();
-	}
+	};
 
 	/**
 	 * Converts a time presentation from human-friendly view to the timestamp and back to front
@@ -243,7 +243,7 @@ form#timestampConverter #formatted	{
 		unixEpoch.value = parseInt((new Date()).getTime() / 1000);
 		unixEpoch.select();
 		unixEpoch.focus();
-	}
+	};
 
 	function initHta()
 	{
@@ -254,7 +254,7 @@ form#timestampConverter #formatted	{
 
 		// initialize timestamp converter
 		initWin();
-	}
+	};
 
 	/**
 	 * Handles keystrokes (for HTA only)
@@ -276,7 +276,7 @@ form#timestampConverter #formatted	{
 			window.close();
 			return false;
 		}
-	}
+	};
 
 	if ( window.attachEvent ) {
 		if ( window.oHTA && oHTA.applicationName ) {

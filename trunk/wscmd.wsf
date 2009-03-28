@@ -80,17 +80,17 @@ goto check_for_help
 var echo = print = function()
 {
 	WScript.Echo(Array.linearize(arguments).join(' '));
-}
+};
 
 var quit = exit = function()
 {
 	WScript.Quit(arguments[0]);
-}
+};
 
 var help = function()
 {
 	WScript.Arguments.ShowUsage();
-}
+};
 
 var uarg = [];
 var narg = {};
@@ -118,7 +118,7 @@ var script;
 	{
 		print('File "' + filename + '" not found.');
 		exit(255);
-	}
+	};
 
 	var fileRead = function(filename)
 	{
@@ -132,7 +132,7 @@ var script;
 		f.Close();
 
 		return content;
-	}
+	};
 
 	/**
 	 *
@@ -225,7 +225,7 @@ var script;
 				}
 				return $1 + fso.GetAbsolutePathName(filename) + $3;
 			});
-	}
+	};
 
 	var content;
 

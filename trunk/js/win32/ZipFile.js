@@ -37,7 +37,7 @@ function ZipFile(filename, overwrite)
 		var file = fso.CreateTextFile(filename, overwrite, 0);
 		file.Write("PK" + String.fromCharCode(5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)); // 18 zeros
 		file.Close();
-	}
+	};
 
 	function doCopyMove(action, fileList, option)
 	{
@@ -60,7 +60,7 @@ function ZipFile(filename, overwrite)
 		for (var i = 0; i < fileList.length; i++) {
 			zipFolder[action](fileList[i], option);
 		}
-	}
+	};
 
 	// }}}
 	// {{{ public
@@ -93,7 +93,7 @@ function ZipFile(filename, overwrite)
 	self.copy = function(fileList, option)
 	{
 		return doCopyMove("CopyHere", fileList, option);
-	}
+	};
 
 	/**
 	 * Flushes this zip-file to be created properly.
@@ -114,7 +114,7 @@ function ZipFile(filename, overwrite)
 			timeout = 500;
 		}
 		WScript.Sleep(timeout);
-	}
+	};
 
 	/**
 	 * Moves an item or items to this zip-file.
@@ -144,13 +144,13 @@ function ZipFile(filename, overwrite)
 	self.move = function(fileList, option)
 	{
 		return doCopyMove("MoveHere", fileList, option);
-	}
+	};
 
 	// }}}
 
 	createEmptyZip();
 
-}
+};
 
 }
 
@@ -176,7 +176,7 @@ if ( ! ZipFile.create ) {
 ZipFile.create = function(filename, overwrite)
 {
 	return new ZipFile(filename, overwrite);
-}
+};
 
 }
 

@@ -112,7 +112,7 @@ function NetIP()
 	{
 		var ip = new NetIP(value);
 		return ip.getAddress() >= self.getNetwork() && ip.getAddress() <= self.getBroadcast();
-	}
+	};
 
 	/**
 	 * Checks that the value is equal to this address.
@@ -126,7 +126,7 @@ function NetIP()
 	{
 		var ip = new NetIP(value);
 		return ip.getAddress() == self.getAddress();
-	}
+	};
 
 	/**
 	 * Returns the address
@@ -138,7 +138,7 @@ function NetIP()
 	self.getAddress = function()
 	{
 		return address;
-	}
+	};
 
 	/**
 	 * Returns the bitmask for this network
@@ -150,7 +150,7 @@ function NetIP()
 	self.getBitmask = function()
 	{
 		return bitmask;
-	}
+	};
 
 	/**
 	 * Returns the broadcast address
@@ -162,7 +162,7 @@ function NetIP()
 	self.getBroadcast = function()
 	{
 		return self.getNetwork() + self.getNetmask(true);
-	}
+	};
 
 	/**
 	 * Returns the first address for this network
@@ -174,7 +174,7 @@ function NetIP()
 	self.getFirstAddress = function()
 	{
 		return self.getNetwork() + 1;
-	}
+	};
 
 	/**
 	 * Returns the last address for this network
@@ -186,7 +186,7 @@ function NetIP()
 	self.getLastAddress = function()
 	{
 		return self.getBroadcast() - 1;
-	}
+	};
 
 	/**
 	 * Returns the netmask (direct or inverse)
@@ -199,7 +199,7 @@ function NetIP()
 	{
 		var mask = netmaskMap[self.getBitmask()];
 		return inverse ? mask ^ 0xffffffff : mask;
-	}
+	};
 
 	/**
 	 * Returns the address of this network
@@ -211,7 +211,7 @@ function NetIP()
 	self.getNetwork = function()
 	{
 		return network;
-	}
+	};
 
 	/**
 	 * Returns the length of this network
@@ -224,7 +224,7 @@ function NetIP()
 	{
 		var count = self.getBroadcast() - self.getFirstAddress();
 		return count < 0 ? 0 : count;
-	}
+	};
 
 	/**
 	 * Sets the address
@@ -240,7 +240,7 @@ function NetIP()
 		}
 		address = Number(value);
 		setNetwork();
-	}
+	};
 
 	/**
 	 * Sets the bitmask
@@ -261,7 +261,7 @@ function NetIP()
 
 		bitmask = Number(value);
 		setNetwork();
-	}
+	};
 
 	/**
 	 * Sets the netmask
@@ -290,7 +290,7 @@ function NetIP()
 		}
 
 		self.setBitmask(i);
-	}
+	};
 
 	/**
 	 * Sets the address of this network
@@ -305,7 +305,7 @@ function NetIP()
 		if ( network < 0 ) {
 			network += 0x100000000;
 		}
-	}
+	};
 
 	/**
 	 * Converts the NetIP object to the string and returns it.
@@ -319,7 +319,7 @@ function NetIP()
 	self.toString = function(netmask)
 	{
 		return NetIP.itoa(self.getAddress()) + '/' + ( netmask ? NetIP.itoa(self.getNetmask()) : self.getBitmask() );
-	}
+	};
 
 	// }}}
 	// {{{ constructor
@@ -359,7 +359,7 @@ function NetIP()
 
 	// }}}
 
-}
+};
 
 }
 
@@ -389,7 +389,7 @@ NetIP.atoi = function(value)
 	}
 
 	return result;
-}
+};
 
 }
 
@@ -406,7 +406,7 @@ NetIP.isBitmask = function(value)
 {
 	var bitmask = parseInt(value);
 	return bitmask == value && bitmask >= 1 && bitmask <= 32;
-}
+};
 
 }
 
@@ -422,7 +422,7 @@ if ( ! NetIP.isIP ) {
 NetIP.isIP = function(value)
 {
 	return String(value).match(/^\s*(?:([01]?\d\d?|2[0-4]\d|25[0-5])\.)(?:([01]?\d\d?|2[0-4]\d|25[0-5])\.)(?:([01]?\d\d?|2[0-4]\d|25[0-5])\.)([01]?\d\d?|2[0-4]\d|25[0-5])\s*$/);
-}
+};
 
 }
 
@@ -448,7 +448,7 @@ NetIP.isNetmask = function(value)
 	var ip = new NetIP();
 	ip.setNetmask(value);
 	return value === ip.getNetmask() || value === ip.getNetmask(true);
-}
+};
 
 }
 
@@ -498,7 +498,7 @@ NetIP.itoa = function(value, radix)
 //		(value & 0xff)[radix](width, "0")];
 
 	return bytes.join('.');
-}
+};
 
 }
 
@@ -540,7 +540,7 @@ NetIP.win32IPConfig = function()
 		}
 	}
 	return result;
-}
+};
 
 }
 
@@ -556,7 +556,7 @@ if ( ! Number.prototype.itoa ) {
 Number.prototype.itoa = function(radix)
 {
 	return NetIP.itoa(this, radix);
-}
+};
 
 }
 
@@ -572,7 +572,7 @@ if ( ! String.prototype.atoi ) {
 String.prototype.atoi = function()
 {
 	return NetIP.atoi(this);
-}
+};
 
 }
 
@@ -588,7 +588,7 @@ if ( ! String.prototype.isIP ) {
 String.prototype.isIP = function()
 {
 	return NetIP.isIP(this);
-}
+};
 
 }
 
@@ -604,7 +604,7 @@ if ( ! String.prototype.isNetmask ) {
 String.prototype.isNetmask = function()
 {
 	return NetIP.isNetmask(this);
-}
+};
 
 }
 

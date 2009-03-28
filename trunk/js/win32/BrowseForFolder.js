@@ -106,5 +106,5 @@ function BrowseForFolder(Hwnd, sTitle, iOptions, vRootFolder)
 	}
 
 	return path;
-}
+};
 

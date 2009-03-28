@@ -11,7 +11,7 @@ if ( ! isa ) {
 function isa(value, constructor)
 {
 	return value !== undefined && value !== null && value.constructor == constructor;
-}
+};
 
 }
 
@@ -28,7 +28,7 @@ function isArray(value)
 {
 	return isa(value, Array);
 //	return value !== undefined && value !== null && value.constructor == Array;
-}
+};
 
 }
 
@@ -45,7 +45,7 @@ function isBoolean(value)
 {
 	return isa(value, Boolean);
 //	return value !== undefined && value !== null && value.constructor == Boolean;
-}
+};
 
 }
 
@@ -67,7 +67,7 @@ if ( ! isEmpty ) {
 function isEmpty(value)
 {
 	return ! Boolean(value);
-}
+};
 
 }
 
@@ -84,7 +84,7 @@ function isFunction(value)
 {
 	return isa(value, Function);
 //	return value !== undefined && value !== null && value.constructor == Function;
-}
+};
 
 }
 
@@ -100,7 +100,7 @@ if ( ! isIndefinite ) {
 function isIndefinite(value)
 {
 	return value === undefined || value === null;
-}
+};
 
 }
 
@@ -116,7 +116,7 @@ if ( ! isNull ) {
 function isNull(value)
 {
 	return value === null;
-}
+};
 
 }
 
@@ -133,7 +133,7 @@ function isNumber(value)
 {
 	return isa(value, Number);
 //	return value !== undefined && value !== null && value.constructor == Number;
-}
+};
 
 }
 
@@ -150,7 +150,7 @@ function isObject(value)
 {
 	return isa(value, Object);
 //	return value !== undefined && value !== null && value.constructor == Object;
-}
+};
 
 }
 
@@ -167,7 +167,7 @@ function isRegExp(value)
 {
 	return isa(value, RegExp);
 //	return value !== undefined && value !== null && value.constructor == RegExp;
-}
+};
 
 }
 
@@ -184,7 +184,7 @@ function isString(value)
 {
 	return isa(value, String);
 //	return value !== undefined && value !== null && value.constructor == String;
-}
+};
 
 }
 
@@ -200,7 +200,7 @@ if ( ! isUndefined ) {
 function isUndefined(value)
 {
 	return value === undefined;
-}
+};
 
 }
 

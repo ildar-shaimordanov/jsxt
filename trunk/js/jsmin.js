@@ -100,7 +100,7 @@ function jsmin(input, level, comment)
 	function isAlphanum(c) {
 		return c != EOF && (ALNUM.indexOf(c) > -1 || c.charCodeAt(0) > 126);
 //		return c != EOF && (ALNUM.has(c) || c.charCodeAt(0) > 126);
-	}
+	};
 
 
 	/* get -- return the next character. Watch out for lookahead. If the
@@ -126,7 +126,7 @@ function jsmin(input, level, comment)
 			return '\n';
 		}
 		return ' ';
-	}
+	};
 
 	get.i = 0;
 	get.l = input.length;
@@ -138,7 +138,7 @@ function jsmin(input, level, comment)
 	function peek() {
 		theLookahead = get();
 		return theLookahead;
-	}
+	};
 
 
 	/* next -- get the next character, excluding comments. peek() is used to see
@@ -178,7 +178,7 @@ function jsmin(input, level, comment)
 			}
 		}
 		return c;
-	}
+	};
 
 
 	/* action -- do something! What you do is determined by the argument:
@@ -239,7 +239,7 @@ function jsmin(input, level, comment)
 		}
 
 		return r.join('');
-	}
+	};
 
 
 	/* m -- Copy the input to the output, deleting the characters which are
@@ -333,7 +333,7 @@ function jsmin(input, level, comment)
 		}
 
 		return r.join('');
-	}
+	};
 
 	jsmin.oldSize = input.length;
 	ret = m(input);
@@ -341,5 +341,5 @@ function jsmin(input, level, comment)
 
 	return comment + ret;
 
-}
+};
 

@@ -10,7 +10,7 @@ if ( ! FileSystem ) {
 
 function FileSystem()
 {
-}
+};
 
 }
 
@@ -76,7 +76,7 @@ FileSystem.glob = function(pattern, foldersOnly)
 		result.push(i);
 	}
 	return result;
-}
+};
 
 }
 
