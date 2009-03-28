@@ -21,7 +21,7 @@ String.prototype.htmlize = function()
 		.replace(/"/g, '&quot;')
 		.replace(/</g, '&lt;')
 		.replace(/>/g, '&gt;');
-}
+};
 
 }
 
@@ -52,7 +52,7 @@ String.validBrackets = function(br)
 	var dbl = "/**/<??><%%>(**)";
 	return (br.length == 2 && (quot + sgl).indexOf(br) != -1)
 		|| (br.length == 4 && dbl.indexOf(br) != -1);
-}
+};
 
 }
 
@@ -75,7 +75,7 @@ String.prototype.bracketize = function(br)
 	}
 	var midPos = br.length / 2;
 	return br.substr(0, midPos) + string.toString() + br.substr(midPos);
-}
+};
 
 }
 
@@ -113,7 +113,7 @@ String.prototype.unbracketize = function(br)
 		string = string.substring(i + midPos, j);
 	}
 	return string;
-}
+};
 
 }
 
@@ -134,7 +134,7 @@ Number.prototype.radix = function(r, n, c)
 {
 	return this.toString(r).padding(-n, c);
 //	return this.toString(r).padding(-Math.abs(n), c);
-}
+};
 
 }
 
@@ -153,7 +153,7 @@ Number.prototype.bin = function(n, c)
 {
 	return this.radix(0x02, n, c);
 //	return this.radix(0x02, (n) ? n : 16, c);
-}
+};
 
 }
 
@@ -172,7 +172,7 @@ Number.prototype.oct = function(n, c)
 {
 	return this.radix(0x08, n, c);
 //	return this.radix(0x08, (n) ? n : 6, c);
-}
+};
 
 }
 
@@ -190,7 +190,7 @@ if ( ! Number.prototype.dec ) {
 Number.prototype.dec = function(n, c)
 {
 	return this.radix(0x0A, n, c);
-}
+};
 
 }
 
@@ -209,7 +209,7 @@ Number.prototype.hexl = function(n, c)
 {
 	return this.radix(0x10, n, c);
 //	return this.radix(0x10, (n) ? n : 4, c);
-}
+};
 
 }
 
@@ -227,7 +227,7 @@ if ( ! Number.prototype.hex ) {
 Number.prototype.hex = function(n, c)
 {
 	return this.hexl(n, c).toUpperCase();
-}
+};
 
 }
 
@@ -243,7 +243,7 @@ if ( ! String.prototype.ltrim ) {
 String.prototype.ltrim = function()
 {
 	return this.replace(/(^\s*)/, "");
-}
+};
 
 }
 
@@ -259,7 +259,7 @@ if ( ! String.prototype.rtrim ) {
 String.prototype.rtrim = function()
 {
 	return this.replace(/(\s*$)/g, "");
-}
+};
 
 }
 
@@ -275,7 +275,7 @@ if ( ! String.prototype.trim ) {
 String.prototype.trim = function()
 {
 	return this.replace(/(^\s*)|(\s*$)/g, "");
-}
+};
 
 }
 
@@ -292,7 +292,7 @@ String.prototype.dup = function()
 {
 	var val = this.valueOf();
 	return val + val;
-}
+};
 
 }
 
@@ -342,7 +342,7 @@ String.prototype.repeat = function(n)
 	var val = this.repeat(parseInt(n / 2));
 	return ((n % 2) ? this.origin : "") + val + val;
 */
-}
+};
 
 }
 
@@ -370,7 +370,7 @@ String.prototype.padding = function(n, c)
 	var pad = String(c).charAt(0).repeat(Math.abs(n) - this.length);
 	return (n < 0) ? pad + val : val + pad;
 //	return (n < 0) ? val + pad : pad + val;
-}
+};
 
 }
 
@@ -389,7 +389,7 @@ if ( ! String.prototype.padLeft ) {
 String.prototype.padLeft = function(n, c)
 {
 	return this.padding(-Math.abs(n), c);
-}
+};
 
 }
 
@@ -424,7 +424,7 @@ if ( ! String.prototype.padRight ) {
 String.prototype.padRight = function(n, c)
 {
 	return this.padding(Math.abs(n), c);
-}
+};
 
 }
 
@@ -579,7 +579,7 @@ String.prototype.sprintf = function()
 			x[2] + x[4], 
 			x[3].substr(x[3].length - 1) || " ");
 	});
-}
+};
 
 String.prototype.sprintf.re = /%%|%(\d+[\$#])?([+-])?('.|0| )?(\d*)(\.\d*)?([bcdfosuxX])/g;
 

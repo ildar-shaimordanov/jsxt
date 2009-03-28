@@ -18,7 +18,7 @@ function MHTML()
 	{
 		_headers[name.toLowerCase()] = value;
 		_headers_len++;
-	}
+	};
 
 	self.removeHeader = function(name)
 	{
@@ -28,7 +28,7 @@ function MHTML()
 
 		delete _headers[name.toLowerCase()];
 		_headers_len--;
-	}
+	};
 
 	self.addFile = function(filename, contentType)
 	{
@@ -47,12 +47,12 @@ function MHTML()
 
 		_postFiles[contentType].push(filename);
 		_postFiles_len++;
-	}
+	};
 
 	self.addBody = function(body)
 	{
 		_body = body;
-	}
+	};
 
 	function readFile(filename)
 	{
@@ -62,7 +62,7 @@ function MHTML()
 		s = h.ReadAll();
 		h.Close();
 		return s;
-	}
+	};
 
 	self.toString = function()
 	{
@@ -122,9 +122,9 @@ function MHTML()
 		}
 
 		return hdr + body + req;
-	}
+	};
 
-}
+};
 
 MHTML.mimeTypes = {
 	'gif': 'image/gif',

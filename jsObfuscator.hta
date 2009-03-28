@@ -3,11 +3,8 @@
 
 JavaScript Obfuscator
 
-Copyright 2001 by Mike Hall
-Please see http://www.brainjar.com for terms of use.
-
-Copyright (c) 2002 Douglas Crockford  (www.crockford.com)
-
+Copyright 2001 by Mike Hall http://www.brainjar.com
+Copyright 2002 by Douglas Crockford www.crockford.com
 Copyright 2009 by Ildar Shaimordanov
 
 -->
@@ -147,7 +144,7 @@ textarea	{
 		statusLine.innerHTML = statusLine.innerHTML 
 			+ ' <b>Size:</b> [' + iLen + '/' + oLen + ']' 
 			+ ' <b>Saved:</b> ' + (100 - (oLen / iLen * 100)).toFixed(2) + '%';
-	}
+	};
 
 	function initWin()
 	{
@@ -182,7 +179,7 @@ textarea	{
 			copy.disabled  = ! Boolean(oLen);
 			clear.disabled = ! Boolean(iLen) && ! Boolean(oLen);
 		}, 100);
-	}
+	};
 
 	function initHta()
 	{
@@ -190,7 +187,7 @@ textarea	{
 		window.resizeTo(w, h);
 
 		initWin();
-	}
+	};
 
 	/**
 	 * Copy text to clipboard.
@@ -216,7 +213,7 @@ textarea	{
 
 		BodyRange.execCommand('Copy'); 
 		return true;
-	} 
+	}; 
 
 	/**
 	 * Handles mouse clicks(for HTA only)
@@ -262,7 +259,7 @@ textarea	{
 			}
 			break;
 		}
-	}
+	};
 
 	/**
 	 * Handles keystrokes (for HTA only)
@@ -286,7 +283,7 @@ textarea	{
 				return false;
 			}
 		}
-	}
+	};
 
 	if ( window.attachEvent ) {
 		if ( window.oHTA && oHTA.applicationName ) {
@@ -314,8 +311,8 @@ textarea	{
 <form action="" id="obuscatorForm" onsubmit="return false">
 
 <h1>JavaScript Obfuscator</h1>
-<div style="font-size: 9px;">Copyright &copy; 2001 by Mike Hall, <a tabindex="32767" target="_blank" href="http://www.brainjar.com">http://www.brainjar.com</a></div>
-<div style="font-size: 9px;">Copyright &copy; 2002 by Douglas Crockford (www.crockford.com)</div>
+<div style="font-size: 9px;">Copyright &copy; 2001 by Mike Hall</div>
+<div style="font-size: 9px;">Copyright &copy; 2002 by Douglas Crockford</div>
 <div style="font-size: 9px;">Copyright &copy; 2009 by Ildar Shaimordanov</div>
 
 <fieldset>

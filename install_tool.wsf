@@ -64,7 +64,7 @@ function readFile(filename)
 	s = h.ReadAll();
 	h.Close();
 	return s;
-}
+};
 
 function writeFile(filename, text)
 {
@@ -74,14 +74,14 @@ function writeFile(filename, text)
 	h = f.OpenAsTextStream(2);
 	h.Write(text);
 	h.Close();
-}
+};
 
 var filename = WScript.Arguments(0);
 var target = WScript.Arguments(1);
 
 var scriptOuter = filename.match(/\.wsf$/i) 
-	? '\x3Cscript language="javascript">\x3C![CDATA[\n\n//%s\n\n%s\n]]\x3E</script\x3E' 
-	: '\x3Cscript language="javascript">\n\n//%s\n\n%s\n</script\x3E';
+	? '\x3Cscript language="javascript">\x3C![CDATA[\n\n//%s\n%s\n\n]]\x3E</script\x3E' 
+	: '\x3Cscript language="javascript">\n\n//%s\n%s\n\n</script\x3E';
 
 var content = readFile(filename);
 
@@ -91,7 +91,7 @@ content = content.replace(/<script.*?src="(js\/.+\.js)".*?\/script>/g, function(
 	var s;
 
 	s = readFile(f);
-//	s = jsmin(s, 3, '');
+	s = jsmin(s, 3, '');
 //	s = '\n' + obfuscate(s, function(text) { WScript.Echo(text); });
 
 	return scriptOuter.sprintf(f, s);

@@ -149,7 +149,7 @@ function getDenwerFolder(spec)
 	}
 
 	return spec;
-}
+};
 
 function getDenwerList()
 {
@@ -190,7 +190,7 @@ function getDenwerList()
 	}
 
 	return result;
-}
+};
 
 function createDenwerList()
 {
@@ -205,7 +205,7 @@ function createDenwerList()
 	for (var i = 0; i < list.length; i++) {
 		installPath.options[i] = new Option(list[i], list[i]);
 	}
-}
+};
 
 
 // Creator of shortcuts
@@ -228,7 +228,7 @@ function createShortcut(location, installPath, shortcut)
 	lnk.Description      = shortcut.descr;
 	lnk.WorkingDirectory = (shortcut.wdir) ? shortcut.wdir : installPath + '\\' + denwerCtrlPath;
 	lnk.Save();
-}
+};
 
 function execCreateShortcut()
 {
@@ -257,7 +257,7 @@ function execCreateShortcut()
 	if (confirm('All links are created.\nClose the application?')) {
 		window.close();
 	}
-}
+};
 
 </script>
 <script type="text/javascript" language="javascript">
@@ -278,7 +278,7 @@ function initWin()
 	}
 
 	createDenwerList();
-}
+};
 
 </script>
 </head>

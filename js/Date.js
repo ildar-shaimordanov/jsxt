@@ -25,7 +25,7 @@ Date.prototype.getDayName = function(full)
 	var sname = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 	var lname = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 	return (full ? lname : sname)[this.getDay()];
-}
+};
 
 }
 
@@ -69,7 +69,7 @@ Date.prototype.getMonthName = function(full)
 	var sname = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 	var lname = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 	return (full ? lname : sname)[this.getMonth()];
-}
+};
 
 }
 
@@ -118,7 +118,7 @@ Date.prototype.getTimezone = function()
 		+ h.substr(h.length - 2) 
 		+ m.substr(m.length - 2) ;
 	return result;
-}
+};
 
 }
 
@@ -138,7 +138,7 @@ if ( ! Date.prototype.getDaytime ) {
 Date.prototype.getDaytime = function()
 {
 	return this.getHours() < 12 ? 'AM' : 'PM';
-}
+};
 
 }
 
@@ -160,7 +160,7 @@ Date.prototype.getDateToday = function ()
 {
 	var here = new Date();
 	return (this.getMonth() == here.getMonth() && this.getFullYear() == here.getFullYear()) ? here.getDate() : 0;
-}
+};
 
 }
 
@@ -183,7 +183,7 @@ Date.prototype.getYearDay = function ()
 	var here = new Date(this.getTime());
 	here.setMonth(0, 1);
 	return Math.round((this - here) / (60 * 60 * 24 * 1000));
-}
+};
 
 }
 
@@ -206,7 +206,7 @@ Date.prototype.getDaysInMonth = function ()
 	var here = new Date(this.getTime());
 	here.setDate(32);
 	return 32 - here.getDate();
-}
+};
 
 }
 
@@ -248,7 +248,7 @@ Date.prototype.getCalendar = function ()
 		weeks[i][7] = weeks[i + 1][0];
 	}
 	return weeks;
-}
+};
 
 }
 
@@ -318,6 +318,6 @@ function simple(time, tr)
 		}
 	}
 	return result;
-}
+};
 
 **/

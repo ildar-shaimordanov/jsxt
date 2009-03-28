@@ -58,7 +58,7 @@ function InitWin() {
     moveTo((width - w) / 2, (height - h) / 2);
     resizeTo(w, h);
   }
-}
+};
 
 function InitScrollBar(c, v) {
   document.write("<TD WIDTH=25>"
@@ -71,48 +71,48 @@ function InitScrollBar(c, v) {
       + "<PARAM NAME=Position VALUE=" + v + ">"
     + "</OBJECT>"
   + "</TD>");
-}
+};
 
 function InitIndicator(c, t) {
   document.write("<TD COLSPAN=3 WIDTH=50%>" + t
     + "<SPAN CLASS=RGBValue ID=" + c + "RGBValue></SPAN>"
     + "<INPUT TYPE=button CLASS=btnCopy VALUE=\"Copy " + t + "\" ONCLICK=\"CopyColor(" + c + "RGBValue)\">"
   + "</TD>");
-}
+};
 
 function InitRGB() {
   rgbHex.checked = true;
   SetRGB();
-}
+};
 
-function leftPad(x) { return (x.length < 2) ? "0" + x : x; }
-function Hex(x) { return leftPad(x.toString(0x10).toUpperCase()); }
+function leftPad(x) { return (x.length < 2) ? "0" + x : x; };
+function Hex(x) { return leftPad(x.toString(0x10).toUpperCase()); };
 
 function GetRGBValue(r, g, b) {
   return (rgbHex.checked)
     ? Hex(r.Value) + Hex(g.Value)  + Hex(b.Value)
     : r.Value + "," + g.Value + "," + b.Value;
-}
+};
 
 function SetRGBValue() {
   FRGBValue.innerText = GetRGBValue(FRBar, FGBar, FBBar);
   BRGBValue.innerText = GetRGBValue(BRBar, BGBar, BBBar);
-}
+};
 
 function GetRGBColor(r, g, b) {
   return "rgb(" + r.Value + "," + g.Value + "," + b.Value + ")";
-}
+};
 
 function SetRGB() {
   SetRGBValue();
   Sample.style.color           = GetRGBColor(FRBar, FGBar, FBBar);
   Sample.style.backgroundColor = GetRGBColor(BRBar, BGBar, BBBar);
-}
+};
 
 function GetMSIEVersion() {
   var browser_name_start = navigator.appVersion.indexOf("MSIE");
   return parseInt(navigator.appVersion.substr(browser_name_start + 5, 1));
-}
+};
 
 // originally got from decompiled `php_manual_en.chm`
 function CopyColor(obj) {
@@ -123,7 +123,7 @@ function CopyColor(obj) {
     BodyRange.moveToElementText(obj);
     BodyRange.execCommand("Copy");
   }
-}
+};
 </script>
 </head>
 
@@ -162,12 +162,12 @@ function CopyColor(obj) {
 </div>
 
 <script type="text/javascript" language="javascript">
-function FRBar::change() { SetRGB(); this.blur(); }
-function FGBar::change() { SetRGB(); this.blur(); }
-function FBBar::change() { SetRGB(); this.blur(); }
-function BRBar::change() { SetRGB(); this.blur(); }
-function BGBar::change() { SetRGB(); this.blur(); }
-function BBBar::change() { SetRGB(); this.blur(); }
+function FRBar::change() { SetRGB(); this.blur(); };
+function FGBar::change() { SetRGB(); this.blur(); };
+function FBBar::change() { SetRGB(); this.blur(); };
+function BRBar::change() { SetRGB(); this.blur(); };
+function BGBar::change() { SetRGB(); this.blur(); };
+function BBBar::change() { SetRGB(); this.blur(); };
 </script>
 
 </body>

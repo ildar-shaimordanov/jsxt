@@ -60,8 +60,8 @@ body {
 </style>
 
 <script>
-function leftPad(x) { return (x.length < 2) ? "0" + x : x; }
-function hex(x) { return leftPad(x.toString(0x10).toUpperCase()); }
+function leftPad(x) { return (x.length < 2) ? "0" + x : x; };
+function hex(x) { return leftPad(x.toString(0x10).toUpperCase()); };
 
 // Generating of the table and it's content
 function getColorCell(r, g, b, color) {
@@ -69,7 +69,7 @@ function getColorCell(r, g, b, color) {
   var color = (g > 0x80) ? "#000000" : "#FFFFFF";
   var cell = "<TD CLASS=safeColor STYLE=\"background-color: #" + rgb + "; color: " + color + ";\">" + rgb + "</TD>";
   return cell;
-}
+};
 
 function initTables() {
   var rgbDec = "<TR><TH>RGB</TH>";
@@ -91,7 +91,7 @@ function initTables() {
   rgbDec += "</TR>";
   rgbHex += "</TR>";
   descr.innerHTML += "<TABLE BORDER=1 CELLSPACING=0 CELLPADDING=3 WIDTH=100%>" + rgbDec + rgbHex + "</TABLE>";
-}
+};
 
 // Floating panel control
 var parserLeft = "";
@@ -100,12 +100,12 @@ var parserTop = "";
 function initRGBParser() {
 //  parserLeft = rgbParser.offsetLeft;
   parserTop = rgbParser.offsetTop;
-}
+};
 
 function setRGBParser() {
 //  rgbParser.style.pixelLeft = document.body.scrollLeft + parserLeft;
   rgbParser.style.pixelTop = document.body.scrollTop + parserTop;
-}
+};
 
 window.onload = initRGBParser;
 window.onscroll = setRGBParser;
@@ -121,14 +121,14 @@ function resetAll() {
   stdTempl.style.backgroundColor = "";
   stdTempl.style.color = "#000000";
   stdTempl.innerText = "Example";
-}
+};
 
 function changeRGBValue() {
   if (rgb === false) return;
   stdTempl.innerText = (f.rgbDec.checked) ? [r, g, b] : hex(r) + hex(g) + hex(b);
   stdTempl.style.backgroundColor = "#" + hex(r) + hex(g) + hex(b);
   stdTempl.style.color = (g > 0x80) ? "#000000" : "#FFFFFF";
-}
+};
 
 function clickHandle() {
   var e = window.event.srcElement;
@@ -140,14 +140,14 @@ function clickHandle() {
     b = rgb         & 0xFF;
     changeRGBValue();
   }
-}
+};
 
 document.onclick = clickHandle;
 
 function getMSIEversion() {
   var browser_name_start = navigator.appVersion.indexOf("MSIE");
   return parseInt(navigator.appVersion.substr(browser_name_start + 5, 1));
-}
+};
 
 // originally got from decompiled `php_manual_en.chm`
 function copyColor() {
@@ -158,7 +158,7 @@ function copyColor() {
     BodyRange.moveToElementText(stdTempl);
     BodyRange.execCommand("Copy");
   }
-}
+};
 </script>
 </head>
 

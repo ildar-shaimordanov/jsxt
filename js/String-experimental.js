@@ -56,7 +56,7 @@ String.prototype.split = function(delim, limit)
         return this.valueOf();
     }
     return this.__split__(delim, limit);
-}
+};
 
 if ( ! String.prototype.parseUrl ) {
 
@@ -87,7 +87,7 @@ String.prototype.parseUrl = function()
 		'fragment': matches[9] || ''};
 
 	return result;
-}
+};
 
 String.prototype.parseUrl.re = /^(?:([a-z]+):(?:([a-z]*):)?\/\/)?(?:([^:@]*)(?::([^:@]*))?@)?((?:[a-z0-9_-]+\.)+[a-z]{2,}|localhost|(?:(?:[01]?\d\d?|2[0-4]\d|25[0-5])\.){3}(?:(?:[01]?\d\d?|2[0-4]\d|25[0-5])))(?::(\d+))?(?:([^:\?\#]+))?(?:\?([^\#]+))?(?:\#([^\s]+))?$/i;
 

@@ -169,7 +169,7 @@ function BrowseForFolder(Hwnd, sTitle, iOptions, vRootFolder)
 	}
 
 	return path;
-}
+};
 
 </script>
 <script type="text/javascript" language="javascript">
@@ -203,7 +203,7 @@ var sandbox = new (function()
 	self.getFolders = function()
 	{
 		return folders;
-	}
+	};
 
 	/**
 	 * Returns the full pathname of the content installer
@@ -215,7 +215,7 @@ var sandbox = new (function()
 	self.getContentInstaller = function()
 	{
 		return installer;
-	}
+	};
 
 	/**
 	 * Returns the full pathname of the content uninstaller
@@ -227,7 +227,7 @@ var sandbox = new (function()
 	self.getContentUninstaller = function()
 	{
 		return uninstaller;
-	}
+	};
 
 	/**
 	 * Returns the name of the sandbox
@@ -239,7 +239,7 @@ var sandbox = new (function()
 	self.getProjectName = function()
 	{
 		return name;
-	}
+	};
 
 	/**
 	 * Launches the content installer.
@@ -254,7 +254,7 @@ var sandbox = new (function()
 		var result = wsh.Run(self.getContentInstaller() + " " + sandbox_path, 1, true);
 
 		return false;
-	}
+	};
 
 	/**
 	 * Sets the content installer
@@ -266,7 +266,7 @@ var sandbox = new (function()
 	self.setContentInstaller = function(value)
 	{
 		installer = value;
-	}
+	};
 
 	/**
 	 * Sets the content uninstaller
@@ -278,7 +278,7 @@ var sandbox = new (function()
 	self.setContentUninstaller = function(value)
 	{
 		uninstaller = value;
-	}
+	};
 
 	/**
 	 * Sets the sandbox name
@@ -290,7 +290,7 @@ var sandbox = new (function()
 	self.setProjectName = function(value)
 	{
 		name = value;
-	}
+	};
 
 })();
 
@@ -303,7 +303,7 @@ var sandbox = new (function()
 function setDefaultPath()
 {
 	document.getElementById("SANDBOX_PATH").value = "C:\\" + sandbox.getProjectName();
-}
+};
 
 function setDefaultDisk()
 {
@@ -358,7 +358,7 @@ function setDefaultDisk()
 	if ( sandbox_disk.options.selectedIndex < 0 ) {
 		sandbox_disk.options.selectedIndex = sandbox_disk.options.length - 1;
 	}
-}
+};
 
 setDefaultDisk.list = "";
 
@@ -367,7 +367,7 @@ function setDefaultPersist()
 	// Prevent unsupported Windows 95/98/Me
 	document.getElementById("persist_disk").disabled = env("OS") != "Windows_NT";
 	document.getElementById("persist_disk").checked = env("OS") == "Windows_NT";
-}
+};
 
 function setIcons(checked)
 {
@@ -385,7 +385,7 @@ function setIcons(checked)
 		document.getElementById("icons_desktop").checked || 
 		document.getElementById("icons_startmenu").checked || 
 		document.getElementById("icons_startup").checked );
-}
+};
 
 // Installers
 
@@ -438,18 +438,18 @@ function isSandboxPath(spec)
 
 	// ... that should be hidden, archive and read-only
 	return !! (controlFile.Attributes & FA_HIDDEN && controlFile.Attributes & FA_READONLY && controlFile.Attributes & FA_ARCHIVE);
-}
+};
 
 function modifyExecuteButton()
 {
 	var path = document.getElementById("SANDBOX_PATH").value;
 	document.getElementById("execute").disabled = ! setDefaultDisk.list.length || path == "" || isSandboxPath(path);
-}
+};
 
 function alarm(err, msg)
 {
 	alert((msg ? msg + "\n" : "") + "\nError Code: " + (err.number & 0xFFFF) + "\nError Message: " + err.description);
-}
+};
 
 function createSandboxFolder(path, overwrite)
 {
@@ -476,7 +476,7 @@ function createSandboxFolder(path, overwrite)
 		throw new Error("Sandbox Error");
 		return false;
 	}
-}
+};
 
 createSandboxFolder.list = [];
 
@@ -507,7 +507,7 @@ function createSandboxFile(path, container, attr, replacer)
 		throw new Error("Sandbox Error");
 		return false;
 	}
-}
+};
 
 createSandboxFile.list = [];
 
@@ -532,7 +532,7 @@ function createSandboxShortcut(path, action, folder)
 //	lnk.Description		= "";
 //	lnk.WorkingDirectory	= "";
 	lnk.Save();
-}
+};
 
 function createSandboxPersist(disk, path)
 {
@@ -548,7 +548,7 @@ function createSandboxPersist(disk, path)
 	} catch(e) {
 		return null;
 	}
-}
+};
 
 function installSandboxContent(sandbox_path)
 {
@@ -558,7 +558,7 @@ function installSandboxContent(sandbox_path)
 	}
 
 	return sandbox.launchContentInstaller(sandbox_path);
-}
+};
 
 function installSandbox()
 {
@@ -660,7 +660,7 @@ function installSandbox()
 	// Disable the "Execute" button
 	document.getElementById("execute").disbled = true;
 	document.getElementById("execute").style.visibility = "hidden";
-}
+};
 
 </script>
 <script type="text/javascript" language="javascript">
@@ -681,19 +681,19 @@ function setTimerInterval(time)
 
 		modifyExecuteButton();
 	}, time);
-}
+};
 
 function initForm()
 {
 	setDefaultPath();
 	setDefaultPersist();
-}
+};
 
 function closeWin()
 {
 	setTimerInterval();
 	window.close();
-}
+};
 
 function handleKeydown(e)
 {
@@ -704,7 +704,7 @@ function handleKeydown(e)
 	if ( e.keyCode == 116 ) {
 		return e.returnValue = false;
 	}
-}
+};
 
 function initWin()
 {
@@ -745,7 +745,7 @@ function initWin()
 
 	setTimerInterval(100);
 	initForm();
-}
+};
 
 </script>
 </head>

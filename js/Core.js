@@ -210,7 +210,7 @@ Object.prototype.writeln = function()
 {
 	WScript.Echo(this);
 	return this;
-}
+};
 
 } else {
 
@@ -222,7 +222,7 @@ Object.prototype.alert = function()
 {
 	alert(this);
 	return this;
-}
+};
 
 Boolean.prototype.write = 
 Number.prototype.write = 
@@ -232,8 +232,7 @@ Object.prototype.write = function()
 {
 	document.write(this);
 	return this;
-}
-
+};
 
 Boolean.prototype.echo = 
 Boolean.prototype.print = 
@@ -257,7 +256,7 @@ Object.prototype.writeln = function()
 {
 	document.writeln(this);
 	return this;
-}
+};
 
 }
 
@@ -359,7 +358,7 @@ Core.dump = function(object, nest, padding)
 	default:
 		return object;
 	}
-}
+};
 
 }
 
@@ -390,7 +389,7 @@ Core.clone = function(object)
 		newObject[objectItem] = Core.clone(object[objectItem]);
 	}
 	return newObject;
-}
+};
 
 }
 
@@ -411,7 +410,7 @@ Error.prototype.format = function()
 {
 	var frmt = function(name, value) {
 		return name + "\t:\t" + value + "\n";
-	}
+	};
 
 	var name = frmt("name", this.name);
 	var message = this.message;
@@ -447,7 +446,7 @@ Error.prototype.format = function()
 	}
 
 	return s;
-}
+};
 
 }
 

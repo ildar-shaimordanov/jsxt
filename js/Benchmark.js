@@ -95,7 +95,7 @@ Function.prototype.eval = function()
 	}
 
 	return result;
-}
+};
 
 Function.prototype.evalCount = 1000;
 Function.prototype.evalPrint = function()
@@ -106,7 +106,7 @@ Function.prototype.evalPrint = function()
 	} catch (e) {
 		WScript.Echo(this.evalCount, this.evalDuration);
 	}
-}
+};
 
 }
 

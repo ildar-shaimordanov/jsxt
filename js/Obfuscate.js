@@ -87,7 +87,7 @@ function obfuscate(input, debugfunc)
 			t += "\n";
 		}
 		return t;
-	}
+	};
 
 	/**
 	 * Removes comments
@@ -118,7 +118,7 @@ function obfuscate(input, debugfunc)
 		}
 
 		return t;
-	}
+	};
 
 	/**
 	 * Compresses whitespaces
@@ -137,7 +137,7 @@ function obfuscate(input, debugfunc)
 			// Remove uneccessary white space around operators, braces and parentices.
 			.replace(/\s([\x21\x25\x26\x28\x29\x2a\x2b\x2c\x2d\x2f\x3a\x3b\x3c\x3d\x3e\x3f\x5b\x5d\x5c\x7b\x7c\x7d\x7e])/g, "$1")
 			.replace(/([\x21\x25\x26\x28\x29\x2a\x2b\x2c\x2d\x2f\x3a\x3b\x3c\x3d\x3e\x3f\x5b\x5d\x5c\x7b\x7c\x7d\x7e])\s/g, "$1");
-	}
+	};
 
 	/**
 	 * Fix function assignments
@@ -149,7 +149,7 @@ function obfuscate(input, debugfunc)
 	function fixFunctionAssignment(s)
 	{
 		return s;
-	}
+	};
 
 	/**
 	 * restores temporarily saved litelrals
@@ -164,7 +164,7 @@ function obfuscate(input, debugfunc)
 			s = s.replace(new RegExp("__" + i + "__"), literalStrings[i]);
 		}
 		return s;
-	}
+	};
 
 	/**
 	 * Combines litelrals
@@ -176,7 +176,7 @@ function obfuscate(input, debugfunc)
 	function combineLiteralStrings(s)
 	{
 		return s.replace(/"\+"/g, "").replace(/'\+'/g, "");
-	}
+	};
 
 	/**
 	 *
@@ -233,5 +233,5 @@ function obfuscate(input, debugfunc)
 
 	return output;
 
-}
+};
 

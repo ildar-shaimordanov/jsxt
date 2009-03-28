@@ -75,7 +75,7 @@ Array.prototype.every = function(fun, thisp)
 	}
 
 	return true;
-}
+};
 
 }
 
@@ -144,7 +144,7 @@ Array.prototype.filter = function(fun, thisp)
 	}
 
 	return res;
-}
+};
 
 }
 
@@ -208,12 +208,11 @@ Array.prototype.forEach = function(fun, thisp)
 			fun.call(thisp, this[i], i, this);
 		}
 	}
-}
+};
 
 }
 
-if (!Array.prototype.indexOf)
-{
+if (!Array.prototype.indexOf) {
 
 /**
  * Returns the first index at which a given element can be found in the array, or -1 if it is not present.
@@ -262,12 +261,11 @@ Array.prototype.indexOf = function(elt /*, from*/)
 		}
 	}
 	return -1;
-}
+};
 
 }
 
-if (!Array.prototype.lastIndexOf)
-{
+if (!Array.prototype.lastIndexOf) {
 
 /**
  * Returns the last index at which a given element can be found in the array, 
@@ -325,7 +323,7 @@ Array.prototype.lastIndexOf = function(elt /*, from*/)
 		}
 	}
 	return -1;
-}
+};
 
 }
 
@@ -388,7 +386,7 @@ Array.prototype.map = function(fun, thisp)
 	}
 
 	return res;
-}
+};
 
 }
 
@@ -470,7 +468,7 @@ Array.prototype.reduce = function(fun)
 	}
 
 	return rv;
-}
+};
 
 }
 
@@ -545,7 +543,7 @@ Array.prototype.reduceRight = function(fun)
 	}
 
 	return rv;
-}
+};
 
 }
 
@@ -571,7 +569,7 @@ Array.prototype.shuffle = function()
 	{
 		return Math.random() - Math.random();
 	});
-}
+};
 
 }
 
@@ -638,7 +636,7 @@ Array.prototype.some = function(fun, thisp)
 	}
 
 	return false;
-}
+};
 
 }
 
@@ -678,7 +676,7 @@ Array.prototype.union = function(list, callback)
 		callback = function(value1, value2)
 		{
 			return value1 != value2;
-		}
+		};
 	}
 
 	var result = this;
@@ -697,7 +695,7 @@ SEARCH_UNIQUE:
 		L++;
 	}
 	return result;
-}
+};
 
 }
 
@@ -729,7 +727,7 @@ Array.linearize = function(object)
 	}
 
 	return result;
-}
+};
 
 }
 
@@ -755,7 +753,7 @@ Array.enumerate = function(collection, callback)
 		callback = function(i)
 		{
 			return i;
-		}
+		};
 	} else if ( typeof callback != "function" ) {
 		throw new TypeError();
 	}
@@ -768,7 +766,7 @@ Array.enumerate = function(collection, callback)
 	}
 
 	return result;
-}
+};
 
 }
 
@@ -830,7 +828,7 @@ Array.range = function()
 		}
 	}
 	return result;
-}
+};
 
 }
 
@@ -857,7 +855,7 @@ Number.prototype.fill = function(size)
 	}
 
 	return result;
-}
+};
 
 }
 
@@ -898,7 +896,7 @@ Number.prototype.step = function()
 	}
 
 	return result;
-}
+};
 
 }
 
@@ -932,8 +930,7 @@ Number.prototype.to = function(to)
 	}
 
 	return result;
-}
+};
 
 }
-
 
