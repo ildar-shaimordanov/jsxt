@@ -48,6 +48,9 @@ Example: doc2html.wsf document.doc
 <object id="wshShell" progid="WScript.Shell" />
 <script language="javascript" src="js/win32/FileSystem.js"></script>
 <script language="javascript" src="js/Globals.js"></script>
+<script language="javascript" src="js/Array.js"></script>
+<script language="javascript" src="js/Object.js"></script>
+<script language="javascript" src="js/win32/Enumerator.js"></script>
 <script language="javascript"><![CDATA[
 
 if ( WScript.Arguments.length < 1 ) {
@@ -104,16 +107,17 @@ try {
 			logInfo('The folder already exists');
 		}
 
-		var lnk;
-		for (var p in formats) {
-			logInfo('Creating of the shortcut for "' + p + '" format');
+		formats.forEach(function(value, key)
+		{
+			logInfo('Creating of the shortcut for "' + key + '" format');
 
-			lnk = wshShell.CreateShortcut(folder + '\\doc2' + p + '.lnk');
+			var lnk;
+			lnk = wshShell.CreateShortcut(folder + '\\doc2' + key + '.lnk');
 			lnk.TargetPath = 'wscript';
-			lnk.Arguments = WScript.ScriptFullName + ' /f:' + p;
-			lnk.Description = 'Convert .DOC to .' + p.toUpperCase();
+			lnk.Arguments = WScript.ScriptFullName + ' /f:' + key;
+			lnk.Description = 'Convert .DOC to .' + key.toUpperCase();
 			lnk.Save();
-		}
+		}, true);
 
 		logInfo('Done');
 		WScript.Quit();
@@ -157,8 +161,9 @@ try {
 		word.Activate();
 	}
 
-	for (var i = 0; i < filelist.length; i++) {
-		var docfile = String(filelist[i]);
+	filelist.forEach(function(filename)
+	{
+		var docfile = String(filename);
 		var newfile = docfile.replace(/\.[^\.]+$/, '.' + fileFormat);
 
 		logInfo('Open "' + docfile + '"');
@@ -169,7 +174,7 @@ try {
 
 		logInfo('Close this document');
 		word.ActiveDocument.Close();
-	}
+	});
 
 } catch (e) {
 

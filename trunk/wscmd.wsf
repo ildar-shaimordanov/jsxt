@@ -5,7 +5,7 @@
 <?job error="true" debug="false" ?>
 
 <runtime>
-<description><![CDATA[Windows Scripting Command Interpreter Version 0.2 Beta
+<description><![CDATA[Windows Scripting Command Interpreter Version 0.3 Beta
 Copyright (C) 2009 Ildar Shaimordanov
 ]]></description>
 <named
@@ -72,9 +72,11 @@ goto check_for_help
 <script language="javascript" src="js/Benchmark.js"></script>
 <script language="javascript" src="js/Globals.js"></script>
 <script language="javascript" src="js/Array.js"></script>
+<script language="javascript" src="js/Object.js"></script>
 <script language="javascript" src="js/Date.js"></script>
 <script language="javascript" src="js/NetIP.js"></script>
 <script language="javascript" src="js/win32/FileSystem.js"></script>
+<script language="javascript" src="js/win32/Enumerator.js"></script>
 <script language="javascript"><![CDATA[
 
 var echo = print = function()
@@ -116,7 +118,8 @@ var script;
 
 	var file_not_found = function(filename)
 	{
-		print('File "' + filename + '" not found.');
+		'File "%s" not found'.sprintf(filename).print();
+//		print('File "' + filename + '" not found.');
 		exit(255);
 	};
 

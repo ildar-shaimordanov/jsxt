@@ -732,45 +732,6 @@ Array.linearize = function(object)
 
 }
 
-if ( ! Array.enumerate ) {
-
-/**
- * Array.enumerate()
- *
- * @description
- * The static method allows to get an array from the collection 
- * using Enumerator to extract each item from collections.
- *
- * Note: This feature is available from Win32 only.
- *
- * @param	Object
- * @param	Callback
- * @return	Array
- * @access	static
- */
-Array.enumerate = function(collection, callback)
-{
-	if ( ! callback ) {
-		callback = function(i)
-		{
-			return i;
-		};
-	} else if ( typeof callback != "function" ) {
-		throw new TypeError();
-	}
-
-	var e = new Enumerator(collection);
-	var result = [];
-
-	for (; ! e.atEnd(); e.moveNext()) {
-		result.push(callback(e.item()));
-	}
-
-	return result;
-};
-
-}
-
 if ( ! Array.range ) {
 
 /**
