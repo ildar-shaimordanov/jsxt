@@ -377,8 +377,9 @@ Array.prototype.map = function(fun, thisp)
 		throw new TypeError();
 	}
 
-	var res = new Array(len);
 	var len = this.length;
+	var res = new Array(len);
+
 	for (var i = 0; i < len; i++) {
 		if ( i in this ) {
 			res[i] = fun.call(thisp, this[i], i, this);
