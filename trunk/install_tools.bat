@@ -19,13 +19,19 @@ rem
 set INSTALL_EXCLUDE=%~nx0 install_tool.wsf Sandbox.js
 
 
+rem
+rem Obfuscate a code
+rem
+set SQUEEZE=/squeeze
+
+
 if "%~1" == "__GET_LIST_NOW__" goto :get_list_now
 
 if not exist "%INSTALL_PATH%" md "%INSTALL_PATH%"
 
 for /f %%a in ( 'call %0 __GET_LIST_NOW__' ) do (
 	echo Processing '%%a'...
-	cscript //NoLogo install_tool.wsf %%a "%INSTALL_PATH%"
+	cscript //NoLogo install_tool.wsf "%%a" "%INSTALL_PATH%" %SQUEEZE%
 	echo.
 )
 

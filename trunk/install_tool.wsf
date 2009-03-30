@@ -36,6 +36,12 @@ tool can be used without emergency of lost some parts of tool.
 	many="false"
 	required="true"
 />
+<named
+	name="SQUEEZE"
+	helpstring="Specifies this argument if you need obfuscate a code"
+	type="boolean"
+	required="false"
+/>
 <example>
 Example: install_tool.wsf install_tool.wsf C:\MyTools
 </example>
@@ -71,8 +77,10 @@ content = content.replace(/<script.*?src="(js\/.+\.js)".*?\/script>/g, function(
 	var s;
 
 	s = FileSystem.readFile(f);
-	s = jsmin(s, 3, '');
-//	s = '\n' + obfuscate(s, function(text) { WScript.Echo(text); });
+	if ( WScript.Arguments.Named.Exists('SQUEEZE') ) {
+		s = jsmin(s, 3, '');
+//		s = '\n' + obfuscate(s, function(text) { WScript.Echo(text); });
+        }
 
 	return scriptOuter.sprintf(f, s);
 });
