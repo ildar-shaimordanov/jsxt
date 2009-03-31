@@ -31,7 +31,7 @@ if not exist "%INSTALL_PATH%" md "%INSTALL_PATH%"
 
 for /f %%a in ( 'call %0 __GET_LIST_NOW__' ) do (
 	echo Processing '%%a'...
-	cscript //NoLogo install_tool.wsf "%%a" "%INSTALL_PATH%" %SQUEEZE%
+	cscript //NoLogo install_tool.wsf %SQUEEZE% "%%a" "%INSTALL_PATH%"
 	echo.
 )
 
