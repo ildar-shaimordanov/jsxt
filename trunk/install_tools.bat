@@ -25,21 +25,17 @@ rem
 set SQUEEZE=/squeeze
 
 
-if "%~1" == "__GET_LIST_NOW__" goto :get_list_now
-
+rem
+rem Main loop
+rem
 if not exist "%INSTALL_PATH%" md "%INSTALL_PATH%"
 
-for /f %%a in ( 'call %0 __GET_LIST_NOW__' ) do (
+set INSTALL_CMD=dir /b %INSTALL_LIST%
+if defined INSTALL_EXCLUDE set INSTALL_CMD=%INSTALL_CMD% ^^^| findstr /v "%INSTALL_EXCLUDE%"
+
+for /f %%a in ( '%INSTALL_CMD%' ) do (
 	echo Processing '%%a'...
 	cscript //NoLogo install_tool.wsf %SQUEEZE% "%%a" "%INSTALL_PATH%"
 	echo.
 )
-
-goto :EOF
-
-
-:get_list_now
-if     defined INSTALL_EXCLUDE dir /b %INSTALL_LIST% | findstr /v "%INSTALL_EXCLUDE%"
-if not defined INSTALL_EXCLUDE dir /b %INSTALL_LIST%
-goto :EOF
 
