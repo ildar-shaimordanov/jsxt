@@ -727,6 +727,37 @@ SEARCH_UNIQUE:
 
 }
 
+
+if ( ! Array.prototype.invoke ) {
+
+/**
+ * Invokes the method with the arguments for all elements of 
+ * the array and returns the new array. The rest of arguments 
+ * will be passed to the method.
+ *
+ * @example
+ * <code>
+ * // Converts each numeric element to hexadecimal string
+ * var arr1 = [2, 14, 7];
+ * var arr2 = arr1.invoke('toString', 16);
+ * </code>
+ *
+ * @param	String
+ * @return	Array
+ * @access	public
+ */
+Array.prototype.invoke = function(method)
+{
+	var args = Array.linearize(arguments).slice(1);
+	var result = this.map(function(v, i)
+	{
+		return v[method].apply(v, args);
+	});
+	return result;
+};
+
+}
+
 if ( ! Array.linearize ) {
 
 /**
@@ -744,14 +775,13 @@ if ( ! Array.linearize ) {
  */
 Array.linearize = function(object)
 {
-	var result = [];
-
 	if ( ! object || ! object.length ) {
-		return result;
+		return [];
 	}
 
+	var result = new Array(object.length);
 	for (var i = 0; i < object.length; i++) {
-		result.push(object[i]);
+		result[i] = object[i];
 	}
 
 	return result;
