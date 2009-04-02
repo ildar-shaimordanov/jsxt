@@ -106,7 +106,8 @@ if ( ! Object.isIndefinite ) {
  */
 Object.isIndefinite = function(value)
 {
-	return value === undefined || value === null;
+	return Object.isUndefined(value) || Object.isNull(value);
+//	return value === undefined || value === null;
 };
 
 }
@@ -207,6 +208,105 @@ if ( ! Object.isUndefined ) {
 Object.isUndefined = function(value)
 {
 	return value === undefined;
+};
+
+}
+
+if ( ! Object.dump ) {
+
+/**
+ * Object.dump(object)
+ *
+ * @Description
+ * Creates a dump of any object
+ *
+ * @param	Mixed
+ * @param	Integer
+ * @param	String
+ * @return	String
+ * @access	Static
+ */
+Object.dump = function(object, nest, padding)
+{
+	if ( ! nest || nest < 0 ) {
+		nest = Number.MAX_VALUE;
+	}
+
+	if ( ! padding ) {
+		padding = "";
+	}
+
+	var pred;
+	var post;
+
+	switch ( typeof object ) {
+	case "object":
+		if ( object === null ) {
+			return object;
+		}
+		if ( ! nest ) {
+			return "*** TOO MANY NESTIONS ***\n";
+		}
+		if ( object.constructor == Array ) {
+			pred = "Array(" + object.length + ") [\n";
+			post = "]";
+		} else {
+			pred = "Object {\n";
+			post = "}";
+		}
+		post = padding + post;
+		padding += "    ";
+		var s = "";
+		for (var value in object) {
+			s += padding + value + ": " + Object.dump(object[value], nest - 1, padding) + "\n";
+		}
+		return pred + s + post;
+	case "string":
+		return "\"" + object
+			.replace(/\&/g, "&amp;")
+			.replace(/\"/g, "&quot;")
+			.replace(/\</g, "&lt;")
+			.replace(/\>/g, "&gt;")
+			.replace(/\r/g, "\\r")
+			.replace(/\n/g, "\\n")
+			.replace(/\t/g, "\\t")
+			+ "\"";
+	case "function":
+		return "[Native code]";
+	default:
+		return object;
+	}
+};
+
+}
+
+if ( ! Object.clone ) {
+
+/**
+ * Object.clone(object)
+ *
+ * @Description
+ * Creating a copy of an array or an object with fully replicated properties. 
+ * Each property of an object will be copied recursively
+ *
+ * @param	mixed
+ * @result	mixed
+ *
+ * @author	Ildar Shaimordanov (the common idea of 'clonning')
+ */
+Object.clone = function(object)
+{
+	if ( object === undefined ) {
+		object = this;
+	}
+	if ( typeof(object) != "object" ) {
+		return object;
+	}
+	var newObject = new object.constructor();
+	for (var objectItem in object) {
+		newObject[objectItem] = Object.clone(object[objectItem]);
+	}
+	return newObject;
 };
 
 }
