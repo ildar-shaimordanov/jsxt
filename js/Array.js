@@ -740,6 +740,7 @@ if ( ! Array.prototype.invoke ) {
  * // Converts each numeric element to hexadecimal string
  * var arr1 = [2, 14, 7];
  * var arr2 = arr1.invoke('toString', 16);
+ * // arr2 == [2, E, 7]
  * </code>
  *
  * @param	String
@@ -749,9 +750,38 @@ if ( ! Array.prototype.invoke ) {
 Array.prototype.invoke = function(method)
 {
 	var args = Array.linearize(arguments).slice(1);
-	var result = this.map(function(v, i)
+	var result = this.map(function(v)
 	{
 		return v[method].apply(v, args);
+	});
+	return result;
+};
+
+}
+
+if ( ! Array.prototype.fetch ) {
+
+/**
+ * Returns the value of the appropriate property of each element. 
+ * This is clone of the pluck method from the Prototype framework.
+ *
+ * @example
+ * <code>
+ * var arr1 = ['what', 'the', 'wonderful', 'world'];
+ * var arr2 = arr1.pluck('length');
+ * // arr2 == [4, 3, 9, 5]
+ * </code>
+ *
+ * @param	String
+ * @return	Array
+ * @access	public
+ * @see		http://www.prototypejs.org/api/enumerable/pluck
+ */
+Array.prototype.fetch = function(property)
+{
+	var result = this.map(function(v)
+	{
+		return v[property];
 	});
 	return result;
 };
