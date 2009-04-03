@@ -46,6 +46,7 @@ Updates:
 
 2009/02/26	String.prototype.has was removed
 2009/02/28	The order of arguments was modified
+2009/04/03	Levels are changed to start from 0 (instead of 1)
 
 */
 
@@ -58,9 +59,11 @@ Updates:
 function jsmin(input, level, comment)
 {
 
-	if (level === undefined || level < 1 || level > 3) {
-		level = 2;
-	}
+	level = Number(level) || 0;
+
+//	if (level === undefined || level < 1 || level > 3) {
+//		level = 2;
+//	}
 
 	if ( ! comment ) {
 		comment = '';
@@ -281,7 +284,8 @@ function jsmin(input, level, comment)
 					if (isAlphanum(b)) {
 						r.push(action(1));
 					} else {
-						if (level == 1 && b != '\n') {
+						if (level == 0 && b != '\n') {
+//						if (level == 1 && b != '\n') {
 							r.push(action(1));
 						} else {
 							r.push(action(2));
@@ -299,7 +303,8 @@ function jsmin(input, level, comment)
 					r.push(action(3));
 					break;
 				case '\n':
-					if (level == 1 && a != '\n') {
+					if (level == 0 && a != '\n') {
+//					if (level == 1 && a != '\n') {
 						r.push(action(1));
 					} else {
 						switch (a) {
@@ -310,7 +315,8 @@ function jsmin(input, level, comment)
 						case '-':
 						case '"':
 						case '\'':
-							if (level == 3) {
+							if (level >= 2) {
+//							if (level == 3) {
 								r.push(action(3));
 							} else {
 								r.push(action(1));
