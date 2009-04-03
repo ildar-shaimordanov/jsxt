@@ -167,6 +167,7 @@ if ( ! Ajax.query ) {
  * -- headers		Object		Additional headers in the form as { key: value, ... }
  * -- content		String		Request body
  * -- onreadystate	Function	User-defined callback-handler of states of a request
+ * -- nocache		Boolean		If it is true, then request will not be cached. 
  *
  * @param	String	The request address
  * @param	Object	Options
@@ -182,25 +183,36 @@ Ajax.query = function(url, options)
 
 	xmlhttp.onreadystatechange = function()
 	{
-		var e;
-		try {
-			if ( xmlhttp.readyState != Ajax.STATE_DONE ) {
+//		var e;
+//		try {
+//			if ( xmlhttp.readyState != 4 ) {
+//				return;
+//			}
+
+			if ( 'function' != typeof options.onreadystate ) {
 				return;
 			}
 
-			if ( 'function' == typeof options.onreadystate ) {
-				result = options.onreadystate(xmlhttp);
-			}
-		} catch (e) {
-		}
+			result = options.onreadystate(xmlhttp);
+//		} catch (e) {
+//		}
 	};
 
 	xmlhttp.open((options.method || 'GET'), url, options.async, options.username, options.password);
+
+	if ( options.nocache ) {
+		if ( ! options.headers ) {
+			options.headers = {};
+		}
+		options.headers['If-Modified-Since'] = (new Date()).toUTCString();
+	}
+
 	if ( options.headers ) {
 		for (var p in options.headers) {
 			xmlhttp.setRequestHeader(p, options.headers[p]);
 		}
 	}
+
 	xmlhttp.send(options.content);
 
 	return result;
