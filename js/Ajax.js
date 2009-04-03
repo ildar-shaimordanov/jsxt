@@ -72,16 +72,16 @@ Ajax.STATE_OPEN		= 1;
  * @const	Integer
  * @value	2
  */
-Ajax.STATE_SEND		= 2;
+Ajax.STATE_SENT		= 2;
 
 /**
  * XMLHttpRequest.readyState constant.
- * Retrieving od data. 
+ * Receiving of data. 
  *
  * @const	Integer
  * @value	3
  */
-Ajax.STATE_RETRIEVE	= 3;
+Ajax.STATE_RECEIVING	= 3;
 
 /**
  * XMLHttpRequest.readyState constant.
@@ -90,7 +90,7 @@ Ajax.STATE_RETRIEVE	= 3;
  * @const	Integer
  * @value	4
  */
-Ajax.STATE_DONE		= 4;
+Ajax.STATE_LOADED	= 4;
 
 }
 
@@ -109,18 +109,23 @@ if ( ! Ajax.create ) {
  * -- setRequestHeader(label, value)
  * -- overrideMimeType(mimeType)
  *
+ * Events:
+ * -- onreadystatechange	EventListener	Sets or retrieves the event handler for asynchronous requests.
+ * -- ontimeout			EventListener	Raised when there is an error that prevents the completion of the request.
+ *
  * Properties:
- * -- onreadystatechange	EventListener	Handler that is calling when state of the request is changed.
- * -- readyState		Integer		Actual state: 
+ * -- readyState		Integer		Retrieves the current state of the request operation.
  * 						0 - not initialized, 
  * 						1 - open, 
  * 						2 - send of data, 
- * 						3 - retrieve of data, 
+ * 						3 - receiving of data, 
  * 						4 - data are downloaded
- * -- responseText		String		Text of a response as simple text
- * -- responseXML		Document	Text of a response as XML
- * -- status			Integer		HTTP status (200, 404, etc)
- * -- statusText		String		HTTP status ("OK", "Not Found", etc)
+ * -- responseBody		Array		Retrieves the response body as an array of unsigned bytes.
+ * -- responseText		String		Retrieves the response body as a string.
+ * -- responseXML		Document	Retrieves the response body as an XML Document Object Model (DOM) object.
+ * -- status			Integer		Retrieves the HTTP status code of the request (200, 404, etc).
+ * -- statusText		String		Retrieves the friendly HTTP status of the request ("OK", "Not Found", etc).
+ * -- timeout			Integer		Gets or sets the time-out value in (milliseconds).
  *
  * @param	void
  * @return	XMLHttpRequest
