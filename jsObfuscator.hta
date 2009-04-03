@@ -135,7 +135,7 @@ textarea	{
 			return;
 		}
 
-		code_output.value = jsmin(code_input.value, document.getElementById('level').options.selectedIndex + 1);
+		code_output.value = jsmin(code_input.value, document.getElementById('level').options.selectedIndex);
 //		code_output.value = obfuscate(code_input.value, function(text) { statusLine.innerHTML = text; });
 
 		var iLen = code_input.value.length;
@@ -328,9 +328,9 @@ textarea	{
 <div class="buttonGroup">
 Level: 
 <select id="level" tabindex="3" accesskey="L" title="Alt-L">
-<option >Minimal</option>
-<option selected="selected">Normal</option>
-<option >Agressive</option>
+<option value="0">Minimal</option>
+<option value="1" selected="selected">Normal</option>
+<option value="2">Agressive</option>
 </select>
 
 <input class="button" type="button" id="start" tabindex="2" accesskey="S" title="Alt-S" value="Start" />
