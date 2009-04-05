@@ -1,3 +1,20 @@
+<?php
+
+$base_url = 'http://jsxt.googlecode.com/svn/trunk/';
+
+if ( isset($_GET['get_content']) ) {
+
+	$url = $_GET['get_content'];
+
+	$content = file_get_contents($url);
+
+	echo $content;
+
+	exit();
+
+}
+
+?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <html>
 
@@ -5,7 +22,11 @@
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
 <title>jsxt :: Documentation</title>
 <link rel="stylesheet" href="includes/styles-main.css" type="text/css" />
-<script type="text/javascript" src="../trunk/js/Ajax.js"></script>
+<?php
+
+echo '<script type="text/javascript" src="' . $base_url . '/js/Ajax.js"></script>';
+
+?>
 <script type="text/javascript">
 
 (function()
@@ -16,6 +37,7 @@ function loadIndex()
 	var html = '';
 
 	var url = window.location.href.replace(/[^\/]+$/, '') + '../trunk/js/';
+	var url = window.location.href + '?get_content=http://jsxt.googlecode.com/svn/trunk/js/';
 
 	Ajax.query(url, {
 		async: true,
@@ -59,8 +81,8 @@ if ( window.attachEvent ) {
 <pre>
 Dear visitor!
 
-This is amazing page.
-It had been generated using the simplest cross-browser AJAX script.
+This is amazing cross-site AJAX-page.
+It had been generated using the simplest AJAX script.
 
 Have enjoy!
 
