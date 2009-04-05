@@ -209,6 +209,9 @@ Ajax.query = function(url, options)
 
 	if ( options.headers ) {
 		for (var p in options.headers) {
+			if ( 'string' != typeof options.headers[p] ) {
+				continue;
+			}
 			xmlhttp.setRequestHeader(p, options.headers[p]);
 		}
 	}
