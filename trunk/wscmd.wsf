@@ -85,6 +85,7 @@ goto check_for_help
 <script language="javascript" src="js/Ajax.js"></script>
 <script language="javascript" src="js/win32/FileSystem.js"></script>
 <script language="javascript" src="js/win32/Enumerator.js"></script>
+<script language="javascript" src="js/win32/jsmin.file.js"></script>
 <script language="javascript"><![CDATA[
 
 var echo = print = function()
