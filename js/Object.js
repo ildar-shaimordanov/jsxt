@@ -360,7 +360,7 @@ if ( ! Object.prototype.keys ) {
 /**
  * Populates and returns array of the object's keys
  *
- * @param	Boolean	Boolean value that indicates whether methods should be skipped when populate.
+ * @param	void
  * @return	Array
  * @access	public
  */
@@ -385,7 +385,7 @@ if ( ! Object.prototype.values ) {
 /**
  * Populates and returns array of the object's values
  *
- * @param	Boolean	Boolean value that indicates whether methods should be skipped when populate.
+ * @param	void
  * @return	Array
  * @access	public
  */
