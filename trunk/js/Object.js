@@ -364,12 +364,12 @@ if ( ! Object.prototype.keys ) {
  * @return	Array
  * @access	public
  */
-Object.prototype.keys = function(skipFunction)
+Object.prototype.keys = function()
 {
 	var result = [];
 
 	for (var p in this) {
-		if ( skipFunction && typeof this[p] == 'function' ) {
+		if ( ! this.hasOwnProperty(p) ) {
 			continue;
 		}
 		result.push(p);
@@ -394,7 +394,7 @@ Object.prototype.values = function(skipFunction)
 	var result = [];
 
 	for (var p in this) {
-		if ( skipFunction && typeof this[p] == 'function' ) {
+		if ( ! this.hasOwnProperty(p) ) {
 			continue;
 		}
 		result.push(this[p]);
