@@ -433,11 +433,10 @@ if ( ! Object.prototype.toArray ) {
  * This method is the same as forEach for Array. 
  * 
  * @param	Callback
- * @param	Boolean	Boolean value that indicates whether methods should be skipped when passing.
  * @return	void
  * @access	public
  */
-Object.prototype.toArray = function(fun, skipFunction, thisp)
+Object.prototype.toArray = function(fun, thisp)
 {
 	if ( typeof fun != "function" ) {
 		throw new TypeError();
@@ -446,7 +445,7 @@ Object.prototype.toArray = function(fun, skipFunction, thisp)
 	var result = [];
 
 	for (var p in this) {
-		if ( skipFunction && typeof this[p] == 'function' ) {
+		if ( ! this.hasOwnProperty(p) ) {
 			continue;
 		}
 		result.push(fun.call(thisp, this[p], p, this));
