@@ -1,11 +1,11 @@
-<?xml version="1.0" encoding="windows-1251" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 
 <package>
 <job id="wscmd">
 <?job error="true" debug="false" ?>
 
 <runtime>
-<description><![CDATA[Windows Scripting Command Interpreter Version 0.3 Beta
+<description><![CDATA[Windows Scripting Command Interpreter Version 0.4 Beta
 Copyright (C) 2009 Ildar Shaimordanov
 ]]></description>
 <named
