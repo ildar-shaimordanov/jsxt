@@ -346,7 +346,7 @@ Object.prototype.forEach = function(fun, skipFunction, thisp)
 	}
 
 	for (var p in this) {
-		if ( skipFunction && typeof this[p] == 'function' ) {
+		if ( ! this.hasOwnProperty(p) ) {
 			continue;
 		}
 		fun.call(thisp, this[p], p, this);
