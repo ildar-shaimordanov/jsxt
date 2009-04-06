@@ -334,12 +334,11 @@ if ( ! Object.prototype.forEach ) {
  * This method is the same as forEach for Array but for Object. 
  * 
  * @param	Callback
- * @param	Boolean	Boolean value that indicates whether methods should be skipped when passing.
  * @return	void
  * @access	public
  * @see		http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Array:forEach
  */
-Object.prototype.forEach = function(fun, skipFunction, thisp)
+Object.prototype.forEach = function(fun, thisp)
 {
 	if ( typeof fun != "function" ) {
 		throw new TypeError();
