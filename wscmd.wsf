@@ -35,6 +35,7 @@ Copyright (C) 2009 Ildar Shaimordanov
 <example>
 Example: wscmd.wsf /E:code
 Example: wscmd.wsf /F:filename
+Example: wscmd.wsf /I
 </example>
 </runtime>
 <!--
