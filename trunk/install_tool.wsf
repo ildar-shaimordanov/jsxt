@@ -39,7 +39,7 @@ tool can be used without emergency of lost some parts of tool.
 <named
 	name="SQUEEZE"
 	helpstring="Specifies this argument if you need obfuscate a code"
-	type="boolean"
+	type="simple"
 	required="false"
 />
 <example>
