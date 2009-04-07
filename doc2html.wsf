@@ -10,7 +10,7 @@ Copyright (C) 2004, 2009 Ildar Shaimordanov
 
 This script allows to convert any DOC file to TXT, RTF, HTML (default), MHT (Web Archive), XML, PDF or XPS
 
-To make an easy access from the context menu 'Send To' lauch once this script with /help:sendto.
+To make an easy access from the context menu 'Send To' launch once this script with /help:sendto.
 
 NOTES:
 This script requires the "Microsoft Save as PDF or XPS Add-in for 2007 Microsoft Office programs", available at:
@@ -31,13 +31,13 @@ http://www.microsoft.com/downloads/details.aspx?familyid=4D951911-3E7E-4AE6-B059
 <named
 	name="V"
 	helpstring="Verbosely list files processed"
-	type="boolean"
+	type="simple"
 	required="false"
 />
 <named
 	name="FG"
 	helpstring="Specify this if you want to launch WINWORD in foreground"
-	type="boolean"
+	type="simple"
 	required="false"
 />
 <example>

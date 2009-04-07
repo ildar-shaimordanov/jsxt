@@ -21,9 +21,15 @@ Copyright (C) 2009 Ildar Shaimordanov
 	required="false"
 />
 <named
+	name="I"
+	helpstring="Interactive mode"
+	type="simple"
+	required="false"
+/>
+<named
 	name="H"
 	helpstring="Display this help"
-	type="boolean"
+	type="simple"
 	required="false"
 />
 <example>
@@ -40,8 +46,14 @@ set wscmd_main=%~d0\PROGS\TOOLS\.DEVEL\jsxt\wscmd.wsf
 set wscmd_cmnd=cscript //NoLogo //H:CScript
 
 
-call :check_for_help %*
-if errorlevel 1 goto :EOF
+set wscmd_spec=/h
+call :check_for_special_args %*
+if not defined wscmd_spec goto :EOF
+
+
+set wscmd_spec=/i
+call :check_for_special_args %*
+if not defined wscmd_spec goto :EOF
 
 
 %wscmd_cmnd% "%wscmd_main%" /compile-and-output %* >"%wscmd_file%"
@@ -63,14 +75,18 @@ del "%wscmd_file%"
 goto :EOF
 
 
-:check_for_help
-if    "%~1" == "" goto :EOF
-if /i "%~1" == "/h" (
-	%wscmd_cmnd% "%wscmd_main%" /h
-	exit /b 1
+:check_for_special_args
+set wscmd_arg=%~1
+if not defined wscmd_arg goto :EOF
+set wscmd_arg=%wscmd_arg:"=%
+if    "%wscmd_arg%" == "" goto :EOF
+if /i "%wscmd_arg%" == "%wscmd_spec%" (
+	%wscmd_cmnd% "%wscmd_main%" %wscmd_spec%
+	set wscmd_spec=
+	goto :EOF
 )
 shift
-goto check_for_help
+goto check_for_special_args
 -->
 <object id="fso" progid="Scripting.FileSystemObject" />
 <object id="shell" progid="WScript.Shell" />
@@ -111,20 +127,51 @@ var narg_len = 0;
 <!-- BEGIN COMPILER -->
 <script language="javascript"><![CDATA[
 
+/**
+ *
+ * Enabled in the CLI mode ONLY
+ *
+ */
+if ( ! WScript.FullName.match(/cscript/i) || WScript.Arguments.length == 0 || WScript.Arguments.Named.Exists('H') ) {
+	help();
+	exit();
+}
+
+/**
+ *
+ * Interactive mode
+ *
+ */
+if ( WScript.Arguments.Named.Exists('I') ) {
+
+	WScript.StdOut.Write('wscmd > ');
+
+	while ( true ) {
+
+		var e;
+		try {
+
+			eval(WScript.StdIn.ReadLine());
+
+		} catch (e) {
+			WScript.Echo('name\t:\t' + e.name);
+			WScript.Echo('message\t:\t' + e.message);
+			WScript.Echo('line\t:\t' + ((e.number >> 0x10) & 0x1FFF));
+			WScript.Echo('code\t:\t' + (e.number & 0xFFFF));
+		}
+
+		WScript.StdOut.Write('wscmd > ');
+
+	}
+
+	WScript.Quit();
+
+}
+
 var script;
 
 (function()
 {
-	/**
-	 *
-	 * Enabled in the CLI mode ONLY
-	 *
-	 */
-	if ( ! WScript.FullName.match(/cscript/i) || WScript.Arguments.length == 0 || WScript.Arguments.Named.Exists('H') ) {
-		help();
-		exit();
-	}
-
 	var file_not_found = function(filename)
 	{
 		'File "%s" not found'.sprintf(filename).print();
@@ -291,6 +338,11 @@ var script;
 	}
 })();
 
+/**
+ *
+ * Simplified mode
+ *
+ */
 var e;
 try {
 
