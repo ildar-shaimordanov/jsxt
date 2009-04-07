@@ -204,7 +204,7 @@ Ajax.query = function(url, options)
 		if ( ! options.headers ) {
 			options.headers = {};
 		}
-		options.headers['If-Modified-Since'] = (new Date()).toUTCString();
+		options.headers['If-Modified-Since'] = (new Date(0)).toUTCString();
 	}
 
 	if ( options.headers ) {
