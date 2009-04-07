@@ -32,7 +32,7 @@ function loadIndex()
 				if ( req.status != 200 ) {
 					document.getElementById('content').innerHTML = 
 						'Sorry. Try later. The next error has been encoutered: ' 
-						+ req.statusText;
+						+ req.status + ' ' + req.statusText;
 					return;
 				}
 
