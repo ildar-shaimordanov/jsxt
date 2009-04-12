@@ -107,7 +107,7 @@ try {
 			logInfo('The folder already exists');
 		}
 
-		formats.forEach(function(value, key)
+		formats.forItems(function(value, key)
 		{
 			logInfo('Creating of the shortcut for "' + key + '" format');
 

@@ -297,9 +297,9 @@ if ( ! Object.clone ) {
 Object.clone = function(object)
 {
 	if ( object === undefined ) {
-		object = this;
+//		object = this;
 	}
-	if ( typeof(object) != "object" ) {
+	if ( ! object || typeof(object) != "object" ) {
 		return object;
 	}
 	var newObject = new object.constructor();
@@ -311,13 +311,13 @@ Object.clone = function(object)
 
 }
 
-if ( ! Object.prototype.forEach ) {
+if ( ! Object.prototype.forItems ) {
 
 /**
  * Executes a provided function once per object element.
  *
  * @Description
- * forEach executes the provided function (callback) once for each element 
+ * forItems executes the provided function (callback) once for each element 
  * present in the object. 
  * 
  * callback is invoked with three arguments: 
@@ -325,20 +325,24 @@ if ( ! Object.prototype.forEach ) {
  * - the key of the element, 
  * - and the Object being traversed.
  * 
- * If a thisObject parameter is provided to forEach, it will be used as the 
+ * If a thisObject parameter is provided to forItems, it will be used as the 
  * this for each invocation of the callback. If it is not provided, or is 
  * null, the global object associated with callback is used instead. 
  * 
- * forEach does not mutate the object on which it is called. 
+ * forItems does not mutate the object on which it is called. 
  *
  * This method is the same as forEach for Array but for Object. 
  * 
+ * skipFunction=true tells to exclude methods from the result.
+ * By default, all properties are iterated (including methods too). 
+ *
  * @param	Callback
+ * @param	Boolean
  * @return	void
  * @access	public
  * @see		http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Array:forEach
  */
-Object.prototype.forEach = function(fun, thisp)
+Object.prototype.forItems = function(fun, skipFunction, thisp)
 {
 	if ( typeof fun != "function" ) {
 		throw new TypeError();
@@ -346,6 +350,9 @@ Object.prototype.forEach = function(fun, thisp)
 
 	for (var p in this) {
 		if ( ! this.hasOwnProperty(p) ) {
+			continue;
+		}
+		if ( skipFunction && 'function' == typeof this[p] ) {
 			continue;
 		}
 		fun.call(thisp, this[p], p, this);
@@ -358,17 +365,22 @@ if ( ! Object.prototype.keys ) {
 
 /**
  * Populates and returns array of the object's keys
+ * skipFunction=true tells to exclude methods from the result.
+ * By default, all properties are iterated (including methods too). 
  *
- * @param	void
+ * @param	Boolean
  * @return	Array
  * @access	public
  */
-Object.prototype.keys = function()
+Object.prototype.keys = function(skipFunction)
 {
 	var result = [];
 
 	for (var p in this) {
 		if ( ! this.hasOwnProperty(p) ) {
+			continue;
+		}
+		if ( skipFunction && 'function' == typeof this[p] ) {
 			continue;
 		}
 		result.push(p);
@@ -382,9 +394,11 @@ Object.prototype.keys = function()
 if ( ! Object.prototype.values ) {
 
 /**
- * Populates and returns array of the object's values
+ * Populates and returns array of the object's values.
+ * skipFunction=true tells to exclude methods from the result.
+ * By default, all properties are iterated (including methods too). 
  *
- * @param	void
+ * @param	Boolean
  * @return	Array
  * @access	public
  */
@@ -394,6 +408,9 @@ Object.prototype.values = function(skipFunction)
 
 	for (var p in this) {
 		if ( ! this.hasOwnProperty(p) ) {
+			continue;
+		}
+		if ( skipFunction && 'function' == typeof this[p] ) {
 			continue;
 		}
 		result.push(this[p]);
@@ -419,23 +436,23 @@ if ( ! Object.prototype.toArray ) {
  * - the key of the element, 
  * - and the Object object being traversed.
  * 
- * If a thisObject parameter is provided to toArray, it will be used as the 
- * this for each invocation of the callback. If it is not provided, or is 
- * null, the global object associated with callback is used instead. 
- * 
- * If a thisObject parameter is provided to toArray, it will be used as the 
- * this for each invocation of the callback. If it is not provided, or is 
- * null, the global object associated with callback is used instead. 
- * 
- * forEach does not mutate the object on which it is called. 
+ * skipFunction=true tells to exclude methods from the result.
+ * By default, all properties are iterated (including methods too). 
  *
- * This method is the same as forEach for Array. 
+ * If a thisObject parameter is provided to toArray, it will be used as the 
+ * this for each invocation of the callback. If it is not provided, or is 
+ * null, the global object associated with callback is used instead. 
+ * 
+ * If a thisObject parameter is provided to toArray, it will be used as the 
+ * this for each invocation of the callback. If it is not provided, or is 
+ * null, the global object associated with callback is used instead. 
  * 
  * @param	Callback
+ * @param	Boolean
  * @return	void
  * @access	public
  */
-Object.prototype.toArray = function(fun, thisp)
+Object.prototype.toArray = function(fun, skipFunction, thisp)
 {
 	if ( typeof fun != "function" ) {
 		throw new TypeError();
@@ -445,6 +462,9 @@ Object.prototype.toArray = function(fun, thisp)
 
 	for (var p in this) {
 		if ( ! this.hasOwnProperty(p) ) {
+			continue;
+		}
+		if ( skipFunction && 'function' == typeof this[p] ) {
 			continue;
 		}
 		result.push(fun.call(thisp, this[p], p, this));
