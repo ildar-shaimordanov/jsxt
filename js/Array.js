@@ -59,7 +59,7 @@ if ( ! Array.prototype.every ) {
  * @param	Object
  * @return	Boolean
  * @access	public
- * @see		http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Array:every
+ * @see		https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/every
  */
 Array.prototype.every = function(fun, thisp)
 {
@@ -124,7 +124,7 @@ if ( ! Array.prototype.filter ) {
  * @param	Object
  * @return	Array
  * @access	public
- * @see		http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Array:filter
+ * @see		https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/filter
  */
 Array.prototype.filter = function(fun, thisp)
 {
@@ -156,6 +156,7 @@ if ( ! Array.prototype.flatten ) {
  * @param	void
  * @return	Array
  * @access	public
+ * @see		http://prototypejs.org/api/array/flatten
  */
 Array.prototype.flatten = function()
 {
@@ -221,7 +222,7 @@ if ( ! Array.prototype.forEach ) {
  * @param	Object
  * @return	void
  * @access	public
- * @see		http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Array:forEach
+ * @see		https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/forEach
  */
 Array.prototype.forEach = function(fun, thisp)
 {
@@ -268,7 +269,7 @@ if (!Array.prototype.indexOf) {
  * @param	Integer
  * @return	Mixed
  * @access	public
- * @see		http://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/indexOf
+ * @see		https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/indexOf
  */
 Array.prototype.indexOf = function(elt /*, from*/)
 {
@@ -324,7 +325,7 @@ if (!Array.prototype.lastIndexOf) {
  * @param	Integer
  * @return	Mixed
  * @access	public
- * @see		http://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/lastIndexOf
+ * @see		https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/lastIndexOf
  */
 Array.prototype.lastIndexOf = function(elt /*, from*/)
 {
@@ -396,7 +397,7 @@ if ( ! Array.prototype.map ) {
  * @param	Object
  * @return	Array
  * @access	public
- * @see		http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Array:map
+ * @see		https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/map
  */
 Array.prototype.map = function(fun, thisp)
 {
@@ -457,7 +458,7 @@ if ( ! Array.prototype.reduce ) {
  * @param	mixed
  * @return	mixed
  * @access	public
- * @see		http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Array:reduceRight
+ * @see		https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/reduce
  */
 Array.prototype.reduce = function(fun)
 {
@@ -532,7 +533,7 @@ if ( ! Array.prototype.reduceRight ) {
  * @param	mixed
  * @return	mixed
  * @access	public
- * @see		http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Array:reduceRight
+ * @see		https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Objects/Array/reduceRight
  */
 Array.prototype.reduceRight = function(fun)
 {
@@ -648,7 +649,7 @@ if ( ! Array.prototype.some ) {
  * @param	Object
  * @return	Boolean
  * @access	public
- * @see		http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Array:some
+ * @see		https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/some
  */
 Array.prototype.some = function(fun, thisp)
 {
