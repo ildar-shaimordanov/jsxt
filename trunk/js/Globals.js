@@ -231,38 +231,6 @@ Number.prototype.hex = function(n, c)
 
 }
 
-if ( ! String.prototype.ltrim ) {
-
-/**
- * object.ltrim()
- * Transform the string object removing leading whitespaces
- *
- * @return	string
- * @access	public
- */
-String.prototype.ltrim = function()
-{
-	return this.replace(/(^\s*)/, "");
-};
-
-}
-
-if ( ! String.prototype.rtrim ) {
-
-/**
- * object.rtrim()
- * Transform the string object removing trailing whitespaces
- *
- * @return	string
- * @access	public
- */
-String.prototype.rtrim = function()
-{
-	return this.replace(/(\s*$)/g, "");
-};
-
-}
-
 if ( ! String.prototype.trim ) {
 
 /**
@@ -275,6 +243,38 @@ if ( ! String.prototype.trim ) {
 String.prototype.trim = function()
 {
 	return this.replace(/(^\s*)|(\s*$)/g, "");
+};
+
+}
+
+if ( ! String.prototype.trimLeft ) {
+
+/**
+ * object.trimLeft()
+ * Transform the string object removing leading whitespaces
+ *
+ * @return	string
+ * @access	public
+ */
+String.prototype.trimLeft = function()
+{
+	return this.replace(/(^\s*)/, "");
+};
+
+}
+
+if ( ! String.prototype.trimRight ) {
+
+/**
+ * object.trimRight()
+ * Transform the string object removing trailing whitespaces
+ *
+ * @return	string
+ * @access	public
+ */
+String.prototype.trimRight = function()
+{
+	return this.replace(/(\s*$)/g, "");
 };
 
 }
