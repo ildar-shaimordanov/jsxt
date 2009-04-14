@@ -5,7 +5,10 @@
 <meta http-equiv="Content-Type" content="text/html; charset=windows-1251" />
 <title>jsxt :: Documentation</title>
 <link rel="stylesheet" href="includes/styles-main.css" type="text/css" />
+<!--
 <script type="text/javascript" src="../trunk/js/Ajax.js"></script>
+-->
+<script type="text/javascript" src="http://jsxt.googlecode.com/svn/trunk/js/Ajax.js"></script>
 <script type="text/javascript">
 
 (function()
@@ -16,18 +19,20 @@ function loadIndex()
 	var html = '';
 
 	var url = window.location.href.replace(/[^\/]+$/, '') + '../trunk/js/';
+	var url = 'http://jsxt.googlecode.com/svn/trunk/js/';
 
 	Ajax.query(url, {
 		async: true,
 		nocache: true,
 		onreadystate: function(req)
 		{
+			var loading = document.getElementById('loading');
 			if ( req.readyState == 2 ) {
-				document.getElementById('loading').style.display = 'block';
-				document.getElementById('loading').innerHTML = 'Loading...';
+				loading.style.display = 'block';
+				loading.innerHTML = 'Loading...';
 			}
 			if ( req.readyState == 4 ) {
-				document.getElementById('loading').style.display = 'none';
+				loading.style.display = 'none';
 
 				if ( req.status != 200 ) {
 					document.getElementById('content').innerHTML = 
