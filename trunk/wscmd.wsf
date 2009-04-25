@@ -7,6 +7,9 @@
 <runtime>
 <description><![CDATA[Windows Scripting Command Interpreter Version 0.4 Beta
 Copyright (C) 2009 Ildar Shaimordanov
+
+For details of used libraries follow this link 
+http://code.google.com/p/jsxt/source/browse/doc/jsxt.html.
 ]]></description>
 <named
 	name="E"
