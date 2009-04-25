@@ -5,7 +5,7 @@
 <?job error="true" debug="false" ?>
 
 <runtime>
-<description><![CDATA[Windows Scripting Command Interpreter Version 0.4 Beta
+<description><![CDATA[Windows Scripting Command Interpreter Version 0.5 Beta
 Copyright (C) 2009 Ildar Shaimordanov
 
 For details of used libraries follow this link 
@@ -148,23 +148,128 @@ if ( ! WScript.FullName.match(/cscript/i) || WScript.Arguments.length == 0 || WS
  */
 if ( WScript.Arguments.Named.Exists('I') ) {
 
-	WScript.StdOut.Write('wscmd > ');
-
 	while ( true ) {
+
+		WScript.StdOut.Write('wscmd > ');
 
 		var e;
 		try {
 
-			eval(WScript.StdIn.ReadLine());
+			eval((function()
+			{
+				var stack = [];
+				var quote = false;
+				var regex = false;
+				var slash = false;
+
+				var result = '';
+
+				var input;
+				var i;
+				var c;
+
+				while ( true ) {
+
+					input = WScript.StdIn.ReadLine();
+
+					i = 0;
+					while ( i < input.length ) {
+						c = input.charAt(i);
+						i++;
+
+						// SLASH is special character
+						if ( slash ) {
+							slash = false;
+							continue;
+						}
+
+						slash = c == '\\';
+
+						// Process literal strings
+						if ( c == '\'' || c == '\"' ) {
+							if ( regex ) {
+								continue;
+							}
+
+							if ( slash ) {
+								continue;
+							}
+
+							if ( quote ) {
+								if ( c == stack[stack.length - 1] ) {
+									quote = false;
+									stack.length--;
+								}
+							} else {
+								quote = true;
+								stack[stack.length] = c;
+							}
+
+							continue;
+						}
+
+						// Process regular expressions
+						if ( c == '/' ) {
+							if ( quote ) {
+								continue;
+							}
+
+							if ( slash ) {
+								continue;
+							}
+
+							if ( regex ) {
+								if ( c == stack[stack.length - 1] ) {
+									regex = false;
+									stack.length--;
+								}
+							} else {
+								regex = true;
+								stack[stack.length] = c;
+							}
+
+							continue;
+						}
+
+						// Store on the stack opening brackets
+						if ( c == '[' || c == '(' || c == '{' ) {
+							stack[stack.length] = c;
+							continue;
+						}
+
+						var o = stack[stack.length - 1];
+						if (
+							o == '[' && c == ']' 
+							|| 
+							o == '(' && c == ')' 
+							|| 
+							o == '{' && c == '}' 
+						) {
+							stack.length--;
+						}
+					}
+
+					result += input;
+
+					if ( stack.length == 0 && ! quote && ! regex ) {
+						break;
+					}
+
+					WScript.StdOut.Write('wscmd :: ');
+
+				};
+
+				return result;
+			})());
 
 		} catch (e) {
+
 			WScript.Echo('name\t:\t' + e.name);
 			WScript.Echo('message\t:\t' + e.message);
 			WScript.Echo('line\t:\t' + ((e.number >> 0x10) & 0x1FFF));
 			WScript.Echo('code\t:\t' + (e.number & 0xFFFF));
-		}
 
-		WScript.StdOut.Write('wscmd > ');
+		}
 
 	}
 
