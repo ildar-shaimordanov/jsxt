@@ -174,6 +174,7 @@ if ( WScript.Arguments.Named.Exists('I') ) {
 
 					i = 0;
 					while ( i < input.length ) {
+
 						c = input.charAt(i);
 						i++;
 
@@ -237,6 +238,7 @@ if ( WScript.Arguments.Named.Exists('I') ) {
 							continue;
 						}
 
+						// Release stack when closing brackets arise
 						var o = stack[stack.length - 1];
 						if (
 							o == '[' && c == ']' 
@@ -247,7 +249,8 @@ if ( WScript.Arguments.Named.Exists('I') ) {
 						) {
 							stack.length--;
 						}
-					}
+
+					} // while ( i < input.length )
 
 					result += input;
 
@@ -257,7 +260,7 @@ if ( WScript.Arguments.Named.Exists('I') ) {
 
 					WScript.StdOut.Write('wscmd :: ');
 
-				};
+				}; // while ( true )
 
 				return result;
 			})());
