@@ -101,9 +101,12 @@ function NetIP()
 	// {{{ methods
 
 	/**
+	 * object.contains(value)
+	 *
 	 * Checks the address is in this network.
 	 * The address may be a NetIP object, a CIDR string or an array
 	 *
+	 * @param	NetIP	object
 	 * @param	Mixed	value
 	 * @return	Boolean
 	 * @access	public
@@ -115,9 +118,12 @@ function NetIP()
 	};
 
 	/**
+	 * object.equals(value)
+	 *
 	 * Checks that the value is equal to this address.
 	 * The value may be a NetIP object, a CIDR string or an array
 	 *
+	 * @param	NetIP	object
 	 * @param	Mixed	value
 	 * @return	Boolean
 	 * @access	public
@@ -129,8 +135,11 @@ function NetIP()
 	};
 
 	/**
+	 * object.getAddress()
+	 *
 	 * Returns the address
 	 *
+	 * @param	NetIP	object
 	 * @param	void
 	 * @return	Integer
 	 * @access	public
@@ -141,8 +150,11 @@ function NetIP()
 	};
 
 	/**
+	 * object.getBitmask()
+	 *
 	 * Returns the bitmask for this network
 	 *
+	 * @param	NetIP	object
 	 * @param	void
 	 * @return	Integer
 	 * @access	public
@@ -153,8 +165,11 @@ function NetIP()
 	};
 
 	/**
+	 * object.getBroadcast()
+	 *
 	 * Returns the broadcast address
 	 *
+	 * @param	NetIP	object
 	 * @param	void
 	 * @return	Integer
 	 * @access	public
@@ -165,8 +180,11 @@ function NetIP()
 	};
 
 	/**
+	 * object.getFirstAddress()
+	 *
 	 * Returns the first address for this network
 	 *
+	 * @param	NetIP	object
 	 * @param	void
 	 * @return	Integer
 	 * @access	public
@@ -177,8 +195,11 @@ function NetIP()
 	};
 
 	/**
+	 * object.getLastAddress()
+	 *
 	 * Returns the last address for this network
 	 *
+	 * @param	NetIP	object
 	 * @param	void
 	 * @return	Integer
 	 * @access	public
@@ -189,9 +210,12 @@ function NetIP()
 	};
 
 	/**
+	 * object.getNetmask(inverse)
+	 *
 	 * Returns the netmask (direct or inverse)
 	 *
-	 * @param	Boolean
+	 * @param	NetIP	object
+	 * @param	Boolean	inverse
 	 * @return	Integer
 	 * @access	public
 	 */
@@ -202,8 +226,11 @@ function NetIP()
 	};
 
 	/**
+	 * object.getNetwork()
+	 *
 	 * Returns the address of this network
 	 *
+	 * @param	NetIP	object
 	 * @param	void
 	 * @return	Integer
 	 * @access	public
@@ -214,8 +241,11 @@ function NetIP()
 	};
 
 	/**
+	 * object.length()
+	 *
 	 * Returns the length of this network
 	 *
+	 * @param	NetIP	object
 	 * @param	void
 	 * @return	Integer
 	 * @access	public
@@ -227,8 +257,11 @@ function NetIP()
 	};
 
 	/**
+	 * object.setAddress(value)
+	 *
 	 * Sets the address
 	 *
+	 * @param	NetIP	object
 	 * @param	Integer, String
 	 * @return	void
 	 * @access	public
@@ -243,8 +276,11 @@ function NetIP()
 	};
 
 	/**
+	 * object.setBitmask(value)
+	 *
 	 * Sets the bitmask
 	 *
+	 * @param	NetIP	object
 	 * @param	Integer, String
 	 * @return	void
 	 * @access	public
@@ -264,8 +300,11 @@ function NetIP()
 	};
 
 	/**
+	 * object.setNetmask(value)
+	 *
 	 * Sets the netmask
 	 *
+	 * @param	NetIP	object
 	 * @param	Integer, String
 	 * @return	void
 	 * @access	public
@@ -308,10 +347,13 @@ function NetIP()
 	};
 
 	/**
+	 * object.toString(netmask)
+	 *
 	 * Converts the NetIP object to the string and returns it.
 	 * The resulting string might be in the format 
 	 * as address/bitmask or address/netmask.
 	 *
+	 * @param	NetIP	object
 	 * @param	Boolean
 	 * @return	String
 	 * @access	public
