@@ -1,7 +1,7 @@
 //
 // JScript add-on
 //
-// @require	jsmin.js
+// @require	jsbeautify.js
 // 		win32/FileSystem.js
 // 		Core.js
 //
@@ -10,22 +10,21 @@
 
 if ( Core.browser.isMSIE || Core.browser.isJScript ) {
 
-if ( ! jsmin.file ) {
+if ( ! jsbeautify.file ) {
 
 /**
- * Wrapper over jsmin and FileSystem.readFile to simplify usage from CLI
+ * Wrapper over jsbeautify and FileSystem.readFile to simplify usage from CLI
  *
  * @param	String
- * @param	Integer
- * @param	String
+ * @param	Object
  * @result	String
  *
  * @access	public
  */
-jsmin.file = function(filename, level, comment)
+jsbeautify.file = function(filename, options)
 {
 	var input = FileSystem.readFile(filename);
-	return jsmin(input, level, comment);
+	return jsbeautify(input, options);
 };
 
 }
