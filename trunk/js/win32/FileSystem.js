@@ -133,7 +133,7 @@ if ( ! FileSystem.glob ) {
  * var foldlist = FileSystem.glob(filespec, true);
  * </code>
  *
- * @param	String	filespec	The pattern which is looking for
+ * @param	String	pattern		The pattern which is looking for
  * @param	Boolean	foldersOnly	Return only folder entries which match the pattern instead of files
  * @return	Array
  * @access	public
