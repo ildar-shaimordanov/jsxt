@@ -12,32 +12,18 @@
 if ( ! jsbeautify.file ) {
 
 /**
- * Wrapper over jsbeautify and Ajax.query to simplify usage from CLI
+ * Wrapper over jsbeautify and Ajax.queryFile to simplify usage from CLI
  *
  * @param	String
  * @param	Object
+ * @param	Object	Ajax options
  * @result	String
  *
  * @access	public
  */
-jsbeautify.file = function(filename, options)
+jsbeautify.file = function(filename, options, ajaxOptions)
 {
-	if ( ! /\w+:\/\//.test(filename) ) {
-		filename = 'file:///' + filename;
-	}
-
-	var input = Ajax.query(filename, {
-		async: false,
-		nocache: true,
-		onreadystate: function(xmlhttp)
-		{
-			if ( xmlhttp.readyState != 4 ) {
-				return;
-			}
-
-			return xmlhttp.responseText;
-		}
-	});
+	var input = Ajax.queryFile(filename, ajaxOptions);
 
 	return jsbeautify(input, options);
 };

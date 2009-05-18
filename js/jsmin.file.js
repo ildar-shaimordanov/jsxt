@@ -10,33 +10,19 @@
 if ( ! jsmin.file ) {
 
 /**
- * Wrapper over jsmin and Ajax.query to simplify usage from CLI
+ * Wrapper over jsmin and Ajax.queryFile to simplify usage from CLI
  *
  * @param	String
  * @param	Integer
  * @param	String
+ * @param	Object	Ajax options
  * @result	String
  *
  * @access	public
  */
-jsmin.file = function(filename, level, comment)
+jsmin.file = function(filename, level, comment, ajaxOptions)
 {
-	if ( ! /\w+:\/\//.test(filename) ) {
-		filename = 'file:///' + filename;
-	}
-
-	var input = Ajax.query(filename, {
-		async: false,
-		nocache: true,
-		onreadystate: function(xmlhttp)
-		{
-			if ( xmlhttp.readyState != 4 ) {
-				return;
-			}
-
-			return xmlhttp.responseText;
-		}
-	});
+	var input = Ajax.queryFile(filename, ajaxOptions);
 
 	return jsmin(input, level, comment);
 };

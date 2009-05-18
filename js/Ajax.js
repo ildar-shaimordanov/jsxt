@@ -169,7 +169,7 @@ if ( ! Ajax.query ) {
  * -- onreadystate	Function	User-defined callback-handler of states of a request
  * -- nocache		Boolean		If it is true, then request will not be cached. 
  *
- * @param	String	The request address
+ * @param	String	The request address or the file
  * @param	Object	Options
  * @return	Boolean
  * @access	static
@@ -211,6 +211,47 @@ Ajax.query = function(url, options)
 	xmlhttp.send(options.content);
 
 	return result;
+};
+
+}
+
+if ( ! Ajax.queryFile ) {
+
+/**
+ * Wrapper for Ajax.query for the fast query of the remote and local files.
+ * It defines options to be as async=false, nocache=true and onreadystate as the internal function if they are not defined.
+ *
+ * @param	String	The request address or the file
+ * @param	Object	Options
+ * @return	Boolean
+ * @access	static
+ */
+Ajax.queryFile = function(filename, options)
+{
+	if ( ! /\w+:\/\//.test(filename) ) {
+		filename = 'file:///' + filename;
+	}
+
+	options = options || {};
+
+	if ( ! ( 'async' in options ) ) {
+		options.async = false;
+	}
+	if ( ! ( 'nocache' in options ) ) {
+		options.nocache = false;
+	}
+	if ( ! ( 'onreadystate' in options ) ) {
+		options.onreadystate = function(xmlhttp)
+		{
+			if ( xmlhttp.readyState != 4 ) {
+				return;
+			}
+
+			return xmlhttp.responseText;
+		};
+	}
+
+	return Ajax.query(filename, options);
 };
 
 }
