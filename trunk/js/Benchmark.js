@@ -63,7 +63,7 @@ if ( ! Function.prototype.eval ) {
  * 		result += arr[i];
  * 	}
  * }).eval();
- *</code>
+ * </code>
  *
  * @params	code-dependent
  * @return	code-dependent
