@@ -5,7 +5,7 @@
 <?job error="true" debug="false" ?>
 
 <runtime>
-<description><![CDATA[Windows Scripting Command Interpreter Version 0.7 Beta
+<description><![CDATA[Windows Scripting Command Interpreter Version 0.8 Beta
 Copyright (C) 2009 Ildar Shaimordanov
 
 For details of used libraries follow this link 
@@ -101,14 +101,14 @@ goto check_for_special_args
 <script language="javascript" src="js/Object.js"></script>
 <script language="javascript" src="js/Date.js"></script>
 <script language="javascript" src="js/NetIP.js"></script>
-<script language="javascript" src="js/jsmin.js"></script>
-<script language="javascript" src="js/jsbeautify.js"></script>
 <script language="javascript" src="js/Ajax.js"></script>
+<script language="javascript" src="js/eval.file.js"></script>
+<script language="javascript" src="js/jsbeautify.js"></script>
+<script language="javascript" src="js/jsbeautify.file.js"></script>
+<script language="javascript" src="js/jsmin.js"></script>
+<script language="javascript" src="js/jsmin.file.js"></script>
 <script language="javascript" src="js/win32/Enumerator.js"></script>
-<script language="javascript" src="js/win32/eval.file.js"></script>
 <script language="javascript" src="js/win32/FileSystem.js"></script>
-<script language="javascript" src="js/win32/jsmin.file.js"></script>
-<script language="javascript" src="js/win32/jsbeautify.file.js"></script>
 <script language="javascript"><![CDATA[
 
 var echo = print = function()
