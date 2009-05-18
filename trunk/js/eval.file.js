@@ -9,32 +9,18 @@
 if ( ! eval.file ) {
 
 /**
- * Wrapper over eval and Ajax.query to simplify usage from CLI.
+ * Wrapper over eval and Ajax.queryFile to simplify usage from CLI.
  * Shortly, this is equvalent of 'include' or 'export' within other languages.
  *
- * @param	String
+ * @param	String	Filename
+ * @param	Object	Ajax options
  * @result	String
  *
  * @access	public
  */
-eval.file = function(filename)
+eval.file = function(filename, ajaxOptions)
 {
-	if ( ! /\w+:\/\//.test(filename) ) {
-		filename = 'file:///' + filename;
-	}
-
-	var input = Ajax.query(filename, {
-		async: false,
-		nocache: true,
-		onreadystate: function(xmlhttp)
-		{
-			if ( xmlhttp.readyState != 4 ) {
-				return;
-			}
-
-			return xmlhttp.responseText;
-		}
-	});
+	var input = Ajax.queryFile(filename, ajaxOptions);
 
 	return eval(input);
 };
