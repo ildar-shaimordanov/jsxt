@@ -91,7 +91,7 @@ Object.enumerate = function(collection, fun, thisp)
 	}
 
 	return result;
-}
+};
 
 }
 

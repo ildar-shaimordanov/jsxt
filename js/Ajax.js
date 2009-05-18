@@ -183,19 +183,11 @@ Ajax.query = function(url, options)
 
 	xmlhttp.onreadystatechange = function()
 	{
-//		var e;
-//		try {
-//			if ( xmlhttp.readyState != 4 ) {
-//				return;
-//			}
+		if ( 'function' != typeof options.onreadystate ) {
+			return;
+		}
 
-			if ( 'function' != typeof options.onreadystate ) {
-				return;
-			}
-
-			result = options.onreadystate(xmlhttp);
-//		} catch (e) {
-//		}
+		result = options.onreadystate(xmlhttp);
 	};
 
 	xmlhttp.open((options.method || 'GET'), url, options.async, options.username, options.password);

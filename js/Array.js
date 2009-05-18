@@ -594,9 +594,9 @@ if ( ! Array.prototype.shuffle ) {
  */
 Array.prototype.shuffle = function()
 {
-	return this.sort(function (a, b)
+	return this.sort(function()
 	{
-		return Math.random() - Math.random();
+		return Math.random() - 0.5;
 	});
 };
 
@@ -851,7 +851,8 @@ if ( ! Array.range ) {
  */
 Array.range = function()
 {
-	var step = arguments[2] || 1;
+	var step = Number(arguments[2]) || 1;
+
 	if (undefined !== arguments[0] && undefined !== arguments[1]) {
 		var start = arguments[0];
 		var stop = arguments[1];
@@ -939,7 +940,7 @@ Number.prototype.step = function()
 		for (var i = more; i >= less; i += this) {
 			result.push(i);
 		}
-	} else {
+	} else if ( this > 0 ) {
 		for (var i = less; i <= more; i += this) {
 			result.push(i);
 		}
