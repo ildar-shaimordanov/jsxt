@@ -59,7 +59,7 @@ function jsbeautify(js_source_text, options)
         while (output.length && (output[output.length - 1] === ' ' || output[output.length - 1] === indent_string)) {
             output.pop();
         }
-    }
+    };
 
     function print_newline(ignore_repeated)
     {
@@ -79,7 +79,7 @@ function jsbeautify(js_source_text, options)
         for (var i = 0; i < indent_level; i++) {
             output.push(indent_string);
         }
-    }
+    };
 
 
 
@@ -92,18 +92,18 @@ function jsbeautify(js_source_text, options)
         if (last_output !== ' ' && last_output !== '\n' && last_output !== indent_string) { // prevent occassional duplicate space
             output.push(' ');
         }
-    }
+    };
 
 
     function print_token()
     {
         output.push(token_text);
-    }
+    };
 
     function indent()
     {
         indent_level++;
-    }
+    };
 
 
     function unindent()
@@ -111,7 +111,7 @@ function jsbeautify(js_source_text, options)
         if (indent_level) {
             indent_level--;
         }
-    }
+    };
 
 
     function remove_indent()
@@ -119,21 +119,21 @@ function jsbeautify(js_source_text, options)
         if (output.length && output[output.length - 1] === indent_string) {
             output.pop();
         }
-    }
+    };
 
 
     function set_mode(mode)
     {
         modes.push(current_mode);
         current_mode = mode;
-    }
+    };
 
 
     function restore_mode()
     {
         do_block_just_closed = current_mode === 'DO_BLOCK';
         current_mode = modes.pop();
-    }
+    };
 
 
     function in_array(what, arr)
@@ -145,7 +145,7 @@ function jsbeautify(js_source_text, options)
             }
         }
         return false;
-    }
+    };
 
 
 
@@ -324,7 +324,7 @@ function jsbeautify(js_source_text, options)
         }
 
         return [c, 'TK_UNKNOWN'];
-    }
+    };
 
 
     //----------------------------------
@@ -653,4 +653,5 @@ function jsbeautify(js_source_text, options)
 
     return output.join('');
 
-}
+};
+
