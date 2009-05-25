@@ -5,6 +5,18 @@
 // Copyright (c) 2009 by Ildar Shaimordanov
 //
 
+if ( ! Math.GOLDEN_RATIO ) {
+
+/**
+ * Returns the Golden ratio's value
+ *
+ * @const	Number
+ * @value	(Math.sqrt(5) + 1) / 2
+ */
+Math.GOLDEN_RATIO = (Math.sqrt(5) + 1) / 2;
+
+}
+
 if ( ! Math.PI_2 ) {
 
 /**
