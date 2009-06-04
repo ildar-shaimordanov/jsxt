@@ -117,7 +117,7 @@ textarea	{
 }
 
 </style>
-<script type="text/javascript" src="js/jsmin.js"></script>
+<script type="text/javascript" src="js/eval.js"></script>
 <script type="text/javascript">//<![CDATA[
 
 (function()
@@ -134,8 +134,7 @@ textarea	{
 			return;
 		}
 
-		code_output.value = jsmin(code_input.value, document.getElementById('level').options.selectedIndex);
-//		code_output.value = obfuscate(code_input.value, function(text) { statusLine.innerHTML = text; });
+		code_output.value = eval.minify(code_input.value, document.getElementById('level').options.selectedIndex);
 
 		var iLen = code_input.value.length;
 		var oLen = code_output.value.length;
