@@ -197,7 +197,7 @@ if ( ! Date.prototype.getDaysInMonth ) {
  *
  * @description
  * This method transforms primitive value of the Date object to 
- * number of the month due to the local timezone
+ * number of days in the month due to the local timezone
  *
  * @result   Integer
  */
@@ -206,6 +206,27 @@ Date.prototype.getDaysInMonth = function ()
 	var here = new Date(this.getTime());
 	here.setDate(32);
 	return 32 - here.getDate();
+};
+
+}
+
+
+if ( ! Date.prototype.getDaysInYear ) {
+
+/**
+ * Date.prototype.getDaysInYear
+ *
+ * @syntax
+ * object.getDaysInYear()
+ *
+ * @description
+ * Returns the number of days in the year corresponding this Date
+ *
+ * @result   Integer
+ */
+Date.prototype.getDaysInYear = function()
+{
+	return this.isLeapYear() ? 366 : 365;
 };
 
 }
@@ -221,6 +242,40 @@ if ( ! Date.prototype.getCalendar ) {
  * @description
  * This method transforms primitive value of the Date object to 
  * the 2D-array of days arranged by weeks
+ *
+ * @example
+ * var weekstart = 1;
+ * var namesOfWeekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+ * var padding = function (x)
+ * {
+ * 	return ! x ? '    ' : '  ' + (x < 10 ? ' ' : '') + x;
+ * };
+ * 
+ * var now = new Date();
+ * var cal = now.getCalendar();
+ * 
+ * // Example will output vertically oriented weeks
+ * var result = '';
+ * for (var j = 0; j < 7; j++) {
+ *     result += ' ' + namesOfWeekDays[j + weekstart];
+ *     for (var i = 0; i < cal.length; i++) {
+ *         result += padding(cal[i][j + weekstart]);
+ *     }
+ *     result += '\n';
+ * }
+ * 
+ * // Example will output horizontally oriented weeks
+ * var result = '';
+ * for (var j = 0; j < 7; j++) {
+ *     result += ' ' + namesOfWeekDays[j + weekstart];
+ * }
+ * result += '\n';
+ * for (var i = 0; i < cal.length; i++) {
+ *     for (var j = 0; j < 7; j++) {
+ *         result += padding(cal[i][j + weekstart]);
+ *     }
+ *     result += '\n';
+ * }
  *
  * @result   Array
  */
@@ -252,72 +307,24 @@ Date.prototype.getCalendar = function ()
 
 }
 
+if ( ! Date.prototype.isLeapYear ) {
+
 /**
-
-//
-// control variables
-//
-var transpose = false;
-var transpose = true;
-
-var weekstart = 0;
-var weekstart = 1;
-
-var year = 2006;
-
-//
-// main loop
-//
-var time = new Date();
-time.setFullYear(year);
-
-var s = '\t\t' + time.getFullYear() + '\n';
-for (var i = 0; i < 12; i++) {
-	time.setMonth(i);
-	s += simple(time);
-}
-
-//
-// universal output
-//
-try {
-	if (document) { document.writeln(s); }
-} catch (e) {
-	WScript.Echo(s);
-}
-
-//
-// auxiliary routine
-//
-function simple(time, tr)
+ * Date.prototype.isLeapYear
+ *
+ * @syntax
+ * object.isLeapYear()
+ *
+ * @description
+ * Evaluates the Date object that it corresponds to the leap year
+ *
+ * @result   Boolean
+ */
+Date.prototype.isLeapYear = function()
 {
-        var w = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        var m = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-	var padding = function (x, y) { return !x ? '    ' : '  ' + (x < 10 ? ' ' : '') + (x == y ? '<b><u>' + x + '</u></b>' : x); }
-
-	var cal = time.getCalendar();
-
-	var today = time.getDateToday();
-
-	var result = '';
-	result += '\t\t' + m[time.getMonth()];
-	result += ' (' + time.getDaysInMonth() + ')';
-	result += '\n';
-	if (transpose) {
-		for (var j = 0; j < 7; j++) {
-			result += ' ' + w[j + weekstart];
-			for (var i = 0; i < cal.length; i++) { result += padding(cal[i][j + weekstart], today); }
-			result += '\n'
-		}
-	} else {
-		for (var j = 0; j < 7; j++) { result += ' ' + w[j + weekstart]; }
-		result += '\n';
-		for (var i = 0; i < cal.length; i++) {
-			for (var j = 0; j < 7; j++) { result += padding(cal[i][j + weekstart], today); }
-			result += '\n';
-		}
-	}
-	return result;
+	var y = this.getFullYear();
+	return y % 4 == 0 && y % 100 != 0 || y % 400 == 0;
 };
 
-**/
+}
+
