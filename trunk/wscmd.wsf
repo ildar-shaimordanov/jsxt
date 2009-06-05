@@ -103,6 +103,7 @@ goto check_for_special_args
 <script language="javascript" src="js/NetIP.js"></script>
 <script language="javascript" src="js/Ajax.js"></script>
 <script language="javascript" src="js/eval.js"></script>
+<script language="javascript" src="js/json2.js"></script>
 <script language="javascript" src="js/win32/Enumerator.js"></script>
 <script language="javascript" src="js/win32/FileSystem.js"></script>
 <script language="javascript"><![CDATA[
