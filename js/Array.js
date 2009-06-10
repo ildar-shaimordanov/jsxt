@@ -769,7 +769,7 @@ if ( ! Array.prototype.fetch ) {
  * @example
  * <code>
  * var arr1 = ['what', 'the', 'wonderful', 'world'];
- * var arr2 = arr1.pluck('length');
+ * var arr2 = arr1.fetch('length');
  * // arr2 == [4, 3, 9, 5]
  * </code>
  *
@@ -816,6 +816,7 @@ Array.linearize = function(object)
 	}
 
 	return result;
+//	return Array.prototype.slice.call(arguments);
 };
 
 }
