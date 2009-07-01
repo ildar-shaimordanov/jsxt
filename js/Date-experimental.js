@@ -172,7 +172,7 @@ if ( ! Date.prototype.compareTo ) {
 
 Date.prototype.compareTo = function(value)
 {
-	return here.getTime() - Date.validate(value).getTime();
+	return Date.validate(this) - Date.validate(value);
 };
 
 }
@@ -181,8 +181,15 @@ if ( ! Date.prototype.between ) {
 
 Date.prototype.between = function(a, b)
 {
-	var here = this.getTime();
-	return here >= Date.validate(a).getTime() && here <= Date.validate(b).getTime();
+	a = Date.validate(a);
+	b = Date.validate(b);
+
+	var c = Date.validate(this);
+
+	var x = Math.min(a, b);
+	var y = Math.max(a, b);
+
+	return c >= x && c <= y;
 };
 
 }
