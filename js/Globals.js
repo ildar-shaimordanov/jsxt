@@ -306,15 +306,17 @@ if ( ! String.prototype.x || ! String.prototype.repeat ) {
  * @param	number	Amount of repeating
  * @return	string
  * @access	public
+ * @see		http://svn.debugger.ru/repos/jslibs/BrowserExtensions/trunk/ext/string.js
  */
 String.prototype.x = 
 String.prototype.repeat = function(n)
 {
-
 	if ( ! n || n <= 0 || this.length == 0 ) {
 		return "";
 	}
 
+	return Array(n + 1).join(this.valueOf());
+/*
 	var r = [this];
 	var l;
 
@@ -332,6 +334,7 @@ String.prototype.repeat = function(n)
 	}
 
 	return r.join("");
+*/
 /*
 	if ( ! n || n <= 0 ) {
 		return "";
