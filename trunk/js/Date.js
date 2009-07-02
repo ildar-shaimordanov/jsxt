@@ -182,7 +182,7 @@ Date.prototype.getYearDay = function ()
 {
 	var here = new Date(this.getTime());
 	here.setMonth(0, 1);
-	return Math.round((this - here) / (60 * 60 * 24 * 1000));
+	return 1 + Math.round((this - here) / (60 * 60 * 24 * 1000));
 };
 
 }
