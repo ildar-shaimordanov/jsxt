@@ -108,7 +108,7 @@ goto check_for_special_args
 <script language="javascript" src="js/win32/FileSystem.js"></script>
 <script language="javascript"><![CDATA[
 
-var echo = print = function()
+var alert = echo = print = function()
 {
 	WScript.Echo(Array.linearize(arguments).join(' '));
 };

@@ -164,25 +164,48 @@ Date.prototype.getDateToday = function ()
 
 }
 
-if ( ! Date.prototype.getYearDay ) {
+if ( ! Date.prototype.getDayOfYear ) {
 
 /**
- * Date.prototype.getYearDay
+ * Date.prototype.getDayOfYear
  *
  * @syntax
- * object.getYearDay()
+ * object.getDayOfYear()
  *
  * @description
  * This method transforms primitive value of the Date object to 
- * number of the year due to the local timezone
+ * number of the day due to the local timezone
  *
  * @result   Integer
  */
-Date.prototype.getYearDay = function ()
+Date.prototype.getDayOfYear = function ()
 {
 	var here = new Date(this.getTime());
 	here.setMonth(0, 1);
 	return 1 + Math.round((this - here) / (60 * 60 * 24 * 1000));
+};
+
+}
+
+if ( ! Date.prototype.getWeekOfYear ) {
+
+/**
+ * Date.prototype.getWeekOfYear
+ *
+ * @syntax
+ * object.getWeekOfYear()
+ *
+ * @description
+ * This method transforms primitive value of the Date object to 
+ * number of the week due to the local timezone
+ *
+ * @result   Integer
+ */
+Date.prototype.getWeekOfYear = function ()
+{
+	var here = new Date(this.getTime());
+	here.setMonth(0, 1);
+	return Math.ceil((this - here) / (7 * 60 * 60 * 24 * 1000));
 };
 
 }
@@ -327,4 +350,3 @@ Date.prototype.isLeapYear = function()
 };
 
 }
-
