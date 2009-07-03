@@ -159,6 +159,59 @@ Date.tomorrow = function(midnight)
 
 }
 
+if ( ! Date.fromObject ) {
+
+Date.fromObject = function(from)
+{
+	var here = new Date();
+
+	if ( from.hasOwnProperty('year') ) {
+		here.setFullYear(from.year);
+	}
+	if ( from.hasOwnProperty('month') ) {
+		here.setMonth(from.month);
+	}
+	if ( from.hasOwnProperty('date') ) {
+		here.setDate(from.date);
+	}
+
+	if ( from.hasOwnProperty('hours') ) {
+		here.setHours(from.hours);
+	}
+	if ( from.hasOwnProperty('minutes') ) {
+		here.setMinutes(from.minutes);
+	}
+	if ( from.hasOwnProperty('seconds') ) {
+		here.setSeconds(from.seconds);
+	}
+	if ( from.hasOwnProperty('milliseconds') ) {
+		here.setMilliseconds(from.milliseconds);
+	}
+
+	return here;
+};
+
+}
+
+if ( ! Date.prototype.toObject ) {
+
+Date.prototype.toObject = function()
+{
+	return {
+		milliseconds: this.getMilliseconds(),
+		seconds: this.getSeconds(),
+		minutes: this.getMinutes(),
+		hours: this.getHours(),
+		date: this.getDate(),
+		month: this.getMonth(),
+		year: this.getFullYear(),
+		wday: this.getDay(),
+		yday: this.getYearDay()
+	};
+};
+
+}
+
 if ( ! Date.prototype.copy ) {
 
 /**
@@ -517,4 +570,3 @@ Date.prototype.moveYear = function(to, exactly)
 };
 
 }
-
