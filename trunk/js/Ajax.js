@@ -229,7 +229,7 @@ if ( ! Ajax.queryFile ) {
 Ajax.queryFile = function(filename, options)
 {
 	if ( ! /\w+:\/\//.test(filename) ) {
-		filename = 'file:///' + filename;
+		filename = 'file://' + filename;
 	}
 
 	options = options || {};
