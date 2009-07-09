@@ -50,7 +50,7 @@ Example: install_tool.wsf install_tool.wsf C:\MyTools
 <object id="wshShell" progid="WScript.Shell" />
 <script language="javascript" src="js/Core.js"></script>
 <script language="javascript" src="js/Benchmark.js"></script>
-<script language="javascript" src="js/Globals.js"></script>
+<script language="javascript" src="js/String.js"></script>
 <script language="javascript" src="js/Array.js"></script>
 <script language="javascript" src="js/Date.js"></script>
 <script language="javascript" src="js/eval.js"></script>

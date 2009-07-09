@@ -47,7 +47,7 @@ Example: doc2html.wsf document.doc
 <object id="fso" progid="Scripting.FileSystemObject" />
 <object id="wshShell" progid="WScript.Shell" />
 <script language="javascript" src="js/win32/FileSystem.js"></script>
-<script language="javascript" src="js/Globals.js"></script>
+<script language="javascript" src="js/String.js"></script>
 <script language="javascript" src="js/Array.js"></script>
 <script language="javascript" src="js/Object.js"></script>
 <script language="javascript" src="js/win32/Enumerator.js"></script>
