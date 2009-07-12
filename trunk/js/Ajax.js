@@ -181,6 +181,8 @@ Ajax.query = function(url, options)
 	var xmlhttp = Ajax.create();
 	var result;
 
+	xmlhttp.open((options.method || 'GET'), url, options.async, options.username, options.password);
+
 	xmlhttp.onreadystatechange = function()
 	{
 		if ( 'function' != typeof options.onreadystate ) {
@@ -189,8 +191,6 @@ Ajax.query = function(url, options)
 
 		result = options.onreadystate(xmlhttp);
 	};
-
-	xmlhttp.open((options.method || 'GET'), url, options.async, options.username, options.password);
 
 	if ( options.nocache ) {
 		if ( ! options.headers ) {
