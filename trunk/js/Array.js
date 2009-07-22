@@ -240,6 +240,43 @@ Array.prototype.forEach = function(fun, thisp)
 
 }
 
+if ( ! Array.prototype.grep ) {
+
+/**
+ * Creates a new array with all elements that match the provided filter.
+ *
+ * @Description
+ * grep applies the provided filter once for each element in an 
+ * array, and constructs a new array of all the values that match to this filter.
+ * In detail, this is wrapper method over the Array.prototype.filter.
+ * filter is assumed as string, regex or eny object having test() methiod.
+ * 
+ * @Example
+ * <code>
+ * // This code will produce the following array ['hello', 'cool']
+ * var result = ['hello', 'world', 'this', 'is', 'cool'].grep(/(.)\1/);
+ * </code>
+ *
+ * @param	String, RegExp
+ * @param	Object
+ * @return	Array
+ * @access	public
+ * @see		https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/filter
+ */
+Array.prototype.grep = function(filter, thisp)
+{
+	if ( 'string' == typeof filter ) {
+		filter = new RegExp(filter);
+	}
+
+	return this.filter(function(v, k)
+	{
+		return filter.test(v);
+	}, thisp);
+};
+
+}
+
 if (!Array.prototype.indexOf) {
 
 /**
