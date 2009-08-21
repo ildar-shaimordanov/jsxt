@@ -36,18 +36,18 @@ if ( ! XHTMLDOM.utils.SpinButton ) {
  * For better view use the next CSS sheet
  * <pre>
 
-div.xf_spinbutton {
+div.xf_spinbutton_frame {
 	display: inline;
 	padding-right: 12px;
 	position: relative;
 }
 
-div.xf_spinbutton input.xf_spinbutton_value {
+div.xf_spinbutton_frame input.xf_spinbutton_value {
 	text-align: right;
 }
 
-div.xf_spinbutton input.xf_spinbutton_up,
-div.xf_spinbutton input.xf_spinbutton_down {
+div.xf_spinbutton_frame input.xf_spinbutton_up,
+div.xf_spinbutton_frame input.xf_spinbutton_down {
 	font-size: 4px;
 	margin: 0;
 	padding: 0;
@@ -55,15 +55,15 @@ div.xf_spinbutton input.xf_spinbutton_down {
 	width: 12px;
 }
 
-div.xf_spinbutton input[type="button"]	{
+div.xf_spinbutton_frame input[type="button"]	{
 	right: 0;
 }
 
-div.xf_spinbutton input.xf_spinbutton_up {
+div.xf_spinbutton_frame input.xf_spinbutton_up {
 	margin-bottom: 10px;
 }
 
-div.xf_spinbutton input.xf_spinbutton_down {
+div.xf_spinbutton_frame input.xf_spinbutton_down {
 	margin-top: 11px !important;
 	margin-top: 12px;
 }
@@ -89,7 +89,7 @@ XHTMLDOM.utils.Spinbutton = function(el, options)
 	// create a holder for the spin button
 	//
 	var holder = document.createElement('div');
-	holder.className = 'xf_spinbutton';
+	holder.className = 'xf_spinbutton_frame';
 	el.parentNode.insertBefore(holder, el);
 
 	//
@@ -324,6 +324,8 @@ XHTMLDOM.utils.Spinbutton = function(el, options)
 		}
 		el.focus();
 	};
+
+	return self;
 };
 
 }
