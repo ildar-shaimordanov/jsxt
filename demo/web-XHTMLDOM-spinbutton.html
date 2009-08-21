@@ -4,18 +4,18 @@
 <title>Spin Button demo</title>
 <style type="text/css">
 
-div.xf_spinbutton {
+div.xf_spinbutton_frame {
 	display: inline;
 	padding-right: 12px;
 	position: relative;
 }
 
-div.xf_spinbutton input.xf_spinbutton_value {
+div.xf_spinbutton_frame input.xf_spinbutton_value {
 	text-align: right;
 }
 
-div.xf_spinbutton input.xf_spinbutton_up,
-div.xf_spinbutton input.xf_spinbutton_down {
+div.xf_spinbutton_frame input.xf_spinbutton_up,
+div.xf_spinbutton_frame input.xf_spinbutton_down {
 	font-size: 4px;
 	margin: 0;
 	padding: 0;
@@ -23,15 +23,15 @@ div.xf_spinbutton input.xf_spinbutton_down {
 	width: 12px;
 }
 
-div.xf_spinbutton input[type="button"]	{
+div.xf_spinbutton_frame input[type="button"]	{
 	right: 0;
 }
 
-div.xf_spinbutton input.xf_spinbutton_up {
+div.xf_spinbutton_frame input.xf_spinbutton_up {
 	margin-bottom: 10px;
 }
 
-div.xf_spinbutton input.xf_spinbutton_down {
+div.xf_spinbutton_frame input.xf_spinbutton_down {
 	margin-top: 11px !important;
 	margin-top: 12px;
 }
@@ -81,6 +81,30 @@ window.onload = function()
 		rotate: 1,
 		behavior: M.onchange // The same handler
 	});
+
+	// Hours
+	XHTMLDOM.utils.Spinbutton(document.getElementById('hh'), {
+		value: now.getHours(),
+		min: 0, 
+		max: 23, 
+		rotate: 1
+	});
+
+	// Minutes
+	XHTMLDOM.utils.Spinbutton(document.getElementById('mm'), {
+		value: now.getMinutes(),
+		min: 0, 
+		max: 59, 
+		rotate: 1
+	});
+
+	// Seconds
+	XHTMLDOM.utils.Spinbutton(document.getElementById('ss'), {
+		value: now.getSeconds(),
+		min: 0, 
+		max: 59, 
+		rotate: 1
+	});
 }
 
 </script>
@@ -88,8 +112,10 @@ window.onload = function()
 
 <body>
 
+<div>
 <input type="text" id="D" />
-<select id="M">
+
+<select id="M" style="width: 158px">
 <option>January</option>
 <option>February</option>
 <option>March</option>
@@ -103,7 +129,15 @@ window.onload = function()
 <option>November</option>
 <option>December</option>
 </select>
+
 <input type="text" id="Y" />
+</div>
+
+<div>
+<input type="text" id="hh" />
+<input type="text" id="mm" />
+<input type="text" id="ss" />
+</div>
 
 </body>
 </html>
