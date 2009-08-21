@@ -1,4 +1,9 @@
-
+//
+// JavaScript unit
+// DOM extensions
+//
+// Copyright (c) 2009 by Ildar Shaimordanov
+//
 
 if ( ! window.XHTMLDOM ) {
 
@@ -12,10 +17,10 @@ XHTMLDOM.utils = {};
 
 }
 
-if ( ! XHTMLDOM.utils.initSpinbox ) {
+if ( ! XHTMLDOM.utils.SpinButton ) {
 
 /**
- * Creates the spinbox from the existing text input. 
+ * Creates the spin button from the existing text input. 
  *
  * @param	HTMLElement	el
  * @param	Object		options
@@ -28,30 +33,21 @@ if ( ! XHTMLDOM.utils.initSpinbox ) {
  * -- behavior
  * -- customArrows
  *
- * Example
- * <pre>
-
-<input type="text" id="sb_0" />
-<input type="text" id="sb_1" /><script type="text/javascript">XHTMLDOM.utils.initSpinbox('sb_1', {});</script>
-<input type="text" id="sb_2" /><script type="text/javascript">XHTMLDOM.utils.initSpinbox('sb_2', {rotate: 1});</script>
-
- * </pre>
- *
  * For better view use the next CSS sheet
  * <pre>
 
-div.xf_spinbox {
+div.xf_spinbutton {
 	display: inline;
 	padding-right: 12px;
 	position: relative;
 }
 
-div.xf_spinbox input.xf_spinbox_value {
+div.xf_spinbutton input.xf_spinbutton_value {
 	text-align: right;
 }
 
-div.xf_spinbox input.xf_spinbox_up,
-div.xf_spinbox input.xf_spinbox_down {
+div.xf_spinbutton input.xf_spinbutton_up,
+div.xf_spinbutton input.xf_spinbutton_down {
 	font-size: 4px;
 	margin: 0;
 	padding: 0;
@@ -59,15 +55,15 @@ div.xf_spinbox input.xf_spinbox_down {
 	width: 12px;
 }
 
-div.xf_spinbox input[type="button"]	{
+div.xf_spinbutton input[type="button"]	{
 	right: 0;
 }
 
-div.xf_spinbox input.xf_spinbox_up {
+div.xf_spinbutton input.xf_spinbutton_up {
 	margin-bottom: 10px;
 }
 
-div.xf_spinbox input.xf_spinbox_down {
+div.xf_spinbutton input.xf_spinbutton_down {
 	margin-top: 11px !important;
 	margin-top: 12px;
 }
@@ -77,29 +73,29 @@ div.xf_spinbox input.xf_spinbox_down {
  * @return	void
  * @access	static
  */
-XHTMLDOM.utils.initSpinbox = function(el, options)
+XHTMLDOM.utils.Spinbutton = function(el, options)
 {
 	if ( 'string' == typeof el ) {
 		el = document.getElementById(el);
 	}
 
-	if ( ! el.type || el.type.toLowerCase() != 'text' ) {
+	if ( ! el || el.tagName.toLowerCase() != 'input' || el.type.toLowerCase() != 'text' ) {
 		throw new TypeError();
 	}
 
 	options = options || {};
 
 	//
-	// create a holder for the spinbox
+	// create a holder for the spin button
 	//
 	var holder = document.createElement('div');
-	holder.className = 'xf_spinbox';
+	holder.className = 'xf_spinbutton';
 	el.parentNode.insertBefore(holder, el);
 
 	//
 	// move the input into this holder
 	//
-	el.className += ' xf_spinbox_value';
+	el.className += ' xf_spinbutton_value';
 	holder.appendChild(el);
 
 	//
@@ -107,7 +103,7 @@ XHTMLDOM.utils.initSpinbox = function(el, options)
 	//
 	var dn = document.createElement('input');
 	dn.type = 'button';
-	dn.className = 'xf_spinbox_down';
+	dn.className = 'xf_spinbutton_down';
 	dn.tabIndex = 32767;
 	if ( ! options.customArrows ) {
 		dn.value = String.fromCharCode(1639);
@@ -120,7 +116,7 @@ XHTMLDOM.utils.initSpinbox = function(el, options)
 	//
 	var up = document.createElement('input');
 	up.type = 'button';
-	up.className = 'xf_spinbox_up';
+	up.className = 'xf_spinbutton_up';
 	up.tabIndex = 32767;
 	if ( ! options.customArrows ) {
 		up.value = String.fromCharCode(1640);
@@ -153,9 +149,75 @@ XHTMLDOM.utils.initSpinbox = function(el, options)
 		setNearest();
 	};
 
+	var self = this;
+
+	/**
+	 * Updates the rotate options
+	 */
+	self.updateRotate = function(rotate)
+	{
+		options.rotate = !! rotate;
+	};
+
+	/**
+	 * Updates the actual value of the element
+	 */
+	self.updateValue = function(value)
+	{
+		if ( /^\s*min\s*$/.test(value) ) {
+			el.value = options.min;
+		} else if ( /^\s*max\s*$/.test(value) ) {
+			el.value = options.max;
+		} else if ( isFinite(value) && Number(value) >= options.min && Number(value) <= options.max ) {
+			el.value = Number(value);
+		} else {
+			setMediana();
+		}
+	};
+
+	/**
+	 * Updates the next options
+	 * -- min
+	 * -- max
+	 * -- delta
+	 */
+	self.updateOptions = function(opts)
+	{
+		if ( ! opts ) {
+			return;
+		}
+
+		var numOpts = 'min max delta'.split(/\s+/);
+		for (var i = 0; i < numOpts.length; i++) {
+			var p = numOpts[i];
+			if ( opts.hasOwnProperty(p) && isFinite(opts[p]) ) {
+				continue;
+			}
+			opts[p] = options[p];
+		}
+
+		if ( opts.min < opts.max &&  opts.min + opts.delta <= opts.max ) {
+			options.min = opts.min;
+			options.max = opts.max;
+			options.delta = opts.delta;
+		}
+
+		el.value = Math.max(Math.min(el.value, options.max), options.min);
+
+		setNearest();
+	};
+
 	//
 	// correct options
 	//
+	if ( ! options.hasOwnProperty('rotate') ) {
+		options.rotate = false;
+	}
+
+	if ( ! options.hasOwnProperty('behavior') ) {
+		options.behavior = null;
+	}
+
 	if ( ! isFinite(options.min) ) {
 		options.min = 0;
 	}
@@ -169,15 +231,7 @@ XHTMLDOM.utils.initSpinbox = function(el, options)
 		options.delta = 1;
 	}
 
-	if ( /^\s*min\s*$/.test(options.value) ) {
-		el.value = options.min;
-	} else if ( /^\s*max\s*$/.test(options.value) ) {
-		el.value = options.max;
-	} else if ( isFinite(options.value) && Number(options.value) >= options.min && Number(options.value) <= options.max ) {
-		el.value = Number(options.value);
-	} else {
-		setMediana();
-	}
+	self.updateValue(options.value);
 
 	//
 	// initialize the main handler
@@ -201,26 +255,21 @@ XHTMLDOM.utils.initSpinbox = function(el, options)
 		}
 	}, 50);
 
-	var interval = null;
-
 	//
-	// up/down arrow mouseup/mouseout
+	// assign handlers
 	//
-	function stopChange()
-	{
-		clearInterval(arguments.callee.interval);
-	};
+	var interval;
 
 	//
 	// up arrow mousedown
 	//
-	function incValue()
+	up.onmousedown = function()
 	{
 		if ( el.disabled ) {
 			return;
 		}
 
-		stopChange.interval = setInterval(function()
+		interval = setInterval(function()
 		{
 			if ( Number(el.value) + options.delta <= options.max ) {
 				el.value = Math.max(options.min, el.value);
@@ -235,13 +284,13 @@ XHTMLDOM.utils.initSpinbox = function(el, options)
 	//
 	// down arrow mousedown
 	//
-	function decValue()
+	dn.onmousedown = function()
 	{
 		if ( el.disabled ) {
 			return;
 		}
 
-		stopChange.interval = setInterval(function()
+		interval = setInterval(function()
 		{
 			if ( Number(el.value) - options.delta >= options.min ) {
 				el.value = Math.min(options.max, el.value);
@@ -254,38 +303,27 @@ XHTMLDOM.utils.initSpinbox = function(el, options)
 	};
 
 	//
+	// up/down arrow mouseup/mouseout
+	//
+	up.onmouseup = 
+	dn.onmouseup = 
+	up.onmouseout = 
+	dn.onmouseout = function()
+	{
+		clearInterval(interval);
+	};
+
+	//
 	// up/down arrow focus
 	//
-	function focusValue()
+	up.onfocus = 
+	dn.onfocus = function()
 	{
 		if ( el.disabled ) {
 			return;
 		}
 		el.focus();
 	};
-
-	//
-	// assign handlers
-	//
-	if ( document.attachEvent ) {
-		up.attachEvent('onmousedown', incValue);
-		dn.attachEvent('onmousedown', decValue);
-		up.attachEvent('onmouseup', stopChange);
-		dn.attachEvent('onmouseup', stopChange);
-		up.attachEvent('onmouseout', stopChange);
-		dn.attachEvent('onmouseout', stopChange);
-		up.attachEvent('onfocus', focusValue);
-		dn.attachEvent('onfocus', focusValue);
-	} else if ( document.addEventListener ) {
-		up.addEventListener('mousedown', incValue, false);
-		dn.addEventListener('mousedown', decValue, false);
-		up.addEventListener('mouseup', stopChange, false);
-		dn.addEventListener('mouseup', stopChange, false);
-		up.addEventListener('mouseout', stopChange, false);
-		dn.addEventListener('mouseout', stopChange, false);
-		up.addEventListener('focus', focusValue, false);
-		dn.addEventListener('focus', focusValue, false);
-	}
 };
 
 }
