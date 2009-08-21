@@ -218,12 +218,13 @@ XHTMLDOM.utils.Spinbutton = function(el, options)
 		options.behavior = null;
 	}
 
+	// -2^32+1 .. +2^32-1 is enough
 	if ( ! isFinite(options.min) ) {
-		options.min = 0;
+		options.min = -0xFFFFFFFF;
 	}
 
 	if ( ! isFinite(options.max) ) {
-		options.max = 10;
+		options.max = +0xFFFFFFFF;
 	}
 
 	options.delta = Math.abs(options.delta);
@@ -276,8 +277,8 @@ XHTMLDOM.utils.Spinbutton = function(el, options)
 				el.value -= -options.delta;
 			} else if ( options.rotate ) {
 				el.value = options.min;
-				setNearest();
 			}
+			setNearest();
 		}, 100);
 	};
 
@@ -297,8 +298,8 @@ XHTMLDOM.utils.Spinbutton = function(el, options)
 				el.value -= +options.delta;
 			} else if ( options.rotate ) {
 				el.value = options.max;
-				setNearest();
 			}
+			setNearest();
 		}, 100);
 	};
 
