@@ -1,0 +1,113 @@
+<html>
+
+<head>
+<title>Spin Button demo</title>
+<style type="text/css">
+
+div.xf_spinbutton {
+	display: inline;
+	padding-right: 12px;
+	position: relative;
+}
+
+div.xf_spinbutton input.xf_spinbutton_value {
+	text-align: right;
+}
+
+div.xf_spinbutton input.xf_spinbutton_up,
+div.xf_spinbutton input.xf_spinbutton_down {
+	font-size: 4px;
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	width: 12px;
+}
+
+div.xf_spinbutton input[type="button"]	{
+	right: 0;
+}
+
+div.xf_spinbutton input.xf_spinbutton_up {
+	margin-bottom: 10px;
+}
+
+div.xf_spinbutton input.xf_spinbutton_down {
+	margin-top: 11px !important;
+	margin-top: 12px;
+}
+
+</style>
+<script type="text/javascript" src="../js/Date.js"></script>
+<script type="text/javascript" src="../js/web/XHTMLDOM.js"></script>
+<!--
+<script type="text/javascript" src="file:///C:/PROGS/TOOLS/.DEVEL/jsxt/js/Date.js"></script>
+<script type="text/javascript" src="file:///C:/PROGS/TOOLS/.DEVEL/jsxt/js/web/XHTMLDOM.js"></script>
+-->
+<script type="text/javascript">
+
+window.onload = function()
+{
+	var D, M, Y;
+	var D_sb, Y_sb;
+
+	var now = new Date();
+
+	// Date
+	D = document.getElementById('D');
+	D_sb = new XHTMLDOM.utils.Spinbutton(D, {
+		value: now.getDate(),
+		min: 1,
+		max: now.getDaysInMonth(),
+		rotate: 1
+	});
+
+	// Month
+	M = document.getElementById('M');
+        M.selectedIndex = now.getMonth();
+	M.onchange = function()
+	{
+		var here = new Date(Y.value, M.options.selectedIndex, 1);
+		if ( ! here ) {
+			return;
+		}
+
+		D_sb.updateOptions({
+			max: here.getDaysInMonth()
+		});
+	};
+
+	// Year
+	Y = document.getElementById('Y');
+	Y_sb = new XHTMLDOM.utils.Spinbutton(Y, {
+		value: now.getFullYear(),
+		min: now.getFullYear() - 50,
+		max: now.getFullYear() + 50,
+		rotate: 1,
+		behavior: M.onchange // The same handler
+	});
+}
+
+</script>
+</head>
+
+<body>
+
+<input type="text" id="D" />
+<select id="M">
+<option>January</option>
+<option>February</option>
+<option>March</option>
+<option>April</option>
+<option>May</option>
+<option>June</option>
+<option>July</option>
+<option>August</option>
+<option>September</option>
+<option>October</option>
+<option>November</option>
+<option>December</option>
+</select>
+<input type="text" id="Y" />
+
+</body>
+</html>
