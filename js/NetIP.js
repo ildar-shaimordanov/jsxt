@@ -9,7 +9,7 @@
 // Copyright (c) 2007 by Ildar Shaimordanov
 //
 
-if ( ! NetIP ) {
+if ( 'function' != typeof NetIP ) {
 
 function NetIP()
 {
