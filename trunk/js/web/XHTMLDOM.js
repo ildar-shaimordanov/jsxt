@@ -152,6 +152,22 @@ XHTMLDOM.utils.Spinbutton = function(el, options)
 	var self = this;
 
 	/**
+	 * Gets the options of the spin button
+	 */
+	self.getOptions = function()
+	{
+		return options;
+	};
+
+	/**
+	 * Gets the actual value of the control
+	 */
+	self.getValue = function()
+	{
+		return el.value;
+	};
+
+	/**
 	 * Updates the rotate options
 	 */
 	self.updateRotate = function(rotate)
@@ -196,7 +212,7 @@ XHTMLDOM.utils.Spinbutton = function(el, options)
 			opts[p] = options[p];
 		}
 
-		if ( opts.min < opts.max &&  opts.min + opts.delta <= opts.max ) {
+		if ( opts.min < opts.max && opts.min + opts.delta <= opts.max ) {
 			options.min = opts.min;
 			options.max = opts.max;
 			options.delta = opts.delta;
