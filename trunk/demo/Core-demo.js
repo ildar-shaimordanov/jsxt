@@ -1,3 +1,8 @@
+
+"=============================".writeln();
+"Test of the inline exception.".writeln();
+"=============================".writeln();
+
 try {
 
     // Exception initiation: 'y' is not defined
@@ -6,33 +11,41 @@ try {
 } catch (e) {
 
     // Exception message assertation
-    ASSERT("ASSERTED: Undefined variable");
-    ASSERT(e);
+    "ASSERTED: Undefined variable".writeln();
+    e.format().writeln();
 
 }
 
+"============================".writeln();
+"Test of internal exceptions.".writeln();
+"============================".writeln();
 
 function myErrorHandler(data)
 {
+    var e;
     try {
 
         if (typeof(data) == "undefined") {
-            throw "UNDEFINED";
+            throw new Error("UNDEFINED");
         }
+
         if (typeof(data) != "number") {
-            throw "NOT_NUMBER";
+            throw new Error("NOT_NUMBER");
         }
+
         if (data < 0) {
-            throw "NEGATIVE";
+            throw new Error("NEGATIVE");
         }
+
         if (data == 0) {
-            throw "ZERO_NUMBER";
+            throw new Error("ZERO_NUMBER");
         }
-        ASSERT("\nOK! " + data);
+
+        ("\nOK! " + data).writeln();
 
     } catch (e) {
 
-        ASSERT(e);
+        e.format().writeln();
 
     }
 }
