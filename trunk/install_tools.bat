@@ -26,6 +26,12 @@ set SQUEEZE=/squeeze
 
 
 rem
+rem Download from the site
+rem
+rem set DOWNLOAD=/download
+
+
+rem
 rem Main loop
 rem
 if not exist "%INSTALL_PATH%" md "%INSTALL_PATH%"
@@ -35,7 +41,7 @@ if defined INSTALL_EXCLUDE set INSTALL_CMD=%INSTALL_CMD% ^^^| findstr /v "%INSTA
 
 for /f %%a in ( '%INSTALL_CMD%' ) do (
 	echo Processing '%%a'...
-	cscript //NoLogo install_tool.wsf %SQUEEZE% "%%a" "%INSTALL_PATH%"
+	cscript //NoLogo install_tool.wsf %SQUEEZE% %DOWNLOAD% "%%a" "%INSTALL_PATH%"
 	echo.
 )
 

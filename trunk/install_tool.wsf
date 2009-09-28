@@ -42,6 +42,12 @@ tool can be used without emergency of lost some parts of tool.
 	type="simple"
 	required="false"
 />
+<named
+	name="DOWNLOAD"
+	helpstring="Specifies this argument if you need download from the site"
+	type="simple"
+	required="false"
+/>
 <example>
 Example: install_tool.wsf install_tool.wsf C:\MyTools
 </example>
@@ -63,6 +69,23 @@ if ( WScript.Arguments.length < 1 ) {
 }
 
 var filename = WScript.Arguments.Unnamed.item(0);
+
+var location = 'http://jsxt.googlecode.com/svn/trunk/';
+var processor;
+var loader;
+var loaderOptions;
+
+if ( WScript.Arguments.Named.Exists('DOWLOAD') ) {
+	filename = 'http://jsxt.googlecode.com/svn/trunk/' + filename;
+	processor = Ajax;
+	loader = Ajax.queryFile;
+	loaderOptions = {async: false};
+} else {
+	location = '';
+	processor = FileSystem;
+	loader = FileSystem.readFile;
+}
+
 var output;
 
 var e;
@@ -81,14 +104,14 @@ var scriptOuter = filename.match(/\.wsf$/i)
 	? '\x3Cscript language="javascript">\x3C![CDATA[\n\n//%s\n%s\n\n]]\x3E</script\x3E' 
 	: '\x3Cscript language="javascript">\n\n//%s\n%s\n\n</script\x3E';
 
-var content = FileSystem.readFile(filename);
+var content = loader(filename, loaderOptions);
 
 content = content.replace(/<script.*?src="(js\/.+\.js)".*?\/script>/g, function($0, $1)
 {
 	var f = $1;
 	var s;
 
-	s = FileSystem.readFile(f);
+	s = loader(f, loaderOptions);
 	if ( WScript.Arguments.Named.Exists('SQUEEZE') ) {
 		s = eval.minify(s, 3, '');
         }
