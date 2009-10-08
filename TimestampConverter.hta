@@ -146,6 +146,13 @@ div.xf_spinbutton_frame input.xf_spinbutton_down {
  */
 var behavior = function(el, options)
 {
+	// Prevent duplicated changes of fields
+	if ( behavior.again ) {
+		behavior.again = false;
+		return;
+	}
+	behavior.again = true;
+
 	switch ( el.id ) {
 	case 'T':
 		var here = new Date(behavior.T.getValue() * 1000);
@@ -172,7 +179,6 @@ var behavior = function(el, options)
 		behavior.updateTimestamp();
 		break;
 	}
-
 };
 
 /**
