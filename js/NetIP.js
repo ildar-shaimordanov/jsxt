@@ -544,48 +544,6 @@ NetIP.itoa = function(value, radix)
 
 }
 
-if ( ! NetIP.win32IPConfig ) {
-
-/**
- * Returns all network information as array of a [addr, mask] pair for Windows only.
- * This feature is experimental.
- *
- * @param	void
- * @return	Array
- * @access	Static
- */
-NetIP.win32IPConfig = function()
-{
-	var WMI = GetObject('WinMgmts:');
-	var sql = 'SELECT * FROM Win32_NetworkAdapterConfiguration';
-
-	var query = WMI.ExecQuery(sql);
-	var enumer = new Enumerator(query);
-
-	var result = [];
-	while ( ! enumer.atEnd() ) {
-		var adapter = enumer.item();
-		enumer.moveNext();
-
-		if ( adapter.IPAddress === null || adapter.IPSubnet === null ) {
-			continue;
-		}
-
-		var addr = (new VBArray(adapter.IPAddress)).toArray();
-		var mask = (new VBArray(adapter.IPSubnet)).toArray();
-		var len = Math.min(addr.length, mask.length);
-		for (var i = 0; i < len; i++) {
-			if ( ! addr[i] || ! mask[i] ) {
-				continue;
-			}
-			result[result.length] = [addr[i], mask[i]];
-		}
-	}
-	return result;
-};
-
-}
-
 if ( ! Number.prototype.itoa ) {
 
 /**
