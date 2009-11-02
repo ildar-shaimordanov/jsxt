@@ -921,6 +921,35 @@ Array.range = function()
 
 }
 
+if ( ! Object.prototype.fill ) {
+
+/**
+ * Object.prototype.fill
+ *
+ * @description
+ * Populates the array of the definite size with the object.
+ *
+ * @param	Integer
+ * @result	Array
+ * @access	public
+ * @see		http://forum.dklab.ru/viewtopic.php?t=21702
+ * @see		http://tokyoenvious.xrea.jp/javascript/functional/array.js
+ *
+ * @requires	Object.clone()
+ */
+Object.prototype.fill = function(size)
+{
+	var result = [];
+
+	for (var i = 0; i < size; i++) {
+		result.push(this.clone());
+	}
+
+	return result;
+};
+
+}
+
 if ( ! Number.prototype.fill ) {
 
 /**
