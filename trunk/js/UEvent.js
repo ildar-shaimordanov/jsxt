@@ -35,6 +35,7 @@ if ( ! UEvent.addEventListener ) {
 /**
  * Registers a new listener of an event for the specified node.
  *
+ * @param	HTMLElement
  * @param	String
  * @param	Function
  * @param	Boolean
