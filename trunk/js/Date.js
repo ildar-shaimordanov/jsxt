@@ -5,91 +5,193 @@
 // Copyright (c) 2006 by Ildar N. Shaimordanov aka Rumata
 //
 
-if ( ! Date.prototype.getDayName ) {
+Date.english = {
+	WEEKDAY_SHORT: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+	WEEKDAY_LONG: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+	MONTH_SHORT: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+	MONTH_LONG: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+};
+
+Date.locale = {
+	WEEKDAY_SHORT: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+	WEEKDAY_LONG: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+	MONTH_SHORT: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+	MONTH_LONG: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+};
+
+if ( ! Date.prototype.getDayShortName ) {
 
 /**
- * Date.prototype.getDayName
+ * Date.prototype.getDayShortName
  *
  * @syntax
- * object.getDayName()
+ * object.getDayShortName()
  *
  * @description
- * Returns the short or full name of weekday
+ * Returns the short name of weekday
  *
- * @param	Boolean	full
+ * @param	void
  * @return	String
  * @access	public
  */
-Date.prototype.getDayName = function(full)
+Date.prototype.getDayShortName = function()
 {
-	var sname = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-	var lname = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-	return (full ? lname : sname)[this.getDay()];
+	return Date.english.WEEKDAY_SHORT[this.getDay()];
 };
 
 }
 
-if ( ! Date.prototype.getLocaleDayName ) {
+if ( ! Date.prototype.getDayLongName ) {
 
 /**
- * Date.prototype.getLocaleDayName
+ * Date.prototype.getDayLongName
  *
  * @syntax
- * object.getLocaleDayName()
+ * object.getDayLongName()
  *
  * @description
- * Returns the short or full name of weekday using the current locale
- * This method should be overriden in order to return true value respectively the locale
+ * Returns the long name of weekday
  *
- * @param	Boolean	full
+ * @param	void
  * @return	String
  * @access	public
  */
-Date.prototype.getLocaleDayName = Date.prototype.getDayName;
-
-}
-
-if ( ! Date.prototype.getMonthName ) {
-
-/**
- * Date.prototype.getMonthName
- *
- * @syntax
- * object.getMonthName()
- *
- * @description
- * Returns the short or full name of month
- *
- * @param	Boolean	full
- * @return	String
- * @access	public
- */
-Date.prototype.getMonthName = function(full)
+Date.prototype.getDayLongName = function()
 {
-	var sname = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-	var lname = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-	return (full ? lname : sname)[this.getMonth()];
+	return Date.english.WEEKDAY_LONG[this.getDay()];
 };
 
 }
 
-if ( ! Date.prototype.getLocaleMonthName ) {
+if ( ! Date.prototype.getLocaleDayShortName ) {
 
 /**
- * Date.prototype.getLocaleMonthName
+ * Date.prototype.getLocaleDayShortName
  *
  * @syntax
- * object.getLocaleMonthName()
+ * object.getLocaleDayShortName()
  *
  * @description
- * Returns the short or full name of month using the current locale
- * This method should be overriden in order to return true value respectively the locale
+ * Returns the short name of weekday using the current locale
  *
- * @param	Boolean	full
+ * @param	void
  * @return	String
  * @access	public
  */
-Date.prototype.getLocaleMonthName = Date.prototype.getMonthName;
+Date.prototype.getLocaleDayShortName = function()
+{
+	return Date.locale.WEEKDAY_SHORT[this.getDay()];
+};
+
+}
+
+if ( ! Date.prototype.getLocaleDayLongName ) {
+
+/**
+ * Date.prototype.getLocaleDayLongName
+ *
+ * @syntax
+ * object.getLocaleDayLongName()
+ *
+ * @description
+ * Returns the long name of weekday using the current locale
+ *
+ * @param	void
+ * @return	String
+ * @access	public
+ */
+Date.prototype.getLocaleDayLongName = function()
+{
+	return Date.locale.WEEKDAY_LONG[this.getDay()];
+};
+
+}
+
+if ( ! Date.prototype.getMonthShortName ) {
+
+/**
+ * Date.prototype.getMonthShortName
+ *
+ * @syntax
+ * object.getMonthShortName()
+ *
+ * @description
+ * Returns the short name of month
+ *
+ * @param	void
+ * @return	String
+ * @access	public
+ */
+Date.prototype.getMonthShortName = function()
+{
+	return Date.english.MONTH_SHORT[this.getMonth()];
+};
+
+}
+
+if ( ! Date.prototype.getMonthLongName ) {
+
+/**
+ * Date.prototype.getMonthLongName
+ *
+ * @syntax
+ * object.getMonthLongName()
+ *
+ * @description
+ * Returns the long name of month
+ *
+ * @param	void
+ * @return	String
+ * @access	public
+ */
+Date.prototype.getMonthLongName = function()
+{
+	return Date.english.MONTH_LONG[this.getMonth()];
+};
+
+}
+
+if ( ! Date.prototype.getLocaleMonthShortName ) {
+
+/**
+ * Date.prototype.getLocaleMonthShortName
+ *
+ * @syntax
+ * object.getLocaleMonthShortName()
+ *
+ * @description
+ * Returns the short name of month using the current locale
+ *
+ * @param	void
+ * @return	String
+ * @access	public
+ */
+Date.prototype.getLocaleMonthShortName = function()
+{
+	return Date.locale.MONTH_SHORT[this.getMonth()];
+};
+
+}
+
+if ( ! Date.prototype.getLocaleMonthLongName ) {
+
+/**
+ * Date.prototype.getLocaleMonthLongName
+ *
+ * @syntax
+ * object.getLocaleMonthLongName()
+ *
+ * @description
+ * Returns the long name of month
+ *
+ * @param	void
+ * @return	String
+ * @access	public
+ */
+Date.prototype.getLocaleMonthLongName = function()
+{
+	return Date.locale.MONTH_LONG[this.getMonth()];
+};
 
 }
 
@@ -326,6 +428,100 @@ Date.prototype.getCalendar = function ()
 		weeks[i][7] = weeks[i + 1][0];
 	}
 	return weeks;
+};
+
+}
+
+if ( ! Date.prototype.getIsoYear ) {
+
+/**
+ * NOTE!!! 
+ * The original code of this method can be found by the following link: 
+ * http://svn.debugger.ru/repos/jslibs/BrowserExtensions/trunk/ext/date.js
+ * @author
+ * Ilya Lebedev
+ *
+ *  return year according to Iso notation
+ *
+ *  @return int year number
+ *  @access public
+ */
+Date.prototype.getIsoYear = function()
+{
+	var d = this.getDayOfYear();
+	var j1 = (new Date(this.getFullYear(), 0, 1)).getIsoDay();
+	var y = this.getFullYear();
+	if ( d <= (8 - j1) && j1 > 4 ) {
+		return y - 1;
+	} else if ( ( this.getDaysInYear() - d ) < ( 4 - this.getIsoDay() ) ) {
+		return y + 1;
+	} else {
+		return y;
+	}
+};
+
+}
+
+if ( ! Date.prototype.getIsoDay ) {
+
+/**
+ * NOTE!!! 
+ * The original code of this method can be found by the following link: 
+ * http://svn.debugger.ru/repos/jslibs/BrowserExtensions/trunk/ext/date.js
+ * @author
+ * Ilya Lebedev
+ *
+ *  find day number in ISO notation (Mon = 1, Sun=7)
+ *
+ *  @return day number
+ *  @access public
+ */
+Date.prototype.getIsoDay = function()
+{
+	var y = this.getFullYear();
+	var yy = (y - 1) % 100;
+	var c = (y - 1) - yy;
+	var g = yy + Math.floor(yy/4);
+	var j1 = 1 + ((((Math.floor(c / 100) % 4) * 5) + g) % 7);
+	return (1 + ((this.getDayOfYear() + (j1 - 1) - 1) % 7));
+};
+
+}
+
+if ( ! Date.prototype.getIsoWeek ) {
+
+/**
+ * NOTE!!! 
+ * The original code of this method can be found by the following link: 
+ * http://svn.debugger.ru/repos/jslibs/BrowserExtensions/trunk/ext/date.js
+ * @author
+ * Ilya Lebedev
+ *
+ *  return week number in ISO notation
+ *
+ *  @return int week number
+ *  @access public
+ */
+Date.prototype.getIsoWeek = function()
+{
+	var y = this.getFullYear();
+	var yi = this.getIsoYear();
+	var j1 = (new Date(y, 0, 1)).getIsoDay();
+	if ( yi < y ) {
+		if ( j1 == 5 || ( j1 == 6 && (new Date(yi, 0, 1)).isLeapYear() ) ) {
+			w = 53;
+		} else {
+			w = 52;
+		}
+	} else if (yi > y) {
+		w = 1;
+	} else {
+		var w = Math.floor((this.getDayOfYear() + (7 - this.getIsoDay()) + (j1 - 1)) / 7);
+		if ( j1 > 4 ) {
+			w -= 1;
+		}
+	}
+	return w;
 };
 
 }
@@ -938,15 +1134,137 @@ if ( ! Date.prototype.between ) {
  */
 Date.prototype.between = function(date1, date2)
 {
-	date1 = Date.validate(date1);
-	date2 = Date.validate(date2);
+	var d1 = Date.validate(date1);
+	var d2 = Date.validate(date2);
 
 	var c = Date.validate(this);
 
-	var a = Math.min(date1, date2);
-	var b = Math.max(date1, date2);
+	var a = Math.min(d1, d2);
+	var b = Math.max(d1, d2);
 
 	return c >= a && c <= b;
+};
+
+}
+
+if ( ! Date.prototype.format ) {
+
+/**
+ * NOTE!!! 
+ * The original code of this method can be found by the following link: 
+ * http://svn.debugger.ru/repos/jslibs/BrowserExtensions/trunk/ext/date.js
+ * @author
+ * Ilya Lebedev
+ *
+ *  Converts Date object to formatted string
+ *
+ *  @description
+ *  Possible formatting options
+ *    %a - abbreviated weekday name according to the current locale
+ *    %A - full weekday name according to the current locale
+ *    %b - abbreviated month name according to the current locale
+ *    %B - full month name according to the current locale
+ *    %c - preferred date and time representation for the current locale
+ *    %C - century number (the year divided by 100 and truncated to an integer, range 00 to 99)
+ *    %d - day of the month as a decimal number (range 01 to 31)
+ *    %D - same as %m/%d/%y
+ *    %e - day of the month as a decimal number, a single digit is preceded by a space (range ' 1' to '31')
+ *    %g - like %G, but without the century.
+ *    %G - The 4-digit year corresponding to the ISO week number (see %V). 
+ *         self has the same format and value as %Y, except that if the ISO week number belongs 
+ *         to the previous or next year, that year is used instead.
+ *    %h - same as %b
+ *    %H - hour as a decimal number using a 24-hour clock (range 00 to 23)
+ *    %I - hour as a decimal number using a 12-hour clock (range 01 to 12)
+ *    %j - day of the year as a decimal number (range 001 to 366)
+ *    %m - month as a decimal number (range 01 to 12)
+ *    %M - minute as a decimal number
+ *    %n - newline character
+ *    %p - either `am' or `pm' according to the given time value, or the corresponding strings for the current locale
+ *    %r - time in a.m. and p.m. notation
+ *    %R - time in 24 hour notation
+ *    %S - second as a decimal number
+ *    %t - tab character
+ *    %T - current time, equal to %H:%M:%S
+ *    %V - The ISO 8601:1988 week number of the current year as a decimal number, range 01 to 53, 
+ *         where week 1 is the first week that has at least 4 days in the current year, 
+ *         and with Monday as the first day of the week. 
+ *         (Use %G or %g for the year component that corresponds to the week number for the specified timestamp.)
+ *    %u - weekday as a decimal number [1,7], with 1 representing Monday
+ *    %U - week number of the current year as a decimal number, starting with the first Sunday as the first day of the first week
+ *    %w - day of the week as a decimal, Sunday being 0
+ *    %W - week number of the current year as a decimal number, starting with the first Monday as the first day of the first week
+ *    %x - preferred date representation for the current locale without the time
+ *    %X - preferred time representation for the current locale without the date
+ *    %y - year as a decimal number without a century (range 00 to 99)
+ *    %Y - year as a decimal number including the century
+ *    %Z or %z - time zone or name or abbreviation
+ *
+ *  @link http://php.net/strftime
+ *
+ *  @param string optional date format
+ *  @param string optional single char spacer, used to pad short values
+ *  @return string formatted Date
+ *  @access public
+ */
+Date.prototype.format = function (fmt, spacer)
+{
+	var self = this;
+
+	if ( ! fmt ) {
+		return this.toString();
+	}
+	
+	if ( typeof spacer != 'string' ) {
+		spacer = "0";
+	}
+
+	if ( spacer.length > 1 ) {
+		spacer.length = 1;
+	}
+
+	return fmt.replace(/%\w+/g, function(a)
+	{
+		a = a.replace(/[%\s]/,"");
+		switch (a) {
+		case "a" : return self.getLocaleDayShortName();
+		case "A" : return self.getLocaleDayLongName();
+		case "b" : 
+		case "h" : return self.getLocaleMonthShortName();
+		case "B" : return self.getLocaleMonthLongName();
+		case "c" : return; //???
+		case "C" : return Math.round(self.getFullYear()/100);
+		case "d" : return String(self.getDate()).padLeft(2, spacer);
+		case "D" : return self.format("%m/%d/%y", spacer);//String(self.getMonth()+1).padLeft(2,"0")+"/"+String(self.getDate()+1).padLeft(2,"0")+"/"+String(self.getFullYear()).slice(-2);
+		case "e" : return String(self.getDate() + 1).padLeft(2);
+		case "g" : return String(self.getIsoYear()).slice(-2);
+		case "G" : return self.getIsoYear();
+		case "H" : return String(self.getHours()).padLeft(2, spacer);
+		case "I" : return String(self.getHours() > 12 ? self.getHours() - 12 : self.getHours()).padLeft(2, spacer);
+		case "j" : return String(self.getDayOfYear()).padLeft(3, spacer);
+		case "m" : return String(self.getMonth() + 1).padLeft(2, spacer);
+		case "M" : return String(self.getMinutes()).padLeft(2, spacer);
+		case "n" : return "\n";
+		case "p" : return self.getDaytime();
+		case "r" : return self.format("%I", spacer) + ":" + self.format("%M", spacer) + ":" + self.format("%S", spacer) + " " + self.format("%p", spacer);
+		case "R" : return self.format("%H", spacer) + ":" + self.format("%M", spacer);
+		case "S" : return String(self.getSeconds()).padLeft(2, spacer);
+		case "t" : return "\t";
+		case "T" : return self.format("%H", spacer) + ":" + self.format("%M", spacer) + ":" + self.format("%S", spacer);
+		case "u" : return self.getIsoDay();
+		case "U" : return String(parseInt((self.getDayOfYear() - 1 - self.getIsoDay() + 13) / 7 - 1)).padLeft(2, "0");
+		case "V" : return String(self.getIsoWeek()).padLeft(2, spacer);
+		case "w" : return self.getDay();
+		case "W" : return String(parseInt((self.getDayOfYear() - 1 - self.getDay() + 13) / 7 - 1)).padLeft(2, "0");
+		case "x" : return; // ???
+		case "X" : return; // ???
+		case "y" : return String(self.getFullYear()).slice(-2);
+		case "Y" : return self.getFullYear();
+		case "z" : return; // ???
+		case "Z" : return self.getTimezoneOffset() / 60;
+		}
+		return a;
+	})
 };
 
 }

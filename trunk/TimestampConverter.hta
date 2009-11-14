@@ -189,9 +189,10 @@ behavior.updateFormat = function()
 	var here = new Date(behavior.T.getValue() * 1000);
 
 	var bfo = behavior.formatter.options;
+/*
 	var format = bfo[bfo.selectedIndex].text
 		.replace('YYYY',  here.getFullYear())
-		.replace('MMM',   here.getMonthName())
+		.replace('MMM',   here.getMonthShortName())
 		.replace('MM',   (here.getMonth() + 1).dec(2, '0'))
 		.replace('DD',    here.getDate().dec(2, '0'))
 		.replace('hh',    here.getHours().dec(2, '0'))
@@ -202,6 +203,9 @@ behavior.updateFormat = function()
 		.replace('DT',    here.getDaytime());
 
 	behavior.formatted.value = format;
+*/
+
+	behavior.formatted.value = here.format(bfo[bfo.selectedIndex].value);
 	behavior.formatter.blur();
 };
 
@@ -424,16 +428,16 @@ if ( window.attachEvent ) {
 <fieldset id="formatted-view">
 <legend>Formatted view</legend>
 	<select id="formatter">
-	<option>MMM DD, YYYY hh:mm:ss TZ</option>
-	<option>YYYY/MM/DD hh:mm:ss</option>
-	<option>DD.MM.YYYY hh:mm:ss</option>
-	<option>DD-MM-YYYY hh:mm:ss</option>
-	<option>DD-MM-YYYY</option>
-	<option>DD.MM.YYYY</option>
-	<option>DD MMM YYYY</option>
-	<option>MMM DD YYYY</option>
-	<option>hh:mm:ss</option>
-	<option>h:mm:ss DT</option>
+	<option value="%b %d, %Y %H:%M:%S %z">MMM DD, YYYY hh:mm:ss TZ</option>
+	<option value="%Y/%m/%d %H:%M:%S">YYYY/MM/DD hh:mm:ss</option>
+	<option value="%d.%m.%Y %H:%M:%S">DD.MM.YYYY hh:mm:ss</option>
+	<option value="%d-%m-%Y %H:%M:%S">DD-MM-YYYY hh:mm:ss</option>
+	<option value="%d-%m-%Y">DD-MM-YYYY</option>
+	<option value="%d.%m.%Y">DD.MM.YYYY</option>
+	<option value="%d %b %Y">DD MMM YYYY</option>
+	<option value="%b %d %Y">MMM DD YYYY</option>
+	<option value="%H:%M:%S">hh:mm:ss</option>
+	<option value="%I:%M:%S %p">h:mm:ss DT</option>
 	</select>
 
 	<input type="text" id="formatted" readonly="readonly" />
