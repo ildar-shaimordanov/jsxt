@@ -110,3 +110,97 @@ Function.prototype.evalPrint = function()
 
 }
 
+
+/**
+ * breakpoint()
+ *
+ * @description
+ * This routine allows some code of JavaScript to be stopped intentionally. 
+ * It can be useful when there is no appropriate debugging tools.
+ *
+ * breakpoint.disabled = false
+ * breakpoint.pause(message)
+ * breakpoint.stacktrace()
+ * breakpoint.stacktrace.disabled = true
+ *
+ * @params	String|Function
+ * @return	void
+ * @access	public
+ */
+function breakpoint(msg, ctx)
+{
+	arguments.callee.n++;
+
+	if ( arguments.callee.disabled ) {
+		return;
+	}
+
+	if ( ! arguments.callee.list ) {
+		arguments.callee.list = [];
+	}
+
+	arguments.callee.time = new Date();
+	arguments.callee.stack = [];
+	arguments.callee.argv = [];
+
+	var here = arguments.callee.caller;
+	while ( here ) {
+		arguments.callee.stack.push(here);
+		arguments.callee.argv.push(Array.prototype.slice.call(here.arguments));
+		here = here.caller;
+	}
+
+	var result;
+	switch (typeof ctx) {
+	case 'function':
+		result = ctx();
+		break;
+	case 'string':
+		result = eval(ctx);
+		break;
+	default:
+		result = 1;
+	}
+
+	if ( result ) {
+		arguments.callee.pause(msg || 'BREAKPOINT #' + arguments.callee.n);
+	}
+};
+
+breakpoint.disabled = false
+
+breakpoint.n = 0;
+
+breakpoint.stacktrace = function()
+{
+	var result = [];
+	for (var i = 0; i < breakpoint.stack.length; i++) {
+		result.push(breakpoint.stack[i].toString().match(/function\s*([^\s\(\)]*)/i)[0] + '(' + breakpoint.argv[i] + ')');
+	}
+	return result.join('\n');
+};
+
+breakpoint.stacktrace.disabled = true;
+
+breakpoint.pause = function(message)
+{
+	if ( ! breakpoint.stacktrace.disabled ) {
+		message += '\nSTACKTRACE:\n' + breakpoint.stacktrace();
+	}
+
+	var e;
+	try {
+		breakpoint.pause.browser(message);
+	} catch (e) {
+		WScript.Echo(message);
+		if ( WScript.FullName.match(/cscript/i) ) {
+			WScript.StdIn.ReadLine();
+		}
+	}
+};
+
+breakpoint.pause.browser = function()
+{
+	window.alert(Array.prototype.slice.call(arguments));
+};
+
