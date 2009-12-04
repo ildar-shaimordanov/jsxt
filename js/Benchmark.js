@@ -190,17 +190,12 @@ breakpoint.pause = function(message)
 
 	var e;
 	try {
-		breakpoint.pause.browser(message);
+		alert(message);
 	} catch (e) {
 		WScript.Echo(message);
 		if ( WScript.FullName.match(/cscript/i) ) {
 			WScript.StdIn.ReadLine();
 		}
 	}
-};
-
-breakpoint.pause.browser = function()
-{
-	window.alert(Array.prototype.slice.call(arguments));
 };
 
