@@ -342,6 +342,47 @@ XHTMLDOM.utils.Spinbutton = function(el, options)
 		el.focus();
 	};
 
+/*
+	el.onkeydown = function(e)
+	{
+		e = e || window.event;
+		// UP
+		if ( e.keyCode == 0x26 ) {
+			if ( Number(el.value) + options.delta <= options.max ) {
+				el.value = Math.max(options.min, el.value);
+				el.value -= -options.delta;
+			} else if ( options.rotate ) {
+				el.value = options.min;
+			}
+			setNearest();
+			return e.returnValue = false;
+		}
+		// DOWN
+		if ( e.keyCode == 0x28 ) {
+			if ( Number(el.value) - options.delta >= options.min ) {
+				el.value = Math.min(options.max, el.value);
+				el.value -= +options.delta;
+			} else if ( options.rotate ) {
+				el.value = options.max;
+			}
+			setNearest();
+			return e.returnValue = false;
+		}
+		// HOME
+		if ( e.keyCode == 0x24 ) {
+			el.value = options.max;
+			setNearest();
+			return e.returnValue = false;
+		}
+		// END
+		if ( e.keyCode == 0x23 ) {
+			el.value = options.min;
+			setNearest();
+			return e.returnValue = false;
+		}
+	};
+*/
+
 	return self;
 };
 
