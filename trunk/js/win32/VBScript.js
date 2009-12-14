@@ -89,7 +89,7 @@ vb.Function.eval = function(func)
  * assigned by the Help author to the appropriate Help topic. 
  * If context is provided, helpfile must also be provided. 
  *
- * Returns the contents of the text box.
+ * Remarks
  * When both helpfile and context are supplied, a Help button is 
  * automatically added to the dialog box.
  * If the user clicks OK or presses ENTER, the InputBox function 
@@ -139,7 +139,7 @@ InputBox = vb.Function('InputBox');
  * If context is provided, helpfile must also be provided. 
  * Not available on 16-bit platforms. 
  *
- * Returns a value indicating which button the user clicked. 
+ * Remarks
  * See vb.XXX constants for identify a returned value. 
  * When both helpfile and context are provided, the user can 
  * press F1 to view the Help topic corresponding to the context. 
