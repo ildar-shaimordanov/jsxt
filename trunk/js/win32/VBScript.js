@@ -15,11 +15,11 @@ var vb = {};
  * @param	String	The name of VBScript function. 
  * @return	Function
  */
-vb.Function = function(name)
+vb.Function = function(func)
 {
 	return function()
 	{
-		return vb.Function.eval.call(this, name, arguments);
+		return vb.Function.eval.call(this, func, arguments);
 	};
 };
 
