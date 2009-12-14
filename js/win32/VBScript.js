@@ -10,13 +10,21 @@ var vb = {};
 
 
 /**
- * The helper method allows to run VBScript functions in JScript.
+ * The helper method creates VBScript functions to be available them in JScript.
  *
  * @param	String	The name of VBScript function. 
- * @param	Array	The list of arguments to be passed to the function. 
- * @return	Mixed
+ * @return	Function
  */
-vb.Function = function(func)
+vb.Function = function(name)
+{
+	return function()
+	{
+		return vb.Function.eval.call(this, name, arguments);
+	};
+};
+
+
+vb.Function.eval = function(func)
 {
 	var args = Array.prototype.slice.call(arguments[1]);
 	for (var i = 0; i < args.length; i++) {
@@ -88,10 +96,7 @@ vb.Function = function(func)
  * returns whatever is in the text box. If the user clicks Cancel, 
  * the function returns a zero-length string ("").
  */
-function InputBox()
-{
-	return vb.Function.call(this, 'InputBox', arguments);
-};
+InputBox = vb.Function('InputBox');
 
 
 /**
@@ -147,10 +152,7 @@ function InputBox()
  * the title of any dialog presented always contains "VBScript:" to 
  * differentiate it from standard system dialogs. 
  */
-function MsgBox()
-{
-	return vb.Function.call(this, 'MsgBox', arguments);
-};
+MsgBox = vb.Function('MsgBox');
 
 
 /**
