@@ -96,7 +96,7 @@ vb.Function.eval = function(func)
  * returns whatever is in the text box. If the user clicks Cancel, 
  * the function returns a zero-length string ("").
  */
-InputBox = vb.Function('InputBox');
+var InputBox = vb.Function('InputBox');
 
 
 /**
@@ -152,7 +152,7 @@ InputBox = vb.Function('InputBox');
  * the title of any dialog presented always contains "VBScript:" to 
  * differentiate it from standard system dialogs. 
  */
-MsgBox = vb.Function('MsgBox');
+var MsgBox = vb.Function('MsgBox');
 
 
 /**
