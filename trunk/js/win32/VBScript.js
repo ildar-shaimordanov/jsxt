@@ -24,6 +24,13 @@ vb.Function = function(name)
 };
 
 
+/**
+ * The helper method runs VBScript functions to be available in JScript.
+ *
+ * @param	String	The name of VBScript function. 
+ * @param	Array	The list of arguments for a VBScript function.
+ * @return	Function
+ */
 vb.Function.eval = function(func)
 {
 	var args = Array.prototype.slice.call(arguments[1]);
