@@ -10,7 +10,7 @@ var vb = {};
 
 
 /**
- * The helper method creates VBScript functions to be available them in JScript.
+ * The helper method creates VBScript functions to be available in JScript.
  *
  * @param	String	The name of VBScript function. 
  * @return	Function
