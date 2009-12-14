@@ -38,6 +38,8 @@ vb.Function = function(func)
  * Displays a prompt in a dialog box, waits for the user to input 
  * text or click a button, and returns the contents of the text box. 
  *
+ * InputBox(prompt[, title][, default][, xpos][, ypos][, helpfile, context])
+ *
  * prompt 
  * String expression displayed as the message in the dialog box. 
  * The maximum length of prompt is approximately 1024 characters, 
@@ -96,6 +98,8 @@ function InputBox()
  * Displays a message in a dialog box, waits for the user to click 
  * a button, and returns a value indicating which button the user 
  * clicked.
+ *
+ * MsgBox(prompt[, buttons][, title][, helpfile, context])
  *
  * prompt
  * String expression displayed as the message in the dialog box. 
