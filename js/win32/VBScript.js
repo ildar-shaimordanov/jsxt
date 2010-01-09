@@ -4,6 +4,14 @@
 //
 // Copyright (c) 2009 by Ildar Shaimordanov
 //
+// VERY IMPORTANT!
+// InputBox/MsgBox/vbXXX and their descriptions are parts of the CHM-file named as 
+// "Windows Script Technologies " and all of them are properties of Microsoft 
+// accordingly their copyright as below:
+//
+// Copyright (c) 2001 Microsoft Corporation. 
+// Build: Topic Version 5.6.9309.1546 
+//
 
 
 var vb = {};
