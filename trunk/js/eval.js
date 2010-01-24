@@ -712,6 +712,7 @@ Updates:
 2009/02/26	String.prototype.has was removed
 2009/02/28	The order of arguments was modified
 2009/04/03	Levels are changed to start from 0 (instead of 1)
+2010/01/23	optional arguments, number and string, are removed into the single object-argument
 
 */
 
@@ -721,10 +722,12 @@ Updates:
 //};
 
 
-eval.minify = function(input, level, comment)
+eval.minify = function(input, options)
 {
+	options = options || {};
 
-	level = Number(level) || 0;
+	var level = Number(options.level) || 0;
+	var comment = options.comment;
 
 //	if (level === undefined || level < 1 || level > 3) {
 //		level = 2;
@@ -1052,17 +1055,16 @@ eval.beautify.file = function(filename, options, ajaxOptions)
  * Wrapper over jsmin and Ajax.queryFile to simplify usage from CLI
  *
  * @param	String
- * @param	Integer
- * @param	String
+ * @param	Object
  * @param	Object	Ajax options
  * @result	String
  *
  * @access	public
  */
-eval.minify.file = function(filename, level, comment, ajaxOptions)
+eval.minify.file = function(filename, options, ajaxOptions)
 {
 	var input = Ajax.queryFile(filename, ajaxOptions);
 
-	return eval.minify(input, level, comment);
+	return eval.minify(input, options);
 };
 
