@@ -361,6 +361,14 @@ Complex.z = function(x, y)
 };
 
 /**
+ * The shortcuts for the most popular methods
+ *
+ */
+var $Z  = Complex.z;
+var $Re = Complex.re;
+var $Im = Complex.im;
+
+/**
  * Methods for compatibility of Number with Complex
  *
  */
