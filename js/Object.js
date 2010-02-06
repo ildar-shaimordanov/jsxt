@@ -296,9 +296,6 @@ if ( ! Object.clone ) {
  */
 Object.clone = function(object)
 {
-	if ( object === undefined ) {
-//		object = this;
-	}
 	if ( ! object || typeof(object) != "object" ) {
 		return object;
 	}

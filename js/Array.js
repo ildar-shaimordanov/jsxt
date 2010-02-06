@@ -921,6 +921,104 @@ Array.range = function()
 
 }
 
+if ( ! Array.create ) {
+
+/**
+ * Array.create()
+ *
+ * @description
+ * Creates an array with the size and fills it with the value. 
+ * The callback-modifiiers 'fun' or 'pre' and 'post' are used for modify the value. 
+ * They can be invoked with the following arguments:
+ * -- modified value
+ * -- the index of an array where the new value will be pushed
+ * -- reference to the rsulting array
+ *
+ * @syntax
+ * Array.create(size, [ value], [pre], [post])
+ *
+ * @example
+ * // The classic creation of the list of the network masks (128.0.0.0, 192.0.0.0, etc)
+ * // Uses the main function
+ * var x = Array.create(32, 0x80000000, function(v, k)
+ * {
+ * 	return v >> k;
+ * });
+ *
+ * // The alternative creation of the list of the network masks (128.0.0.0, 192.0.0.0, etc)
+ * // Uses the post callback-function to modify the copy of the initial value
+ * var y = Array.create(32, 0x80000000, null, null, function(v, k)
+ * {
+ * 	return v >> 1;
+ * });
+ *
+ * @param	Integer	size
+ * @param	Mixed	value
+ * @param Function	fun
+ * @param Function	pre
+ * @param	Function	post
+ *
+ * @result	Array
+ * @access	static
+ */
+Array.create = function(size, value, fun, pre, post)
+{
+	var result = new Array(size);
+
+	if ( value === undefined || value === null ) {
+		return result;
+	}
+
+	var v = Array.create.clone(value);
+
+	if ( typeof fun == 'function' ) {
+		for (var i = 0; i < size; i++) {
+			result[i] = fun(v, i, result);
+		}
+	} else if ( typeof pre == 'function' ) {
+		if ( typeof post == 'function' ) {
+			for (var i = 0; i < size; i++) {
+				v = pre(v, i, result);
+				result[i] = v;
+				v = post(v, i, result);
+			}
+		} else {
+			for (var i = 0; i < size; i++) {
+				v = pre(v, i, result);
+				result[i] = v;
+			}
+		}
+	} else {
+		if ( typeof post == 'function' ) {
+			for (var i = 0; i < size; i++) {
+				result[i] = v;
+				v = post(v, i, result);
+			}
+		} else {
+			for (var i = 0; i < size; i++) {
+				result[i] = Array.create.clone(v);
+			}
+		}
+	}
+
+	return result;
+};
+
+// Copy of Object.clone to avoid the dependency of Object.clone
+Array.create.clone = function(object)
+{
+	if ( ! object || typeof(object) != "object" ) {
+		return object;
+	}
+	var newObject = new object.constructor();
+	for (var objectItem in object) {
+		newObject[objectItem] = Object.clone(object[objectItem]);
+	}
+	return newObject;
+};
+
+}
+
 if ( ! Object.prototype.fill ) {
 
 /**
@@ -939,6 +1037,8 @@ if ( ! Object.prototype.fill ) {
  */
 Object.prototype.fill = function(size)
 {
+	return Array.create(size, this);
+/*
 	var result = [];
 
 	for (var i = 0; i < size; i++) {
@@ -946,6 +1046,7 @@ Object.prototype.fill = function(size)
 	}
 
 	return result;
+*/
 };
 
 }
