@@ -75,11 +75,11 @@ Window.openHTA = function(title, htaProps, runProps)
 	var lastID = nextID;
 	nextID++;
 
-	var html = [
-		'"', 
-		'<hta:application ' + props + ' />', 
-		'<object id=' + lastID + ' classid=clsid:8856F961-340A-11D0-A96B-00C04FD705A2><param name=RegisterAsBrowser value=1></object>', 
-		'<title>' + (title || 'hta:blank') + '</title>', 
+	var htmlApp = [
+		'mshta.exe javascript:', '"', 
+		'<hta:application ', props, ' />', 
+		'<object id=', lastID, ' classid=clsid:8856F961-340A-11D0-A96B-00C04FD705A2><param name=RegisterAsBrowser value=1></object>', 
+		'<title>', title, '</title>', 
 		'"'
 		].join('');
 
@@ -87,7 +87,7 @@ Window.openHTA = function(title, htaProps, runProps)
 	var appList = (new ActiveXObject('Shell.Application')).Windows();
 	var appCount = appList.Count;
 
-	(new ActiveXObject('WScript.Shell')).Run('mshta.exe javascript:' + html, Number(runProps.windowStyle) || 0, !! runProps.waitOnReturn);
+	(new ActiveXObject('WScript.Shell')).Run(htmlApp, Number(runProps.windowStyle) || 0, !! runProps.waitOnReturn);
 
 	if ( !! runProps.waitOnReturn ) {
 		return null;
