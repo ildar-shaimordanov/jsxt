@@ -4,6 +4,7 @@ var Window = {};
 (function(WSHost)
 {
 
+var randID = (new Date()).getTime() + '_' + Math.floor(Math.random() * 1e16) + '_';
 var nextID = 0;
 
 /**
@@ -72,7 +73,7 @@ Window.openHTA = function(title, htaProps, runProps)
 	}
 	var props = attrs.join(' ');
 
-	var lastID = nextID;
+	var lastID = randID + nextID;
 	nextID++;
 
 	var htmlApp = [
