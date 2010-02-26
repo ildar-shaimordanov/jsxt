@@ -154,9 +154,3 @@ ZipFile.create = function(filename, overwrite, option)
 	return new ZipFile(filename, overwrite, option);
 };
 
-
-
-
-var zip = ZipFile.create("C:\\test.zip", 1);
-zip.copy("C:\\tmp");
-zip.flush();
