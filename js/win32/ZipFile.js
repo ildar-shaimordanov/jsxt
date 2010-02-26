@@ -12,121 +12,112 @@
  *
  * @example
  * <code>
- * var zip = ZipFile.create("C:\\test.zip", true);
- * zip.copy("C:\\tmp");
- * zip.flush();
+ * var zip = new ZipFile();
+ * zip.addFiles("C:\\tmp");
+ * zip.save("C:\\test.zip", {
+ *     overwrite: true, 
+ * });
  * </code>
  *
- * @param	String	filename	Required. The name of zip-file.
- * @param	Boolean	overwrite	Optional. Indicates whether you can overwrite an existing file. 
- *					The value is true if the file can be overwritten, false if it can't be overwritten. 
- *					If omitted, existing files are not overwritten.
- * @param	Integer	option		Optional. Options for the copy operation. 
- *					This value can be zero or a combination of the following values.
- *					4	Do not display a progress dialog box.
- *					8	Give the file being operated on a new name in a move, copy, 
- *						or rename operation if a file with the target name already exists.
- *					16	Respond with "Yes to All" for any dialog box that is displayed.
- *					64	Preserve undo information, if possible.
- *					128	Perform the operation on files only if a wildcard file name (*.*) is specified.
- *					256	Display a progress dialog box but do not show the file names.
- *					512	Do not confirm the creation of a new directory if the operation 
- *						requires one to be created.
- *					1024	Do not display a user interface if an error occurs.
- *					2048	Version 4.71. Do not copy the security attributes of the file.
- *					4096	Only operate in the local directory. Don't operate recursively into subdirectories.
- *					9182	Version 5.0. Do not copy connected files as a group. Only copy the specified files. 
+ * @param	void
  * @return	Folder object
  *
  * @properties	none
- * @methods	copy, flush, move
+ * @methods	addFiles, save
  */
-function ZipFile(filename, overwrite, option)
+function ZipFile()
 {
 
 	// {{{ private
 
 	var self = this;
 
-	var fso = new ActiveXObject("Scripting.FileSystemObject");
-	var shell = new ActiveXObject("Shell.Application");
-
-	var zipFolder = null;
-
 	var files = [];
 
-	function createEmptyZip()
+	// }}}
+	// {{{ public
+
+	/**
+	 * Adds an item or items to this zip-file. 
+	 *
+	 * @param	Mixed	filename	The item or the list of items to copy.
+	 * 					This can be a string or an array of string that represent 
+	 *					a filename(s), a FolderItem object, or a FolderItems object. 
+	 * @return	Boolean
+	 * @access	public
+	 */
+	self.addFiles = function()
 	{
+		for (var i = 0; i < arguments.length; i++) {
+			files.push(arguments[i]);
+		}
+	};
+
+	/**
+	 * Creates an archive file and store files within. 
+	 *
+	 * @param	String	filename	Required. The name of zip-file.
+	 * @param	Object	options		Optional. There are available options:
+	 * 
+	 *					overwrite
+	 *					Indicates whether you can overwrite an existing file. 
+	 *					The value is true if the file can be overwritten, false if it can't be overwritten. 
+	 *					If omitted, existing files are not overwritten.
+	 * 
+	 *					timout
+	 *					Suspends the script execution for this time (milliseconds). 
+	 *					This provides a correct finishing, so the zip-file will contain all archived files exactly.
+	 * 
+	 *					option
+	 * 					Options for the copy operation. 
+	 *					This value can be zero or a combination of the following values.
+	 *					4	Do not display a progress dialog box.
+	 *					8	Give the file being operated on a new name in a move, copy, 
+	 *						or rename operation if a file with the target name already exists.
+	 *					16	Respond with "Yes to All" for any dialog box that is displayed.
+	 *					64	Preserve undo information, if possible.
+	 *					128	Perform the operation on files only if a wildcard file name (*.*) is specified.
+	 *					256	Display a progress dialog box but do not show the file names.
+	 *					512	Do not confirm the creation of a new directory if the operation 
+	 *						requires one to be created.
+	 *					1024	Do not display a user interface if an error occurs.
+	 *					2048	Version 4.71. Do not copy the security attributes of the file.
+	 *					4096	Only operate in the local directory. Don't operate recursively into subdirectories.
+	 *					9182	Version 5.0. Do not copy connected files as a group. Only copy the specified files. 
+	 * @return	Boolean
+	 * @access	public
+	 */
+	self.save = function(filename, options)
+	{
+		options = options || {};
+
 		// Create the empty zip-file (it is created as an ASCII file)
-		var file = fso.CreateTextFile(filename, overwrite, 0);
-		file.Write("PK" + String.fromCharCode(5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)); // 18 zeros
-		file.Close();
+		var fso = new ActiveXObject("Scripting.FileSystemObject");
 
-		return true;
-	};
+		var zipFile = fso.CreateTextFile(filename, !! options.overwrite, 0);
+		zipFile.Write('PK' + String.fromCharCode(5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)); // 18 zeros
+		zipFile.Close();
 
-	function preload(action, fileList)
-	{
-		if ( fileList.length < 1 ) {
-			return;
-		}
+		// Opens the empty archiev file and a Shell folder
+		var shell = new ActiveXObject("Shell.Application");
 
-		for (var i = 0; i < fileList.length; i++) {
-			files.push({
-				action: action,
-				file: fileList[i]
-			});
-		}
-	};
-
-	function perform(fileList)
-	{
-		if ( ! zipFolder ) {
-			zipFolder = shell.NameSpace(filename);
-		}
+		var zipFolder = shell.NameSpace(filename);
 
 		if ( zipFolder == null ) {
 			throw new TypeError();
 		}
 
-		var action;
-		var file;
-
-		for (var i = 0; i < fileList.length; i++) {
-			action = fileList[i].action;
-			file = fileList[i].file;
-			zipFolder[action](file, option);
-		}
-	};
-
-	// }}}
-	// {{{ public
-
-	self.copy = function()
-	{
-		return preload.call(this, 'CopyHere', arguments);
-	};
-
-	self.move = function()
-	{
-		return preload.call(this, 'MoveHere', arguments);
-	};
-
-	self.flush = function(timeout)
-	{
-		createEmptyZip();
-
-		perform(files);
-
-		if ( ! zipFolder ) {
-			return;
+		// Copy files to an archive file
+		var o = Number(options.option) || 0;
+		for (var i = 0; i < files.length; i++) {
+			zipFolder.CopyHere(files[i], o);
 		}
 
 		// Sleep to be sure that the zip file was created completely
-		if ( ! timeout || Number(timeout) < 500 ) {
-			timeout = 500;
-		}
-		WScript.Sleep(timeout);
+		var t = ( ! options.timeout || Number(options.timeout) < 500 ) 
+			? 500 
+			: options.timeout;
+		WScript.Sleep(t);
 	};
 
 	// }}}
@@ -134,23 +125,24 @@ function ZipFile(filename, overwrite, option)
 };
 
 /**
- * Creates the zip-file specified by the name.
+ * Shortcut for creation of an archive, and copying of files. 
  *
  * @example
- * <code>
- * var zip = ZipFile.create("C:\\test.zip");
- * zip.copy("C:\\tmp");
- * zip.flush();
- * </code>
- *
+ * // Overwrites the achive with the specified folder as the content.
+ * ZipFile.create("C:\\test.zip", ["C:\\tmp"], {
+ * 	overwrite: true
+ * });
+ * 
  * @param	String	filename	Required. The name of zip-file.
- * @param	Boolean	overwrite	Optional. Indicates whether you can overwrite an existing file. 
- * @param	Integer	option		Optional. Options for the copy operation. 
- * @return	Folder object
- * @access	public
+ * @param	Array	fileList	Required. The list of items to be archived. 
+ * @param	Object	options		Optional. 
+ * @return	Boolean
+ * @access	static
  */
-ZipFile.create = function(filename, overwrite, option)
+ZipFile.create = function(filename, fileList, options)
 {
-	return new ZipFile(filename, overwrite, option);
+	var zip = new ZipFile();
+	zip.addFiles.apply(this, fileList);
+	zip.save(filename, options);
 };
 
