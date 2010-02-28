@@ -99,6 +99,7 @@ goto check_for_special_args
 <script language="javascript" src="js/String.js"></script>
 <script language="javascript" src="js/Array.js"></script>
 <script language="javascript" src="js/Object.js"></script>
+<script language="javascript" src="js/Function.js"></script>
 <script language="javascript" src="js/Date.js"></script>
 <script language="javascript" src="js/NetIP.js"></script>
 <script language="javascript" src="js/Ajax.js"></script>
