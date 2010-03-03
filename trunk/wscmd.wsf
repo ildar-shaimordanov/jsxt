@@ -5,8 +5,8 @@
 <?job error="true" debug="false" ?>
 
 <runtime>
-<description><![CDATA[Windows Scripting Command Interpreter Version 0.8 Beta
-Copyright (C) 2009 Ildar Shaimordanov
+<description><![CDATA[Windows Scripting Command Interpreter Version 0.8.1 Beta
+Copyright (C) 2009, 2010 Ildar Shaimordanov
 
 For details of used libraries follow this link 
 http://code.google.com/p/jsxt/source/browse/doc/jsxt.html.
@@ -107,6 +107,7 @@ goto check_for_special_args
 <script language="javascript" src="js/json2.js"></script>
 <script language="javascript" src="js/win32/Enumerator.js"></script>
 <script language="javascript" src="js/win32/FileSystem.js"></script>
+<script language="javascript" src="js/win32/Window.js"></script>
 <script language="javascript" src="js/win32/ZipFile.js"></script>
 <script language="javascript"><![CDATA[
 

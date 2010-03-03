@@ -69,6 +69,9 @@ Window.openHTA = function(title, htaProps, runProps)
 
 	var attrs = [];
 	for (var p in htaProps) {
+		if ( ! htaProps.hasOwnProperty(p) || 'string' != typeof htaProps[p] ) {
+			continue;
+		}
 		attrs.push(p.toUpperCase() + ': \'' + htaProps[p] + '\'');
 	}
 	var props = attrs.join(' ');
