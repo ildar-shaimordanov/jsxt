@@ -1067,7 +1067,7 @@ if ( ! Number.prototype.fill ) {
  */
 Number.prototype.fill = function(size)
 {
-	var result = [];
+	var result = new Array(size);
 
 	for (var i = 0; i < size; i++) {
 		result.push(this);
