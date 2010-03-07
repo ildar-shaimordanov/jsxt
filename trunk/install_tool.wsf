@@ -11,7 +11,7 @@ This is not mandatory action. You can use all these tools "as is".
 You do not need run this untility. Download archive and place it's 
 content to the appropriate directory.
 
-This utility allows you to install CUJS tools to the comfortable 
+This utility allows you to install JSXT tools to the comfortable 
 location. It makes two things:
 -- embeds JS scripts from the "js" directory into the tool
 -- copies a resulting file to the directory specified in the 
