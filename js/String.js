@@ -588,3 +588,143 @@ String.prototype.sprintf.re = /%%|%(\d+[\$#])?([+-])?('.|0| )?(\d*)(\.\d*)?([bcd
 
 }
 
+if ( ! String.prototype.splitLimit ) {
+
+/**
+ * Corrects the result of the standard method like described below:
+ *
+ * @example
+ * <code>
+ * var str = "a b c d e f";
+ * var arr = str.split(" ", 3);
+ *
+ * // standard method
+ * // required ["a", "b", "c d e f"]
+ * // recieved ["a", "b", "c"]
+ *
+ * // modified method
+ * // required ["a", "b", "c d e f"]
+ * </code>
+ *
+ * @param	Mixed
+ * @param	Integer
+ * @return	Array
+ * @access	public
+ * @see		http://forum.dklab.ru/viewtopic.php?p=74826
+ * 		http://msdn.microsoft.com/library/default.asp?url=/library/en-us/jscript7/html/jsmthsplit.asp
+ * 		http://wdh.suncloud.ru/js09.htm#hsplit
+ */
+String.prototype.splitLimit = function(delim, limit)
+{
+	if ( ! limit && Number(limit) <= 0 ) {
+		return this.split(delim, limit);
+	}
+
+	var isRegExp = delim && delim.constructor == RegExp;
+	var res;
+	var ref;
+
+	if ( isRegExp ) {
+		res = delim.source;
+		ref = "";
+		if ( delim.ignoreCase ) {
+			ref += "i";
+		}
+		if ( delim.multiline ) {
+			ref += "m";
+		}
+//		if (delim.global) {
+//			ref += "g";
+//		}
+	} else {
+		res = delim;
+		ref = "";
+	}
+
+	var x = this.match(new RegExp("^((?:.*?" + res + "){" + (limit - 1) + "})(.*)", ref));
+	if ( x ) {
+		var result = x[1].__split__(delim, limit);
+		var n = result.length;
+		if ( ! isRegExp && n ) {
+			n--;
+		}
+		result[n] = x[2];
+		return result;
+	}
+	return this.valueOf();
+};
+
+}
+
+
+if ( ! String.prototype.parseUrl ) {
+
+/**
+ * Considers the string object as URL and returns it's parts separately
+ *
+ * @param	void
+ * @return	Object
+ * @access	public
+ */
+String.prototype.parseUrl = function()
+{
+	var matches = this.match(arguments.callee.re);
+
+	if ( ! matches ) {
+		return null;
+	}
+
+	var result = {
+		'scheme': matches[1] || '',
+		'subscheme': matches[2] || '',
+		'user': matches[3] || '',
+		'pass': matches[4] || '',
+		'host': matches[5],
+		'port': matches[6] || '',
+		'path': matches[7] || '',
+		'query': matches[8] || '',
+		'fragment': matches[9] || ''};
+
+	return result;
+};
+
+String.prototype.parseUrl.re = /^(?:([a-z]+):(?:([a-z]*):)?\/\/)?(?:([^:@]*)(?::([^:@]*))?@)?((?:[a-z0-9_-]+\.)+[a-z]{2,}|localhost|(?:(?:[01]?\d\d?|2[0-4]\d|25[0-5])\.){3}(?:(?:[01]?\d\d?|2[0-4]\d|25[0-5])))(?::(\d+))?(?:([^:\?\#]+))?(?:\?([^\#]+))?(?:\#([^\s]+))?$/i;
+
+}
+
+if ( ! String.prototype.camelize ) {
+
+String.prototype.camelize = function()
+{
+	return this.replace(/([^-]+)|(?:-(.)([^-]+))/mg, function($0, $1, $2, $3)
+	{
+		return ($2 || '').toUpperCase() + ($3 || $1).toLowerCase();
+	});
+/*
+	return this
+		.replace(/^[^-]+/, function($0)
+		{
+			return $0.toLowerCase();
+		})
+		.replace(/-(.)([^-]+)/g, function($0, $1, $2)
+		{
+			return $1.toUpperCase() + $2.toLowerCase();
+		});
+*/
+};
+
+}
+
+if ( ! String.prototype.uncamelize ) {
+
+String.prototype.uncamelize = function()
+{
+	return this
+		.replace(/[A-Z]/g, function($0)
+		{
+			return '-' + $0.toLowerCase();
+		});
+};
+
+}
+

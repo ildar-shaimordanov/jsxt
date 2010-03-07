@@ -6,7 +6,7 @@
 
 <runtime>
 <description><![CDATA[DOC2HTML Converter
-Copyright (C) 2004, 2009 Ildar Shaimordanov
+Copyright (C) 2004, 2009, 2010 Ildar Shaimordanov
 
 This script allows to convert any DOC file to TXT, RTF, HTML (default), MHT (Web Archive), XML, PDF or XPS
 
@@ -126,9 +126,9 @@ try {
 
 	// Validate output format
 	if ( WScript.Arguments.Named.Exists('f') ) {
-		fileFormat = WScript.Arguments.Named.item('f').toLowerCase();
-		if ( ! fileFormat ) {
-			throw new Error('Unknown output format');
+		fileFormat = WScript.Arguments.Named.item('f').toLowerCase() || fileFormat;
+		if ( ! fileFormat || ! formats[fileFormat] ) {
+			throw new Error('Unknown output format: "' + fileFormat + '"');
 		}
 	}
 
@@ -153,7 +153,7 @@ try {
 	var word = new ActiveXObject("Word.Application");
 
 	if ( WScript.Arguments.Named.Exists('fg') ) {
-		logInfo('Activating and displaying of the WINWORD');
+		logInfo('Activating and displaying of the WINWORD in foreground');
 		word.Visible = true;
 		word.Activate();
 	}
