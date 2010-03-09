@@ -5,7 +5,7 @@
 <?job error="true" debug="false" ?>
 
 <runtime>
-<description><![CDATA[Windows Scripting Command Interpreter Version 0.8.2 Beta
+<description><![CDATA[Windows Scripting Command Interpreter Version 0.8.3 Beta
 Copyright (C) 2009, 2010 Ildar Shaimordanov
 
 For details of used libraries follow this link 
@@ -158,10 +158,12 @@ if ( WScript.Arguments.Named.Exists('I') ) {
 
 		WScript.StdOut.Write('wscmd > ');
 
+		var result;
+
 		var e;
 		try {
 
-			eval((function()
+			result = eval((function()
 			{
 				var stack = [];
 				var quote = false;
@@ -176,7 +178,15 @@ if ( WScript.Arguments.Named.Exists('I') ) {
 
 				while ( true ) {
 
-					input = WScript.StdIn.ReadLine();
+					input = (function()
+					{
+						var e;
+						try {
+							return WScript.StdIn.ReadLine();
+						} catch (e) {
+							return 'quit()';
+						}
+					})();
 
 					i = 0;
 					while ( i < input.length ) {
@@ -271,6 +281,10 @@ if ( WScript.Arguments.Named.Exists('I') ) {
 				return result;
 			})());
 
+			if ( result !== undefined ) {
+				WScript.Echo(result);
+			}
+
 		} catch (e) {
 
 			WScript.Echo('name\t:\t' + e.name);
@@ -286,185 +300,185 @@ if ( WScript.Arguments.Named.Exists('I') ) {
 
 }
 
-var script;
-
-(function()
-{
-	var file_not_found = function(filename)
-	{
-		'File "%s" not found'.sprintf(filename).print();
-		exit(255);
-	};
-
-	/**
-	 *
-	 * Unnamed arguments
-	 *
-	 */
-	uarg = Array.enumerate(WScript.Arguments.Unnamed, function(i)
-	{
-		return i;
-	});
-
-	/**
-	 *
-	 * /COMPILE-AND-OUTPUT
-	 *
-	 */
-	var compile_and_output;
-	if ( WScript.Arguments.Named.Exists('compile-and-output') ) {
-		compile_and_output = WScript.Arguments.Named.item('compile-and-output') || true;
-	}
-
-	/**
-	 *
-	 * Unnamed arguments
-	 *
-	 */
-	var compiled = [];
-
-	var lang = {'js': 'javascript', 'vbs': 'vbscript'};
-	var scriptOuter = '<!-- ID: %s -->\n\x3Cscript language="%s"%s>%s</script\x3E';
-	var scriptInner = '\x3C![CDATA[\n\n%s\n\n]]\x3E';
-
-	Array.enumerate(WScript.Arguments.Named, function(name)
-	{
-		var value = WScript.Arguments.Named.item(name) || '';
-
-		//
-		// Looking for special arguments:
-		//     /E, /EID, /ELANG, /EIDLANG
-		//     /F, /FID
-		//
-		// where
-		//     ID   - the numeric identifier of this code
-		//     LANG - one of the 'js' or 'vbs'
-		//
-		var matches = name.match(/^(e)(\d+)?(js|vbs)?$|^(f)(\d+)?$|^(compile-and-output)$/i);
-
-		if ( ! matches ) {
-			narg_len++;
-			narg[name] = value;
-			return;
-		}
-
-		if ( ! compile_and_output || ! value || matches[6] ) {
-			return;
-		}
-
-		var e = matches[1];
-		var f = matches[4];
-		var l = matches[3].toLowerCase() || 'js';
-
-		if ( f ) {
-			if ( ! fso.FileExists(value) ) {
-				file_not_found(value);
-			}
-			l = value.match(/\.(js|vbs)$/)[1];
-		}
-
-		compiled.push(scriptOuter.sprintf(
-			matches[2] || matches[5] || 'No ID', 
-			lang[l], 
-			e ? '' : ' src="%s"'.sprintf(value), 
-			f ? '' : scriptInner.sprintf(value)
-		));
-	});
-
-	/**
-	 *
-	 * Extended mode
-	 *
-	 */
-	var parse_link = function(string, base)
-	{
-		return string
-			.replace(/(<script language="(?:javascript|vbscript)" src=")([^"]+)("><\/script>)/g, function($0, $1, $2, $3)
-			{
-				var filename = $2;
-				if ( ! filename.match(/^[a-zA-Z]:/) ) {
-					filename = base + filename;
-				}
-				return $1 + fso.GetAbsolutePathName(filename) + $3;
-			});
-	};
-
-	var content;
-
-	if ( compile_and_output ) {
-		if ( narg_len ) {
-			var result = narg.toArray(function(value, key)
-			{
-				return '"%s": "%s"'.sprintf(key, value);
-			}, true);
-
-			compiled.unshift(scriptOuter.sprintf(
-				'NAMED ARGUMENTS', 
-				lang.js, 
-				'', 
-				scriptInner.sprintf('var narg = {' + result.join(', ') + '};\nvar narg_len = ' + narg_len + ';\n')
-			));
-		}
-
-		if ( uarg.length ) {
-			compiled.unshift(scriptOuter.sprintf(
-				'UNNAMED ARGUMENTS', 
-				lang.js, 
-				'', 
-				scriptInner.sprintf('var uarg = ["' + uarg.join('", "') + '"];')
-			));
-		}
-
-		content = FileSystem.readFile(WScript.ScriptFullName).split(/<!-- \w+ COMPILER -->/);
-
-		content[0] = parse_link(content[0], fso.GetParentFolderName(WScript.ScriptFullName) + '\\');
-		content[1] = parse_link(compiled.join('\n'), shell.CurrentDirectory + '\\');
-
-		print(content.join(''));
-
-		exit();
-	}
-
-	/**
-	 *
-	 * Simplified mode
-	 *
-	 */
-	var named = WScript.Arguments.Named;
-	var e = named.Exists('e');
-	var f = named.Exists('f');
-
-	if ( e && ! f ) {
-
-		script = named.item('e');
-
-	} else if ( ! e && f ) {
-
-		var filename = named.item('f');
-		if ( ! fso.FileExists(filename) ) {
-			file_not_found(filename);
-		}
-
-		script = FileSystem.readFile(filename);
-
-	} else if ( e && f ) {
-		print('You have to define both inline script or filename');
-		exit(255);
-	} else {
-		help();
-		exit();
-	}
-})();
-
 /**
  *
  * Simplified mode
+ * See below
  *
  */
 var e;
 try {
 
-	eval(script);
+	eval((function()
+	{
+
+		var file_not_found = function(filename)
+		{
+			'File "%s" not found'.sprintf(filename).print();
+			exit(255);
+		};
+
+		/**
+		 *
+		 * Unnamed arguments
+		 *
+		 */
+		uarg = Array.enumerate(WScript.Arguments.Unnamed, function(i)
+		{
+			return i;
+		});
+
+		/**
+		 *
+		 * /COMPILE-AND-OUTPUT
+		 *
+		 */
+		var compile_and_output;
+		if ( WScript.Arguments.Named.Exists('compile-and-output') ) {
+			compile_and_output = WScript.Arguments.Named.item('compile-and-output') || true;
+		}
+
+		/**
+		 *
+		 * Unnamed arguments
+		 *
+		 */
+		var compiled = [];
+
+		var lang = {'js': 'javascript', 'vbs': 'vbscript'};
+		var scriptOuter = '<!-- ID: %s -->\n\x3Cscript language="%s"%s>%s</script\x3E';
+		var scriptInner = '\x3C![CDATA[\n\n%s\n\n]]\x3E';
+
+		Array.enumerate(WScript.Arguments.Named, function(name)
+		{
+			var value = WScript.Arguments.Named.item(name) || '';
+
+			//
+			// Looking for special arguments:
+			//     /E, /EID, /ELANG, /EIDLANG
+			//     /F, /FID
+			//
+			// where
+			//     ID   - the numeric identifier of this code
+			//     LANG - one of the 'js' or 'vbs'
+			//
+			var matches = name.match(/^(e)(\d+)?(js|vbs)?$|^(f)(\d+)?$|^(compile-and-output)$/i);
+
+			if ( ! matches ) {
+				narg_len++;
+				narg[name] = value;
+				return;
+			}
+
+			if ( ! compile_and_output || ! value || matches[6] ) {
+				return;
+			}
+
+			var e = matches[1];
+			var f = matches[4];
+			var l = matches[3].toLowerCase() || 'js';
+
+			if ( f ) {
+				if ( ! fso.FileExists(value) ) {
+					file_not_found(value);
+				}
+				l = value.match(/\.(js|vbs)$/)[1];
+			}
+
+			compiled.push(scriptOuter.sprintf(
+				matches[2] || matches[5] || 'No ID', 
+				lang[l], 
+				e ? '' : ' src="%s"'.sprintf(value), 
+				f ? '' : scriptInner.sprintf(value)
+			));
+		});
+
+		/**
+		 *
+		 * Extended mode
+		 *
+		 */
+		var parse_link = function(string, base)
+		{
+			return string
+				.replace(/(<script language="(?:javascript|vbscript)" src=")([^"]+)("><\/script>)/g, function($0, $1, $2, $3)
+				{
+					var filename = $2;
+					if ( ! filename.match(/^[a-zA-Z]:/) ) {
+						filename = base + filename;
+					}
+					return $1 + fso.GetAbsolutePathName(filename) + $3;
+				});
+		};
+
+		var content;
+
+		if ( compile_and_output ) {
+			if ( narg_len ) {
+				var result = narg.toArray(function(value, key)
+				{
+					return '"%s": "%s"'.sprintf(key, value);
+				}, true);
+
+				compiled.unshift(scriptOuter.sprintf(
+					'NAMED ARGUMENTS', 
+					lang.js, 
+					'', 
+					scriptInner.sprintf('var narg = {' + result.join(', ') + '};\nvar narg_len = ' + narg_len + ';\n')
+				));
+			}
+
+			if ( uarg.length ) {
+				compiled.unshift(scriptOuter.sprintf(
+					'UNNAMED ARGUMENTS', 
+					lang.js, 
+					'', 
+					scriptInner.sprintf('var uarg = ["' + uarg.join('", "') + '"];')
+				));
+			}
+
+			content = FileSystem.readFile(WScript.ScriptFullName).split(/<!-- \w+ COMPILER -->/);
+
+			content[0] = parse_link(content[0], fso.GetParentFolderName(WScript.ScriptFullName) + '\\');
+			content[1] = parse_link(compiled.join('\n'), shell.CurrentDirectory + '\\');
+
+			print(content.join(''));
+
+			exit();
+		}
+
+		/**
+		 *
+		 * Simplified mode
+		 * For /E or /F
+		 *
+		 */
+		var named = WScript.Arguments.Named;
+		var e = named.Exists('e');
+		var f = named.Exists('f');
+
+		if ( e && ! f ) {
+
+			return named.item('e');
+
+		} else if ( ! e && f ) {
+
+			var filename = named.item('f');
+			if ( ! fso.FileExists(filename) ) {
+				file_not_found(filename);
+			}
+
+			return FileSystem.readFile(filename);
+
+		} else if ( e && f ) {
+			print('You have to define both inline script or filename');
+			exit(255);
+		} else {
+			help();
+			exit();
+		}
+
+	})());
 
 } catch (e) {
 
