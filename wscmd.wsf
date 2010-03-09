@@ -5,11 +5,8 @@
 <?job error="true" debug="false" ?>
 
 <runtime>
-<description><![CDATA[Windows Scripting Command Interpreter Version 0.8.3 Beta
+<description><![CDATA[Windows Scripting Command Interpreter Version 0.8.4 Beta
 Copyright (C) 2009, 2010 Ildar Shaimordanov
-
-For details of used libraries follow this link 
-http://code.google.com/p/jsxt/source/browse/doc/jsxt.html.
 ]]></description>
 <named
 	name="E"
@@ -414,6 +411,10 @@ try {
 		var content;
 
 		if ( compile_and_output ) {
+/*
+			//
+			// THIS DOES NOT WORK PROPERLY WITH NON-LATINS
+			//
 			if ( narg_len ) {
 				var result = narg.toArray(function(value, key)
 				{
@@ -436,6 +437,7 @@ try {
 					scriptInner.sprintf('var uarg = ["' + uarg.join('", "') + '"];')
 				));
 			}
+*/
 
 			content = FileSystem.readFile(WScript.ScriptFullName).split(/<!-- \w+ COMPILER -->/);
 
