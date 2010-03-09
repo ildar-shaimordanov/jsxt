@@ -8,14 +8,14 @@
 var Class = {};
 
 /**
- * Expands the existing object or class with properties of the providing object
+ * Adds new properties and methods from the provided object
  *
  * @param	Mixed
  * @param	Mixed
  * @return	Mixed
  * @access	static
  */
-Class.expand = function(child, parent)
+Class.addMethods = function(child, parent)
 {
 	if ( ! child ) {
 		throw new ReferenceError();
@@ -67,7 +67,7 @@ Class.inherit = function(child, parent)
  */
 Class.extend = function(child, parent)
 {
-	return Class.expand(
+	return Class.addMethods(
 		Class.inherit(child, parent), 
 		parent);
 };
