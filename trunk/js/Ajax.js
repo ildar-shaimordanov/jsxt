@@ -201,6 +201,9 @@ Ajax.query = function(url, options)
 
 	if ( options.headers ) {
 		for (var p in options.headers) {
+			if ( ! options.headers.hasOwnProperty(p) ) {
+				continue;
+			}
 			if ( 'string' != typeof options.headers[p] ) {
 				continue;
 			}
