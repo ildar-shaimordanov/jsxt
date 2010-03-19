@@ -43,7 +43,7 @@ String.prototype.utf8 = function()
 
 }
 
-if ( ! String.prototype.unutf8 || ! String.prototype.unicodize ) {
+if ( ! String.prototype.unutf8 ) {
 
 /**
  * Converts a string with ISO-8859-1 characters encoded with UTF-8 to single-byte ISO-8859-1
@@ -53,9 +53,7 @@ if ( ! String.prototype.unutf8 || ! String.prototype.unicodize ) {
  * @access	public
  * @see		http://en.wikipedia.org/wiki/UTF-8
  */
-String.prototype.unutf8 = 
-String.prototype.unicodize = 
-function()
+String.prototype.unutf8 = function()
 {
 	return this
 		.replace(/[\xc0-\xdf][\x80-\xbf]/g, function($0)

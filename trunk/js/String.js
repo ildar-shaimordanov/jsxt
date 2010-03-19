@@ -509,7 +509,7 @@ String.prototype.sprintf = function()
 	 *	x[5] contains the floating-point precision specifier (as \.\d*)
 	 *	x[6] contains the type specifier (as [bcdfosuxX])
 	 */
-	return this.replace(arguments.callee.re, function()
+	return this.replace(String.prototype.sprintf.re, function()
 	{
 		if ( arguments[0] == "%%" ) {
 			return "%";
@@ -585,6 +585,125 @@ String.prototype.sprintf = function()
 };
 
 String.prototype.sprintf.re = /%%|%(\d+[\$#])?([+-])?('.|0| )?(\d*)(\.\d*)?([bcdfosuxX])/g;
+
+/**
+ * compile()
+ *
+ * This string function compiles the formatting string to the internal function 
+ * to acelerate an execution a formatting within loops. 
+ *
+ * @example
+ * // Standard usage of the sprintf method
+ * var s = '';
+ * for (var p in obj) {
+ *     s += '%s = %s'.sprintf(p, obj[p]);
+ * }
+ *
+ * // The more speed usage of the sprintf method
+ * var sprintf = '%s = %s'.compile();
+ * var s = '';
+ * for (var p in obj) {
+ *     s += sprintf(p, obj[p]);
+ * }
+ *
+ * @see		String.prototype.sprintf()
+ */
+String.prototype.compile = function()
+{
+	var args = arguments;
+	var index = 0;
+
+	var x;
+	var ins;
+	var fn;
+	var conv;
+
+	/*
+	 * The callback function accepts the following properties
+	 *	x.index contains the substring position found at the origin string
+	 *	x[0] contains the found substring
+	 *	x[1] contains the index specifier (as \d+\$ or \d+#)
+	 *	x[2] contains the alignment specifier ("+" or "-" or empty)
+	 *	x[3] contains the padding specifier (space char, "0" or defined as '.)
+	 *	x[4] contains the width specifier (as \d*)
+	 *	x[5] contains the floating-point precision specifier (as \.\d*)
+	 *	x[6] contains the type specifier (as [bcdfosuxX])
+	 */
+	var result = this.replace(String.prototype.sprintf.re, function()
+	{
+		if ( arguments[0] == "%%" ) {
+			return "%";
+		}
+
+		x = [];
+		for (var i = 0; i < arguments.length; i++) {
+			x[i] = arguments[i] === undefined 
+				? "" 
+				: arguments[i];
+		}
+
+//		index++;
+		ins = 'arguments[' + ( x[1] ? x[1].substring(0, x[1].length - 1) - 1 : index ) + ']';
+		index++;
+
+		switch (x[6]) {
+		case "b":
+			ins = 'Number(' + ins + ')';
+			fn = 'Number.prototype.bin';
+			break;
+		case "c":
+			ins = 'String.fromCharCode(' + ins + ')';
+			fn = 'String.prototype.padding';
+			break;
+		case "d":
+		case "u":
+			ins = 'Number(' + ins + ')';
+			fn = 'Number.prototype.dec';
+			break;
+		case "f":
+			ins = 'Number(' + ins + ')';
+			fn = 'String.prototype.padding';
+			if (x[5]) {
+				ins = ins + '.toFixed(' + x[5].substr(1) + ')';
+			} else if (x[4]) {
+				ins = ins + '.toExponential(' + x[4] + ')';
+			} else {
+				ins = ins + '.toExponential()';
+			}
+			// Invert sign because this is not number but string
+			x[2] = x[2] == "-" ? "+" : "-";
+			break;
+		case "o":
+			ins = 'Number(' + ins + ')';
+			fn = 'Number.prototype.oct';
+			break;
+		case "s":
+			ins = 'String(' + ins + ')';
+			fn = 'String.prototype.padding';
+			break;
+		case "x":
+			ins = 'Number(' + ins + ')';
+			fn = 'Number.prototype.hexl';
+			break;
+		case "X":
+			ins = 'Number(' + ins + ')';
+			fn = 'Number.prototype.hex';
+			break;
+		}
+
+		return '", ' + fn + '.call(' + ins + ', "' 
+			+ (x[2] + x[4]) + '", "' 
+			+ (x[3].substr(x[3].length - 1) || " ") + '"), "';
+	});
+
+	result = '(function(){ return function() { return ["' + result + '"].join(""); }; })()';
+	result = result
+		.split(/\r/).join('\\r')
+		.split(/\n/).join('\\n')
+		;
+
+	return eval(result);
+};
 
 }
 
