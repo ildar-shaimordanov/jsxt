@@ -39,9 +39,11 @@ if not exist "%INSTALL_PATH%" md "%INSTALL_PATH%"
 set INSTALL_CMD=dir /b %INSTALL_LIST%
 if defined INSTALL_EXCLUDE set INSTALL_CMD=%INSTALL_CMD% ^^^| findstr /v "%INSTALL_EXCLUDE%"
 
+echo.Installing to '%INSTALL_PATH%'
+echo.
 for /f %%a in ( '%INSTALL_CMD%' ) do (
 	echo Processing '%%a'...
-	cscript //NoLogo install_tool.wsf %SQUEEZE% %DOWNLOAD% "%%a" "%INSTALL_PATH%"
+	cscript //NoLogo install_tool.wsf %SQUEEZE% %DOWNLOAD% "%%a" > "%INSTALL_PATH%\%%~nxa"
 	echo.
 )
 

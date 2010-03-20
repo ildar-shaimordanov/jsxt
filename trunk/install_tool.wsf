@@ -5,7 +5,7 @@
 <?job error="true" debug="false" ?>
 
 <runtime>
-<description><![CDATA[Installer of JSXT tools Copyright (C) 2009 Ildar Shaimordanov
+<description><![CDATA[Installer of JSXT tools Copyright (C) 2009, 2010 Ildar Shaimordanov
 
 This is not mandatory action. You can use all these tools "as is". 
 You do not need run this untility. Download archive and place it's 
@@ -13,9 +13,8 @@ content to the appropriate directory.
 
 This utility allows you to install JSXT tools to the comfortable 
 location. It makes two things:
--- embeds JS scripts from the "js" directory into the tool
--- copies a resulting file to the directory specified in the 
-argument.
+-- embeds JS scripts from the "js" directory into the tool; 
+-- squeezes embeded scripts to reduce the size of resulting files. 
 
 Reasonable question arises: 
 "Why I should make install if it works fine without this?"
@@ -30,12 +29,6 @@ tool can be used without emergency of lost some parts of tool.
 	many="false"
 	required="true"
 />
-<unnamed
-	name="PATH"
-	helpstring="The path where the tool should be installed"
-	many="false"
-	required="true"
-/>
 <named
 	name="SQUEEZE"
 	helpstring="Specifies this argument if you need obfuscate a code"
@@ -43,7 +36,7 @@ tool can be used without emergency of lost some parts of tool.
 	required="false"
 />
 <example>
-Example: install_tool.wsf install_tool.wsf C:\MyTools
+Example: install_tool.wsf install_tool.wsf /SQUEEZE
 </example>
 </runtime>
 <object id="fso" progid="Scripting.FileSystemObject" />
@@ -57,35 +50,25 @@ Example: install_tool.wsf install_tool.wsf C:\MyTools
 <script language="javascript" src="js/win32/FileSystem.js"></script>
 <script language="javascript"><![CDATA[
 
-if ( WScript.Arguments.length < 1 ) {
+if ( WScript.Arguments.Unnamed.length != 1 ) {
 	WScript.Arguments.ShowUsage();
 	WScript.Quit();
 }
 
 var filename = WScript.Arguments.Unnamed.item(0);
-var output;
 
-var e;
-try {
-	var target = WScript.Arguments.Unnamed.item(1);
-	output = fso.GetAbsolutePathName(target) + '\\' + filename.replace(/.*\\/, '');
-	if ( fso.GetAbsolutePathName(filename) == fso.GetAbsolutePathName(output) ) {
-		WScript.Echo('The file cannot be copied onto itself');
-		WScript.Quit();
-	}
-} catch (e) {
-	output = WScript.StdOut;
-}
-
-var scriptOuter = filename.match(/\.wsf$/i) 
-	? '\x3Cscript language="javascript">\x3C![CDATA[\n\n//%s\n%s\n\n]]\x3E</script\x3E' 
+var scriptOuter = 
+	filename.match(/\.js$/i) 
+	? '\n\n//%s\n%s\n\n' 
+	: filename.match(/\.wsf$/i) 
+	? '\x3Cscript language="javascript">\x3C![CDATA[\n\n//%s\n%s\n\n]]\x3E</script\x3E'
 	: '\x3Cscript language="javascript">\n\n//%s\n%s\n\n</script\x3E';
 
 var content = FileSystem.readFile(filename);
 
-content = content.replace(/<script.*?src="(js\/.+\.js)".*?\/script>/g, function($0, $1)
+content = content.replace(/\x3Cscript.*?src="(js\/.+\.js)".*?\/script\x3E|\s*\/\/\[requires\[\s*(js\/.+\.js)\s*\]\]/ig, function($0, $1, $2)
 {
-	var f = $1;
+	var f = $1 || $2;
 	var s;
 
 	s = FileSystem.readFile(f);
@@ -99,7 +82,7 @@ content = content.replace(/<script.*?src="(js\/.+\.js)".*?\/script>/g, function(
 	return scriptOuter.sprintf(f, s);
 });
 
-FileSystem.writeFile(output, content, true);
+FileSystem.writeFile(WScript.StdOut, content, true);
 
 ]]></script>
 </job>
