@@ -13,7 +13,17 @@
 
 var YaShell = {
 	// Looking for text within these tags
-	re_slovari: /(?:[\r\n]|.)*?<div class="b-holster.*">((?:[\r\n]|.)*)<\/div>\s*<.+?class="b-foot"(?:[\r\n]|.)*?/m, 
+	re_content: /(?:[\r\n]|.)*?<div class="b-holster.*">((?:[\r\n]|.)*)<\/div>\s*<.+?class="b-foot"(?:[\r\n]|.)*?/m, 
+
+	re_notags: [
+		/<(form|select|script)(?:[\r\n]|.)+?\/\1>/img, 
+		/<div class="b-tabs-line">.*?<\/div>/img
+	], 
+
+	re_noents: [
+		/&(#\d+|#x[0-9a-f]+|[a-z]+);/ig, 
+		/\u2022/g, 
+	], 
 
 	// Use mobile version of Ynadex.Slovari
 	url: 'http://m.slovari.yandex.ru/search.xml', 
@@ -25,16 +35,24 @@ var YaShell = {
 
 YaShell.parse = function(xml)
 {
-	var m = xml.match(this.re_slovari);
+	var m = xml.match(this.re_content);
 	if ( ! m ) {
 		return '';
 	}
 
-	return m[1]
-		// Removes all unused tags and their contents
-		.replace(/<(form|select|script)(?:[\r\n]|.)+?\/\1>/img, '')
-		.replace(/<div class="b-tabs-line">.*?<\/div>/img, '')
+	var result = m[1];
 
+	// Removes all unused tags and their contents
+	for (var i = 0; i < this.re_notags.length; i++) {
+		result = result.replace(this.re_notags[i], '');
+	}
+
+	// Removes all unprintable entities
+	for (var i = 0; i < this.re_noents.length; i++) {
+		result = result.replace(this.re_noents[i], '');
+	}
+
+	return result
 		// Converts block tags to line breaks
 		.replace(/<(div|h[\d])[^>]*>(.*?)<\/\1>/img, '$2\n')
 		.replace(/<p[^>]*>(.*?)<\/p>/img, '$1\n')
@@ -50,12 +68,8 @@ YaShell.parse = function(xml)
 		.replace(/&lt;/ig, '<')
 		.replace(/&gt;/ig, '>')
 
-		// Removes all unprintable entities
-		.replace(/&(#\d+|#x[0-9a-f]+|[a-z]+);/ig, '')
-		.replace(/\u2022/g, '')
-
 		// removes all heading and trailing white spaces
-		.replace(/(^\s+)|(\s+$)/, '')
+		.replace(/^\s+|\s+$/g, '')
 		;
 };
 
@@ -70,20 +84,12 @@ YaShell.get = function(word, lang)
 	if ( lang === undefined ) {
 		queryString += '&where=2';
 	} else {
-		queryString += '&where=3&lang=' + (lang || 'en-ru-en');
+		queryString += '&where=3&lang=' + (encodeURIComponent(lang) || 'en-ru-en');
 	}
 
-	return Ajax.query(this.url + '?' + queryString, {
-		async: false,
+	return Ajax.queryFile(this.url + '?' + queryString, {
 		headers: {
 			'User-Agent': this.name + ', ' + this.version + '; (compatible; Windows Script Host, Version ' + WScript.Version + ')'
-		},
-		onreadystate: function(xmlhttp)
-		{
-			if ( xmlhttp.readyState != 4 ) {
-				return;
-			}
-			return xmlhttp.responseText;
 		}
 	});
 };
