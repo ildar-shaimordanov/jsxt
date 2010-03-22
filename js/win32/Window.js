@@ -72,7 +72,7 @@ Window.openHTA = function(title, htaProps, runProps)
 		if ( ! htaProps.hasOwnProperty(p) || 'string' != typeof htaProps[p] ) {
 			continue;
 		}
-		attrs.push(p.toUpperCase() + ': \'' + htaProps[p] + '\'');
+		attrs.push(p.toUpperCase() + '=\'' + htaProps[p] + '\'');
 	}
 	var props = attrs.join(' ');
 
