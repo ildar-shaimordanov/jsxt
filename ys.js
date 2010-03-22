@@ -54,7 +54,7 @@ YaShell.parse = function(xml)
 
 	return result
 		// Converts block tags to line breaks
-		.replace(/<(div|h[\d])[^>]*>(.*?)<\/\1>/img, '$2\n')
+		.replace(/<(div|h[\d])[^>]*>(.*?)<\/\1>/img, '\n$2\n')
 		.replace(/<p[^>]*>(.*?)<\/p>/img, '$1\n')
 
 		// Replaces tagged line breaks to text-oriented line breaks
