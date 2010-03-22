@@ -5,7 +5,7 @@
 // Copyright (c) 2010 by Ildar Shaimordanov
 //
 
-var cookie = {
+var Cookie = {
 
 	/**
 	 * Returns the value of the existing cookie or 'null' othewise
