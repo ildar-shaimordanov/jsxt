@@ -172,12 +172,12 @@ goto :EOF
 
 
 :wscmd.include.js
-echo.^<script language="javascript" src="%~1"^>^</script^>
+echo.^<script language="javascript" src="%~f1"^>^</script^>
 goto :EOF
 
 
 :wscmd.include.vbs
-echo.^<script language="vbscript" src="%~1"^>^</script^>
+echo.^<script language="vbscript" src="%~f1"^>^</script^>
 goto :EOF
 
 
