@@ -16,7 +16,7 @@ set INSTALL_LIST=*.js *.wsf *.hta *.bat
 rem
 rem Files to be excluded from installation
 rem
-set INSTALL_EXCLUDE=%~nx0 install_tool.wsf Sandbox.js
+set INSTALL_EXCLUDE=%~nx0 install_tool.wsf Sandbox.js wscmd.js wscmd.wsf
 
 
 rem
