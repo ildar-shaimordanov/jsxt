@@ -1,5 +1,5 @@
 //
-// http://slovari.yabndex.ru
+// http://slovari.yandex.ru
 // Command line version
 //
 // Copyright (c) 2010, Ildar Shaimordanov
@@ -29,8 +29,8 @@ var YaShell = {
 	url: 'http://m.slovari.yandex.ru/search.xml', 
 
 	// Yandex Shell
-	name: 'Yandex Shell/', 
-	version: '0.1 beta'
+	name: 'Yandex.Slovari Shell/', 
+	version: '0.1.1 beta'
 };
 
 YaShell.parse = function(xml)
