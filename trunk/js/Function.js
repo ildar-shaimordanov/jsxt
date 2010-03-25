@@ -8,6 +8,30 @@
 // http://forum.script-coding.info/viewtopic.php?pid=33393
 //
 
+if ( ! Function.prototype.getOneResource ) {
+
+/**
+ * getOneResource method allow to keep data as multiple strings
+ * within function as multi-line comments. 
+ * This is the simpler than Function.prototype.getResources 
+ * but it does not support indexes and caching. 
+ *
+ * @example
+ *
+ * @param	void
+ * @return	String
+ * @access	public
+ */
+Function.prototype.getOneResource = function()
+{
+	return this
+		.toString()
+		.match(/\/\*\[\[((?:[\r\n]|.)*?)\]\]\*\//m)[1]
+		;
+};
+
+}
+
 if ( ! Function.prototype.getResources ) {
 
 /**
@@ -77,3 +101,10 @@ Function.prototype.getResources.list = {};
 
 }
 
+(function()
+{
+/*[[EXAMPLE]]*/
+
+WScript.Echo(arguments.callee.getOneResource());
+
+})();
