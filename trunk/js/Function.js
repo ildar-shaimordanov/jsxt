@@ -101,10 +101,3 @@ Function.prototype.getResources.list = {};
 
 }
 
-(function()
-{
-/*[[EXAMPLE]]*/
-
-WScript.Echo(arguments.callee.getOneResource());
-
-})();

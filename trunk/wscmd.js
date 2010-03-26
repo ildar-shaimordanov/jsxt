@@ -1,23 +1,45 @@
-@set @x=0 /*
+@set @wscmd=0 /*
 @echo off
 
 
-setlocal
+setlocal enabledelayedexpansion
 
 
 :: Load settings from ini-files
-for %%i in ( "%~dpn0.ini.bat" ".\%~n0.ini.bat" ) do (
-	if exist "%%~i" call "%%~i"
+:: there are special macros available to be substituted
+:: $D - the disk, the same as %~d0, exactly
+:: $P - the path, the same as %~p0, exactly
+:: $N - the filename, the same as %~n0, exactly
+:: $X - the extension, the same as %~x0, exactly
+for %%i in ( "%~dpn0.ini" ".\%~n0.ini" ) do (
+	if exist "%%~i" (
+		for /f "usebackq tokens=1,* delims==" %%k in ( "%%~i" ) do (
+			set wscmd.temp=%%~l
+			if defined wscmd.temp (
+				set wscmd.temp=!wscmd.temp:$D=%~d0!
+				set wscmd.temp=!wscmd.temp:$P=%~p0!
+				set wscmd.temp=!wscmd.temp:$N=%~n0!
+				set wscmd.temp=!wscmd.temp:$X=%~x0!
+				set wscmd.temp=!wscmd.temp:$$=$!
+				set wscmd.%%k=!wscmd.temp!
+			)
+		)
+	)
 )
 
 
 :: Set defaults
 if not defined wscmd.include set wscmd.include=%~dp0js\*.js %~dp0js\win32\*.js
 if not defined wscmd.execute set wscmd.execute=%~dp0$$$%~n0.wsf
-if not defined wscmd.command set wscmd.command=cscript //NoLogo //H:CScript
+if not defined wscmd.command set wscmd.command=cscript //NoLogo
 
 
-:: Parse command line arguments
+:: Parse command line arguments and set needful variables
+set wscmd.temp=
+set wscmd.compile=
+set wscmd.debug=
+set wscmd.self=%~f0
+
 if "%~1" == "" (
 rem	%wscmd.command% //E:javascript "%~dpnx0" %*
 
@@ -42,7 +64,11 @@ if /i "%~1" == "/h" (
 if /i "%~1" == "/compile" (
 	set wscmd.compile=1
 	shift
+) else if /i "%~1" == "/debug" (
+	set wscmd.debug=1
+	shift
 )
+
 
 if /i "%~1" == "/js" (
 	set wscmd.engine=.js
@@ -67,8 +93,10 @@ if /i "%~1" == "/e" (
 	shift
 ) else (
 	set wscmd.script=%1
+	if not defined wscmd.script set wscmd.script=%wscmd.self%
 	shift
 )
+
 
 :parse_1
 if "%~1" == "" goto parse_2
@@ -91,24 +119,11 @@ if not defined wscmd.compile (
 
 
 endlocal
+set @wscmd=
 goto :EOF
 
 
 :wscmd.compile
-call :wscmd.head
-for %%l in ( %wscmd.include% ) do (
-	call :wscmd.include%%~xl "%%l"
-)
-if defined wscmd.script (
-	call :wscmd.include%wscmd.engine% %wscmd.script%
-) else (
-	call :wscmd.inline%wscmd.engine% %wscmd.inline%
-)
-call :wscmd.tail
-goto :EOF
-
-
-:wscmd.head
 echo.^<?xml version="1.0" encoding="utf-8" ?^>
 echo.
 echo.^<package^>
@@ -116,9 +131,27 @@ echo.^<job id="wscmd"^>
 echo.^<?job error="true" debug="false" ?^>
 echo.
 echo.^<runtime^>
-echo.^<description^>^<![CDATA[Windows Scripting Command Interpreter Version 0.9.0 Beta
+echo.^<description^>^<^^^![CDATA[Windows Scripting Command Interpreter Version 0.9.1 Beta
 echo.Copyright ^(C^) 2009, 2010 Ildar Shaimordanov
 echo.]]^>^</description^>
+echo.^<named
+echo.    name="H"
+echo.    helpstring="Display this help."
+echo.    type="simple"
+echo.    required="false"
+echo./^>
+echo.^<named
+echo.    name="COMPILE"
+echo.    helpstring="Compile but not execute. Just store a temporary file on a disk."
+echo.    type="simple"
+echo.    required="false"
+echo./^>
+echo.^<named
+echo.    name="DEBUG"
+echo.    helpstring="Output debugging information."
+echo.    type="simple"
+echo.    required="false"
+echo./^>
 echo.^<named
 echo.    name="JS"
 echo.    helpstring="Assume a value as a JavaScript source."
@@ -143,14 +176,8 @@ echo.    helpstring="A filename or a string to be executed."
 echo.    type="string"
 echo.    required="false"
 echo./^>
-echo.^<named
-echo.    name="H"
-echo.    helpstring="Display this help."
-echo.    type="simple"
-echo.    required="false"
-echo./^>
 echo.^</runtime^>
-echo.^<script language="javascript"^>^<![CDATA[
+echo.^<script language="javascript"^>^<^^^![CDATA[
 echo.
 echo.var alert = echo = print = function^(^)
 echo.{
@@ -168,6 +195,23 @@ echo.    WScript.Arguments.ShowUsage^(^);
 echo.};
 echo.
 echo.]]^>^</script^>
+
+if defined wscmd.debug echo.Libraries: 1>&2
+for %%l in ( %wscmd.include% ) do (
+	if defined wscmd.debug echo.    "%%~l" 1>&2
+	call :wscmd.include%%~xl "%%l"
+)
+
+if defined wscmd.script (
+	if defined wscmd.debug echo.File: "%wscmd.script%" 1>&2
+	call :wscmd.include%wscmd.engine% %wscmd.script%
+) else (
+	if defined wscmd.debug echo.Inline: %wscmd.inline% 1>&2
+	call :wscmd.inline%wscmd.engine% %wscmd.inline%
+)
+
+echo.^</job^>
+echo.^</package^>
 goto :EOF
 
 
@@ -182,7 +226,7 @@ goto :EOF
 
 
 :wscmd.inline.js
-echo.^<script language="javascript"^>^<![CDATA[
+echo.^<script language="javascript"^>^<^^^![CDATA[
 echo.
 echo.eval^(%1^);
 echo.
@@ -191,17 +235,11 @@ goto :EOF
 
 
 :wscmd.inline.vbs
-echo.^<script language="vbscript"^>^<![CDATA[
+echo.^<script language="vbscript"^>^<^^^![CDATA[
 echo.
 echo.Eval %1
 echo.
 echo.]]^>^</script^>
-goto :EOF
-
-
-:wscmd.tail
-echo.^</job^>
-echo.^</package^>
 goto :EOF
 
 
@@ -238,11 +276,14 @@ if ( ! WScript.FullName.match(/cscript/i) || WScript.Arguments.Named.Exists('H')
 	exit();
 }
 
+this[(new Date()).getTime()] = 1;
+
 /**
  *
  * Interactive mode
  *
  */
+eval.number = 0;
 while ( true ) {
 
 	var result;
@@ -272,6 +313,7 @@ while ( true ) {
 				{
 					var e;
 					try {
+						eval.number++;
 						return WScript.StdIn.ReadLine();
 					} catch (e) {
 						return 'quit()';
@@ -385,10 +427,11 @@ while ( true ) {
 
 	} catch (e) {
 
-		WScript.Echo('name\t:\t' + e.name);
-		WScript.Echo('message\t:\t' + e.message);
-		WScript.Echo('line\t:\t' + ((e.number >> 0x10) & 0x1FFF));
-		WScript.Echo('code\t:\t' + (e.number & 0xFFFF));
+		WScript.Echo(WScript.ScriptName + ': "<stdin>", line ' + eval.number + ': ' + e.name + ': ' + e.message);
+		//WScript.Echo('name\t:\t' + e.name);
+		//WScript.Echo('message\t:\t' + e.message);
+		//WScript.Echo('line\t:\t' + ((e.number >> 0x10) & 0x1FFF));
+		//WScript.Echo('code\t:\t' + (e.number & 0xFFFF));
 
 	}
 
