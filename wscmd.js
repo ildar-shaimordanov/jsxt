@@ -28,9 +28,14 @@ for %%i in ( "%~dpn0.ini" ".\%~n0.ini" ) do (
 )
 
 
+:: Set the name and version
+set wscmd.name=Windows Scripting Command Interpreter
+set wscmd.version=0.9.1 Beta
+
+
 :: Set defaults
 if not defined wscmd.include set wscmd.include=%~dp0js\*.js %~dp0js\win32\*.js
-if not defined wscmd.execute set wscmd.execute=%~dp0$$$%~n0.wsf
+if not defined wscmd.execute set wscmd.execute=.\$$$%~n0.wsf
 if not defined wscmd.command set wscmd.command=cscript //NoLogo
 
 
@@ -40,24 +45,17 @@ set wscmd.compile=
 set wscmd.debug=
 set wscmd.self=%~f0
 
+
 if "%~1" == "" (
-rem	%wscmd.command% //E:javascript "%~dpnx0" %*
-
-rem	endlocal
-rem	goto :EOF
-
 	set wscmd.script=%~f0
 	set wscmd.engine=.js
 	shift
-	goto parse_1
+	goto wscmd.1
 ) 
 
 
 if /i "%~1" == "/h" (
-	set wscmd.inline="help()"
-	set wscmd.engine=.js
-	shift
-	goto parse_1
+	goto wscmd.help
 )
 
 
@@ -98,13 +96,13 @@ if /i "%~1" == "/e" (
 )
 
 
-:parse_1
-if "%~1" == "" goto parse_2
+:wscmd.1
+if "%~1" == "" goto wscmd.2
 set wscmd.args=%wscmd.args% %1
 shift
-goto parse_1
+goto wscmd.1
 
-:parse_2
+:wscmd.2
 
 
 :: Compile and link the source with libraries
@@ -123,6 +121,23 @@ set @wscmd=
 goto :EOF
 
 
+:wscmd.help
+echo.%wscmd.name% Version %wscmd.version%
+echo.
+echo.Usage: %~n0 [/h] ^| [/compile ^| /debug] [/js ^| /vbs] [/e source ^| filename] [arguments]
+echo.Valid options are:
+echo.    /h        - Display this help
+echo.    /compile  - Compile but not execute. Just store a temporary file on a disk
+echo.    /debug    - Output debugging information and execute
+echo.    /js       - Assume a value as a JavaScript source
+echo.    /vbs      - Assume a value as a VBScript code
+echo.    /e        - Assume a value as a string to be executed
+
+endlocal
+set @wscmd=
+goto :EOF
+
+
 :wscmd.compile
 echo.^<?xml version="1.0" encoding="utf-8" ?^>
 echo.
@@ -131,67 +146,32 @@ echo.^<job id="wscmd"^>
 echo.^<?job error="true" debug="false" ?^>
 echo.
 echo.^<runtime^>
-echo.^<description^>^<^^^![CDATA[Windows Scripting Command Interpreter Version 0.9.1 Beta
+echo.^<description^>^<^^^![CDATA[%wscmd.name% Version %wscmd.version%
 echo.Copyright ^(C^) 2009, 2010 Ildar Shaimordanov
 echo.]]^>^</description^>
-echo.^<named
-echo.    name="H"
-echo.    helpstring="Display this help."
-echo.    type="simple"
-echo.    required="false"
-echo./^>
-echo.^<named
-echo.    name="COMPILE"
-echo.    helpstring="Compile but not execute. Just store a temporary file on a disk."
-echo.    type="simple"
-echo.    required="false"
-echo./^>
-echo.^<named
-echo.    name="DEBUG"
-echo.    helpstring="Output debugging information."
-echo.    type="simple"
-echo.    required="false"
-echo./^>
-echo.^<named
-echo.    name="JS"
-echo.    helpstring="Assume a value as a JavaScript source."
-echo.    type="simple"
-echo.    required="false"
-echo./^>
-echo.^<named
-echo.    name="VBS"
-echo.    helpstring="Assume a value as a VBScript source."
-echo.    type="simple"
-echo.    required="false"
-echo./^>
-echo.^<named
-echo.    name="E"
-echo.    helpstring="Assume a value as a string to be executed."
-echo.    type="simple"
-echo.    required="false"
-echo./^>
-echo.^<unnamed
-echo.    name="source"
-echo.    helpstring="A filename or a string to be executed."
-echo.    type="string"
-echo.    required="false"
-echo./^>
 echo.^</runtime^>
 echo.^<script language="javascript"^>^<^^^![CDATA[
 echo.
+echo.var help = function^(^)
+echo.{
+echo.    WScript.Arguments.ShowUsage^(^);
+echo.};
+echo.
 echo.var alert = echo = print = function^(^)
 echo.{
-echo.    WScript.Echo(Array.prototype.slice.call^(arguments^).join^(' '^)^);
+echo.	var result = '';
+echo.	for ^(var i = 0; i ^< arguments.length; i++^) {
+echo.		if ^( i ^) {
+echo.			result += ' ';
+echo.		}
+echo.		result += arguments[i];
+echo.	}
+echo.	WScript.Echo^(result^);
 echo.};
 echo.
 echo.var quit = exit = function^(^)
 echo.{
 echo.    WScript.Quit^(arguments[0]^);
-echo.};
-echo.
-echo.var help = function^(^)
-echo.{
-echo.    WScript.Arguments.ShowUsage^(^);
 echo.};
 echo.
 echo.]]^>^</script^>
@@ -251,19 +231,32 @@ goto :EOF
  * Useful functions
  *
  */
+var help = function()
+{
+	WScript.Echo();
+	WScript.Echo('Commands                 Descriptions');
+	WScript.Echo('========                 ============');
+	WScript.Echo('help()                   Display this help');
+	WScript.Echo('alert(), echo(), print() Print expressions');
+	WScript.Echo('quit(), exit()           Quit this shell');
+	WScript.Echo('eval.history             Display the history');
+};
+
 var alert = echo = print = function()
 {
-	WScript.Echo(Array.linearize(arguments).join(' '));
+	var result = '';
+	for (var i = 0; i < arguments.length; i++) {
+		if ( i ) {
+			result += ' ';
+		}
+		result += arguments[i];
+	}
+	WScript.Echo(result);
 };
 
 var quit = exit = function()
 {
 	WScript.Quit(arguments[0]);
-};
-
-var help = function()
-{
-	WScript.Arguments.ShowUsage();
 };
 
 /**
@@ -276,14 +269,20 @@ if ( ! WScript.FullName.match(/cscript/i) || WScript.Arguments.Named.Exists('H')
 	exit();
 }
 
-this[(new Date()).getTime()] = 1;
-
 /**
  *
- * Interactive mode
+ * The line number
  *
  */
 eval.number = 0;
+
+/**
+ *
+ * The history of commands
+ *
+ */
+eval.history = '';
+
 while ( true ) {
 
 	var result;
@@ -326,9 +325,52 @@ while ( true ) {
 					c = input.charAt(i);
 					i++;
 
-					// Store [a-z0-9_], \] or \) state to differ 
-					// regexes and division in expressions
-					expr = ( (/[\w\)\]\.]/).test(c) || (/[^:,;\[\(!\&\|=]/).test(c) ) && ! regex && ! quote;
+					// Store the state of [a-z0-9_], or \] or \) to 
+					// differ regexes and division in expressions
+					// Use the direct comparacy with chacarters instead 
+					// of the regex testing to bypass possible problems
+					//expr = ( (/[\w\)\]\.]/).test(c) || (/[^:,;\[\(!\&\|=]/).test(c) ) && ! regex && ! quote;
+					expr = ( 
+							(
+								c >= 'a' && c <= 'Z' 
+								|| 
+								c >= 'A' && c <= 'Z' 
+								|| 
+								c >= '0' && c <= '9' 
+								|| 
+								c == '_' 
+								|| 
+								c == ')' 
+								|| 
+								c == ']' 
+								|| 
+								c == '.' 
+							) 
+							|| 
+							(
+								c != ':' 
+								|| 
+								c != ',' 
+								|| 
+								c != ';' 
+								|| 
+								c != '[' 
+								|| 
+								c != '(' 
+								|| 
+								c != '!' 
+								|| 
+								c != '&' 
+								|| 
+								c != '|' 
+								|| 
+								c != '=' 
+							) 
+						)
+						&& 
+						! regex 
+						&& 
+						! quote;
 
 					// SLASH is special character
 					if ( slash ) {
@@ -418,6 +460,19 @@ while ( true ) {
 
 			}; // while ( true )
 
+			// Use the direct comparacy with chacarters instead 
+			// of the regex testing to bypass possible problems
+			//if ( ! (/^\s*$/).test(result) ) {
+			//	result += ( eval.history ? '\n' : '' ) + result;
+			//}
+			for (var i = 0; i < result.length; i++) {
+				var c = result.charAt(i);
+				if ( c > ' ' ) {
+					eval.history += ( eval.history ? '\n' : '' ) + result;
+					break;
+				}
+			}
+
 			return result;
 		})('wscmd > ', 'wscmd :: '));
 
@@ -428,10 +483,6 @@ while ( true ) {
 	} catch (e) {
 
 		WScript.Echo(WScript.ScriptName + ': "<stdin>", line ' + eval.number + ': ' + e.name + ': ' + e.message);
-		//WScript.Echo('name\t:\t' + e.name);
-		//WScript.Echo('message\t:\t' + e.message);
-		//WScript.Echo('line\t:\t' + ((e.number >> 0x10) & 0x1FFF));
-		//WScript.Echo('code\t:\t' + (e.number & 0xFFFF));
 
 	}
 
