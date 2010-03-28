@@ -30,7 +30,7 @@ for %%i in ( "%~dpn0.ini" ".\%~n0.ini" ) do (
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.9.1 Beta
+set wscmd.version=0.9.2 Beta
 
 
 :: Set defaults
@@ -44,14 +44,6 @@ set wscmd.temp=
 set wscmd.compile=
 set wscmd.debug=
 set wscmd.self=%~f0
-
-
-if "%~1" == "" (
-	set wscmd.script=%~f0
-	set wscmd.engine=.js
-	shift
-	goto wscmd.1
-) 
 
 
 if /i "%~1" == "/h" (
@@ -77,6 +69,17 @@ if /i "%~1" == "/js" (
 ) else (
 	set wscmd.engine=.js
 )
+
+
+if "%~1" == "" (
+rem	cscript //NoLogo //E:javascript "%wscmd.self% %*
+rem	goto wscmd.stop
+
+	set wscmd.script=%~f0
+	set wscmd.engine=.js
+	shift
+	goto wscmd.1
+) 
 
 
 if /i "%~1" == "/e" (
@@ -116,6 +119,7 @@ if not defined wscmd.compile (
 )
 
 
+:wscmd.stop
 endlocal
 set @wscmd=
 goto :EOF
@@ -133,9 +137,7 @@ echo.    /js       - Assume a value as a JavaScript source
 echo.    /vbs      - Assume a value as a VBScript code
 echo.    /e        - Assume a value as a string to be executed
 
-endlocal
-set @wscmd=
-goto :EOF
+goto wscmd.stop
 
 
 :wscmd.compile
@@ -233,13 +235,15 @@ goto :EOF
  */
 var help = function()
 {
-	WScript.Echo();
-	WScript.Echo('Commands                 Descriptions');
-	WScript.Echo('========                 ============');
-	WScript.Echo('help()                   Display this help');
-	WScript.Echo('alert(), echo(), print() Print expressions');
-	WScript.Echo('quit(), exit()           Quit this shell');
-	WScript.Echo('eval.history             Display the history');
+	WScript.Echo('\n' 
+		+ 'Commands                 Descriptions\n' 
+		+ '========                 ============\n' 
+		+ 'help()                   Display this help\n' 
+		+ 'alert(), echo(), print() Print expressions\n' 
+		+ 'quit(), exit()           Quit this shell\n' 
+		+ 'eval.history             Display the history\n' 
+		+ 'eval.save([format])      Save the history to the file\n'
+		);
 };
 
 var alert = echo = print = function()
@@ -264,7 +268,7 @@ var quit = exit = function()
  * Enabled in the CLI mode ONLY
  *
  */
-if ( ! WScript.FullName.match(/cscript/i) || WScript.Arguments.Named.Exists('H') ) {
+if ( ! WScript.FullName.match(/cscript/i) ) {
 	help();
 	exit();
 }
@@ -282,6 +286,15 @@ eval.number = 0;
  *
  */
 eval.history = '';
+
+eval.save = function(format)
+{
+	var fso = new ActiveXObject('Scripting.FileSystemObject');
+
+	var f = fso.OpentextFile('.\\wscmd.history', 8, true, format);
+	f.Write(eval.history);
+	f.Close();
+};
 
 while ( true ) {
 
