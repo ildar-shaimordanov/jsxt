@@ -7,20 +7,19 @@ setlocal enabledelayedexpansion
 
 :: Load settings from ini-files
 :: there are special macros available to be substituted
-:: $D - the disk, the same as %~d0, exactly
-:: $P - the path, the same as %~p0, exactly
-:: $N - the filename, the same as %~n0, exactly
-:: $X - the extension, the same as %~x0, exactly
+:: %~d0 - the disk
+:: %~p0 - the path
+:: %~n0 - the filename
+:: %~x0 - the extension
 for %%i in ( "%~dpn0.ini" ".\%~n0.ini" ) do (
 	if exist "%%~i" (
 		for /f "usebackq tokens=1,* delims==" %%k in ( "%%~i" ) do (
 			set wscmd.temp=%%~l
 			if defined wscmd.temp (
-				set wscmd.temp=!wscmd.temp:$D=%~d0!
-				set wscmd.temp=!wscmd.temp:$P=%~p0!
-				set wscmd.temp=!wscmd.temp:$N=%~n0!
-				set wscmd.temp=!wscmd.temp:$X=%~x0!
-				set wscmd.temp=!wscmd.temp:$$=$!
+				set wscmd.temp=!wscmd.temp:%%~d0=%~d0!
+				set wscmd.temp=!wscmd.temp:%%~p0=%~p0!
+				set wscmd.temp=!wscmd.temp:%%~n0=%~n0!
+				set wscmd.temp=!wscmd.temp:%%~x0=%~x0!
 				set wscmd.%%k=!wscmd.temp!
 			)
 		)
@@ -30,11 +29,11 @@ for %%i in ( "%~dpn0.ini" ".\%~n0.ini" ) do (
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.9.2 Beta
+set wscmd.version=0.9.3 Beta
 
 
 :: Set defaults
-if not defined wscmd.include set wscmd.include=%~dp0js\*.js %~dp0js\win32\*.js
+if not defined wscmd.include set wscmd.include=%~dp0js\*.js %~dp0js\win32\*.js %~dp0vbs\win32\*.vbs
 if not defined wscmd.execute set wscmd.execute=.\$$$%~n0.wsf
 if not defined wscmd.command set wscmd.command=cscript //NoLogo
 
@@ -44,6 +43,17 @@ set wscmd.temp=
 set wscmd.compile=
 set wscmd.debug=
 set wscmd.self=%~f0
+
+
+if "%~1" == "" (
+rem	cscript //NoLogo //E:javascript "%wscmd.self% %*
+rem	goto wscmd.stop
+
+	set wscmd.script=%~f0
+	set wscmd.engine=.js
+	shift
+	goto wscmd.1
+) 
 
 
 if /i "%~1" == "/h" (
@@ -69,17 +79,6 @@ if /i "%~1" == "/js" (
 ) else (
 	set wscmd.engine=.js
 )
-
-
-if "%~1" == "" (
-rem	cscript //NoLogo //E:javascript "%wscmd.self% %*
-rem	goto wscmd.stop
-
-	set wscmd.script=%~f0
-	set wscmd.engine=.js
-	shift
-	goto wscmd.1
-) 
 
 
 if /i "%~1" == "/e" (
