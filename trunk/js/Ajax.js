@@ -142,15 +142,20 @@ Ajax.create = function()
 	}
 
 	var e;
-	try {
-		return new ActiveXObject('Msxml2.XMLHTTP');
-	} catch (e) {
+	var IDs = [
+//		'WinHttp.WinHttpRequest.5.1', 
+//		'WinHttp.WinHttpRequest.5.0', 
+		'Msxml2.XMLHTTP', 
+		'Microsoft.XMLHTTP'];
+
+	for (var i = 0; i < IDs.length; i++) {
 		try {
-			return new ActiveXObject('Microsoft.XMLHTTP');
+			return new ActiveXObject(IDs[i]);
 		} catch (e) {
-			return null;
 		}
 	}
+
+	return null;
 };
 
 }
