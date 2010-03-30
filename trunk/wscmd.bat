@@ -29,7 +29,7 @@ for %%i in ( "%~dpn0.ini" ".\%~n0.ini" ) do (
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.9.3 Beta
+set wscmd.version=0.9.4 Beta
 
 
 :: Set defaults
@@ -160,14 +160,7 @@ echo.};
 echo.
 echo.var alert = echo = print = function^(^)
 echo.{
-echo.	var result = '';
-echo.	for ^(var i = 0; i ^< arguments.length; i++^) {
-echo.		if ^( i ^) {
-echo.			result += ' ';
-echo.		}
-echo.		result += arguments[i];
-echo.	}
-echo.	WScript.Echo^(result^);
+echo.    WScript.Echo(Array.prototype.slice.call(arguments));
 echo.};
 echo.
 echo.var quit = exit = function^(^)
@@ -250,7 +243,7 @@ var alert = echo = print = function()
 	var result = '';
 	for (var i = 0; i < arguments.length; i++) {
 		if ( i ) {
-			result += ' ';
+			result += ',';
 		}
 		result += arguments[i];
 	}
