@@ -234,7 +234,8 @@ var help = function()
 		+ 'alert(), echo(), print() Print expressions\n' 
 		+ 'quit(), exit()           Quit this shell\n' 
 		+ 'eval.history             Display the history\n' 
-		+ 'eval.save([format])      Save the history to the file\n'
+		+ 'eval.save([format])      Save the history to the file\n' 
+		+ 'cmd(), shell()           Run new DOS-session\n' 
 		);
 };
 
@@ -253,6 +254,12 @@ var alert = echo = print = function()
 var quit = exit = function()
 {
 	WScript.Quit(arguments[0]);
+};
+
+var cmd = shell = function()
+{
+	var shell = WScript.CreateObject('WSCript.Shell');
+	shell.run('cmd');
 };
 
 /**
