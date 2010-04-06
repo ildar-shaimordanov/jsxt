@@ -204,6 +204,16 @@ Ajax.query = function(url, options)
 		options.headers['If-Modified-Since'] = (new Date(0)).toUTCString();
 	}
 
+	if ( options.content ) {
+		if ( ! options.headers ) {
+			options.headers = {};
+		}
+		options.headers['Content-Length'] = String(content).length;
+		if ( ! options.headers.hasOwnProperty('Content-Type') ) {
+			options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+		}
+	}
+
 	if ( options.headers ) {
 		for (var p in options.headers) {
 			if ( ! options.headers.hasOwnProperty(p) ) {
