@@ -15,7 +15,7 @@ var nextID = 0;
  *
  * @example
  * // Delay
- * var t = 3000;
+ * var t = 3000; // milliseconds
  * 
  * var w = Window.openHTA();
  * 
@@ -23,14 +23,14 @@ var nextID = 0;
  * h.innerHTML = 'HTA created from WSH will be closed by WSH during ' + (t / 1000) + ' seconds.';
  * w.document.body.appendChild(h);
  * 
- * // During t seconds the window will be closed
+ * // During t milliseconds the window will be closed
  * WScript.Sleep(t);
  * 
  * w.close();
  * 
  * @example
  * // Delay
- * var t = 3000;
+ * var t = 3000; // milliseconds
  * 
  * var w = Window.openHTA();
  * 
