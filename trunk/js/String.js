@@ -819,29 +819,34 @@ String.prototype.camelize = function()
 	{
 		return ($2 || '').toUpperCase() + ($3 || $1).toLowerCase();
 	});
-/*
-	return this
-		.replace(/^[^-]+/, function($0)
-		{
-			return $0.toLowerCase();
-		})
-		.replace(/-(.)([^-]+)/g, function($0, $1, $2)
-		{
-			return $1.toUpperCase() + $2.toLowerCase();
-		});
-*/
 };
 
 }
 
 if ( ! String.prototype.uncamelize ) {
 
-String.prototype.uncamelize = function()
+String.prototype.uncamelize = function(capitalize)
 {
+	if ( capitalize ) {
+		return this
+			.replace(/[A-Z]/g, function($0)
+			{
+				return '-' + $0;
+			})
+			.replace(/^[a-z]/, function($0)
+			{
+				return $0.toUpperCase();
+			});
+	}
+
 	return this
 		.replace(/[A-Z]/g, function($0)
 		{
 			return '-' + $0.toLowerCase();
+		})
+		.replace(/^[A-Z]/, function($0)
+		{
+			return $0.toUpperCase();
 		});
 };
 
