@@ -48,6 +48,7 @@ for /f %%a in ( '%INSTALL_CMD%' ) do (
 		(
 			echo.@set @x=0 /*
 			echo.@cscript //nologo /e:javascript "%%~dpnx0" %%*
+			echo.@set @x=
 			echo.@goto :eof */
 			echo.
 			cscript //NoLogo install_tool.wsf %SQUEEZE% %DOWNLOAD% "%%a"
