@@ -42,8 +42,19 @@ if defined INSTALL_EXCLUDE set INSTALL_CMD=%INSTALL_CMD% ^^^| findstr /v "%INSTA
 echo.Installing to '%INSTALL_PATH%'
 echo.
 for /f %%a in ( '%INSTALL_CMD%' ) do (
-	echo Processing '%%a'...
-	cscript //NoLogo install_tool.wsf %SQUEEZE% %DOWNLOAD% "%%a" > "%INSTALL_PATH%\%%~nxa"
+	echo.Processing '%%a'...
+	if /i "%%~xa" == ".js" (
+		echo.js-2-bat converting...
+		(
+			echo.@set @x=0 /*
+			echo.@cscript //nologo /e:javascript "%%~dpnx0" %%*
+			echo.@goto :eof */
+			echo.
+			cscript //NoLogo install_tool.wsf %SQUEEZE% %DOWNLOAD% "%%a"
+		) > "%INSTALL_PATH%\%%~na.bat"
+	) else (
+		cscript //NoLogo install_tool.wsf %SQUEEZE% %DOWNLOAD% "%%a" > "%INSTALL_PATH%\%%~nxa"
+	)
 	echo.
 )
 
