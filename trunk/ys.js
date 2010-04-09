@@ -7,7 +7,7 @@
 
 ///////////////////////////////////////////////////////////////////////////
 
-//[requires[ js/Ajax.js ]]
+// [requires[ js/Ajax.js ]]
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -29,8 +29,16 @@ var YaShell = {
 	url: 'http://m.slovari.yandex.ru/search.xml', 
 
 	// Yandex Shell
-	name: 'Yandex.Slovari Shell/', 
-	version: '0.1.1 beta'
+	name: 'Yandex.Slovari Shell', 
+	version: '0.1.2 beta'
+};
+
+YaShell.help = function()
+{
+	return this.name + '/' + this.version + '\n'
+		+ 'Copyright (C) 2010, Ildar Shaimordanov\n' 
+		+ '\n' 
+		+ 'Usage: ' + WScript.ScriptName + ' "PHRASE" [ /LANG:lang-abbr-list ]';
 };
 
 YaShell.parse = function(xml)
@@ -73,6 +81,47 @@ YaShell.parse = function(xml)
 		;
 };
 
+YaShell.query = function(url)
+{
+	var IDs = [
+		'Msxml2.XMLHTTP', 
+		'Microsoft.XMLHTTP'];
+
+	var xmlhttp;
+
+	for (var i = 0; i < IDs.length; i++) {
+		var e;
+		try {
+			xmlhttp = new ActiveXObject(IDs[i]);
+		} catch (e) {
+		}
+	}
+
+	if ( ! xmlhttp ) {
+		throw new ReferenceError();
+	}
+
+	var result;
+
+	xmlhttp.onreadystatechange = function()
+	{
+			if ( xmlhttp.readyState != 4 ) {
+				return;
+			}
+
+		result = xmlhttp.responseText;
+	};
+
+	xmlhttp.open('GET', url, false);
+
+	xmlhttp.setRequestHeader('If-Modified-Since', (new Date(0)).toUTCString());
+	xmlhttp.setRequestHeader('User-Agent', this.name + '/' + this.version + '; (compatible; Windows Script Host, Version ' + WScript.Version + ')');
+
+	xmlhttp.send();
+
+	return result;
+};
+
 YaShell.get = function(word, lang)
 {
 	if ( ! word ) {
@@ -87,11 +136,14 @@ YaShell.get = function(word, lang)
 		queryString += '&where=3&lang=' + (encodeURIComponent(lang) || 'en-ru-en');
 	}
 
+	return this.query(this.url + '?' + queryString);
+/*
 	return Ajax.queryFile(this.url + '?' + queryString, {
 		headers: {
-			'User-Agent': this.name + ', ' + this.version + '; (compatible; Windows Script Host, Version ' + WScript.Version + ')'
+			'User-Agent': this.name + '/' + this.version + '; (compatible; Windows Script Host, Version ' + WScript.Version + ')'
 		}
 	});
+*/
 };
 
 YaShell.glossary = function(word, lang)
@@ -101,14 +153,18 @@ YaShell.glossary = function(word, lang)
 
 ///////////////////////////////////////////////////////////////////////////
 
+if ( WScript.Arguments.Unnamed.length == 0 ) {
+	WScript.Echo(YaShell.help());
+	WScript.Quit();
+}
+
 var word = (function()
 {
-	var e;
-	try {
-		return WScript.Arguments.Unnamed.item(0);
-	} catch (e) {
-		return '';
+	var result = [];
+	for (var i = 0; i < WScript.Arguments.Unnamed.length; i++) {
+		result.push(WScript.Arguments.Unnamed.item(i));
 	}
+	return result.join(' ');
 })();
 
 var lang = (function()
