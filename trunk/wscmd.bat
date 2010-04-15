@@ -1,4 +1,5 @@
 @set @wscmd=0 /*
+@set @wscmd=
 @echo off
 
 
@@ -120,7 +121,6 @@ if not defined wscmd.compile (
 
 :wscmd.stop
 endlocal
-set @wscmd=
 goto :EOF
 
 
