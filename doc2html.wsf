@@ -137,7 +137,7 @@ try {
 
 	// Process file list
 	logInfo('Processing arguments');
-	var filelist = Array.enumerate(WScript.Arguments.Unnamed, function(i, fc)
+	var filelist = Enumerate.toArray(WScript.Arguments.Unnamed, function(i, fc)
 	{
 		return FileSystem.glob(i);
 	}).flatten();
