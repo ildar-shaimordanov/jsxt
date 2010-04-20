@@ -7,17 +7,6 @@
 
 var Class = {};
 
-// MSIE and FF (Opera is not tested) do not create local variable within 'for in' but in global scope. 
-// To prevent a pollution of the global scope the unnamed function is used. 
-(function()
-{
-
-for (var p in Class) {
-	delete Class[p];
-}
-
-})();
-
 /**
  * Adds new properties and methods from the provided object
  *
