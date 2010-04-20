@@ -41,7 +41,7 @@ function simple(time, tr)
 
 	var cal = time.getCalendar();
 
-	var today = time.getDateToday();
+	var today = (this.getMonth() == here.getMonth() && this.getFullYear() == here.getFullYear()) ? here.getDate() : 0;
 
 	var result = '';
 	result += '\t\t' + m[time.getMonth()];

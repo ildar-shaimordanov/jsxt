@@ -244,28 +244,6 @@ Date.prototype.getDaytime = function()
 
 }
 
-if ( ! Date.prototype.getDateToday ) {
-
-/**
- * Date.prototype.getDateToday
- *
- * @syntax
- * object.getDateToday()
- *
- * @description
- * If the year and the month of the actual date are equal the same ones of 
- * the Date object the method returns the day of today elsewhere `false'
- *
- * @result   Integer
- */
-Date.prototype.getDateToday = function ()
-{
-	var here = new Date();
-	return (this.getMonth() == here.getMonth() && this.getFullYear() == here.getFullYear()) ? here.getDate() : 0;
-};
-
-}
-
 if ( ! Date.prototype.getDayOfYear ) {
 
 /**
@@ -326,15 +304,85 @@ if ( ! Date.prototype.getDaysInMonth ) {
  *
  * @result   Integer
  */
+Date.prototype.getDaysInMonth = function()
+{
+	return arguments.callee[this.isLeapYear() ? 'L' : 'R'][this.getMonth()];
+};
+
+Date.prototype.getDaysInMonth.R = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+Date.prototype.getDaysInMonth.L = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+/*
 Date.prototype.getDaysInMonth = function ()
 {
 	var here = new Date(this.getTime());
 	here.setDate(32);
 	return 32 - here.getDate();
 };
+*/
 
 }
 
+if ( ! Date.prototype.getWorkingDaysInMonth ) {
+
+/**
+ * Date.prototype.getWorkingDaysInMonth
+ *
+ * @syntax
+ * object.getWorkingDaysInMonth()
+ *
+ * @description
+ * This method transforms primitive value of the Date object to 
+ * number of working days in the month due to the local timezone. 
+ *
+ * The callback is invoked to pass the actual amount of holiday 
+ * days for this month. It is invoked with the single argument 
+ * referencing to the Date object. 
+ *
+ * Pass a non-false value to the second argument to consider 
+ * a 6 days' wroking week. 
+ *
+ * @param	Callback
+ * @param	Integer
+ * @result	Integer
+ * @access	public
+ */
+Date.prototype.getWorkingDaysInMonth = function(func, longWeek)
+{
+	var dim = this.getDaysInMonth();
+
+	var here = new Date(
+		x.getFullYear(), 
+		x.getMonth(), 
+		dim);
+
+	var ldm = here.getDay();
+
+	var holidays = typeof func == 'function' ? func(this) : 0;
+
+	return arguments.callee[longWeek ? 6 : 5][dim][ldm] - holidays;
+};
+
+// Weekday of the last day in month
+// Short week - 5 days' week
+Date.prototype.getWorkingDaysInMonth[5] = {
+	//   Sun Mon Tue Wed Thu Fri Sat
+	28: [20, 20, 20, 20, 20, 20, 20],
+	29: [20, 21, 21, 21, 21, 21, 20],
+	30: [20, 21, 22, 22, 22, 22, 21],
+	31: [21, 21, 22, 23, 23, 23, 22]
+};
+
+// Long week - 6 days' week
+Date.prototype.getWorkingDaysInMonth[6] = {
+	//   Sun Mon Tue Wed Thu Fri Sat
+	28: [24, 24, 24, 24, 24, 24, 24],
+	29: [24, 25, 25, 25, 25, 25, 25],
+	30: [25, 25, 26, 26, 26, 26, 26],
+	31: [26, 26, 26, 27, 27, 27, 27]
+};
+
+};
 
 if ( ! Date.prototype.getDaysInYear ) {
 
@@ -543,26 +591,6 @@ Date.prototype.isLeapYear = function()
 {
 	var y = this.getFullYear();
 	return y % 4 == 0 && y % 100 != 0 || y % 400 == 0;
-};
-
-}
-
-if ( ! Date.prototype.midnight ) {
-
-/**
- * Moves the actual Date object to the start of day corresponding to the midnight.
- *
- * @param	void
- * @return	Date
- * @access	public
- */
-Date.prototype.midnight = function()
-{
-	this.setMilliseconds(0);
-	this.setSeconds(0);
-	this.setMinutes(0);
-	this.setHours(0);
-	return this;
 };
 
 }
@@ -790,6 +818,44 @@ Date.prototype.moveYear = function(to, exactly)
 
 }
 
+if ( ! Date.prototype.clone ) {
+
+/**
+ * Creates new instance of the existing date object
+ *
+ * @syntax
+ * object.clone()
+ *
+ * @param	void
+ * @return	Date
+ * @access	public
+ */
+Date.prototype.clone = function () {
+	return new Date(this.getTime()); 
+};
+
+}
+
+if ( ! Date.prototype.midnight ) {
+
+/**
+ * Moves the actual Date object to the start of day corresponding to the midnight.
+ *
+ * @param	void
+ * @return	Date
+ * @access	public
+ */
+Date.prototype.midnight = function()
+{
+	this.setMilliseconds(0);
+	this.setSeconds(0);
+	this.setMinutes(0);
+	this.setHours(0);
+	return this;
+};
+
+}
+
 if ( ! Date.now ) {
 
 /**
@@ -844,6 +910,23 @@ Date.yesterday = function(midnight)
 
 }
 
+if ( ! Date.tomorrow ) {
+
+/**
+ * Creates new Date object with the tomorrow date value.
+ * Adjust the date to the start of day corresponding to the midnight.
+ *
+ * @param	Boolean	midnight
+ * @return	Date
+ * @access	static
+ */
+Date.tomorrow = function(midnight)
+{
+	return Date.today(midnight).moveDate(+1);
+};
+
+}
+
 if ( ! Date.validate ) {
 
 /**
@@ -888,7 +971,9 @@ Date.diff = function(date1, date2)
 	date1 = Date.validate(date1);
 	date2 = Date.validate(date2 || 0);
 
-	var d = Math.abs(date2 - date1);
+	var result = date1 - date2;
+
+	var d = Math.abs(result);
 
 	var f, h, m, s, ms;
 
@@ -914,38 +999,6 @@ Date.diff = function(date1, date2)
 		days: f,
 		rdays: d
 	};
-/*
-	date1 = Date.validate(date1);
-	date2 = Date.validate(date2 || 0);
-
-	var d = Math.abs(date2 - date1);
-
-	var x = new Date(d);
-	return {
-		milliseconds: x.getUTCMilliseconds(),
-		seconds: x.getUTCSeconds(),
-		minutes: x.getUTCMinutes(),
-		hours: x.getUTCHours(),
-		days: Math.floor(d / 86400000)
-	};
-*/
-};
-
-}
-
-if ( ! Date.tomorrow ) {
-
-/**
- * Creates new Date object with the tomorrow date value.
- * Adjust the date to the start of day corresponding to the midnight.
- *
- * @param	Boolean	midnight
- * @return	Date
- * @access	static
- */
-Date.tomorrow = function(midnight)
-{
-	return Date.today(midnight).moveDate(+1);
 };
 
 }
