@@ -81,6 +81,7 @@ Class.extend = function(child, parent)
  *
  * @author	Ildar Shaimordanov (the common idea of 'clonning')
  */
+Object.clone = 
 Class.clone = function(object)
 {
 	if ( ! object || typeof(object) != "object" ) {
@@ -105,9 +106,10 @@ Class.clone = function(object)
  * @return	String
  * @access	Static
  */
+Object.dump = 
 Class.dump = function(object, nest, padding)
 {
-	if ( ! nest || nest < 0 ) {
+	if ( typeof nest === 'undefined' || nest < 0 ) {
 		nest = Number.MAX_VALUE;
 	}
 
@@ -137,7 +139,7 @@ Class.dump = function(object, nest, padding)
 		padding += "    ";
 		var s = "";
 		for (var value in object) {
-			s += padding + value + ": " + Class.dump(object[value], nest - 1, padding) + "\n";
+			s += padding + value + ": " + arguments.callee(object[value], nest - 1, padding) + "\n";
 		}
 		return pred + s + post;
 	case "string":
