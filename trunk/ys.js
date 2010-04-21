@@ -83,6 +83,13 @@ YaShell.parse = function(xml)
 
 YaShell.query = function(url)
 {
+/*
+	return Ajax.queryFile(this.url + '?' + queryString, {
+		headers: {
+			'User-Agent': this.name + '/' + this.version + '; (compatible; Windows Script Host, Version ' + WScript.Version + ')'
+		}
+	});
+*/
 	var IDs = [
 		'Msxml2.XMLHTTP', 
 		'Microsoft.XMLHTTP'];
@@ -137,13 +144,6 @@ YaShell.get = function(word, lang)
 	}
 
 	return this.query(this.url + '?' + queryString);
-/*
-	return Ajax.queryFile(this.url + '?' + queryString, {
-		headers: {
-			'User-Agent': this.name + '/' + this.version + '; (compatible; Windows Script Host, Version ' + WScript.Version + ')'
-		}
-	});
-*/
 };
 
 YaShell.glossary = function(word, lang)
