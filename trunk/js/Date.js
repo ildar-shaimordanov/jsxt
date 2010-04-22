@@ -1023,6 +1023,8 @@ Date.fromObject = function(from)
 {
 	var here = new Date();
 
+	from = from || {};
+
 	if ( from.hasOwnProperty('year') ) {
 		here.setFullYear(from.year);
 	}
