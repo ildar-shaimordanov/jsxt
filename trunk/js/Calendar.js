@@ -16,9 +16,10 @@
  * This object should have several properties and methods.
  *
  * There are available properties of the renderer object:
- * -- firstDay - the first day of week (0 - Sunday, 1 - Monday, etc) 
+ * -- firstDay   - the first day of week (0 - Sunday, 1 - Monday, etc) 
  * -- orientaion - 0 for horizontal (default value), 1 for vertical 
- * -- viewType - 0 for simple, 1 to fill empty days, 2 for the compact view
+ * -- viewType   - 0 for simple, 1 to fill empty days, 2 for the compact view
+ *
  * Empty days are days before and after the current month 
  * that can be displayed in a calendar to fill empty cells in a table
  *
