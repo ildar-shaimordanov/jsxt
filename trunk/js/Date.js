@@ -384,6 +384,50 @@ Date.prototype.getWorkingDaysInMonth[6] = {
 
 };
 
+if ( ! Date.prototype.getFirstDay ) {
+
+/**
+ * Date.prototype.getFirstDay
+ *
+ * @syntax
+ * object.getFirstDay()
+ *
+ * @description
+ * Returns the numeric value of weekday for 
+ * the first day of a month of this date object
+ *
+ * @result	Integer
+ * @acess	public
+ */
+Date.prototype.getFirstDay = function()
+{
+	return (new Date(this.getFullYear(), this.getMonth(), 1)).getDay();
+};
+
+}
+
+if ( ! Date.prototype.getLastDay ) {
+
+/**
+ * Date.prototype.getLastDay
+ *
+ * @syntax
+ * object.getLastDay()
+ *
+ * @description
+ * Returns the numeric value of weekday for 
+ * the last day of a month of this date object
+ *
+ * @result	Integer
+ * @acess	public
+ */
+Date.prototype.getLastDay = function()
+{
+	return (new Date(this.getFullYear(), this.getMonth(), this.getDaysInMonth())).getDay();
+};
+
+}
+
 if ( ! Date.prototype.getDaysInYear ) {
 
 /**
