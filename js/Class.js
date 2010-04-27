@@ -98,62 +98,90 @@ Class.clone = function(object)
  * Object.dump(object)
  *
  * @Description
- * Creates a dump of any object
+ * Creates a dump of any object. 
+ * The second arguments provides options affecting on the result. 
+ * Options are:
+ * -- nesting - defines the deep of nesting (default is 3)
+ * -- padding - defines initial value of padding
+ * -- showFunction - (0 - do not show function, 1 - show [Function] string, 2 - show a details)
+ * -- showPrototype - (0 - do not show properties from prototype, 1 - show then) 
  *
  * @param	Mixed
- * @param	Integer
- * @param	String
+ * @param	Mixed
  * @return	String
  * @access	Static
  */
 Object.dump = 
-Class.dump = function(object, nest, padding)
+Class.dump = function(object, options)
 {
-	if ( typeof nest === 'undefined' || nest < 0 ) {
-		nest = Number.MAX_VALUE;
+	options = options || {};
+	options.padding = options.padding || '';
+	if ( typeof options.nesting == 'undefined' || options.nesting < 0 ) {
+		options.nesting = 5;
 	}
-
-	if ( ! padding ) {
-		padding = "";
-	}
-
-	var pred;
-	var post;
 
 	switch ( typeof object ) {
-	case "object":
+	case 'object':
 		if ( object === null ) {
 			return object;
 		}
-		if ( ! nest ) {
-			return "*** TOO MANY NESTIONS ***\n";
+
+		if ( ! options.nesting ) {
+			return '*** TOO MANY NESTIONS ***\n';
 		}
+
+		var pred;
+		var post;
+
 		if ( object.constructor == Array ) {
-			pred = "Array(" + object.length + ") [\n";
-			post = "]";
+			pred = 'Array(' + object.length + ') [\n';
+			post = options.padding + ']';
 		} else {
-			pred = "Object {\n";
-			post = "}";
+			pred = 'Object {\n';
+			post = options.padding + '}';
 		}
-		post = padding + post;
-		padding += "    ";
-		var s = "";
+		options.padding += '    ';
+
+		var result = [];
 		for (var value in object) {
-			s += padding + value + ": " + arguments.callee(object[value], nest - 1, padding) + "\n";
+			if ( ! object.hasOwnProperty(value) && ! options.showPrototype ) {
+				continue;
+			}
+			var s = arguments.callee(object[value], {
+				nesting: options.nesting - 1, 
+				padding: options.padding, 
+				showFunction: options.showFunction, 
+				showPrototype: options.showPrototype
+			});
+			if ( s === '' ) {
+				// Sure that any property will return non-empty string
+				// Only functions can return an empty string with showFunction == 0
+				continue;
+			}
+			result.push(options.padding + value + ': ' + s + '\n');
 		}
-		return pred + s + post;
-	case "string":
-		return "\"" + object
-			.replace(/\&/g, "&amp;")
-			.replace(/\"/g, "&quot;")
-			.replace(/\</g, "&lt;")
-			.replace(/\>/g, "&gt;")
-			.replace(/\r/g, "\\r")
-			.replace(/\n/g, "\\n")
-			.replace(/\t/g, "\\t")
-			+ "\"";
-	case "function":
-		return "[Function]";
+		return pred + result.join('') + post;
+
+	case 'string':
+		return '\"' + object
+			.replace(/\&/g, '&amp;')
+			.replace(/\"/g, '&quot;')
+			.replace(/\</g, '&lt;')
+			.replace(/\>/g, '&gt;')
+			.replace(/\r/g, '\\r')
+			.replace(/\n/g, '\\n')
+			.replace(/\t/g, '\\t')
+			+ '\"';
+
+	case 'function':
+		if ( options.showFunction == 1 ) {
+			return '[Function]';
+		}
+		if ( options.showFunction > 1 ) {
+			return object.toString();
+		}
+		return '';
+
 	default:
 		return object;
 	}
