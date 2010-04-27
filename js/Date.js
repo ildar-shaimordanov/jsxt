@@ -306,11 +306,8 @@ if ( ! Date.prototype.getDaysInMonth ) {
  */
 Date.prototype.getDaysInMonth = function()
 {
-	return arguments.callee[this.isLeapYear() ? 'L' : 'R'][this.getMonth()];
+	return (new Date(this.getFullYear(), this.getMonth() + 1, 0)).getDate();
 };
-
-Date.prototype.getDaysInMonth.R = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-Date.prototype.getDaysInMonth.L = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
 
 /*
 Date.prototype.getDaysInMonth = function ()
@@ -423,7 +420,7 @@ if ( ! Date.prototype.getLastDay ) {
  */
 Date.prototype.getLastDay = function()
 {
-	return (new Date(this.getFullYear(), this.getMonth(), this.getDaysInMonth())).getDay();
+	return (new Date(this.getFullYear(), this.getMonth() + 1, 0)).getDay();
 };
 
 }
