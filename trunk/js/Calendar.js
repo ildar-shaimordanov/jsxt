@@ -44,7 +44,7 @@
  * WScript.Echo(result);
  *
  * // Renders a calendar and prints into a HTML page 
- * // with  Monday as the first day of weeks
+ * // with Monday as the first day of weeks
  * var date = new Date();
  * var cal = new Calendar();
  * var result = cal.render(date, {
@@ -116,8 +116,8 @@ function Calendar()
 		}
 
 		// Keep an information for this month
-		calendar.indexOfFirstDate = N;
-		calendar.indexOfLastDate = calendar.length - M - 1;
+		calendar.indexFirstDate = N;
+		calendar.indexLastDate = calendar.length - M - 1;
 		calendar.firstDay = fdm;
 		calendar.lastDay = lastThis.getDay();
 
@@ -142,10 +142,10 @@ function Calendar()
 		// Keep information for the actual date of the month
 		var now = new Date();
 		if ( date.getFullYear() == now.getFullYear() && date.getMonth() == now.getMonth() ) {
-			calendar.todayDate = now.getDate();
+			calendar.indexToday = N - 1 + now.getDate();
 			calendar.todayDay = now.getDay();
 		} else {
-			calendar.todayDate = 0;
+			calendar.indexToday = -1;
 			calendar.todayDay = -1;
 		}
 
@@ -175,6 +175,11 @@ function Calendar()
 		date = date || new Date();
 
 		renderer = renderer || self;
+		renderer.renderDate = renderer.renderDate || self.renderDate;
+		renderer.renderWeek = renderer.renderWeek || self.renderWeek;
+		renderer.renderMonth = renderer.renderMonth || self.renderMonth;
+		renderer.renderRow = renderer.renderRow || self.renderRow;
+		renderer.renderCalendar = renderer.renderCalendar || self.renderCalendar;
 
 		var calendar = self.prepare(date, renderer);
 
