@@ -23,16 +23,16 @@
  * Empty days are days before and after the current month 
  * that can be displayed in a calendar to fill empty cells in a table
  *
- * There available methods used to render a date: 
+ * There are available methods used to render a date: 
  * -- renderDate(input, index, calendar)
  * -- renderWeek(input, index, calendar)
  * -- renderMonth(input, calendar)
  * -- renderRow(input, calendar)
  * -- renderCalendar(input, calendar)
  *
- * Each method acepts the definite number of arguments:
+ * Each method accepts the definite number of arguments:
  * -- input    - actual value to be rendered (date for renderDate, etc)
- * -- index    - index in the holding array 
+ * -- index    - index in the holding array (for days and weekdays)
  *               (calendar for renderDate or calendar.weekdays for renderWeek)
  * -- calendar - the specially prepared array containing 
  *               enough information to render a calendar
