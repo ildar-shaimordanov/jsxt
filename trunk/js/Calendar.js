@@ -76,9 +76,13 @@ function Calendar()
 		renderer = renderer || {};
 		renderer.firstDay = (Number(renderer.firstDay) % 7) || 0;
 
+		// Last date of the actual, previous and next months
+		var lastPrev = new Date(date.getFullYear(), date.getMonth(), 0);
+		var lastThis = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+		var lastNext = new Date(date.getFullYear(), date.getMonth() + 2, 0);
+
 		var fdm = (new Date(date.getFullYear(), date.getMonth(), 1)).getDay();
-		var ldm = (new Date(date.getFullYear(), date.getMonth() + 1, 0)).getDay();
-		var dim = date.getDaysInMonth();
+		var dim = lastThis.getDate();
 
 		var N = (fdm - renderer.firstDay + 7) % 7;
 		var M = (7 - (N + dim + 7) % 7) % 7;
@@ -87,11 +91,7 @@ function Calendar()
 		var next = new Array(M);
 
 		if ( renderer.viewType == 1 ) {
-			var here = new Date(
-				date.getFullYear(), 
-				date.getMonth() - 1, 
-				1);
-			for (var j = here.getDaysInMonth() - N + 1, i = 0; i < N; i++) {
+			for (var j = lastPrev.getDate() - N + 1, i = 0; i < N; i++) {
 				prev[i] = i + j;
 			}
 			for (var i = 0; i < M; i++) {
@@ -119,7 +119,7 @@ function Calendar()
 		calendar.indexOfFirstDate = N;
 		calendar.indexOfLastDate = calendar.length - M - 1;
 		calendar.firstDay = fdm;
-		calendar.lastDay = ldm;
+		calendar.lastDay = lastThis.getDay();
 
 		// Keep an information for starting and stopping indexes
 		calendar.startIndex = 0;
@@ -135,7 +135,7 @@ function Calendar()
 
 		// Keep an information for the month and year
 		calendar.year = date.getFullYear();
-		calendar.leap = date.isLeapYear();
+		calendar.leap = calendar.year % 4 == 0 && calendar.year % 100 != 0 || calendar.year % 400 == 0;
 		calendar.month = date.getMonth();
 		calendar.date = date.getDate();
 
@@ -150,22 +150,14 @@ function Calendar()
 		}
 
 		// Keep references for the previous month
-		var here = new Date(
-			date.getFullYear(), 
-			date.getMonth() - 1, 
-			1);
-		calendar.prevYear = here.getFullYear();
-		calendar.prevMonth = here.getMonth();
-		calendar.prevDays = here.getDaysInMonth();
+		calendar.prevYear = lastPrev.getFullYear();
+		calendar.prevMonth = lastPrev.getMonth();
+		calendar.prevDays = lastPrev.getDate();
 
 		// Keep references for the next month
-		var here = new Date(
-			date.getFullYear(), 
-			date.getMonth() + 1, 
-			1);
-		calendar.nextYear = here.getFullYear();
-		calendar.nextMonth = here.getMonth();
-		calendar.nextDays = here.getDaysInMonth();
+		calendar.nextYear = lastNext.getFullYear();
+		calendar.nextMonth = lastNext.getMonth();
+		calendar.nextDays = lastNext.getDate();
 
 		return calendar;
 	};
@@ -255,9 +247,10 @@ function Calendar()
 	 * @result String
 	 * @access public
 	 */
+	var weekList = 'Sun Mon Tue Wed Thu Fri Sat'.split(/\s+/);
 	self.renderWeek = function(input, index, calendar)
 	{
-		return ' ' + Date.locale.WEEKDAY_SHORT[input];
+		return ' ' + weekList[input];
 	};
 
 	/**
@@ -268,9 +261,10 @@ function Calendar()
 	 * @result String
 	 * @access public
 	 */
+	var monthList = 'January February March April May June July August September October November December'.split(/\s+/);
 	self.renderMonth = function(input, calendar)
 	{
-		return ' ' + Date.locale.MONTH_LONG[input] + '\n';
+		return ' ' + monthList[input] + ' - ' + calendar.year + '\n';
 	};
 
 	/**
