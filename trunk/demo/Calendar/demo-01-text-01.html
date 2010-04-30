@@ -1,0 +1,27 @@
+<html>
+
+<head>
+<title>Calendar demo</title>
+<link href="style.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="../../js/Calendar.js"></script>
+</head>
+
+<body>
+
+<div id="frame">
+</div>
+
+<script type="text/javascript">
+
+var cal = new Calendar();
+
+// Render by default (horizontal and with Sunday as the first day of a week
+var date = new Date();
+var result = cal.render(date);
+
+document.getElementById('frame').innerHTML = '<pre>' + result + '</pre>';
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,98 @@
+/**
+ *
+ * Simplest calendar style
+ *
+ */
+pre	{
+	background-color: #ccc;
+	width: 240px;
+}
+
+/**
+ *
+ * HTML-based common styles
+ *
+ */
+.calendar	{
+	border: 1px solid #003399;
+	border-collapse: separate;
+	border-spacing: 2px;
+	empty-cells: show;
+	font-family: Tahoma, Verdana, Helvetica, 'Courier New', sans-serif;
+	font-size: 1em;
+}
+.calendar caption	{
+	border-bottom: 3px solid #003399;
+	color: #003399;
+	font-weight: bold;
+	margin-left: auto;
+	margin-right: auto;
+	padding-bottom: 3px;
+}
+.calendar td	{
+	background-color: #fff;
+	border: 1px solid #eee;
+	height: 27px;
+	padding: 0;
+	text-align: center;
+	width: 50px;
+}
+.calendar a	{
+	text-decoration: none;
+}
+
+/**
+ *
+ * Week days and weekend styles
+ *
+ */
+.calendar .week	{
+	background-color: #eee;
+	color: #003399;
+	font-size: 10px;
+	font-weight: bold;
+}
+.calendar .weekend	{
+	border: 1px solid #ff3300;
+}
+
+/**
+ *
+ * Empty days and today styles
+ *
+ */
+.emptyDays	{
+	color: #ccc;
+	font-style: italic;
+}
+.calendar #today	{
+	color: #ff3300;
+	display: block;
+	font-style: italic;
+	font-weight: bold;
+}
+
+/**
+ *
+ * Compact view styles
+ *
+ */
+.calendar td div	{
+	padding: 1px;
+	position: relative;
+}
+.calendar td div .coupleLeft	{
+	bottom: 0 ! important;
+	bottom: 15px;
+	font-size: 0.6em;
+	left: 0 ! important;
+	left: -10px;
+	position: absolute;
+}
+.calendar td div .coupleRight	{
+	font-size: 0.6em;
+	position: absolute;
+	right: 0 ! important;
+	right: -1px;
+	top: 0 ! important;
+}
