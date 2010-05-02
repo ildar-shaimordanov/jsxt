@@ -236,6 +236,8 @@ var help = function()
 		+ 'eval.history             Display the history\n' 
 		+ 'eval.save([format])      Save the history to the file\n' 
 		+ 'cmd(), shell()           Run new DOS-session\n' 
+		+ 'sleep(n)                 Sleep n milliseconds\n' 
+		+ 'gc()                     Run the garbage collector\n' 
 		);
 };
 
@@ -261,6 +263,13 @@ var cmd = shell = function()
 	var shell = WScript.CreateObject('WSCript.Shell');
 	shell.run('cmd');
 };
+
+var sleep = function(time)
+{
+	return WScript.Sleep(time);
+};
+
+var gc = CollectGarbage;
 
 /**
  *
