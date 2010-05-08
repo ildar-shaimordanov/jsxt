@@ -65,7 +65,7 @@ pre	{
 	color: #ccc;
 	font-style: italic;
 }
-.calendar #today	{
+.calendar .today	{
 	color: #ff3300;
 	display: block;
 	font-style: italic;
