@@ -14,8 +14,6 @@
  */
 var UEvent = {};
 
-if ( ! UEvent.eventName ) {
-
 /**
  * Returns the event's name
  *
@@ -27,10 +25,6 @@ UEvent.eventName = function(e)
 {
     return e.replace(/^on/i, '').toLowerCase();
 };
-
-}
-
-if ( ! UEvent.addEventListener ) {
 
 /**
  * Registers a new listener of an event for the specified node.
@@ -64,5 +58,34 @@ UEvent.addEventListener = function(el, e, listener, flag)
 
 }
 
-}
+/**
+ * Unregister a listener of events for the specified node.
+ *
+ * @param	HTMLElement
+ * @param	String
+ * @param	Function
+ * @param	Boolean
+ * @access	static
+ */
+if ( window.detachEvent ) {
 
+UEvent.removeEventListener = function(el, e, listener, flag)
+{
+    el.detachEvent('on' + UEvent.eventName(e), listener);
+};
+
+} else if ( window.removeEventListener ) {
+
+UEvent.removeEventListener = function(el, e, listener, flag)
+{
+    el.removeEventListener(UEvent.eventName(e), listener, !! flag);
+};
+
+} else {
+
+UEvent.removeEventListener = function(el, e, listener, flag)
+{
+    throw new ReferenceError();
+};
+
+}
