@@ -1,4 +1,3 @@
-
 //
 // ZipFile.js
 // Extension for handling with ZIP archives
@@ -84,6 +83,9 @@ function ZipFile()
 	 *					2048	Version 4.71. Do not copy the security attributes of the file.
 	 *					4096	Only operate in the local directory. Don't operate recursively into subdirectories.
 	 *					9182	Version 5.0. Do not copy connected files as a group. Only copy the specified files. 
+	 *
+	 *					onerror
+	 *					User-defined function can implement some additional actions with the archive file before it will be deleted. 
 	 * @return	Boolean
 	 * @access	public
 	 */
@@ -98,12 +100,18 @@ function ZipFile()
 		zipFile.Write('PK' + String.fromCharCode(5, 6, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)); // 18 zeros
 		zipFile.Close();
 
-		// Opens the empty archiev file and a Shell folder
+		// Opens the empty archive file and a Shell folder
 		var shell = new ActiveXObject("Shell.Application");
 
 		var zipFolder = shell.NameSpace(filename);
 
 		if ( zipFolder == null ) {
+			if ( typeof options.onerror == 'function' ) {
+				options.onerror(filename);
+			}
+			if ( fso.FileExists(filename) ) {
+				fso.DeleteFile(filename, true);
+			}
 			throw new TypeError();
 		}
 
