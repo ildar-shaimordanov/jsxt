@@ -23,7 +23,7 @@ var UEvent = {};
  */
 UEvent.eventName = function(e)
 {
-    return e.replace(/^on/i, '').toLowerCase();
+    return (e || '').replace(/^on/i, '').toLowerCase();
 };
 
 /**
