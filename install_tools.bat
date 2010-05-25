@@ -47,8 +47,8 @@ for /f %%a in ( '%INSTALL_CMD%' ) do (
 		echo.js-2-bat converting...
 		(
 			echo.@set @x=0 /*
-			echo.@cscript //nologo /e:javascript "%%~dpnx0" %%*
 			echo.@set @x=
+			echo.@cscript //nologo /e:javascript "%%~dpnx0" %%*
 			echo.@goto :eof */
 			echo.
 			cscript //NoLogo install_tool.wsf %SQUEEZE% %DOWNLOAD% "%%a"
