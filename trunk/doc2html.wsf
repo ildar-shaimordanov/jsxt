@@ -8,7 +8,12 @@
 <description><![CDATA[DOC2HTML Converter
 Copyright (C) 2004, 2009, 2010 Ildar Shaimordanov
 
-This script allows to convert any DOC file to TXT, RTF, HTML (default), MHT (Web Archive), XML, PDF or XPS
+This script allows to convert any DOC file to TXT (both DOS and Win, etc), RTF, HTML (default), MHT (Web Archive), XML, PDF or XPS. 
+Saving as TXT you are able to define an encoding and a line ending: 
+
+  /F:TXT:1251:CRLF
+
+The example above means save as TXT using as an encoding Cyrillic (Windows) and end lines with CRLF. 
 
 To make an easy access from the context menu 'Send To' launch once this script with /help:sendto.
 
@@ -79,7 +84,8 @@ function logInfo(text)
 };
 
 var formats = {
-	'txt':	4,
+	'txt':	2,
+	'dos':	4,
 	'rtf':	6,
 	'html':	8,
 	'mht':	9,
@@ -87,7 +93,15 @@ var formats = {
 	'pdf':	17,
 	'xps':	18};
 
+var lineEndings = {
+	'crlf':	0, 
+	'cr':	1, 
+	'lf':	2, 
+	'lfcr':	3};
+
 var fileFormat = 'html';
+var fileEncoding = 0;
+var fileLineEnding = 0;
 
 var e;
 try {
@@ -127,7 +141,13 @@ try {
 	// Validate output format
 	if ( WScript.Arguments.Named.Exists('f') ) {
 		fileFormat = WScript.Arguments.Named.item('f').toLowerCase() || fileFormat;
-		if ( ! fileFormat || ! formats[fileFormat] ) {
+
+		var matches = (/^txt(?:\:(\d+)?(?:\:(crlf|lfcr|cr|lf)?)?)?$/i).exec(fileFormat);
+		if ( matches ) {
+			fileFormat = 'txt';
+			fileEncoding = Number(matches[1]);
+			fileLineEnding = lineEndings[matches[2]];
+		} else if ( ! fileFormat || ! formats[fileFormat] ) {
 			throw new Error('Unknown output format: "' + fileFormat + '"');
 		}
 	}
@@ -167,7 +187,22 @@ try {
 		word.Documents.Open(docfile);
 
 		logInfo('Save as "' + newfile + '"');
-		word.ActiveDocument.SaveAs(newfile, formats[fileFormat]);
+		word.activeDocument.SaveAs(
+			newfile, 
+			formats[fileFormat], 
+			false, 
+			'', 
+			false /* Add to recent files */, 
+			'', 
+			false, 
+			false, 
+			false, 
+			false, 
+			false, 
+			fileEncoding, 
+			false, 
+			false, 
+			fileLineEnding);
 
 		logInfo('Close this document');
 		word.ActiveDocument.Close();
