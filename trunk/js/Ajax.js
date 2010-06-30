@@ -228,6 +228,10 @@ Ajax.query = function(url, options)
 
 	xmlhttp.send(options.content);
 
+	if ( ! options.async && 'function' == typeof options.onreadystate && 'undefined' == typeof ActiveXObject ) {
+		result = options.onreadystate(xmlhttp);
+	}
+
 	return result;
 };
 
