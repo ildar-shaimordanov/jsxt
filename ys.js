@@ -100,6 +100,7 @@ YandexSlovary.query = function(url)
 		var e;
 		try {
 			xmlhttp = new ActiveXObject(IDs[i]);
+			break;
 		} catch (e) {
 		}
 	}
@@ -112,9 +113,9 @@ YandexSlovary.query = function(url)
 
 	xmlhttp.onreadystatechange = function()
 	{
-			if ( xmlhttp.readyState != 4 ) {
-				return;
-			}
+		if ( xmlhttp.readyState != 4 ) {
+			return;
+		}
 
 		result = xmlhttp.responseText;
 	};
