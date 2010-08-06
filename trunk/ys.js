@@ -11,7 +11,7 @@
 
 ///////////////////////////////////////////////////////////////////////////
 
-var YaShell = {
+var YandexSlovary = {
 	// Looking for text within these tags
 	re_content: /(?:[\r\n]|.)*?<div class="b-holster.*">((?:[\r\n]|.)*)<\/div>\s*<.+?class="b-foot"(?:[\r\n]|.)*?/m, 
 
@@ -28,12 +28,12 @@ var YaShell = {
 	// Use mobile version of Ynadex.Slovari
 	url: 'http://m.slovari.yandex.ru/search.xml', 
 
-	// Yandex Shell
+	// Yandex Slovary Shell
 	name: 'Yandex.Slovari Shell', 
-	version: '0.1.2 beta'
+	version: '0.1.3 Beta'
 };
 
-YaShell.help = function()
+YandexSlovary.help = function()
 {
 	return this.name + '/' + this.version + '\n'
 		+ 'Copyright (C) 2010, Ildar Shaimordanov\n' 
@@ -41,7 +41,7 @@ YaShell.help = function()
 		+ 'Usage: ' + WScript.ScriptName + ' "PHRASE" [ /LANG:lang-abbr-list ]';
 };
 
-YaShell.parse = function(xml)
+YandexSlovary.parse = function(xml)
 {
 	var m = xml.match(this.re_content);
 	if ( ! m ) {
@@ -81,7 +81,7 @@ YaShell.parse = function(xml)
 		;
 };
 
-YaShell.query = function(url)
+YandexSlovary.query = function(url)
 {
 /*
 	return Ajax.queryFile(this.url + '?' + queryString, {
@@ -129,7 +129,7 @@ YaShell.query = function(url)
 	return result;
 };
 
-YaShell.get = function(word, lang)
+YandexSlovary.get = function(word, lang)
 {
 	if ( ! word ) {
 		return '';
@@ -146,7 +146,7 @@ YaShell.get = function(word, lang)
 	return this.query(this.url + '?' + queryString);
 };
 
-YaShell.glossary = function(word, lang)
+YandexSlovary.glossary = function(word, lang)
 {
 	return this.parse(this.get(word, lang));
 };
@@ -154,7 +154,7 @@ YaShell.glossary = function(word, lang)
 ///////////////////////////////////////////////////////////////////////////
 
 if ( WScript.Arguments.Unnamed.length == 0 ) {
-	WScript.Echo(YaShell.help());
+	WScript.Echo(YandexSlovary.help());
 	WScript.Quit();
 }
 
@@ -177,7 +177,7 @@ var lang = (function()
 	}
 })();
 
-var text = YaShell.glossary(word, lang);
+var text = YandexSlovary.glossary(word, lang);
 
 WScript.Echo(text);
 
