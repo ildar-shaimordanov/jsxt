@@ -60,7 +60,6 @@ function expandFileList(list)
 				glob = FileSystem.glob(v);
 			} catch (e) {
 				e.description.print();
-				exit();
 			}
 			return glob;
 		})
@@ -73,14 +72,12 @@ function expandFileList(list)
 
 var exc = [].union(expandFileList(install.exclude));
 
-var inc = Enumerate.toArray(WScript.Arguments.Unnamed, function(v)
-{
-	return v;
-});
-
-if ( inc.length == 0 ) {
-	inc = install.include;
-}
+var inc = WScript.Arguments.Unnamed.length == 0 
+	? install.include 
+	: Enumerate.toArray(WScript.Arguments.Unnamed, function(v)
+	{
+		return v;
+	});
 
 inc = [].union(
 	expandFileList(inc)
