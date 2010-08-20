@@ -973,16 +973,66 @@ if ( ! Array.range ) {
  * Array.range
  *
  * @description
- * Returns the list of numeric values as an array.
+ * Generates and returns the list of arbitrary items. 
  * This is static method (cannot be call dynamically).
+ *
+ * @example
+ * // All these examples below generate 
+ * // the same resulting sequence:
+ * // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+ * var r = Array.range(10);
+ * var r = Array.range(0, 9);
+ * var r = Array.range(10, 0, function(a)
+ * {
+ *     return a + 1;
+ * });
+ *
+ * // This code shows how to generate 
+ * // the geometric sequence of 10 items: 
+ * // 1, 2, 4, 8, 16, 32, 64, 128, 256, 512
+ * var r = Array.range(10, 1, function(a)
+ * {
+ *     return a * 2;
+ * });
+ *
+ * // This code creates the list of 32 network masks
+ * // (128.0.0.0, 192.0.0.0, etc until 255.255.255.255)
+ * var r = Array.range(32, 0x80000000, function(a)
+ * {
+ *     return a - (a >> 1);
+ * });
+ *
+ * // This code with generate the first 10 Fibonacci numbers: 
+ * // 0, 1, 1, 2, 3, 5, 8, 13, 21, 34
+ * var r = Array.range(10, 0, function(a, i, r)
+ * {
+ *     return a + r[i - 1] || 1;
+ * });
+ *
+ * // This code populates new array with items of the weird sequence 
+ * // by Neil J. A. Sloane: 
+ * // 2, 12, 1112, 3112, 132112, 1113122112, 311311222112, ...
+ * // the term after 3112 is obtained by saying "one 3, two 1's, 
+ * // one 2", which gives 132112.
+ * // http://www.research.att.com/~njas/sequences/A006751
+ * var r = Array.range(10, '2', function(a)
+ * {
+ *     return a.replace(/(.)(\1+)?/g, function($0, $1, $2)
+ *     {
+ *         return $0.length + $1;
+ *     });
+ * });
  *
  * @syntax
  * Array.range(size)
- * Array.range(start, stop [, step])
  *
  * @param    Integer  size	Expression defines the size of the new array. 
  *				Resulting array will contain numeric values 
  *				through 1 from 0 to size - 1, inclusively.
+ *
+ * @syntax
+ * Array.range(start, stop [, step])
+ *
  * @param    Integer  start	Expression defines the value of the first item 
  *				of the array.
  * @param    Integer  stop	Expression defines the value of the last item 
@@ -992,196 +1042,69 @@ if ( ! Array.range ) {
  *				parameter is not defined it is assumed as 1.
  *				All items are ranged within start <= A[i] <= stop
  *
+ * @syntax
+ * Array.range(size, start, func)
+ *
+ * @param    Integer  size	Expression defines the size of the new array. 
+ * @param    Integer  start	Expression defines the value of the first item 
+ *				of the sequence. 
+ * @param    Function func      Callback function that calculates next values 
+ *                              of sequences. It accepts three arguments - 
+ *                              the last calculated value, it's index in 
+ *                              the resulting array and the copy of the actual array. 
+ *
  * @result   Array
  * @access   static
  * @see      http://forum.dklab.ru/viewtopic.php?t=21040
  */
 Array.range = function()
 {
+	if ( typeof arguments[2] == 'function' ) {
+		var n = Number(arguments[0]);
+
+		if ( isNaN(n) ) {
+			return [];
+		}
+
+		var a = arguments[1];
+		var func = arguments[2];
+
+		var result = [a];
+		for (var i = 0; i < n - 1; i++) {
+			result.push(func(result[i], i, result));
+		}
+		return result;
+	}
+
 	var step = Number(arguments[2]) || 1;
+	var start;
+	var stop;
 
 	if (undefined !== arguments[0] && undefined !== arguments[1]) {
-		var start = arguments[0];
-		var stop = arguments[1];
+		start = Number(arguments[0]);
+		stop = Number(arguments[1]);
 	} else {
-		var start = 0;
-		var stop = arguments[0] - step;
+		start = 0;
+		stop = Number(arguments[0]) - step;
+	}
+
+	if (undefined === start || undefined === stop || undefined === step || (start > stop && step > 0) || (start < stop && step < 0)) {
+		return [];
 	}
 
 	var result = [];
-	if (undefined === start || undefined === stop || undefined === step || (start > stop && step > 0) || (start < stop && step < 0)) {
-		return result;
-	}
+	var i = start;
 	if (start > stop) {
-		var i = start;
 		while (i >= stop) {
 			result[result.length] = i;
 			i += step;
 		}
 	} else {
-		var i = start;
 		while (i <= stop) {
 			result[result.length] = i;
 			i += step;
 		}
 	}
-	return result;
-};
-
-}
-
-if ( ! Array.create ) {
-
-/**
- * Array.create()
- *
- * @description
- * Creates an array with the size and fills it with the value. 
- * The callback-modifiiers 'fun' or 'pre' and 'post' are used for modify the value. 
- * They can be invoked with the following arguments:
- * -- modified value
- * -- the index of an array where the new value will be pushed
- * -- reference to the rsulting array
- *
- * @syntax
- * Array.create(size, [ value], [pre], [post])
- *
- * @example
- * // The classic creation of the list of the network masks (128.0.0.0, 192.0.0.0, etc)
- * // Uses the main function
- * var x = Array.create(32, 0x80000000, function(v, k)
- * {
- * 	return v >> k;
- * });
- *
- * // The alternative creation of the list of the network masks (128.0.0.0, 192.0.0.0, etc)
- * // Uses the post callback-function to modify the copy of the initial value
- * var y = Array.create(32, 0x80000000, null, null, function(v, k)
- * {
- * 	return v >> 1;
- * });
- *
- * @param	Integer	size
- * @param	Mixed	value
- * @param Function	fun
- * @param Function	pre
- * @param	Function	post
- *
- * @result	Array
- * @access	static
- */
-Array.create = function(size, value, fun, pre, post)
-{
-	var result = new Array(size);
-
-	if ( value === undefined || value === null ) {
-		return result;
-	}
-
-	var v = Array.create.clone(value);
-
-	if ( typeof fun == 'function' ) {
-		for (var i = 0; i < size; i++) {
-			result[i] = fun(v, i, result);
-		}
-	} else if ( typeof pre == 'function' ) {
-		if ( typeof post == 'function' ) {
-			for (var i = 0; i < size; i++) {
-				v = pre(v, i, result);
-				result[i] = v;
-				v = post(v, i, result);
-			}
-		} else {
-			for (var i = 0; i < size; i++) {
-				v = pre(v, i, result);
-				result[i] = v;
-			}
-		}
-	} else {
-		if ( typeof post == 'function' ) {
-			for (var i = 0; i < size; i++) {
-				result[i] = v;
-				v = post(v, i, result);
-			}
-		} else {
-			for (var i = 0; i < size; i++) {
-				result[i] = Array.create.clone(v);
-			}
-		}
-	}
-
-	return result;
-};
-
-// Copy of Object.clone to avoid the dependency of Object.clone
-Array.create.clone = function(object)
-{
-	if ( ! object || typeof(object) != "object" ) {
-		return object;
-	}
-	var newObject = new object.constructor();
-	for (var objectItem in object) {
-		newObject[objectItem] = Object.clone(object[objectItem]);
-	}
-	return newObject;
-};
-
-}
-
-if ( ! Object.prototype.fill ) {
-
-/**
- * Object.prototype.fill
- *
- * @description
- * Populates the array of the definite size with the object.
- *
- * @param	Integer
- * @result	Array
- * @access	public
- * @see		http://forum.dklab.ru/viewtopic.php?t=21702
- * @see		http://tokyoenvious.xrea.jp/javascript/functional/array.js
- *
- * @requires	Object.clone()
- */
-Object.prototype.fill = function(size)
-{
-	return Array.create(size, this);
-/*
-	var result = [];
-
-	for (var i = 0; i < size; i++) {
-		result.push(this.clone());
-	}
-
-	return result;
-*/
-};
-
-}
-
-if ( ! Number.prototype.fill ) {
-
-/**
- * Number.prototype.fill
- *
- * @description
- * Fills an array with size values of itself.
- *
- * @param	Integer
- * @result	Array
- * @access	public
- * @see		http://forum.dklab.ru/viewtopic.php?t=21702
- * @see		http://tokyoenvious.xrea.jp/javascript/functional/array.js
- */
-Number.prototype.fill = function(size)
-{
-	var result = new Array(size);
-
-	for (var i = 0; i < size; i++) {
-		result.push(this);
-	}
-
 	return result;
 };
 

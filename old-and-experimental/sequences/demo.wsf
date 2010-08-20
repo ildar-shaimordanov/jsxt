@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="windows-1251" ?>
+
+<package>
+<job id="fibonacci">
+<?job error="true" debug="false" ?>
+
+<object id="fso" progid="Scripting.FileSystemObject" />
+<object id="wshShell" progid="WScript.Shell" />
+<script language="javascript" src="fibonacci.js"></script>
+<script language="javascript"><![CDATA[
+
+var L = new Fibonacci();
+//var L = new NumeratorSeq();
+
+var A = 0;
+var B = 10;
+for (var i = A; i <= B; i++) {
+	WScript.Echo(i, L.eval(i));
+}
+
+]]></script>
+</job>
+</package>
+
