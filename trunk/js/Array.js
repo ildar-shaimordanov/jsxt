@@ -980,34 +980,28 @@ if ( ! Array.range ) {
  * // All these examples below generate 
  * // the same resulting sequence:
  * // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+ * // The last example is presented as an illustration. 
  * var r = Array.range(10);
  * var r = Array.range(0, 9);
- * var r = Array.range(10, 0, function(a)
+ * var r = Array.range(10, 0, function(i)
  * {
- *     return a + 1;
+ *     return i + 1;
  * });
  *
  * // This code shows how to generate 
  * // the geometric sequence of 10 items: 
  * // 1, 2, 4, 8, 16, 32, 64, 128, 256, 512
- * var r = Array.range(10, 1, function(a)
+ * var r = Array.range(10, 1, function(i, r)
  * {
- *     return a * 2;
+ *     return r[i] * 2;
  * });
  *
  * // This code creates the list of 32 network masks
  * // (128.0.0.0, 192.0.0.0, etc until 255.255.255.255)
- * var r = Array.range(32, 0x80000000, function(a)
+ * var r = Array.range(32, 0x80000000, function(i, r)
  * {
- *     return a - (a >> 1);
- * });
- *
- * // This code with generate the first 10 Fibonacci numbers: 
- * // 0, 1, 1, 2, 3, 5, 8, 13, 21, 34
- * var r = Array.range(10, 0, function(a, i, r)
- * {
- *     return a + r[i - 1] || 1;
- * });
+ *     return r[i] - (r[i] >> 1);
+ * },;
  *
  * // This code populates new array with items of the weird sequence 
  * // by Neil J. A. Sloane: 
@@ -1015,13 +1009,22 @@ if ( ! Array.range ) {
  * // the term after 3112 is obtained by saying "one 3, two 1's, 
  * // one 2", which gives 132112.
  * // http://www.research.att.com/~njas/sequences/A006751
- * var r = Array.range(10, '2', function(a)
+ * var r = Array.range(10, '2', function(i, r)
  * {
- *     return a.replace(/(.)(\1+)?/g, function($0, $1, $2)
+ *     return r[i].replace(/(.)(\1+)?/g, function($0, $1)
  *     {
  *         return $0.length + $1;
  *     });
  * });
+ *
+ * // This code with generate the first 10 Fibonacci numbers: 
+ * // 0, 1, 1, 2, 3, 5, 8, 13, 21, 34
+ * // The last argument forces to consider an array of 
+ * // initial values as the first elements of the sequence. 
+ * var r = Array.range(10, [0, 1], function(i, r)
+ * {
+ *     return r[i] + r[i - 1];
+ * }, 1); // !!!
  *
  * @syntax
  * Array.range(size)
@@ -1043,15 +1046,17 @@ if ( ! Array.range ) {
  *				All items are ranged within start <= A[i] <= stop
  *
  * @syntax
- * Array.range(size, start, func)
+ * Array.range(size, start, func[, option])
  *
  * @param    Integer  size	Expression defines the size of the new array. 
  * @param    Integer  start	Expression defines the value of the first item 
  *				of the sequence. 
  * @param    Function func      Callback function that calculates next values 
- *                              of sequences. It accepts three arguments - 
- *                              the last calculated value, it's index in 
- *                              the resulting array and the copy of the actual array. 
+ *                              of sequences. It accepts two arguments: 
+ *                              -- the index of the last calculated value; 
+ *                              -- the copy of the actual array. 
+ * @param    Boolean  option    This options forces to consider an array of 
+ *                              initial values as the first elements of the sequence.
  *
  * @result   Array
  * @access   static
@@ -1062,16 +1067,18 @@ Array.range = function()
 	if ( typeof arguments[2] == 'function' ) {
 		var n = Number(arguments[0]);
 
-		if ( isNaN(n) ) {
+		if ( isNaN(n) || n <= 0 ) {
 			return [];
 		}
 
 		var a = arguments[1];
 		var func = arguments[2];
 
-		var result = [a];
-		for (var i = 0; i < n - 1; i++) {
-			result.push(func(result[i], i, result));
+		var result = arguments[3] && a && a.constructor == Array ? a : [a];
+
+		for (var i = result.length - 1; i < n - 1; i++) {
+//		for (var i = result.length; i < n; i++) {
+			result.push(func(i, result));
 		}
 		return result;
 	}
