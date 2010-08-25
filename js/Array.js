@@ -1117,10 +1117,10 @@ Array.range = function()
 
 }
 
-if ( ! Number.prototype.fill ) {
+if ( ! Object.prototype.fill ) {
 
 /**
- * Number.prototype.fill
+ * Object.prototype.fill
  *
  * @description
  * Populates an array with 'size' items of a value 
