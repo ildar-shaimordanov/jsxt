@@ -1117,6 +1117,49 @@ Array.range = function()
 
 }
 
+if ( ! Number.prototype.fill ) {
+
+/**
+ * Number.prototype.fill
+ *
+ * @description
+ * Populates an array with 'size' items of a value 
+ *
+ * @param	Integer
+ * @result	Array
+ * @access	public
+ * @see		http://forum.dklab.ru/viewtopic.php?t=21702
+ * @see		http://tokyoenvious.xrea.jp/javascript/functional/array.js
+ */
+Object.prototype.fill = function(size)
+{
+	var self = this.valueOf();
+
+	var result = new Array(size);
+	for (var i = 0; i < size; i++) {
+		result[i] = arguments.callee.clone(self);
+	};
+	return result;
+};
+
+Object.prototype.fill.clone = function(object)
+{
+	if ( ! object || typeof object != 'object' ) {
+		return object;
+	}
+
+	var result = new object.constructor();
+	for (var p in object) {
+		if ( ! object.hasOwnProperty(p) ) {
+			continue;
+		}
+		result[p] = arguments.callee(object[p]);
+	}
+	return result;
+};
+
+}
+
 if ( ! Number.prototype.step ) {
 
 /**
