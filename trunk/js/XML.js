@@ -1,8 +1,8 @@
 //
-// Ajax.js
-// Cross-browser JScript / Javascript extension for XMLHttpRequest
+// XML.js
+// Cross-browser JScript / Javascript extension for XML processing
 //
-// Copyright (c) 2009 by Ildar Shaimordanov
+// Copyright (c) 2010 by Ildar Shaimordanov
 //
 
 
