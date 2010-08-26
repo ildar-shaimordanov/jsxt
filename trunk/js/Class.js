@@ -103,8 +103,8 @@ Class.clone = function(object)
  * Options are:
  * -- nesting - defines the deep of nesting (default is 3)
  * -- padding - defines initial value of padding
- * -- showFunction - (0 - do not show function, 1 - show [Function] string, 2 - show a details)
- * -- showPrototype - (0 - do not show properties from prototype, 1 - show then) 
+ * -- walkFunction - (0 - do not show function, 1 - show [Function] string, 2 - show a details)
+ * -- walkPrototype - (0 - do not show properties from prototype, 1 - show then) 
  *
  * @param	Mixed
  * @param	Mixed
@@ -144,18 +144,18 @@ Class.dump = function(object, options)
 
 		var result = [];
 		for (var value in object) {
-			if ( ! object.hasOwnProperty(value) && ! options.showPrototype ) {
+			if ( ! object.hasOwnProperty(value) && ! options.walkPrototype ) {
 				continue;
 			}
 			var s = arguments.callee(object[value], {
 				nesting: options.nesting - 1, 
 				padding: options.padding, 
-				showFunction: options.showFunction, 
-				showPrototype: options.showPrototype
+				walkFunction: options.walkFunction, 
+				walkPrototype: options.walkPrototype
 			});
 			if ( s === '' ) {
 				// Sure that any property will return non-empty string
-				// Only functions can return an empty string with showFunction == 0
+				// Only functions can return an empty string with walkFunction == 0
 				continue;
 			}
 			result.push(options.padding + value + ': ' + s + '\n');
@@ -174,10 +174,10 @@ Class.dump = function(object, options)
 			+ '\"';
 
 	case 'function':
-		if ( options.showFunction == 1 ) {
+		if ( options.walkFunction == 1 ) {
 			return '[Function]';
 		}
-		if ( options.showFunction > 1 ) {
+		if ( options.walkFunction > 1 ) {
 			return object.toString();
 		}
 		return '';
