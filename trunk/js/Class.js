@@ -140,25 +140,27 @@ Class.dump = function(object, options)
 			pred = 'Object {\n';
 			post = options.padding + '}';
 		}
-		options.padding += '    ';
+
+		var padding = options.padding + '    ';
+		var opts = {
+			nesting: options.nesting - 1, 
+			padding: padding, 
+			walkFunction: options.walkFunction, 
+			walkPrototype: options.walkPrototype
+		};
 
 		var result = [];
 		for (var value in object) {
 			if ( ! object.hasOwnProperty(value) && ! options.walkPrototype ) {
 				continue;
 			}
-			var s = arguments.callee(object[value], {
-				nesting: options.nesting - 1, 
-				padding: options.padding, 
-				walkFunction: options.walkFunction, 
-				walkPrototype: options.walkPrototype
-			});
+			var s = arguments.callee(object[value], opts);
 			if ( s === '' ) {
 				// Sure that any property will return non-empty string
 				// Only functions can return an empty string with walkFunction == 0
 				continue;
 			}
-			result.push(options.padding + value + ': ' + s + '\n');
+			result.push(padding + value + ': ' + s + '\n');
 		}
 		return pred + result.join('') + post;
 
