@@ -392,7 +392,7 @@ Object.clone = function(object)
 	}
 	var newObject = new object.constructor();
 	for (var p in object) {
-		newObject[p] = Class.clone(object[p]);
+		newObject[p] = arguments.callee(object[p]);
 	}
 	return newObject;
 };
@@ -467,14 +467,12 @@ Object.dump = function(object, options)
 		return pred + result.join('') + post;
 
 	case 'string':
-		return '\"' + object
-			.replace(/\&/g, '&amp;')
-			.replace(/\"/g, '&quot;')
-			.replace(/\</g, '&lt;')
-			.replace(/\>/g, '&gt;')
-			.replace(/\r/g, '\\r')
-			.replace(/\n/g, '\\n')
-			.replace(/\t/g, '\\t')
+		return '[' + object.length + ']: \"' + object
+			.replace(/&/g, '&amp;')
+			.replace(/["<>\r\n\t\x00-\x1F]/g, function($0)
+			{
+				return Object.dump.entities[$0] || ('\\' + $0.charCodeAt(0).toString(8));
+			})
 			+ '\"';
 
 	case 'function':
@@ -489,6 +487,16 @@ Object.dump = function(object, options)
 	default:
 		return object;
 	}
+};
+
+Object.dump.entities = {
+	'"': '&quot;', 
+	'<': '&lt;', 
+	'>': '&gt;', 
+	'\\': '\\\\', 
+	'\r': '\\r', 
+	'\n': '\\n', 
+	'\t': '\\t'
 };
 
 /**
