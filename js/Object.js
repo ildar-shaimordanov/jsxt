@@ -468,11 +468,11 @@ Object.dump = function(object, options)
 
 	case 'string':
 		return '[' + object.length + ']: \"' + object
-			.replace(/&/g, '&amp;')
-			.replace(/["<>\r\n\t\x00-\x1F]/g, function($0)
-			{
-				return Object.dump.entities[$0] || ('\\' + $0.charCodeAt(0).toString(8));
-			})
+//			.replace(/&/g, '&amp;')
+//			.replace(/["<>\r\n\t\x00-\x1F]/g, function($0)
+//			{
+//				return Object.dump.entities[$0] || ('\\' + $0.charCodeAt(0).toString(8));
+//			})
 			+ '\"';
 
 	case 'function':
