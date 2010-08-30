@@ -27,7 +27,7 @@ if ( ! FileSystem.readFile ) {
  * @return	String
  * @access	static
  */
-FileSystem.readFile = function(input)
+FileSystem.readFile = function(input, iomode, format)
 {
 	var h, wasFilename;
 
@@ -37,7 +37,7 @@ FileSystem.readFile = function(input)
 		wasFilename = true;
 		var fso = new ActiveXObject('Scripting.FileSystemObject');
 		var f = fso.GetFile(input);
-		h = f.OpenAsTextStream();
+		h = f.OpenAsTextStream(Number(iomode) || 1, Number(format) || 0);
 	}
 
 	var result = h.ReadAll();
