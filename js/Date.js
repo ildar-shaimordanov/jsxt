@@ -347,13 +347,14 @@ if ( ! Date.prototype.getWorkingDaysInMonth ) {
 Date.prototype.getWorkingDaysInMonth = function(func, longWeek)
 {
 	var dim = this.getDaysInMonth();
+	var ldm = this.getLastDay();
 
-	var here = new Date(
-		x.getFullYear(), 
-		x.getMonth(), 
-		dim);
-
-	var ldm = here.getDay();
+//	var here = new Date(
+//		x.getFullYear(), 
+//		x.getMonth(), 
+//		dim);
+//
+//	var ldm = here.getDay();
 
 	var holidays = typeof func == 'function' ? func(this) : 0;
 
