@@ -58,6 +58,54 @@ vb.Function.eval = function(func)
 
 
 /**
+ * vb.Function.declare()
+ *
+ * @description
+ * Allows to declare custom VBScript functions. 
+ * Returns the reference to the htmlfile document. 
+ * All declarations are in the namespace of this document. 
+ *
+ * @example
+ * // declare the generator of integer number from L to U
+ * var vbs = vb.Function.declare([
+ *     'Randomize', 
+ *     'Function Random(L, U)', 
+ *     '    Random = Int((U - L + 1) * Rnd + L)', 
+ *     'End Function']);
+ * 
+ * // The bones generator
+ * var n = vbs.Random(1, 6);
+ *
+ * @param	Array|String	VBScript declaratiom
+ * @return	HTMLDocument
+ * @access	static
+ */
+vb.Function.declare = function()
+{
+	if ( ! vb.Function.declarator ) {
+		vb.Function.declarator = (new ActiveXObject('htmlfile')).parentWindow;
+	}
+
+	var declarator = vb.Function.declarator;
+
+	if ( ! arguments.length ) {
+		return declarator;
+	}
+
+	var args = arguments;
+	if ( args[0] && args[0].constructor == Array ) {
+		args = args[0];
+	}
+	var func = Array.prototype.slice.call(args).join('\n');
+
+	var document = declarator.document;
+	document.write('\x3Cscript language="VBScript"\x3E' + func + '\x3C/script\x3E');
+
+	return declarator;
+};
+
+
+/**
  * Displays a prompt in a dialog box, waits for the user to input 
  * text or click a button, and returns the contents of the text box. 
  *
