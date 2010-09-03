@@ -425,7 +425,7 @@ Object.dump = function(object, options)
 	switch ( typeof object ) {
 	case 'object':
 		if ( object === null ) {
-			return object;
+			return String(object);
 		}
 
 		if ( ! options.nesting ) {
@@ -485,7 +485,7 @@ Object.dump = function(object, options)
 		return '';
 
 	default:
-		return object;
+		return String(object);
 	}
 };
 
