@@ -82,26 +82,32 @@ vb.Function.eval = function(func)
  */
 vb.Function.declare = function()
 {
-	if ( ! vb.Function.declarator ) {
-		vb.Function.declarator = (new ActiveXObject('htmlfile')).parentWindow;
-	}
+	// Initialize the declarator of VBScript items
+	vb.Function.declarator = (new ActiveXObject('htmlfile')).parentWindow;
 
-	var declarator = vb.Function.declarator;
+	// Redeclare the method
+	vb.Function.declare = function()
+	{
+		var declarator = vb.Function.declarator;
 
-	if ( ! arguments.length ) {
+		if ( ! arguments.length ) {
+			return declarator;
+		}
+
+		var args = arguments;
+		if ( args[0] && args[0].constructor == Array ) {
+			args = args[0];
+		}
+		var func = Array.prototype.slice.call(args).join('\n');
+
+		var document = declarator.document;
+		document.write('\x3Cscript language="VBScript"\x3E' + func + '\x3C/script\x3E');
+
 		return declarator;
-	}
+	};
 
-	var args = arguments;
-	if ( args[0] && args[0].constructor == Array ) {
-		args = args[0];
-	}
-	var func = Array.prototype.slice.call(args).join('\n');
-
-	var document = declarator.document;
-	document.write('\x3Cscript language="VBScript"\x3E' + func + '\x3C/script\x3E');
-
-	return declarator;
+	// Call new method
+	return vb.Function.declare.apply(null, arguments);
 };
 
 
