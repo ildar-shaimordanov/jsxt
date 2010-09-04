@@ -145,10 +145,12 @@ FileSystem.glob = function(pattern, foldersOnly)
 	// Validate the single file/folder
 	var matches = pattern.match(/((?:[a-zA-Z]\:)?.*?\\?)([^\\]*?[\*\?][^\\]*?$)/);
 	if ( ! matches ) {
-		if ( 
-		( foldersOnly && fso.FolderExists(pattern) ) 
-		|| 
-		( ! foldersOnly && fso.FileExists(pattern) ) ) {
+//		// this commened stupid code is kept for history
+//		if ( 
+//		( foldersOnly && fso.FolderExists(pattern) ) 
+//		|| 
+//		( ! foldersOnly && fso.FileExists(pattern) ) ) {
+		if ( fso.FileExists(pattern) ) {
 			return [fso.GetAbsolutePathName(pattern)];
 		}
 		throw new Error(pattern + ': File not found');
@@ -182,7 +184,45 @@ FileSystem.glob = function(pattern, foldersOnly)
 
 }
 
-if ( ! FileSystem.dialogBrowseForFolder ) {
+if ( ! FileSystem.GetRealPath ) {
+
+/**
+ * Calculates the full path to the provided filespec. 
+ * Resolves relative paths and short anmes. 
+ *
+ * @example
+ * var s_name = 'C:\\PROGRA~1';
+ * 
+ * // C:\Program Files
+ * var result = FileSystem.getRealPath(s_name);
+ *
+ * @param	String
+ * @return	String
+ */
+FileSystem.GetFullPath = function(filespec)
+{
+	var filename = fso.GetAbsolutePathName(filespec);
+
+	// Split to a path and trailing name
+	var s1 = fso.GetParentFolderName(filename);
+	var s2 = fso.GetFileName(filename);
+
+	// Skip a parsing of the root folder
+	if ( filename.slice(-2) == ':\\' ) {
+		return filename;
+	}
+
+	var e;
+	try {
+		return (new ActiveXObject('Shell.Application')).Namespace(s1).ParseName(s2).Path;
+	} catch (e) {
+		return null;
+	}
+};
+
+}
+
+if ( ! FileSystem.BrowseForFolder ) {
 
 /**
  * Creates a dialog box that enables the user to select a folder and then returns the selected folder's path.
@@ -198,7 +238,7 @@ if ( ! FileSystem.dialogBrowseForFolder ) {
  * @see		http://msdn.microsoft.com/en-us/library/bb774096(VS.85).aspx
  * @see		http://blogs.msdn.com/gstemp/archive/2004/02/17/74868.aspx#ctl00___ctl00___ctl00_ctl00_bcr_ctl00___Comments___Comments_ctl07_NameLink
  */
-FileSystem.dialogBrowseForFolder = function(Hwnd, sTitle, iOptions, vRootFolder)
+FileSystem.BrowseForFolder = function(Hwnd, sTitle, iOptions, vRootFolder)
 {
 	var shell = new ActiveXObject("Shell.Application");
 	var folder = shell.BrowseForFolder(Hwnd, sTitle, iOptions, vRootFolder);
@@ -230,69 +270,69 @@ FileSystem.dialogBrowseForFolder = function(Hwnd, sTitle, iOptions, vRootFolder)
  *
  * @see		http://msdn.microsoft.com/en-us/library/bb773205(VS.85).aspx
  */
-FileSystem.dialogBrowseForFolder.BIF_RETURNONLYFSDIRS	= 0x0001; // Only return file system directories. If the user selects folders that are not part of the file system, the OK button is grayed. Note  The OK button remains enabled for "\\server" items, as well as "\\server\share" and directory items. However, if the user selects a "\\server" item, passing the PIDL returned by SHBrowseForFolder to SHGetPathFromIDList fails.
-FileSystem.dialogBrowseForFolder.BIF_DONTGOBELOWDOMAIN	= 0x0002; // Do not include network folders below the domain level in the dialog box's tree view control.
-FileSystem.dialogBrowseForFolder.BIF_STATUSTEXT		= 0x0004; // Include a status area in the dialog box. The callback function can set the status text by sending messages to the dialog box. This flag is not supported when BIF_NEWDIALOGSTYLE is specified.
-FileSystem.dialogBrowseForFolder.BIF_RETURNFSANCESTORS	= 0x0008; // Only return file system ancestors. An ancestor is a subfolder that is beneath the root folder in the namespace hierarchy. If the user selects an ancestor of the root folder that is not part of the file system, the OK button is grayed.
-FileSystem.dialogBrowseForFolder.BIF_EDITBOX		= 0x0010; // Version 4.71. Include an edit control in the browse dialog box that allows the user to type the name of an item.
-FileSystem.dialogBrowseForFolder.BIF_VALIDATE		= 0x0020; // Version 4.71. If the user types an invalid name into the edit box, the browse dialog box calls the application's BrowseCallbackProc with the BFFM_VALIDATEFAILED message. This flag is ignored if BIF_EDITBOX is not specified.
-FileSystem.dialogBrowseForFolder.BIF_NEWDIALOGSTYLE	= 0x0040; // Version 5.0. Use the new user interface. Setting this flag provides the user with a larger dialog box that can be resized. The dialog box has several new capabilities, including: drag-and-drop capability within the dialog box, reordering, shortcut menus, new folders, delete, and other shortcut menu commands. Note  If Component Object Model (COM) is initialized through CoInitializeEx with the COINIT_MULTITHREADED flag set, SHBrowseForFolder fails if BIF_NEWDIALOGSTYLE is passed.
-FileSystem.dialogBrowseForFolder.BIF_BROWSEINCLUDEURLS	= 0x0080; // Version 5.0. The browse dialog box can display URLs. The BIF_USENEWUI and BIF_BROWSEINCLUDEFILES flags must also be set. If any of these three flags are not set, the browser dialog box rejects URLs. Even when these flags are set, the browse dialog box displays URLs only if the folder that contains the selected item supports URLs. When the folder's IShellFolder::GetAttributesOf method is called to request the selected item's attributes, the folder must set the SFGAO_FOLDER attribute flag. Otherwise, the browse dialog box will not display the URL.
-FileSystem.dialogBrowseForFolder.BIF_USENEWUI		= FileSystem.dialogBrowseForFolder.BIF_EDITBOX | FileSystem.dialogBrowseForFolder.BIF_NEWDIALOGSTYLE; // Version 5.0. Use the new user interface, including an edit box. This flag is equivalent to BIF_EDITBOX | BIF_NEWDIALOGSTYLE. Note  If COM is initialized through CoInitializeEx with the COINIT_MULTITHREADED flag set, SHBrowseForFolder fails if BIF_USENEWUI is passed.
-FileSystem.dialogBrowseForFolder.BIF_UAHINT		= 0x0100; // Version 6.0. When combined with BIF_NEWDIALOGSTYLE, adds a usage hint to the dialog box, in place of the edit box. BIF_EDITBOX overrides this flag.
-FileSystem.dialogBrowseForFolder.BIF_NONEWFOLDERBUTTON	= 0x0200; // Version 6.0. Do not include the New Folder button in the browse dialog box.
-FileSystem.dialogBrowseForFolder.BIF_NOTRANSLATETARGETS	= 0x0400; // Version 6.0. When the selected item is a shortcut, return the PIDL of the shortcut itself rather than its target.
-FileSystem.dialogBrowseForFolder.BIF_BROWSEFORCOMPUTER	= 0x1000; // Only return computers. If the user selects anything other than a computer, the OK button is grayed.
-FileSystem.dialogBrowseForFolder.BIF_BROWSEFORPRINTER	= 0x2000; // Only allow the selection of printers. If the user selects anything other than a printer, the OK button is grayed. In Microsoft Windows XP and later systems, the best practice is to use a Windows XP-style dialog, setting the root of the dialog to the Printers and Faxes folder (CSIDL_PRINTERS).
-FileSystem.dialogBrowseForFolder.BIF_BROWSEINCLUDEFILES	= 0x4000; // Version 4.71. The browse dialog box displays files as well as folders.
-FileSystem.dialogBrowseForFolder.BIF_SHAREABLE		= 0x8000; // Version 5.0. The browse dialog box can display shareable resources on remote systems. This is intended for applications that want to expose remote shares on a local system. The BIF_NEWDIALOGSTYLE flag must also be set.
+FileSystem.BrowseForFolder.BIF_RETURNONLYFSDIRS	= 0x0001; // Only return file system directories. If the user selects folders that are not part of the file system, the OK button is grayed. Note  The OK button remains enabled for "\\server" items, as well as "\\server\share" and directory items. However, if the user selects a "\\server" item, passing the PIDL returned by SHBrowseForFolder to SHGetPathFromIDList fails.
+FileSystem.BrowseForFolder.BIF_DONTGOBELOWDOMAIN	= 0x0002; // Do not include network folders below the domain level in the dialog box's tree view control.
+FileSystem.BrowseForFolder.BIF_STATUSTEXT		= 0x0004; // Include a status area in the dialog box. The callback function can set the status text by sending messages to the dialog box. This flag is not supported when BIF_NEWDIALOGSTYLE is specified.
+FileSystem.BrowseForFolder.BIF_RETURNFSANCESTORS	= 0x0008; // Only return file system ancestors. An ancestor is a subfolder that is beneath the root folder in the namespace hierarchy. If the user selects an ancestor of the root folder that is not part of the file system, the OK button is grayed.
+FileSystem.BrowseForFolder.BIF_EDITBOX		= 0x0010; // Version 4.71. Include an edit control in the browse dialog box that allows the user to type the name of an item.
+FileSystem.BrowseForFolder.BIF_VALIDATE		= 0x0020; // Version 4.71. If the user types an invalid name into the edit box, the browse dialog box calls the application's BrowseCallbackProc with the BFFM_VALIDATEFAILED message. This flag is ignored if BIF_EDITBOX is not specified.
+FileSystem.BrowseForFolder.BIF_NEWDIALOGSTYLE	= 0x0040; // Version 5.0. Use the new user interface. Setting this flag provides the user with a larger dialog box that can be resized. The dialog box has several new capabilities, including: drag-and-drop capability within the dialog box, reordering, shortcut menus, new folders, delete, and other shortcut menu commands. Note  If Component Object Model (COM) is initialized through CoInitializeEx with the COINIT_MULTITHREADED flag set, SHBrowseForFolder fails if BIF_NEWDIALOGSTYLE is passed.
+FileSystem.BrowseForFolder.BIF_BROWSEINCLUDEURLS	= 0x0080; // Version 5.0. The browse dialog box can display URLs. The BIF_USENEWUI and BIF_BROWSEINCLUDEFILES flags must also be set. If any of these three flags are not set, the browser dialog box rejects URLs. Even when these flags are set, the browse dialog box displays URLs only if the folder that contains the selected item supports URLs. When the folder's IShellFolder::GetAttributesOf method is called to request the selected item's attributes, the folder must set the SFGAO_FOLDER attribute flag. Otherwise, the browse dialog box will not display the URL.
+FileSystem.BrowseForFolder.BIF_USENEWUI		= FileSystem.BrowseForFolder.BIF_EDITBOX | FileSystem.BrowseForFolder.BIF_NEWDIALOGSTYLE; // Version 5.0. Use the new user interface, including an edit box. This flag is equivalent to BIF_EDITBOX | BIF_NEWDIALOGSTYLE. Note  If COM is initialized through CoInitializeEx with the COINIT_MULTITHREADED flag set, SHBrowseForFolder fails if BIF_USENEWUI is passed.
+FileSystem.BrowseForFolder.BIF_UAHINT		= 0x0100; // Version 6.0. When combined with BIF_NEWDIALOGSTYLE, adds a usage hint to the dialog box, in place of the edit box. BIF_EDITBOX overrides this flag.
+FileSystem.BrowseForFolder.BIF_NONEWFOLDERBUTTON	= 0x0200; // Version 6.0. Do not include the New Folder button in the browse dialog box.
+FileSystem.BrowseForFolder.BIF_NOTRANSLATETARGETS	= 0x0400; // Version 6.0. When the selected item is a shortcut, return the PIDL of the shortcut itself rather than its target.
+FileSystem.BrowseForFolder.BIF_BROWSEFORCOMPUTER	= 0x1000; // Only return computers. If the user selects anything other than a computer, the OK button is grayed.
+FileSystem.BrowseForFolder.BIF_BROWSEFORPRINTER	= 0x2000; // Only allow the selection of printers. If the user selects anything other than a printer, the OK button is grayed. In Microsoft Windows XP and later systems, the best practice is to use a Windows XP-style dialog, setting the root of the dialog to the Printers and Faxes folder (CSIDL_PRINTERS).
+FileSystem.BrowseForFolder.BIF_BROWSEINCLUDEFILES	= 0x4000; // Version 4.71. The browse dialog box displays files as well as folders.
+FileSystem.BrowseForFolder.BIF_SHAREABLE		= 0x8000; // Version 5.0. The browse dialog box can display shareable resources on remote systems. This is intended for applications that want to expose remote shares on a local system. The BIF_NEWDIALOGSTYLE flag must also be set.
 
 /**
  * ShellSpecialFolderConstants Enumerated Type
  *
  * @see		http://msdn.microsoft.com/en-us/library/bb774096(VS.85).aspx
  */
-FileSystem.dialogBrowseForFolder.BSF_DESKTOP		= 0x00; // (0). Microsoft Windows desktop-the virtual folder that is the root of the namespace.
-//FileSystem.dialogBrowseForFolder.BSF_INTERNETEXPLORER	= 0x01; // (1). Internet Explorer is the root.
-FileSystem.dialogBrowseForFolder.BSF_PROGRAMS		= 0x02; // (2). File system directory that contains the user's program groups (which are also file system directories). A typical path is C:\Users\username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs.
-FileSystem.dialogBrowseForFolder.BSF_CONTROLS		= 0x03; // (3). Virtual folder that contains icons for the Control Panel applications.
-FileSystem.dialogBrowseForFolder.BSF_PRINTERS		= 0x04; // (4). Virtual folder that contains installed printers.
-FileSystem.dialogBrowseForFolder.BSF_PERSONAL		= 0x05; // (5). File system directory that serves as a common repository for a user's documents. A typical path is C:\Users\username\Documents.
-FileSystem.dialogBrowseForFolder.BSF_FAVORITES		= 0x06; // (6). File system directory that serves as a common repository for the user's favorite URLs. A typical path is C:\Documents and Settings\username\Favorites.
-FileSystem.dialogBrowseForFolder.BSF_STARTUP		= 0x07; // (7). File system directory that corresponds to the user's Startup program group. The system starts these programs whenever any user first logs into their profile after a reboot. A typical path is C:\Users\username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\StartUp.
-FileSystem.dialogBrowseForFolder.BSF_RECENT		= 0x08; // (8). File system directory that contains the user's most recently used documents. A typical path is C:\Users\username\AppData\Roaming\Microsoft\Windows\Recent.
-FileSystem.dialogBrowseForFolder.BSF_SENDTO		= 0x09; // (9). File system directory that contains Send To menu items. A typical path is C:\Users\username\AppData\Roaming\Microsoft\Windows\SendTo.
-FileSystem.dialogBrowseForFolder.BSF_BITBUCKET		= 0x0a; // (10). Virtual folder that contains the objects in the user's Recycle Bin.
-FileSystem.dialogBrowseForFolder.BSF_STARTMENU		= 0x0b; // (11). File system directory that contains Start menu items. A typical path is C:\Users\username\AppData\Roaming\Microsoft\Windows\Start Menu.
+FileSystem.BrowseForFolder.BSF_DESKTOP		= 0x00; // (0). Microsoft Windows desktop-the virtual folder that is the root of the namespace.
+//FileSystem.BrowseForFolder.BSF_INTERNETEXPLORER	= 0x01; // (1). Internet Explorer is the root.
+FileSystem.BrowseForFolder.BSF_PROGRAMS		= 0x02; // (2). File system directory that contains the user's program groups (which are also file system directories). A typical path is C:\Users\username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs.
+FileSystem.BrowseForFolder.BSF_CONTROLS		= 0x03; // (3). Virtual folder that contains icons for the Control Panel applications.
+FileSystem.BrowseForFolder.BSF_PRINTERS		= 0x04; // (4). Virtual folder that contains installed printers.
+FileSystem.BrowseForFolder.BSF_PERSONAL		= 0x05; // (5). File system directory that serves as a common repository for a user's documents. A typical path is C:\Users\username\Documents.
+FileSystem.BrowseForFolder.BSF_FAVORITES		= 0x06; // (6). File system directory that serves as a common repository for the user's favorite URLs. A typical path is C:\Documents and Settings\username\Favorites.
+FileSystem.BrowseForFolder.BSF_STARTUP		= 0x07; // (7). File system directory that corresponds to the user's Startup program group. The system starts these programs whenever any user first logs into their profile after a reboot. A typical path is C:\Users\username\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\StartUp.
+FileSystem.BrowseForFolder.BSF_RECENT		= 0x08; // (8). File system directory that contains the user's most recently used documents. A typical path is C:\Users\username\AppData\Roaming\Microsoft\Windows\Recent.
+FileSystem.BrowseForFolder.BSF_SENDTO		= 0x09; // (9). File system directory that contains Send To menu items. A typical path is C:\Users\username\AppData\Roaming\Microsoft\Windows\SendTo.
+FileSystem.BrowseForFolder.BSF_BITBUCKET		= 0x0a; // (10). Virtual folder that contains the objects in the user's Recycle Bin.
+FileSystem.BrowseForFolder.BSF_STARTMENU		= 0x0b; // (11). File system directory that contains Start menu items. A typical path is C:\Users\username\AppData\Roaming\Microsoft\Windows\Start Menu.
 
-FileSystem.dialogBrowseForFolder.BSF_DESKTOPDIRECTORY	= 0x10; // (16). File system directory used to physically store the file objects that are displayed on the desktop. It is not to be confused with the desktop folder itself, which is a virtual folder. A typical path is C:\Documents and Settings\username\Desktop.
-FileSystem.dialogBrowseForFolder.BSF_DRIVES		= 0x11; // (17). My Computer-the virtual folder that contains everything on the local computer: storage devices, printers, and Control Panel. This folder can also contain mapped network drives.
-FileSystem.dialogBrowseForFolder.BSF_NETWORK		= 0x12; // (18). Network Neighborhood-the virtual folder that represents the root of the network namespace hierarchy.
-FileSystem.dialogBrowseForFolder.BSF_NETHOOD		= 0x13; // (19). A file system folder that contains any link objects in the My Network Places virtual folder. It is not the same as FileSystem.dialogBrowseForFolder.BSF_NETWORK, which represents the network namespace root. A typical path is C:\Users\username\AppData\Roaming\Microsoft\Windows\Network Shortcuts.
-FileSystem.dialogBrowseForFolder.BSF_FONTS		= 0x14; // (20). Virtual folder that contains installed fonts. A typical path is C:\Windows\Fonts.
-FileSystem.dialogBrowseForFolder.BSF_TEMPLATES		= 0x15; // (21). File system directory that serves as a common repository for document templates.
-FileSystem.dialogBrowseForFolder.BSF_COMMONSTARTMENU	= 0x16; // (22). File system directory that contains the programs and folders that appear on the Start menu for all users. A typical path is C:\Documents and Settings\All Users\Start Menu. Valid only for Windows NT systems.
-FileSystem.dialogBrowseForFolder.BSF_COMMONPROGRAMS	= 0x17; // (23). File system directory that contains the directories for the common program groups that appear on the Start menu for all users. A typical path is C:\Documents and Settings\All Users\Start Menu\Programs. Valid only for Windows NT systems.
-FileSystem.dialogBrowseForFolder.BSF_COMMONSTARTUP	= 0x18; // (24). File system directory that contains the programs that appear in the Startup folder for all users. A typical path is C:\Documents and Settings\All Users\Microsoft\Windows\Start Menu\Programs\StartUp. Valid only for Windows NT systems.
-FileSystem.dialogBrowseForFolder.BSF_COMMONDESKTOPDIR	= 0x19; // (25). File system directory that contains files and folders that appear on the desktop for all users. A typical path is C:\Documents and Settings\All Users\Desktop. Valid only for Windows NT systems.
-FileSystem.dialogBrowseForFolder.BSF_APPDATA		= 0x1a; // (26). Version 4.71. File system directory that serves as a common repository for application-specific data. A typical path is C:\Documents and Settings\username\Application Data.
-FileSystem.dialogBrowseForFolder.BSF_PRINTHOOD		= 0x1b; // (27). File system directory that contains any link objects in the Printers virtual folder. A typical path is C:\Users\username\AppData\Roaming\Microsoft\Windows\Printer Shortcuts.
-FileSystem.dialogBrowseForFolder.BSF_LOCALAPPDATA	= 0x1c; // (28). Version 5.0. File system directory that serves as a data repository for local (non-roaming) applications. A typical path is C:\Users\username\AppData\Local.
-FileSystem.dialogBrowseForFolder.BSF_ALTSTARTUP		= 0x1d; // (29). File system directory that corresponds to the user's non-localized Startup program group.
-FileSystem.dialogBrowseForFolder.BSF_COMMONALTSTARTUP	= 0x1e; // (30). File system directory that corresponds to the non-localized Startup program group for all users. Valid only for Microsoft Windows NT systems.
-FileSystem.dialogBrowseForFolder.BSF_COMMONFAVORITES	= 0x1f; // (31). File system directory that serves as a common repository for the favorite URLs shared by all users. Valid only for Windows NT systems.
-FileSystem.dialogBrowseForFolder.BSF_INTERNETCACHE	= 0x20; // (32). File system directory that serves as a common repository for temporary Internet files. A typical path is C:\Users\username\AppData\Local\Microsoft\Windows\Temporary Internet Files.
-FileSystem.dialogBrowseForFolder.BSF_COOKIES		= 0x21; // (33). File system directory that serves as a common repository for Internet cookies. A typical path is C:\Documents and Settings\username\Application Data\Microsoft\Windows\Cookies.
-FileSystem.dialogBrowseForFolder.BSF_HISTORY		= 0x22; // (34). File system directory that serves as a common repository for Internet history items.
-FileSystem.dialogBrowseForFolder.BSF_COMMONAPPDATA	= 0x23; // (35). Version 5.0. Application data for all users. A typical path is C:\Documents and Settings\All Users\Application Data.
-FileSystem.dialogBrowseForFolder.BSF_WINDOWS		= 0x24; // (36). Version 5.0. Windows directory. This corresponds to the %windir% or %SystemRoot% environment variables. A typical path is C:\Windows.
-FileSystem.dialogBrowseForFolder.BSF_SYSTEM		= 0x25; // (37). Version 5.0. The System folder. A typical path is C:\Windows\System32.
-FileSystem.dialogBrowseForFolder.BSF_PROGRAMFILES	= 0x26; // (38). Version 5.0. Program Files folder. A typical path is C:\Program Files.
-FileSystem.dialogBrowseForFolder.BSF_MYPICTURES		= 0x27; // (39). My Pictures folder. A typical path is C:\Users\username\Pictures.
-FileSystem.dialogBrowseForFolder.BSF_PROFILE		= 0x28; // (40). Version 5.0. User's profile folder.
-FileSystem.dialogBrowseForFolder.BSF_SYSTEMx86		= 0x29; // (41). Version 5.0. System folder. A typical path is C:\Windows\System32, or C:\Windows\Syswow32 on a 64-bit computer.
+FileSystem.BrowseForFolder.BSF_DESKTOPDIRECTORY	= 0x10; // (16). File system directory used to physically store the file objects that are displayed on the desktop. It is not to be confused with the desktop folder itself, which is a virtual folder. A typical path is C:\Documents and Settings\username\Desktop.
+FileSystem.BrowseForFolder.BSF_DRIVES		= 0x11; // (17). My Computer-the virtual folder that contains everything on the local computer: storage devices, printers, and Control Panel. This folder can also contain mapped network drives.
+FileSystem.BrowseForFolder.BSF_NETWORK		= 0x12; // (18). Network Neighborhood-the virtual folder that represents the root of the network namespace hierarchy.
+FileSystem.BrowseForFolder.BSF_NETHOOD		= 0x13; // (19). A file system folder that contains any link objects in the My Network Places virtual folder. It is not the same as FileSystem.BrowseForFolder.BSF_NETWORK, which represents the network namespace root. A typical path is C:\Users\username\AppData\Roaming\Microsoft\Windows\Network Shortcuts.
+FileSystem.BrowseForFolder.BSF_FONTS		= 0x14; // (20). Virtual folder that contains installed fonts. A typical path is C:\Windows\Fonts.
+FileSystem.BrowseForFolder.BSF_TEMPLATES		= 0x15; // (21). File system directory that serves as a common repository for document templates.
+FileSystem.BrowseForFolder.BSF_COMMONSTARTMENU	= 0x16; // (22). File system directory that contains the programs and folders that appear on the Start menu for all users. A typical path is C:\Documents and Settings\All Users\Start Menu. Valid only for Windows NT systems.
+FileSystem.BrowseForFolder.BSF_COMMONPROGRAMS	= 0x17; // (23). File system directory that contains the directories for the common program groups that appear on the Start menu for all users. A typical path is C:\Documents and Settings\All Users\Start Menu\Programs. Valid only for Windows NT systems.
+FileSystem.BrowseForFolder.BSF_COMMONSTARTUP	= 0x18; // (24). File system directory that contains the programs that appear in the Startup folder for all users. A typical path is C:\Documents and Settings\All Users\Microsoft\Windows\Start Menu\Programs\StartUp. Valid only for Windows NT systems.
+FileSystem.BrowseForFolder.BSF_COMMONDESKTOPDIR	= 0x19; // (25). File system directory that contains files and folders that appear on the desktop for all users. A typical path is C:\Documents and Settings\All Users\Desktop. Valid only for Windows NT systems.
+FileSystem.BrowseForFolder.BSF_APPDATA		= 0x1a; // (26). Version 4.71. File system directory that serves as a common repository for application-specific data. A typical path is C:\Documents and Settings\username\Application Data.
+FileSystem.BrowseForFolder.BSF_PRINTHOOD		= 0x1b; // (27). File system directory that contains any link objects in the Printers virtual folder. A typical path is C:\Users\username\AppData\Roaming\Microsoft\Windows\Printer Shortcuts.
+FileSystem.BrowseForFolder.BSF_LOCALAPPDATA	= 0x1c; // (28). Version 5.0. File system directory that serves as a data repository for local (non-roaming) applications. A typical path is C:\Users\username\AppData\Local.
+FileSystem.BrowseForFolder.BSF_ALTSTARTUP		= 0x1d; // (29). File system directory that corresponds to the user's non-localized Startup program group.
+FileSystem.BrowseForFolder.BSF_COMMONALTSTARTUP	= 0x1e; // (30). File system directory that corresponds to the non-localized Startup program group for all users. Valid only for Microsoft Windows NT systems.
+FileSystem.BrowseForFolder.BSF_COMMONFAVORITES	= 0x1f; // (31). File system directory that serves as a common repository for the favorite URLs shared by all users. Valid only for Windows NT systems.
+FileSystem.BrowseForFolder.BSF_INTERNETCACHE	= 0x20; // (32). File system directory that serves as a common repository for temporary Internet files. A typical path is C:\Users\username\AppData\Local\Microsoft\Windows\Temporary Internet Files.
+FileSystem.BrowseForFolder.BSF_COOKIES		= 0x21; // (33). File system directory that serves as a common repository for Internet cookies. A typical path is C:\Documents and Settings\username\Application Data\Microsoft\Windows\Cookies.
+FileSystem.BrowseForFolder.BSF_HISTORY		= 0x22; // (34). File system directory that serves as a common repository for Internet history items.
+FileSystem.BrowseForFolder.BSF_COMMONAPPDATA	= 0x23; // (35). Version 5.0. Application data for all users. A typical path is C:\Documents and Settings\All Users\Application Data.
+FileSystem.BrowseForFolder.BSF_WINDOWS		= 0x24; // (36). Version 5.0. Windows directory. This corresponds to the %windir% or %SystemRoot% environment variables. A typical path is C:\Windows.
+FileSystem.BrowseForFolder.BSF_SYSTEM		= 0x25; // (37). Version 5.0. The System folder. A typical path is C:\Windows\System32.
+FileSystem.BrowseForFolder.BSF_PROGRAMFILES	= 0x26; // (38). Version 5.0. Program Files folder. A typical path is C:\Program Files.
+FileSystem.BrowseForFolder.BSF_MYPICTURES		= 0x27; // (39). My Pictures folder. A typical path is C:\Users\username\Pictures.
+FileSystem.BrowseForFolder.BSF_PROFILE		= 0x28; // (40). Version 5.0. User's profile folder.
+FileSystem.BrowseForFolder.BSF_SYSTEMx86		= 0x29; // (41). Version 5.0. System folder. A typical path is C:\Windows\System32, or C:\Windows\Syswow32 on a 64-bit computer.
 
-FileSystem.dialogBrowseForFolder.BSF_PROGRAMFILESx86	= 0x30; // (48). Version 6.0. Program Files folder. A typical path is C:\Program Files, or C:\Program Files (X86) on a 64-bit computer.
+FileSystem.BrowseForFolder.BSF_PROGRAMFILESx86	= 0x30; // (48). Version 6.0. Program Files folder. A typical path is C:\Program Files, or C:\Program Files (X86) on a 64-bit computer.
 
 }
 
