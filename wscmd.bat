@@ -30,7 +30,7 @@ for %%i in ( "%~dpn0.ini" ".\%~n0.ini" ) do (
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.9.4 Beta
+set wscmd.version=0.9.5 Beta
 
 
 :: Set defaults
@@ -62,21 +62,29 @@ if /i "%~1" == "/h" (
 )
 
 
+if /i "%~1" == "/help" (
+	goto wscmd.help
+)
+
+
 if /i "%~1" == "/compile" (
 	set wscmd.compile=1
-	shift
+	shift /1
+) else if /i "%~1" == "/embed" (
+	set wscmd.compile=2
+	shift /1
 ) else if /i "%~1" == "/debug" (
 	set wscmd.debug=1
-	shift
+	shift /1
 )
 
 
 if /i "%~1" == "/js" (
 	set wscmd.engine=.js
-	shift
+	shift /1
 ) else if /i "%~1" == "/vbs" (
 	set wscmd.engine=.vbs
-	shift
+	shift /1
 ) else (
 	set wscmd.engine=.js
 )
@@ -90,19 +98,19 @@ if /i "%~1" == "/e" (
 		exit /b 1
 	)
 	set wscmd.inline=%2
-	shift
-	shift
+	shift /1
+	shift /1
 ) else (
 	set wscmd.script=%1
 	if not defined wscmd.script set wscmd.script=%wscmd.self%
-	shift
+	shift /1
 )
 
 
 :wscmd.1
 if "%~1" == "" goto wscmd.2
 set wscmd.args=%wscmd.args% %1
-shift
+shift /1
 goto wscmd.1
 
 :wscmd.2
@@ -114,6 +122,7 @@ call :wscmd.compile > "%wscmd.execute%"
 
 :: Run the final script
 if not defined wscmd.compile (
+	if defined wscmd.debug echo.Running: 1>&2
 	%wscmd.command% "%wscmd.execute%" %wscmd.args%
 	del "%wscmd.execute%"
 )
@@ -127,10 +136,12 @@ goto :EOF
 :wscmd.help
 echo.%wscmd.name% Version %wscmd.version%
 echo.
-echo.Usage: %~n0 [/h] ^| [/compile ^| /debug] [/js ^| /vbs] [/e source ^| filename] [arguments]
+echo.Usage: %~n0 [/h ^| /help]
+echo.Usage: %~n0 [/compile ^| /embed ^| /debug] [/js ^| /vbs] [/e source ^| filename] [arguments]
 echo.Valid options are:
-echo.    /h        - Display this help
+echo.    /h, /help - Display this help
 echo.    /compile  - Compile but not execute. Just store a temporary file on a disk
+echo.    /embed    - The same like above but all external scripts will be embed into the resulting file
 echo.    /debug    - Output debugging information and execute
 echo.    /js       - Assume a value as a JavaScript source
 echo.    /vbs      - Assume a value as a VBScript code
@@ -171,14 +182,18 @@ echo.
 echo.]]^>^</script^>
 
 if defined wscmd.debug echo.Libraries: 1>&2
+
+set wscmd.link=include
+if "%wscmd.compile%" == "2" set wscmd.link=embed
+
 for %%l in ( %wscmd.include% ) do (
 	if defined wscmd.debug echo.    "%%~l" 1>&2
-	call :wscmd.include%%~xl "%%l"
+	call :wscmd.%wscmd.link%%%~xl "%%l"
 )
 
 if defined wscmd.script (
 	if defined wscmd.debug echo.File: "%wscmd.script%" 1>&2
-	call :wscmd.include%wscmd.engine% %wscmd.script%
+	call :wscmd.%wscmd.link%%wscmd.engine% %wscmd.script%
 ) else (
 	if defined wscmd.debug echo.Inline: %wscmd.inline% 1>&2
 	call :wscmd.inline%wscmd.engine% %wscmd.inline%
@@ -196,6 +211,24 @@ goto :EOF
 
 :wscmd.include.vbs
 echo.^<script language="vbscript" src="%~f1"^>^</script^>
+goto :EOF
+
+
+:wscmd.embed.js
+echo.^<script language="javascript"^>^<^^^![CDATA[
+echo.
+type %1
+echo.
+echo.]]^>^</script^>
+goto :EOF
+
+
+:wscmd.embed.vbs
+echo.^<script language="vbscript"^>^<^^^![CDATA[
+echo.
+type %1
+echo.
+echo.]]^>^</script^>
 goto :EOF
 
 
@@ -299,7 +332,7 @@ eval.save = function(format)
 {
 	var fso = new ActiveXObject('Scripting.FileSystemObject');
 
-	var f = fso.OpentextFile('.\\wscmd.history', 8, true, format);
+	var f = fso.OpenTextFile('.\\wscmd.history', 8, true, format);
 	f.Write(eval.history);
 	f.Close();
 };

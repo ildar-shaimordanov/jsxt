@@ -109,8 +109,8 @@ inc.forEach(function(inpfile)
 		inpfile.match(JSFILE) 
 		? '\n\n//%s\n%s\n\n' 
 		: inpfile.match(WSFILE) 
-		? '\x3Cscript language="javascript">\x3C![CDATA[\n\n//%s\n%s\n\n]]\x3E</script\x3E'
-		: '\x3Cscript language="javascript">\n\n//%s\n%s\n\n</script\x3E';
+		? '\x3Cscript language="javascript"\x3E\x3C![CDATA[\n\n//%s\n%s\n\n]]\x3E\x3C/script\x3E'
+		: '\x3Cscript language="javascript"\x3E\n\n//%s\n%s\n\n\x3C/script\x3E';
 
 	var content = FileSystem.readFile(inpfile);
 
