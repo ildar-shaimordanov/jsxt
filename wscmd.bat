@@ -44,17 +44,24 @@ set wscmd.temp=
 set wscmd.compile=
 set wscmd.debug=
 set wscmd.self=%~f0
+set wscmd.quiet=
 
 
 if "%~1" == "" (
-rem	cscript //NoLogo //E:javascript "%wscmd.self% %*
-rem	goto wscmd.stop
-
 	set wscmd.script=%~f0
 	set wscmd.engine=.js
-	shift
+	shift /1
 	goto wscmd.1
-) 
+)
+
+
+if /i "%~1" == "/q" (
+	set wscmd.script=%~f0
+	set wscmd.engine=.js
+	set wscmd.quiet=/q
+	shift /1
+	goto wscmd.1
+)
 
 
 if /i "%~1" == "/h" (
@@ -123,7 +130,7 @@ call :wscmd.compile > "%wscmd.execute%"
 :: Run the final script
 if not defined wscmd.compile (
 	if defined wscmd.debug echo.Running: 1>&2
-	%wscmd.command% "%wscmd.execute%" %wscmd.args%
+	%wscmd.command% "%wscmd.execute%" %wscmd.quiet% %wscmd.args%
 	del "%wscmd.execute%"
 )
 
@@ -136,16 +143,19 @@ goto :EOF
 :wscmd.help
 echo.%wscmd.name% Version %wscmd.version%
 echo.
-echo.Usage: %~n0 [/h ^| /help]
-echo.Usage: %~n0 [/compile ^| /embed ^| /debug] [/js ^| /vbs] [/e source ^| filename] [arguments]
+echo.Usage:
+echo.    %~n0 [/h ^| /q]
+echo.    %~n0 [/compile ^| /embed ^| /debug] [/js ^| /vbs] [/e source ^| filename arguments]
+echo.
 echo.Valid options are:
-echo.    /h, /help - Display this help
-echo.    /compile  - Compile but not execute. Just store a temporary file on a disk
-echo.    /embed    - The same like above but all external scripts will be embed into the resulting file
-echo.    /debug    - Output debugging information and execute
-echo.    /js       - Assume a value as a JavaScript source
-echo.    /vbs      - Assume a value as a VBScript code
-echo.    /e        - Assume a value as a string to be executed
+echo.    /h       - Display this help
+echo.    /q       - Quiet mode, affects when run interactively or through pipes
+echo.    /compile - Compile but not execute. Just store a temporary file on a disk
+echo.    /embed   - Embed external scripts into the resulting file
+echo.    /debug   - Output debugging information and execute
+echo.    /js      - Assume a value as a JavaScript source
+echo.    /vbs     - Assume a value as a VBScript code
+echo.    /e       - Assume a value as a string to be executed
 
 goto wscmd.stop
 
@@ -346,6 +356,11 @@ while ( true ) {
 
 		result = eval((function(PS1, PS2)
 		{
+			if ( WScript.Arguments.Named.Exists('Q') ) {
+				PS1 = '';
+				PS2 = '';
+			}
+
 			var stack = [];
 			var quote = false;
 			var regex = false;
