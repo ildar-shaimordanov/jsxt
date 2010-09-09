@@ -268,9 +268,9 @@ goto :EOF
  * Useful functions
  *
  */
-var help = function()
+var help = (function()
 {
-	WScript.Echo('\n' 
+	var helpMsg = '\n' 
 		+ 'Commands                 Descriptions\n' 
 		+ '========                 ============\n' 
 		+ 'help()                   Display this help\n' 
@@ -281,8 +281,12 @@ var help = function()
 		+ 'cmd(), shell()           Run new DOS-session\n' 
 		+ 'sleep(n)                 Sleep n milliseconds\n' 
 		+ 'gc()                     Run the garbage collector\n' 
-		);
-};
+		;
+	return function()
+	{
+		WScript.Echo(helpMsg);
+	};
+})();
 
 var alert = echo = print = function()
 {
