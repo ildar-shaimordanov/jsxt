@@ -184,40 +184,77 @@ FileSystem.glob = function(pattern, foldersOnly)
 
 }
 
-if ( ! FileSystem.GetRealPath ) {
+if ( ! FileSystem.GetLongPathName ) {
 
 /**
- * Calculates the full path to the provided filespec. 
- * Resolves relative paths and short anmes. 
+ * Calculates the long filename to the provided filespec. 
+ * Resolves relative paths and short names. 
  *
  * @example
  * var s_name = 'C:\\PROGRA~1';
  * 
  * // C:\Program Files
- * var result = FileSystem.getRealPath(s_name);
+ * var l_name = FileSystem.getRealPath(s_name);
  *
  * @param	String
  * @return	String
  */
-FileSystem.GetFullPath = function(filespec)
+FileSystem.GetLongPathName = function(filespec, fso)
 {
-	var filename = fso.GetAbsolutePathName(filespec);
+	fso = fso || new ActiveXObject('Scripting.FileSystemObject');
 
-	// Split to a path and trailing name
-	var s1 = fso.GetParentFolderName(filename);
-	var s2 = fso.GetFileName(filename);
+	var filename = fso.GetAbsolutePathName(filespec);
 
 	// Skip a parsing of the root folder
 	if ( filename.slice(-2) == ':\\' ) {
 		return filename;
 	}
 
-	var e;
-	try {
-		return (new ActiveXObject('Shell.Application')).Namespace(s1).ParseName(s2).Path;
-	} catch (e) {
+	// Split to a path and trailing name
+	var path = fso.GetParentFolderName(filename);
+	var name = fso.GetFileName(filename);
+
+	var ns = (new ActiveXObject('Shell.Application')).Namespace(path);
+	if ( ! ns ) {
 		return null;
 	}
+
+	return ns.ParseName(name).Path;
+};
+
+}
+
+if ( ! FileSystem.GetShortPathName ) {
+
+/**
+ * Calculates the short filename to the provided filespec. 
+ * Resolves relative paths and short names. 
+ *
+ * @example
+ * var l_name = 'C:\Program Files';
+ * 
+ * // C:\\PROGRA~1
+ * var s_name = FileSystem.getRealPath(l_name);
+ *
+ * @param	String
+ * @return	String
+ */
+FileSystem.GetShortPathName = function(filespec, fso)
+{
+	fso = fso || new ActiveXObject('Scripting.FileSystemObject');
+
+	var filename = fso.GetAbsolutePathName(filespec);
+
+	var getter;
+	if ( fso.FileExists(filename) ) {
+		getter = 'GetFile';
+	} else if ( fso.FolderExists(filename) ) {
+		getter = 'GetFolder';
+	} else {
+		return null;
+	}
+
+	return fso[getter](filename).ShortPath;
 };
 
 }
