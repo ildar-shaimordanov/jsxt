@@ -30,7 +30,7 @@ for %%i in ( "%~dpn0.ini" ".\%~n0.ini" ) do (
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.9.6 Beta
+set wscmd.version=0.9.7 Beta
 
 
 :: Set defaults
@@ -129,7 +129,7 @@ call :wscmd.compile > "%wscmd.execute%"
 
 :: Run the final script
 if not defined wscmd.compile (
-	if defined wscmd.debug echo.Running: 1>&2
+	if defined wscmd.debug echo.Running:>&2
 	%wscmd.command% "%wscmd.execute%" %wscmd.quiet% %wscmd.args%
 	del "%wscmd.execute%"
 )
@@ -191,21 +191,21 @@ echo.};
 echo.
 echo.]]^>^</script^>
 
-if defined wscmd.debug echo.Libraries: 1>&2
+if defined wscmd.debug echo.Libraries:>&2
 
 set wscmd.link=include
 if "%wscmd.compile%" == "2" set wscmd.link=embed
 
 for %%l in ( %wscmd.include% ) do (
-	if defined wscmd.debug echo.    "%%~l" 1>&2
+	if defined wscmd.debug echo.    "%%~l">&2
 	call :wscmd.%wscmd.link%%%~xl "%%l"
 )
 
 if defined wscmd.script (
-	if defined wscmd.debug echo.File: "%wscmd.script%" 1>&2
+	if defined wscmd.debug echo.File: "%wscmd.script%">&2
 	call :wscmd.%wscmd.link%%wscmd.engine% %wscmd.script%
 ) else (
-	if defined wscmd.debug echo.Inline: %wscmd.inline% 1>&2
+	if defined wscmd.debug echo.Inline: %wscmd.inline%>&2
 	call :wscmd.inline%wscmd.engine% %wscmd.inline%
 )
 
