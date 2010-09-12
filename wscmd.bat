@@ -30,7 +30,7 @@ for %%i in ( "%~dpn0.ini" ".\%~n0.ini" ) do (
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.9.8 Beta
+set wscmd.version=0.9.9 Beta
 
 
 :: Set defaults
@@ -109,7 +109,8 @@ if /i "%~1" == "/e" (
 ) else (
 	set wscmd.inline=
 	set wscmd.script=%~1
-	set wscmd.engine=%~x1
+	rem VBS files only are considered directly, others are JS
+	if /i "%~x1" == ".vbs" set wscmd.engine=%~x1
 	shift /1
 )
 
