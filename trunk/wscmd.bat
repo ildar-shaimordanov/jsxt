@@ -30,7 +30,7 @@ for %%i in ( "%~dpn0.ini" ".\%~n0.ini" ) do (
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.9.5 Beta
+set wscmd.version=0.9.6 Beta
 
 
 :: Set defaults
@@ -215,46 +215,53 @@ goto :EOF
 
 
 :wscmd.include.js
-echo.^<script language="javascript" src="%~f1"^>^</script^>
+call :wscmd.include "%~1" javascript
 goto :EOF
 
 
 :wscmd.include.vbs
-echo.^<script language="vbscript" src="%~f1"^>^</script^>
+call :wscmd.include "%~1" vbscript
+goto :EOF
+
+
+:wscmd.include
+echo.^<script language="%~2" src="%~f1"^>^</script^>
 goto :EOF
 
 
 :wscmd.embed.js
-echo.^<script language="javascript"^>^<^^^![CDATA[
-echo.
-type %1
-echo.
-echo.]]^>^</script^>
+call :wscmd.embed "%~1" javascript
 goto :EOF
 
 
 :wscmd.embed.vbs
-echo.^<script language="vbscript"^>^<^^^![CDATA[
+call :wscmd.embed "%~1" vbscript
+goto :EOF
+
+
+:wscmd.embed
+echo.^<script language="%2"^>^<^^^![CDATA[
 echo.
-type %1
+type "%~1"
 echo.
 echo.]]^>^</script^>
 goto :EOF
 
 
 :wscmd.inline.js
-echo.^<script language="javascript"^>^<^^^![CDATA[
-echo.
-echo.eval^(%1^);
-echo.
-echo.]]^>^</script^>
+call :wscmd.inline "%~1;" javascript
 goto :EOF
 
 
 :wscmd.inline.vbs
-echo.^<script language="vbscript"^>^<^^^![CDATA[
+call :wscmd.inline "%~1" vbscript
+goto :EOF
+
+
+:wscmd.inline
+echo.^<script language="%2"^>^<^^^![CDATA[
 echo.
-echo.Eval %1
+echo.%~1
 echo.
 echo.]]^>^</script^>
 goto :EOF
