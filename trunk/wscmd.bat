@@ -30,7 +30,7 @@ for %%i in ( "%~dpn0.ini" ".\%~n0.ini" ) do (
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.9.7 Beta
+set wscmd.version=0.9.8 Beta
 
 
 :: Set defaults
@@ -41,26 +41,24 @@ if not defined wscmd.command set wscmd.command=cscript //NoLogo
 
 :: Parse command line arguments and set needful variables
 set wscmd.temp=
+set wscmd.inline=
+set wscmd.script=%~f0
+set wscmd.engine=.js
 set wscmd.compile=
 set wscmd.debug=
-set wscmd.self=%~f0
 set wscmd.quiet=
 
 
 if "%~1" == "" (
-	set wscmd.script=%~f0
-	set wscmd.engine=.js
 	shift /1
-	goto wscmd.1
+	goto wscmd.2
 )
 
 
 if /i "%~1" == "/q" (
-	set wscmd.script=%~f0
-	set wscmd.engine=.js
 	set wscmd.quiet=/q
 	shift /1
-	goto wscmd.1
+	goto wscmd.2
 )
 
 
@@ -105,11 +103,13 @@ if /i "%~1" == "/e" (
 		exit /b 1
 	)
 	set wscmd.inline=%2
+	set wscmd.script=
 	shift /1
 	shift /1
 ) else (
-	set wscmd.script=%1
-	if not defined wscmd.script set wscmd.script=%wscmd.self%
+	set wscmd.inline=
+	set wscmd.script=%~1
+	set wscmd.engine=%~x1
 	shift /1
 )
 
