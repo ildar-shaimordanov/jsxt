@@ -30,7 +30,7 @@ for %%i in ( "%~dpn0.ini" ".\%~n0.ini" ) do (
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.9.9 Beta
+set wscmd.version=0.9.10 Beta
 
 
 :: Set defaults
@@ -145,18 +145,18 @@ goto :EOF
 echo.%wscmd.name% Version %wscmd.version%
 echo.
 echo.Usage:
-echo.    %~n0 [/h ^| /q]
-echo.    %~n0 [/compile ^| /embed ^| /debug] [/js ^| /vbs] [/e source ^| filename arguments]
+echo.    %~n0 [/h ^| /help ^| /q]
+echo.    %~n0 [/compile ^| /embed ^| /debug] [/js ^| /vbs] [/e "source" ^| filename [arguments]]
 echo.
 echo.Valid options are:
-echo.    /h       - Display this help
-echo.    /q       - Quiet mode, affects when run interactively or through pipes
-echo.    /compile - Compile but not execute. Just store a temporary file on a disk
-echo.    /embed   - Embed external scripts into the resulting file
-echo.    /debug   - Output debugging information and execute
-echo.    /js      - Assume a value as a JavaScript source
-echo.    /vbs     - Assume a value as a VBScript code
-echo.    /e       - Assume a value as a string to be executed
+echo.    /h, /help  - Display this help
+echo.    /q         - Quiet mode, affects when run interactively or through pipes
+echo.    /compile   - Compile but not execute. Just store a temporary file on a disk
+echo.    /embed     - Embed external scripts into the resulting file
+echo.    /debug     - Output debugging information and execute
+echo.    /js        - Assume a value as a JavaScript source
+echo.    /vbs       - Assume a value as a VBScript code
+echo.    /e         - Assume a value as a string to be executed
 
 goto wscmd.stop
 
