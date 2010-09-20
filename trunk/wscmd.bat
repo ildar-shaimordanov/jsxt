@@ -30,13 +30,13 @@ for %%i in ( "%~dpn0.ini" ".\%~n0.ini" ) do (
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.9.10 Beta
+set wscmd.version=0.9.11 Beta
 
 
 :: Set defaults
 if not defined wscmd.include set wscmd.include=%~dp0js\*.js %~dp0js\win32\*.js %~dp0vbs\win32\*.vbs
 if not defined wscmd.execute set wscmd.execute=.\$$$%~n0.wsf
-if not defined wscmd.command set wscmd.command=cscript //NoLogo
+if not defined wscmd.command set wscmd.command=%WINDIR%\system32\cscript.exe //NoLogo
 
 
 :: Parse command line arguments and set needful variables
