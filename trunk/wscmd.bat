@@ -30,7 +30,7 @@ for %%i in ( "%~dpn0.ini" ".\%~n0.ini" ) do (
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.9.11 Beta
+set wscmd.version=0.9.12 Beta
 
 
 :: Set defaults
@@ -299,11 +299,14 @@ var help = (function()
 var alert = echo = print = function()
 {
 	var result = '';
-	for (var i = 0; i < arguments.length; i++) {
-		if ( i ) {
-			result += ',';
-		}
-		result += arguments[i];
+
+	if ( arguments.length == 0 ) {
+		return result;
+	}
+
+	result = arguments[0];
+	for (var i = 1; i < arguments.length; i++) {
+		result += ',' + arguments[i];
 	}
 	WScript.Echo(result);
 };
