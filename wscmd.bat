@@ -30,7 +30,7 @@ for %%i in ( "%~dpn0.ini" ".\%~n0.ini" ) do (
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.9.13 Beta
+set wscmd.version=0.9.14 Beta
 
 
 :: Set defaults
@@ -410,7 +410,7 @@ while ( true ) {
 					//expr = ( (/[\w\)\]\.]/).test(c) || (/[^:,;\[\(!\&\|=]/).test(c) ) && ! regex && ! quote;
 					expr = ( 
 							(
-								c >= 'a' && c <= 'Z' 
+								c >= 'a' && c <= 'z' 
 								|| 
 								c >= 'A' && c <= 'Z' 
 								|| 
