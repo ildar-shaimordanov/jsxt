@@ -30,7 +30,7 @@ for %%i in ( "%~dpn0.ini" ".\%~n0.ini" ) do (
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.9.12 Beta
+set wscmd.version=0.9.13 Beta
 
 
 :: Set defaults
@@ -384,15 +384,11 @@ while ( true ) {
 
 			var result = '';
 
-			var input;
-			var i;
-			var c;
-
 			WScript.StdOut.Write(PS1);
 
 			while ( true ) {
 
-				input = (function()
+				var input = (function()
 				{
 					var e;
 					try {
@@ -403,11 +399,9 @@ while ( true ) {
 					}
 				})();
 
-				i = 0;
-				while ( i < input.length ) {
+				for (var i = 0; i < input.length; i++) {
 
-					c = input.charAt(i);
-					i++;
+					var c = input.charAt(i);
 
 					// Store the state of [a-z0-9_], or \] or \) to 
 					// differ regexes and division in expressions
@@ -532,7 +526,7 @@ while ( true ) {
 						stack.length--;
 					}
 
-				} // while ( i < input.length )
+				}; // for (var i = 0; i < input.length; i++)
 
 				result += input;
 
