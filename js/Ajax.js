@@ -5,11 +5,9 @@
 // Copyright (c) 2009 by Ildar Shaimordanov
 //
 
-if ( 'undefined' == typeof Ajax ) {
-
-function Ajax()
-{
-};
+if ( ! this.Ajax ) {
+    this.Ajax = {};
+}
 
 /**
  * XMLHttpRequest generated error. 
@@ -92,10 +90,6 @@ Ajax.STATE_RECEIVING	= 3;
  */
 Ajax.STATE_LOADED	= 4;
 
-}
-
-if ( ! Ajax.create ) {
-
 /**
  * Creates the XMLHttpRequest object platform-independently. 
  * Returned object has the following methods and properties.
@@ -157,10 +151,6 @@ Ajax.create = function()
 
 	return null;
 };
-
-}
-
-if ( ! Ajax.query ) {
 
 /**
  * Wrapper for fast query of requests.
@@ -235,10 +225,6 @@ Ajax.query = function(url, options)
 	return result;
 };
 
-}
-
-if ( ! Ajax.queryFile ) {
-
 /**
  * Wrapper for Ajax.query for the fast query of the remote and local files.
  * It defines options to be as async=false, nocache=true and onreadystate as the internal function if they are not defined.
@@ -250,7 +236,7 @@ if ( ! Ajax.queryFile ) {
  */
 Ajax.queryFile = function(filename, options)
 {
-	if ( ! /\w+:\/\//.test(filename) ) {
+	if ( ! (/\w+:\/\//).test(filename) ) {
 		filename = 'file:///' + filename;
 	}
 
@@ -275,6 +261,4 @@ Ajax.queryFile = function(filename, options)
 
 	return Ajax.query(filename, options);
 };
-
-}
 

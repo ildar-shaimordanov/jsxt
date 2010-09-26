@@ -5,10 +5,9 @@
 // Copyright (c) 2010 by Ildar Shaimordanov
 //
 
-
-function XML()
-{
-};
+if ( ! this.XML ) {
+    this.XML = {};
+}
 
 /**
  * Creates new XML document
