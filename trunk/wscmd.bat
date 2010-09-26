@@ -30,7 +30,7 @@ for %%i in ( "%~dpn0.ini" ".\%~n0.ini" ) do (
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.9.14 Beta
+set wscmd.version=0.9.15 Beta
 
 
 :: Set defaults
@@ -207,7 +207,7 @@ if defined wscmd.script (
 	call :wscmd.%wscmd.link%%wscmd.engine% %wscmd.script%
 ) else (
 	if defined wscmd.debug echo.Inline: %wscmd.inline%>&2
-	call :wscmd.inline%wscmd.engine% %wscmd.inline%
+	call :wscmd.inline%wscmd.engine%
 )
 
 echo.^</job^>
@@ -250,19 +250,20 @@ goto :EOF
 
 
 :wscmd.inline.js
-call :wscmd.inline "%~1;" javascript
+call :wscmd.inline javascript ";"
 goto :EOF
 
 
 :wscmd.inline.vbs
-call :wscmd.inline "%~1" vbscript
+call :wscmd.inline vbscript
 goto :EOF
 
 
 :wscmd.inline
-echo.^<script language="%2"^>^<^^^![CDATA[
+set wscmd.inline=!wscmd.inline:~1,-1!
+echo.^<script language="%1"^>^<^^^![CDATA[
 echo.
-echo.%~1
+echo.!wscmd.inline!%~2
 echo.
 echo.]]^>^</script^>
 goto :EOF
