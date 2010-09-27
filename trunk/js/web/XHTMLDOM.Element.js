@@ -103,17 +103,15 @@ XHTMLDOM.Element.toggle = function(element, className)
 
 			var style = document.createElement('style');
 			style.type = 'text/css';
-			var css = '.' + className + ' { display: none; }';
-			if ( style.styleSheet ) {
-				style.styleSheet.cssText = css;
-			} else {
-				if ( style.innerText == '' ) {
-					style.innerText = css;
-				} else {
-					style.innerHTML = css;
-				}
-			}
 			document.getElementsByTagName('head')[0].appendChild(style);
+
+			var style = document.styleSheets[document.styleSheets.length - 1];
+
+			if ( style.insertRule ) {
+				style.insertRule('.' + className + '{ display: none; }', style.cssRules.length);
+			} else {
+				style.addRule('.' + className, 'display: none');
+			}
 		}
 	}
 
