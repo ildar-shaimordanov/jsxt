@@ -30,7 +30,7 @@ for %%i in ( "%~dpn0.ini" ".\%~n0.ini" ) do (
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.9.15 Beta
+set wscmd.version=0.9.16 Beta
 
 
 :: Set defaults
@@ -41,7 +41,7 @@ if not defined wscmd.command set wscmd.command=%WINDIR%\system32\cscript.exe //N
 
 :: Parse command line arguments and set needful variables
 set wscmd.temp=
-set wscmd.inline=
+set wscmd.inline=""
 set wscmd.script=%~f0
 set wscmd.engine=.js
 set wscmd.compile=
@@ -107,7 +107,7 @@ if /i "%~1" == "/e" (
 	shift /1
 	shift /1
 ) else (
-	set wscmd.inline=
+	set wscmd.inline=""
 	set wscmd.script=%~1
 	rem VBS files only are considered directly, others are JS
 	if /i "%~x1" == ".vbs" set wscmd.engine=%~x1
@@ -365,12 +365,11 @@ eval.save = function(format)
 
 while ( true ) {
 
-	var result;
-
 	var e;
 	try {
 
-		result = eval((function(PS1, PS2)
+		// String contains result of eval'd string
+		var result = eval((function(PS1, PS2)
 		{
 			if ( WScript.Arguments.Named.Exists('Q') ) {
 				PS1 = '';
@@ -383,26 +382,43 @@ while ( true ) {
 			var slash = false;
 			var expr = false;
 
-			var result = '';
+			// Store all charactrrs enetred from STDIN.
+			// Array is used to prevent usage of String.charAt
+			// This makes the code the safer
+			// Look for comments maked with NOTE!!!
+			var result = [];
 
 			WScript.StdOut.Write(PS1);
 
 			while ( true ) {
 
+				// One entered line as an array of characters
 				var input = (function()
 				{
 					var e;
 					try {
 						eval.number++;
-						return WScript.StdIn.ReadLine();
+						return (function()
+						{
+							var result = [];
+							while ( ! WScript.StdIn.AtEndOfLine ) {
+								result[result.length] = WScript.StdIn.Read(1);
+							}
+							WScript.StdIn.ReadLine();
+							return result;
+						})();
 					} catch (e) {
-						return 'quit()';
+						return ['q', 'u', 'i', 't', '(', ')'];
 					}
 				})();
 
 				for (var i = 0; i < input.length; i++) {
 
-					var c = input.charAt(i);
+					// NOTE!!!
+					// Array instead string makes the code the safer.
+					// So redeclared or deleted method String.charAt will
+					// not bring to crash of the code. 
+					var c = input[i];
 
 					// Store the state of [a-z0-9_], or \] or \) to 
 					// differ regexes and division in expressions
@@ -529,7 +545,9 @@ while ( true ) {
 
 				}; // for (var i = 0; i < input.length; i++)
 
-				result += input;
+				for (var i = 0; i < input.length; i++) {
+					result[result.length] = input[i];
+				}
 
 				if ( stack.length == 0 && ! quote && ! regex ) {
 					break;
@@ -542,17 +560,23 @@ while ( true ) {
 			// Use the direct comparacy with chacarters instead 
 			// of the regex testing to bypass possible problems
 			//if ( ! (/^\s*$/).test(result) ) {
-			//	result += ( eval.history ? '\n' : '' ) + result;
+			//	eval.history += ( eval.history ? '\n' : '' ) + result;
 			//}
+			var is_empty = true;
+			var history = '';
 			for (var i = 0; i < result.length; i++) {
-				var c = result.charAt(i);
-				if ( c > ' ' ) {
-					eval.history += ( eval.history ? '\n' : '' ) + result;
-					break;
-				}
+				var c = result[i];
+				is_empty = is_empty && c <= ' ';
+				history += result[i];
 			}
-
-			return result;
+			if ( is_empty ) {
+				return '';
+			}
+			if ( eval.history ) {
+				eval.history += '\n';
+			}
+			eval.history += history;
+			return history;
 		})('wscmd > ', 'wscmd :: '));
 
 		if ( result !== undefined ) {
