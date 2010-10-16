@@ -74,7 +74,7 @@ var exc = [].union(expandFileList(install.exclude));
 
 var inc = WScript.Arguments.Unnamed.length == 0 
 	? install.include 
-	: Enumerate.toArray(WScript.Arguments.Unnamed, function(v)
+	: Enumerator.toArray(WScript.Arguments.Unnamed, function(v)
 	{
 		return v;
 	});
