@@ -2,13 +2,11 @@
 // JavaScript unit
 // Add-on for the Enumerator manipulations
 //
-// Copyright (c) 2009 by Ildar Shaimordanov
+// Copyright (c) 2009, 2010 by Ildar Shaimordanov
 //
 
-var Enumerate = {};
-
 /**
- * Enumerate.toArray()
+ * Enumerator.toArray()
  *
  * @description
  * The static method allows to get an array from the collection 
@@ -29,7 +27,7 @@ var Enumerate = {};
  * @return	Array
  * @access	static
  */
-Enumerate.toArray = function(collection, fun, thisp)
+Enumerator.toArray = function(collection, fun, thisp)
 {
 	if ( typeof fun != "function" ) {
 		throw new TypeError();
@@ -47,7 +45,7 @@ Enumerate.toArray = function(collection, fun, thisp)
 };
 
 /**
- * Enumerate.toObject()
+ * Enumerator.toObject()
  *
  * @description
  * The static method allows to get an object from the collection 
@@ -71,7 +69,7 @@ Enumerate.toArray = function(collection, fun, thisp)
  * @return	Array
  * @access	static
  */
-Enumerate.toObject = function(collection, fun, thisp)
+Enumerator.toObject = function(collection, fun, thisp)
 {
 	if ( typeof fun != "function" ) {
 		throw new TypeError();
@@ -90,7 +88,7 @@ Enumerate.toObject = function(collection, fun, thisp)
 };
 
 /**
- * Enumerate.forItems()
+ * Enumerator.forItems()
  *
  * @description
  * The static method allows to parse the collection of items 
@@ -113,7 +111,7 @@ Enumerate.toObject = function(collection, fun, thisp)
  * @return	avoid
  * @access	static
  */
-Enumerate.forItems = function(collection, fun, thisp)
+Enumerator.forItems = function(collection, fun, thisp)
 {
 	if ( typeof fun != "function" ) {
 		throw new TypeError();
