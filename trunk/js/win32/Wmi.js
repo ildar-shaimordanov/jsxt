@@ -8,7 +8,6 @@
 
 /*
 
-
 // 1. Traditional call
 
 
@@ -73,10 +72,10 @@ for (var fc = new Enumerator(processes); ! fc.atEnd(); fc.moveNext()) {
 }
 
 
-// 2.3.1. Syntax sugar call. 
+// 2.3. Syntax sugar call. 
 
 
-// 2.3.2. Select all processes. 
+// 2.3.1. Select all processes. 
 var wmi = new Wmi({
     extendSubclasses: 1
 });
@@ -127,7 +126,6 @@ for (var fc = new Enumerator(os); ! fc.atEnd(); fc.moveNext()) {
     WScript.Echo('ServicePackMajorVersion: ' + p.ServicePackMajorVersion);
     WScript.Echo('ServicePackMinorVersion: ' + p.ServicePackMinorVersion);
 }
-
 
 */
 
