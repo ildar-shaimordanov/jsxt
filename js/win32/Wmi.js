@@ -8,33 +8,114 @@
 
 /*
 
-var wmi = new Wmi();
 
-var processes = wmi.exec('Win32_Process', 'Name="cmd.exe"');
+// 1. Traditional call
+
+
+// 1.1. Select all processes. 
+var wbemService = GetObject('WinMgmts:');
+var processes = wbemService.ExecQuery('SELECT * FROM Win32_Process');
 for (var fc = new Enumerator(processes); ! fc.atEnd(); fc.moveNext()) {
     var p = fc.item();
-    WScript.Echo(p.Handle, p.Name, p.commandLine);
+    WScript.Echo(p.Name, p.commandLine);
 }
 
+
+// 1.2. Select all "svchost.exe" processes. 
+var wbemService = GetObject('WinMgmts:');
+var processes = wbemService.ExecQuery('SELECT * FROM Win32_Process WHERE Name = "svchost.exe"');
+for (var fc = new Enumerator(processes); ! fc.atEnd(); fc.moveNext()) {
+    var p = fc.item();
+    WScript.Echo(p.Name, p.commandLine);
+}
+
+
+// 2. New way. 
+
+
+// 2.1. Dynamic call. 
+
+
+// 2.1.1. Select all processes. 
+var wmi = new Wmi();
+var processes = wmi.exec('Win32_Process');
+for (var fc = new Enumerator(processes); ! fc.atEnd(); fc.moveNext()) {
+    var p = fc.item();
+    WScript.Echo(p.Name, p.commandLine);
+}
+
+
+// 2.1.2. Select all "svchost.exe" processes. 
+var wmi = new Wmi();
+var processes = wmi.exec('Win32_Process', 'Name = "svchost.exe"');
+for (var fc = new Enumerator(processes); ! fc.atEnd(); fc.moveNext()) {
+    var p = fc.item();
+    WScript.Echo(p.Name, p.commandLine);
+}
+
+
+// 2.2. Static call. 
+
+
+// 2.2.1. Select all processes. Static call. 
+var processes = Wmi.exec('Win32_Process');
+for (var fc = new Enumerator(processes); ! fc.atEnd(); fc.moveNext()) {
+    var p = fc.item();
+    WScript.Echo(p.Name, p.commandLine);
+}
+
+
+// 2.2.2. Select all "svchost.exe" processes. 
+var processes = Wmi.exec('Win32_Process', 'Name = "svchost.exe"');
+for (var fc = new Enumerator(processes); ! fc.atEnd(); fc.moveNext()) {
+    var p = fc.item();
+    WScript.Echo(p.Name, p.commandLine);
+}
+
+
+// 2.3.1. Syntax sugar call. 
+
+
+// 2.3.2. Select all processes. 
 var wmi = new Wmi({
     extendSubclasses: 1
 });
-
-WScript.Echo('==== Processes ====');
-var processes = wmi.Win32_Process('Name = "cmd.exe"');
+var processes = wmi.Win32_Process();
 for (var fc = new Enumerator(processes); ! fc.atEnd(); fc.moveNext()) {
     var p = fc.item();
-    WScript.Echo(p.Handle, p.Name, p.commandLine);
+    WScript.Echo(p.Name, p.commandLine);
 }
 
-WScript.Echo('==== Services ====');
-var services = wmi.Win32_Service('Name LIKE "%Server"');
+
+// 2.3.2. Select all "svchost.exe" processes. Syntax sugar call. 
+var wmi = new Wmi({
+    extendSubclasses: 1
+});
+var processes = wmi.Win32_Process('Name = "svchost.exe"');
+for (var fc = new Enumerator(processes); ! fc.atEnd(); fc.moveNext()) {
+    var p = fc.item();
+    WScript.Echo(p.Name, p.commandLine);
+}
+
+
+// 2.4. Another examples. 
+
+
+// 2.4.1. Select all services
+var wmi = new Wmi({
+    extendSubclasses: 1
+});
+var services = wmi.Win32_Service();
 for (var fc = new Enumerator(services); ! fc.atEnd(); fc.moveNext()) {
     var p = fc.item();
     WScript.Echo(p.Name);
 }
 
-WScript.Echo('==== Operating System ====');
+
+// 2.4.2. Select operating system information
+var wmi = new Wmi({
+    extendSubclasses: 1
+});
 var os = wmi.Win32_OperatingSystem();
 for (var fc = new Enumerator(os); ! fc.atEnd(); fc.moveNext()) {
     var p = fc.item();
@@ -47,6 +128,7 @@ for (var fc = new Enumerator(os); ! fc.atEnd(); fc.moveNext()) {
     WScript.Echo('ServicePackMinorVersion: ' + p.ServicePackMinorVersion);
 }
 
+
 */
 
 function Wmi(params)
@@ -57,8 +139,10 @@ function Wmi(params)
 
 	self.service = null;
 
-	if ( params instanceof Wmi || params.wmi ) {
-		self.service = params || params.wmi;
+	if ( params instanceof ActiveXObject ) {
+		self.service = params;
+	} else if ( params instanceof Wmi ) {
+		self.service = params.service;
 	} else if ( params instanceof String || params.moniker ) {
 		self.service = GetObject(params || params.moniker);
 	} else if ( params.user ) {
@@ -159,8 +243,7 @@ Wmi.extendSubclasses = function(instance)
 
 			instance[className] = function(whereClause)
 			{
-				var query = Wmi.prepare(className, whereClause);
-				return instance.service.ExecQuery(query);
+				return Wmi.exec(className, whereClause, instance.service);
 			};
 		})();
 	}
@@ -174,6 +257,17 @@ Wmi.prepare = function(className, whereClause)
 		query += ' WHERE (' + whereClause + ')';
 	}
 	return query;
+};
+
+Wmi.prototype.execQuery = function(query)
+{
+	return this.service.ExecQuery(query);
+};
+
+Wmi.prototype.exec = function(className, whereClause)
+{
+	var query = Wmi.prepare(className, whereClause);
+	return this.execQuery(query);
 };
 
 Wmi.execQuery = function(query, params)
