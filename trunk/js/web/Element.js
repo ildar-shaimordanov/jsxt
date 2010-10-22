@@ -62,7 +62,7 @@ Element.removeClass = function(element, className)
  * {
  * 	document.getElementById('header').onclick = function()
  * 	{
- * 		Element.toggle('content');
+ * 		Element.toggleClass('content');
  * 	};
  * };
  * 
@@ -85,9 +85,23 @@ Element.removeClass = function(element, className)
  * \x3C/body\x3E
  * 
  */
-Element.toggle = function(element, className)
+Element.toggleClass = function(element, className)
 {
-	className = className || 'xhtmldom_element_toggle_to_hidden';
+	if ( typeof element == 'string' ) {
+		element = document.getElementById(element);
+	}
+
+	if ( Element.classExists(element, className) ) {
+		Element.removeClass(element, className);
+	} else {
+		Element.addClass(element, className);
+	};
+	return element;
+};
+
+Element.toggle = function(element, flag)
+{
+	className = 'xhtmldom_element_toggle_to_hidden';
 
 	if ( ! arguments.callee.anon ) {
 		arguments.callee.anon = true;
@@ -105,15 +119,22 @@ Element.toggle = function(element, className)
 		}
 	}
 
-	if ( typeof element == 'string' ) {
-		element = document.getElementById(element);
-	}
-
-	if ( Element.classExists(element, className) ) {
+	if ( flag == -1 ) {
+		Element.addClass(element, className);
+	} else if ( flag == +1 ) {
 		Element.removeClass(element, className);
 	} else {
-		Element.addClass(element, className);
-	};
-	return element;
+		Element.toggleClass(element);
+	}
+};
+
+Element.hide = function(element)
+{
+	Element.toggle(element, -1);
+};
+
+Element.show = function(element)
+{
+	Element.toggle(element, +1);
 };
 
