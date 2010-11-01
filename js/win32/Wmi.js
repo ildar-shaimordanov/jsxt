@@ -257,9 +257,30 @@ Wmi.prepare = function(className, whereClause)
 	return query;
 };
 
+Wmi.prototype.get = function(path)
+{
+	return this.service.Get(path);
+};
+
 Wmi.prototype.execQuery = function(query)
 {
 	return this.service.ExecQuery(query);
+};
+
+Wmi.prototype.execMethod = function(path, methodName, inParams)
+{
+	var objClass = this.get(path);
+	var objParams = null;
+	if ( inParams ) {
+		objParams = objClass.Methods_(methodName).InParameters.SpawnInstance_();
+		for (var p in inParams) {
+			if ( ! inParams.hasOwnProeprty(p) ) {
+				continue;
+			}
+			objParams.Properties_.Item(p) = inParams[p];
+		}
+	}
+	return this.service.ExecMethod(path, methodName, objParams);
 };
 
 Wmi.prototype.exec = function(className, whereClause)
@@ -268,15 +289,27 @@ Wmi.prototype.exec = function(className, whereClause)
 	return this.execQuery(query);
 };
 
+Wmi.get = function(path, params)
+{
+	var wmi = new Wmi(params);
+	return wmi.get(path);
+};
+
 Wmi.execQuery = function(query, params)
 {
 	var wmi = new Wmi(params);
-	return wmi.service.ExecQuery(query);
+	return wmi.execQuery(query);
+};
+
+Wmi.execMethod = function(path, methodName, inParams, params)
+{
+	var wmi = new Wmi(params);
+	return wmi.execMethod(path, methodName, inParams);
 };
 
 Wmi.exec = function(className, whereClause, params)
 {
-	var query = Wmi.prepare(className, whereClause);
-	return Wmi.execQuery(query, params);
+	var wmi = new Wmi(params);
+	return wmi.exec(className, whereClause);
 };
 
