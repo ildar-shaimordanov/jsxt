@@ -153,6 +153,30 @@ Ajax.create = function()
 };
 
 /**
+ * Wrapper for encodeURIComponent over all own properties
+ *
+ * @param	Object
+ * @return	String
+ * @access	static
+ */
+Ajax.encode = function(content)
+{
+	if ( 'string' == typeof content ) {
+		return content;
+	}
+
+	var result = [];
+	for (var p in content) {
+		if ( ! content.hasOwnProperty(p) ) {
+			continue;
+		}
+		var part = encodeURIComponent(p) + '=' + encodeURIComponent(content[p]);
+		result.push(part);
+	}
+	return result.join('&');
+};
+
+/**
  * Wrapper for fast query of requests.
  * Allows optional parameters provided via the object-like argument:
  * -- method		String		"GET", "POST", etc
@@ -169,9 +193,9 @@ Ajax.create = function()
  * @return	Boolean
  * @access	static
  */
-Ajax.query = function(url, options)
+Ajax.query = function(url)
 {
-	options = options || {};
+	var options = arguments[1] || {};
 
 	var xmlhttp = Ajax.create();
 	var result;
@@ -198,7 +222,8 @@ Ajax.query = function(url, options)
 		if ( ! options.headers ) {
 			options.headers = {};
 		}
-		options.headers['Content-Length'] = String(options.content).length;
+		options.content = Ajax.encode(options.content);
+		options.headers['Content-Length'] = options.content.length;
 		if ( ! options.headers.hasOwnProperty('Content-Type') ) {
 			options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
 		}
