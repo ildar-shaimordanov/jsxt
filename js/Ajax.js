@@ -198,7 +198,7 @@ Ajax.query = function(url, options)
 		if ( ! options.headers ) {
 			options.headers = {};
 		}
-		options.headers['Content-Length'] = String(content).length;
+		options.headers['Content-Length'] = String(options.content).length;
 		if ( ! options.headers.hasOwnProperty('Content-Type') ) {
 			options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
 		}
