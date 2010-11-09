@@ -3,10 +3,12 @@
 // This module provides methods for the classical OOP
 //
 // http://javascript.ru/forum/66098-post2.html
+//
 
 
 /*
 
+// Point is the base class, the parent of all other classes
 var Point = Object.inherit({
 	constructor: function(x, y)
 	{
@@ -24,6 +26,7 @@ var Point = Object.inherit({
 	}
 });
 
+// Circle is the new class inherited from the Point class
 var Circle = Point.inherit({
 	constructor: function(x, y, r)
 	{
@@ -41,6 +44,7 @@ var Circle = Point.inherit({
 	}
 });
 
+// Rectangle is another class inherited from the Point class
 var Rectangle = Point.inherit({
 	constructor: function(x, y, w, h)
 	{
@@ -60,6 +64,7 @@ var Rectangle = Point.inherit({
 	}
 });
 
+// Square is the class inherited from the Rectangle class
 var Square = Rectangle.inherit({
 	constructor: function(x, y, s)
 	{
@@ -71,6 +76,7 @@ var Square = Rectangle.inherit({
 	}
 });
 
+// Instances of the each class
 var c = new Point(1, 1);
 c.draw();
 
