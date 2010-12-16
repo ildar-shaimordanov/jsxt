@@ -10,7 +10,7 @@
 
 Working but monstruous code
 
-These functions deplicates features of the same functions from PHP
+These functions duplicate features of the same functions from PHP
 
 htmlentities
 
@@ -22,15 +22,15 @@ html_entity_decode
 http://phpjs.org/functions/html_entity_decode:424
 http://phpjs.org/functions/get_html_translation_table:416
 
-These functions below have been found surfing internet (look for links in the corresponding comments). 
+The functions below have been found surfing internet (look for the links in the corresponding comments). 
 There are no self-coded translation tables. They do not duplicate features of the same functions in PHP. 
-This is JavaScript, not PHP, each language has it's own way. In my opinion this is not necessary. 
+In my opinion this is not necessary. This is JavaScript, not PHP, and each language has it's own way. 
 
 I do not know why but all browsers do not convert quotes to their entities and leave them as is. 
 I just added the manual replacement of 'single' and "double" quotes in the Entity.encode function. 
 Convert of entities to characters works fine without additional codes. 
 
-Comparing functionality of these functions with the same in PHP we can find that these work as if ENT_QUOTES is passed. 
+Comparing functionality of these functions with the same in PHP we can find that they work as if ENT_QUOTES is passed. 
 
 */
 
