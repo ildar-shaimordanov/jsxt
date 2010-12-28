@@ -21,7 +21,7 @@ for %%i in ( "%~dpn0.ini" ".\%~n0.ini" ) do (
 				set wscmd.temp=!wscmd.temp:%%~p0=%~p0!
 				set wscmd.temp=!wscmd.temp:%%~n0=%~n0!
 				set wscmd.temp=!wscmd.temp:%%~x0=%~x0!
-				set wscmd.%%k=!wscmd.temp!
+				set wscmd.ini.%%k=!wscmd.temp!
 			)
 		)
 	)
@@ -30,19 +30,19 @@ for %%i in ( "%~dpn0.ini" ".\%~n0.ini" ) do (
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.9.16 Beta
+set wscmd.version=0.9.17 Beta
 
 
 :: Set defaults
-if not defined wscmd.include set wscmd.include=%~dp0js\*.js %~dp0js\win32\*.js %~dp0vbs\win32\*.vbs
-if not defined wscmd.execute set wscmd.execute=.\$$$%~n0.wsf
-if not defined wscmd.command set wscmd.command=%WINDIR%\system32\cscript.exe //NoLogo
+if not defined wscmd.ini.include set wscmd.ini.include=%~dp0js\*.js %~dp0js\win32\*.js %~dp0vbs\win32\*.vbs
+if not defined wscmd.ini.execute set wscmd.ini.execute=.\$$$%~n0.wsf
+if not defined wscmd.ini.command set wscmd.ini.command=%WINDIR%\system32\cscript.exe //NoLogo
 
 
 :: Parse command line arguments and set needful variables
 set wscmd.temp=
-set wscmd.inline=""
-set wscmd.script=%~f0
+set wscmd.inline=
+set wscmd.script=
 set wscmd.engine=.js
 set wscmd.compile=
 set wscmd.debug=
@@ -107,7 +107,7 @@ if /i "%~1" == "/e" (
 	shift /1
 	shift /1
 ) else (
-	set wscmd.inline=""
+	set wscmd.inline=
 	set wscmd.script=%~1
 	rem VBS files only are considered directly, others are JS
 	if /i "%~x1" == ".vbs" set wscmd.engine=%~x1
@@ -125,14 +125,14 @@ goto wscmd.1
 
 
 :: Compile and link the source with libraries
-call :wscmd.compile > "%wscmd.execute%"
+call :wscmd.compile > "%wscmd.ini.execute%"
 
 
 :: Run the final script
 if not defined wscmd.compile (
 	if defined wscmd.debug echo.Running:>&2
-	%wscmd.command% "%wscmd.execute%" %wscmd.quiet% %wscmd.args%
-	del "%wscmd.execute%"
+	%wscmd.ini.command% "%wscmd.ini.execute%" %wscmd.quiet% %wscmd.args%
+	del "%wscmd.ini.execute%"
 )
 
 
@@ -197,7 +197,7 @@ if defined wscmd.debug echo.Libraries:>&2
 set wscmd.link=include
 if "%wscmd.compile%" == "2" set wscmd.link=embed
 
-for %%l in ( %wscmd.include% ) do (
+for %%l in ( %wscmd.ini.include% ) do (
 	if defined wscmd.debug echo.    "%%~l">&2
 	call :wscmd.%wscmd.link%%%~xl "%%l"
 )
@@ -205,9 +205,12 @@ for %%l in ( %wscmd.include% ) do (
 if defined wscmd.script (
 	if defined wscmd.debug echo.File: "%wscmd.script%">&2
 	call :wscmd.%wscmd.link%%wscmd.engine% %wscmd.script%
-) else (
+) else if defined wscmd.inline (
 	if defined wscmd.debug echo.Inline: %wscmd.inline%>&2
 	call :wscmd.inline%wscmd.engine%
+) else (
+	rem Console mode, no inline scripts and no script files
+	call :wscmd.%wscmd.link%%wscmd.engine% "%~dpnx0"
 )
 
 echo.^</job^>
@@ -241,6 +244,7 @@ goto :EOF
 
 
 :wscmd.embed
+echo.^<^^^!-- "%~1" --^>
 echo.^<script language="%2"^>^<^^^![CDATA[
 echo.
 type "%~1"
