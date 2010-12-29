@@ -90,6 +90,25 @@ gc()                     Run the garbage collector
 
 We see that the console mode provides us several useful functions that are wrappers over some standard methods from WSH. they are implemented for the faster typing. 
 
+== Multiple lines ==
+
+Working in this mode you can test the feature allowing to enter commands in several lines. For example:
+
+{{{
+wscmd > function sign(a, b) {
+wscmd :: if ( a > b ) {
+wscmd :: return +1;
+wscmd :: }
+wscmd :: if ( a < b ) {
+wscmd :: return -1;
+wscmd :: }
+wscmd :: return 0;
+wscmd :: }
+wscmd >
+wscmd > sign
+function sign(a, b) {if ( a > b ) {return +1;}if ( a < b ) {return -1;}return 0;}
+}}}
+
 = External scripts =
 
 Ok. We were introduced to the console mode. It's time to know others. Let's create the file `script.js` and save it with the following text:
