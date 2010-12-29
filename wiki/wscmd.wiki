@@ -167,7 +167,7 @@ command - defines the command that will run your script. Don't tuch it. This is 
 
 At the beginning of this article I have said that unfortunately this tool has some shortcomings. Above we met one of them. Inner double quotation marks are restricted. 
 
-Another thing is bug with double and single quotation marks used within RegExps. If your RegExp contains one or even count of quotation marks then the input line is considered as continued in the next line and the tool waits when you will close the beginning quotation mark. This is real bug and I want to fix it but met it once and found a workaround - a repeated quotation mark after inline comment (`//'` or `//"`). 
+Another thing is bug with double and single quotation marks used within regular expressions. If your regular expression contains one or even count of quotation marks then the input line is considered as continued in the next line and the tool waits when you will close the beginning quotation mark. This is real bug and I want to fix it but met it once and found a workaround - a repeated quotation mark after inline comment (`//'` or `//"`). 
 
 = Conclusion =
 
