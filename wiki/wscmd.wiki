@@ -1,0 +1,170 @@
+#labels Featured
+_This page tells about wscmd, Windows Scripting Command Interpreter._
+
+= Introduction =
+
+Once I understood that absence of any kind of a console mode in WSH is big omission. I thought to myself why masters from Redmond have not impelmented this feature for JScript and VBScript. Of course, I know that there are many JavaScript interpreters with the supported console mode (for example, [http://www.mozilla.org/rhino/ Rhino] or [http://narwhaljs.org/ Narwhal], etc). But all of them has two main shortcomings:
+  * they are foreign tools in Windows and should be downloaded and installed firstly; 
+  * they have their own interface of communication with the world that is different of WinAPI. 
+
+I had got motivation to start my little job in this direction. Working on my tool I crystallized several features and implemented all of them step by step. Recently now it works almost properly excepting some shortcomings that I am planning to fix. These are the features: 
+  # run an external script
+  # execute inline code both JScript or VBScript entered in the command line
+  # enter to the console mode
+  # compile the resulting WSF file with linked or embeded external libraries
+  # configurable via an external configurational file
+
+Let's consider this tool. It's name is Windows Scripting Command Interpreter, or shortly wscmd. 
+
+= HELP =
+
+First of all it has the displayable help:
+
+{{{
+wscmd /h
+wscmd /help
+}}}
+
+Both these commands show the help looking like below:
+
+{{{
+Windows Scripting Command Interpreter
+
+Usage:
+    wscmd [/h | /help | /q]
+    wscmd [/compile | /embed | /debug] [/js | /vbs] [/e "source" | filename [arguments]]
+
+Valid options are:
+    /h, /help  - Display this help
+    /q         - Quiet mode, affects when run interactively or through pipes
+    /compile   - Compile but not execute. Just store a temporary file on a disk
+    /embed     - Embed external scripts into the resulting file
+    /debug     - Output debugging information and execute
+    /js        - Assume a value as a JavaScript source
+    /vbs       - Assume a value as a VBScript code
+    /e         - Assume a value as a string to be executed
+}}}
+
+Looking on this help we can say that the tool has some arguments but all of them are optional. 
+
+*NOTE*: Order of all arguments is mandatory as they are listed in the help page. 
+
+= CONSOLE MODE =
+
+Let's run it by the following command:
+
+{{{
+wscmd
+}}}
+
+we will find oneself in the prompt. Try any command valid in JScript:
+
+{{{
+wscmd > 2 * 2
+4
+wscmd > Math.pow(2, 4)
+16
+wscmd > quit()
+}}}
+
+You can see that each command is executed and displayed immediately. And we know that stop an execution of wscmd is performed by the command `quit()`. This function is wrapper for the `WScript.Quit()` method from WSH. 
+
+Fine! We have the working console mode and it allows us to execute any JScript command and to see results. To know better the console mode let's run the command `help()`:
+
+{{{
+wscmd > help()
+
+Commands                 Descriptions
+========                 ============
+help()                   Display this help
+alert(), echo(), print() Print expressions
+quit(), exit()           Quit this shell
+eval.history             Display the history
+eval.save([format])      Save the history to the file
+cmd(), shell()           Run new DOS-session
+sleep(n)                 Sleep n milliseconds
+gc()                     Run the garbage collector
+}}}
+
+We see that the console mode provides us several useful functions that are wrappers over some standard methods from WSH. they are implemented for the faster typing. 
+
+= EXTERNAL SCRIPTS =
+
+Ok. We were introduced to the console mode. It's time to know others. Let's create the file `script.js` and save it with the following text:
+
+{{{
+print('Hello, world!');
+}}}
+
+and run it as follows:
+
+{{{
+wscmd script.js
+}}}
+
+Fine again! It works. What about VBScript? It works too:
+
+{{{
+' Save this file as script.vbs and run it
+print "Hello, world!"
+}}}
+
+{{{
+wscmd /vbs script.vbs
+}}}
+
+= INLINE MODE =
+
+Now we can investigate the last mode of the tool - inline mode. It considers any string from the command line as valid JScript or VBScript commands and executes them:
+
+{{{
+wscmd /js  /e "print(2 * 2)"
+
+wscmd /vbs /e "print 2 * 2"
+}}}
+
+Unfortunately the DOS-shell has many restrictions in it's syntax, and we cannot use double quotation marks that strongly used as string literals in VBScript. So the following code will be failed  `wscmd /vbs /e "print "Hello, world""`. I have made many tests - I have changed the logic of conditional operators checking arguments of the command line, added extra quotation marks and escaping characters, etc. But nothing has helped me. I will work on this to fix it but this drawback is present now. As a workaround, you can create a file or use the console mode. 
+
+= DEBUG MODE =
+
+The debug mode is an additional feature that allows to see what libraries are linked:
+
+{{{
+wscmd /debug
+
+wscmd /debug script.js
+
+wscmd /debug /vbs /e "print 2 * 2"
+}}}
+
+= SO CALLED COMPILATION =
+
+Surely, this is not real compilation. But this allows to put together all libraries and the working script into one WSH file as a) linked external scripts using the `<script>` tag or b) embed into this WSH file directly. Use one of them:
+  * `/compile` - creates the temporary file on a disk without execution. All external libraries will be included using `<script>` tag. 
+  * `/embed` - the same as above but all scripts will be embeded into the resulting file. This will grow the file but make it standalone and portable without dependencies. 
+
+= CONFIGURATION =
+
+Now this is the time to talk about hwo to configure the tool. It is easy. Just create the file named as `wscmd.ini`, fill it and save into one of the two places: the directory where `wscmd.bat` is located or into the current working directory. The content of this file is easy too -- three configurational parameters:
+
+include - defines the list of patterns of files to be included. You can use the following macros for refer to 
+  * `%~d0` - the disk
+  * `%~p0` - the path
+  * `%~n0` - the filename
+  * `%~x0` - the extension
+
+The default value allows all `js\*.js`, `js\win32\*.js` and `vbs\win32\*.vbs` files from the tool's location directory. 
+
+execute - defines the path to the temporary file. The default value refers to the `$$$wscmd.wsf` file in the current directory. 
+
+command - defines the command that will run your script. Don't tuch it. This is `%WINDIR%\system32\cscript.exe //NoLogo`, mostly optimal for all purposes. 
+
+= SHORTCOMINGS =
+
+At the beginning of this article I have said that unfortunately this tool has some shortcomings. Above we met one of them. Inner double quotation marks are restricted. 
+
+Another thing is bug with double and single quotation marks used within RegExps. If your RegExp contains one or even count of quotation marks then the input line is considered as continued in the next line and the tool waits when you will close the beginning quotation mark. This is real bug and I want to fix it but met it once and found a workaround - a repeated quotation mark after inline comment (`//'` or `//"`). 
+
+= CONCLUSION =
+
+In spite of these bugs wscmd is very useful and flexible, allows to develop new scripts and both the console mode and the inline mode aloows quickly estimate any expressions. 
