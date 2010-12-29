@@ -1,6 +1,8 @@
 #labels Featured
 _This page tells about wscmd, Windows Scripting Command Interpreter._
 
+<wiki:toc max_depth="5" />
+
 = Introduction =
 
 Once I understood that absence of any kind of a console mode in WSH is big omission. I thought to myself why masters from Redmond have not impelmented this feature for JScript and VBScript. Of course, I know that there are many JavaScript interpreters with the supported console mode (for example, [http://www.mozilla.org/rhino/ Rhino] or [http://narwhaljs.org/ Narwhal], etc). But all of them has two main shortcomings:
@@ -16,7 +18,7 @@ I had got motivation to start my little job in this direction. Working on my too
 
 Let's consider this tool. It's name is Windows Scripting Command Interpreter, or shortly wscmd. 
 
-= HELP =
+= Help =
 
 First of all it has the displayable help:
 
@@ -49,7 +51,7 @@ Looking on this help we can say that the tool has some arguments but all of them
 
 *NOTE*: Order of all arguments is mandatory as they are listed in the help page. 
 
-= CONSOLE MODE =
+= Console mode =
 
 Let's run it by the following command:
 
@@ -88,7 +90,7 @@ gc()                     Run the garbage collector
 
 We see that the console mode provides us several useful functions that are wrappers over some standard methods from WSH. they are implemented for the faster typing. 
 
-= EXTERNAL SCRIPTS =
+= External scripts =
 
 Ok. We were introduced to the console mode. It's time to know others. Let's create the file `script.js` and save it with the following text:
 
@@ -113,7 +115,7 @@ print "Hello, world!"
 wscmd /vbs script.vbs
 }}}
 
-= INLINE MODE =
+= Inline mode =
 
 Now we can investigate the last mode of the tool - inline mode. It considers any string from the command line as valid JScript or VBScript commands and executes them:
 
@@ -125,7 +127,7 @@ wscmd /vbs /e "print 2 * 2"
 
 Unfortunately the DOS-shell has many restrictions in it's syntax, and we cannot use double quotation marks that strongly used as string literals in VBScript. So the following code will be failed  `wscmd /vbs /e "print "Hello, world""`. I have made many tests - I have changed the logic of conditional operators checking arguments of the command line, added extra quotation marks and escaping characters, etc. But nothing has helped me. I will work on this to fix it but this drawback is present now. As a workaround, you can create a file or use the console mode. 
 
-= DEBUG MODE =
+= Debug mode =
 
 The debug mode is an additional feature that allows to see what libraries are linked:
 
@@ -137,13 +139,13 @@ wscmd /debug script.js
 wscmd /debug /vbs /e "print 2 * 2"
 }}}
 
-= SO CALLED COMPILATION =
+= So-called conmilation =
 
 Surely, this is not real compilation. But this allows to put together all libraries and the working script into one WSH file as a) linked external scripts using the `<script>` tag or b) embed into this WSH file directly. Use one of them:
   * `/compile` - creates the temporary file on a disk without execution. All external libraries will be included using `<script>` tag. 
   * `/embed` - the same as above but all scripts will be embeded into the resulting file. This will grow the file but make it standalone and portable without dependencies. 
 
-= CONFIGURATION =
+= Configuration =
 
 Now this is the time to talk about hwo to configure the tool. It is easy. Just create the file named as `wscmd.ini`, fill it and save into one of the two places: the directory where `wscmd.bat` is located or into the current working directory. The content of this file is easy too -- three configurational parameters:
 
@@ -159,12 +161,12 @@ execute - defines the path to the temporary file. The default value refers to th
 
 command - defines the command that will run your script. Don't tuch it. This is `%WINDIR%\system32\cscript.exe //NoLogo`, mostly optimal for all purposes. 
 
-= SHORTCOMINGS =
+= Shortcomings =
 
 At the beginning of this article I have said that unfortunately this tool has some shortcomings. Above we met one of them. Inner double quotation marks are restricted. 
 
 Another thing is bug with double and single quotation marks used within RegExps. If your RegExp contains one or even count of quotation marks then the input line is considered as continued in the next line and the tool waits when you will close the beginning quotation mark. This is real bug and I want to fix it but met it once and found a workaround - a repeated quotation mark after inline comment (`//'` or `//"`). 
 
-= CONCLUSION =
+= Conclusion =
 
 In spite of these bugs wscmd is very useful and flexible, allows to develop new scripts and both the console mode and the inline mode aloows quickly estimate any expressions. 
