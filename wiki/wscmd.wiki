@@ -127,7 +127,9 @@ wscmd /vbs /e "print 2 * 2"
 
 Unfortunately the DOS-shell has many restrictions in it's syntax, and we cannot use double quotation marks that strongly used as string literals in VBScript. So the following code will be failed  `wscmd /vbs /e "print "Hello, world""`. I have made many tests - I have changed the logic of conditional operators checking arguments of the command line, added extra quotation marks and escaping characters, etc. But nothing has helped me. I will work on this to fix it but this drawback is present now. As a workaround, you can create a file or use the console mode. 
 
-= Debug mode =
+= Extras =
+
+== Debug mode ==
 
 The debug mode is an additional feature that allows to see what libraries are linked:
 
@@ -139,13 +141,13 @@ wscmd /debug script.js
 wscmd /debug /vbs /e "print 2 * 2"
 }}}
 
-= So-called conmilation =
+== So-called conmilation ==
 
 Surely, this is not real compilation. But this allows to put together all libraries and the working script into one WSH file as a) linked external scripts using the `<script>` tag or b) embed into this WSH file directly. Use one of them:
   * `/compile` - creates the temporary file on a disk without execution. All external libraries will be included using `<script>` tag. 
   * `/embed` - the same as above but all scripts will be embeded into the resulting file. This will grow the file but make it standalone and portable without dependencies. 
 
-= Configuration =
+== Configuration ==
 
 Now this is the time to talk about hwo to configure the tool. It is easy. Just create the file named as `wscmd.ini`, fill it and save into one of the two places: the directory where `wscmd.bat` is located or into the current working directory. The content of this file is easy too -- three configurational parameters:
 
