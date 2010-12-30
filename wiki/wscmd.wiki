@@ -163,8 +163,8 @@ wscmd /debug /vbs /e "print 2 * 2"
 == So-called conmilation ==
 
 Surely, this is not real compilation. But this allows to put together all libraries and the working script into one WSH file as a) linked external scripts using the `<script>` tag or b) embed into this WSH file directly. Use one of them:
-  * `/compile` - creates the temporary file on a disk without execution. All external libraries will be included using `<script>` tag. 
-  * `/embed` - the same as above but all scripts will be embeded into the resulting file. This will grow the file but make it standalone and portable without dependencies. 
+  * `/compile` - creates the temporary file on a disk without execution. All external libraries will be Linked using `<script src="...">` tag. 
+  * `/embed` - the same as above but all scripts will be embeded into the resulting file. This will grow the file but make it standalone and portable with no dependencies. 
 
 == Configuration ==
 
