@@ -160,7 +160,7 @@ wscmd /debug script.js
 wscmd /debug /vbs /e "print 2 * 2"
 }}}
 
-== So-called conmilation ==
+== So-called compilation ==
 
 Surely, this is not real compilation. But this allows to put together all libraries and the working script into one WSH file as a) linked external scripts using the `<script>` tag or b) embed into this WSH file directly. Use one of them:
   * `/compile` - creates the temporary file on a disk without execution. All external libraries will be Linked using `<script src="...">` tag. 
@@ -168,9 +168,9 @@ Surely, this is not real compilation. But this allows to put together all librar
 
 == Configuration ==
 
-Now this is the time to talk about hwo to configure the tool. It is easy. Just create the file named as `wscmd.ini`, fill it and save into one of the two places: the directory where `wscmd.bat` is located or into the current working directory. The content of this file is easy too -- three configurational parameters:
+Now this is the time to talk about hwo to configure the tool. It is easy. Just create the file named as `wscmd.ini`, fill it and save into one of the two places: the directory where `wscmd.bat` is located or into the current working directory. Also you can create a file in the same location as your script (let say `script.ext`) and with the name `script.ext.ini` (that means the same name and extension of your working script with appended an additional extension `.ini`). The content of this file is easy too -- three configurational parameters:
 
-include - defines the list of patterns of files to be included. You can use the following macros for refer to 
+`include` - defines the list of patterns of files to be included. You can use the following macros for refer to 
   * `%~d0` - the disk
   * `%~p0` - the path
   * `%~n0` - the filename
@@ -178,9 +178,9 @@ include - defines the list of patterns of files to be included. You can use the 
 
 The default value allows all `js\*.js`, `js\win32\*.js` and `vbs\win32\*.vbs` files from the tool's location directory. 
 
-execute - defines the path to the temporary file. The default value refers to the `$$$wscmd.wsf` file in the current directory. 
+`execute` - defines the path to the temporary file. The default value refers to the `$$$wscmd.wsf` file in the current directory. 
 
-command - defines the command that will run your script. Don't tuch it. This is `%WINDIR%\system32\cscript.exe //NoLogo`, mostly optimal for all purposes. 
+`command` - defines the command that will run your script. Don't tuch it. This is `%WINDIR%\system32\cscript.exe //NoLogo`, mostly optimal for all purposes. 
 
 = Shortcomings =
 
@@ -191,3 +191,5 @@ Another thing is bug with double and single quotation marks used within regular 
 = Conclusion =
 
 In spite of these bugs wscmd is very useful and flexible, allows to develop new scripts and both the console mode and the inline mode aloows quickly estimate any expressions. 
+
+Just download the tool from [http://code.google.com/p/jsxt/source/browse/trunk/wscmd.bat this page] and try it's features as described here. 
