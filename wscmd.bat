@@ -6,37 +6,9 @@
 setlocal enabledelayedexpansion
 
 
-:: Load settings from ini-files
-:: there are special macros available to be substituted
-:: %~d0 - the disk
-:: %~p0 - the path
-:: %~n0 - the filename
-:: %~x0 - the extension
-for %%i in ( "%~dpn0.ini" ".\%~n0.ini" ) do (
-	if exist "%%~i" (
-		for /f "usebackq tokens=1,* delims==" %%k in ( "%%~i" ) do (
-			set wscmd.temp=%%~l
-			if defined wscmd.temp (
-				set wscmd.temp=!wscmd.temp:%%~d0=%~d0!
-				set wscmd.temp=!wscmd.temp:%%~p0=%~p0!
-				set wscmd.temp=!wscmd.temp:%%~n0=%~n0!
-				set wscmd.temp=!wscmd.temp:%%~x0=%~x0!
-				set wscmd.ini.%%k=!wscmd.temp!
-			)
-		)
-	)
-)
-
-
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.9.17 Beta
-
-
-:: Set defaults
-if not defined wscmd.ini.include set wscmd.ini.include=%~dp0js\*.js %~dp0js\win32\*.js %~dp0vbs\win32\*.vbs
-if not defined wscmd.ini.execute set wscmd.ini.execute=.\$$$%~n0.wsf
-if not defined wscmd.ini.command set wscmd.ini.command=%WINDIR%\system32\cscript.exe //NoLogo
+set wscmd.version=0.10.1 Beta
 
 
 :: Parse command line arguments and set needful variables
@@ -85,32 +57,40 @@ if /i "%~1" == "/compile" (
 
 
 if /i "%~1" == "/js" (
+	set wscmd.temp=1
 	set wscmd.engine=.js
 	shift /1
 ) else if /i "%~1" == "/vbs" (
+	set wscmd.temp=1
 	set wscmd.engine=.vbs
 	shift /1
-) else (
-	set wscmd.engine=.js
 )
 
 
 if /i "%~1" == "/e" (
-	if "%~2" == "" (
+	set wscmd.inline=%2
+	set wscmd.script=
+	if not defined wscmd.inline (
 		echo.No code specified for /e.
 
 		endlocal
 		exit /b 1
 	)
-	set wscmd.inline=%2
-	set wscmd.script=
 	shift /1
 	shift /1
 ) else (
 	set wscmd.inline=
 	set wscmd.script=%~1
-	rem VBS files only are considered directly, others are JS
-	if /i "%~x1" == ".vbs" set wscmd.engine=%~x1
+	if not exist "!wscmd.script!" (
+		echo.File not found "!wscmd.script!".
+
+		endlocal
+		exit /b 1
+	)
+	if not defined wscmd.temp (
+		rem VBS files only are considered directly, others are JS
+		if /i "%~x1" == ".vbs" set wscmd.engine=%~x1
+	)
 	shift /1
 )
 
@@ -122,6 +102,38 @@ shift /1
 goto wscmd.1
 
 :wscmd.2
+
+
+:: Load settings from ini-files
+:: there are special macros available to be substituted
+:: %~d0 - the disk
+:: %~p0 - the path
+:: %~n0 - the filename
+:: %~x0 - the extension
+for %%i in ( "%wscmd.script%.ini" ".\%~n0.ini" "%~dpn0.ini" ) do (
+	if not "%%~ni" == "" if exist "%%~i" (
+		if defined wscmd.debug echo."%%~i" file found>&2
+		for /f "usebackq tokens=1,* delims==" %%k in ( "%%~i" ) do (
+			set wscmd.temp=%%~l
+			if defined wscmd.temp (
+				set wscmd.temp=!wscmd.temp:%%~d0=%~d0!
+				set wscmd.temp=!wscmd.temp:%%~p0=%~p0!
+				set wscmd.temp=!wscmd.temp:%%~n0=%~n0!
+				set wscmd.temp=!wscmd.temp:%%~x0=%~x0!
+				set wscmd.ini.%%k=!wscmd.temp!
+			)
+		)
+		goto wscmd.3
+	)
+)
+
+:wscmd.3
+
+
+:: Set defaults
+if not defined wscmd.ini.include set wscmd.ini.include=%~dp0js\*.js %~dp0js\win32\*.js %~dp0vbs\win32\*.vbs
+if not defined wscmd.ini.execute set wscmd.ini.execute=.\$$$%~n0.wsf
+if not defined wscmd.ini.command set wscmd.ini.command=%WINDIR%\system32\cscript.exe //NoLogo
 
 
 :: Compile and link the source with libraries
