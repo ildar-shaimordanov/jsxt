@@ -8,7 +8,7 @@ setlocal enabledelayedexpansion
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.10.1 Beta
+set wscmd.version=0.10.2 Beta
 
 
 :: Parse command line arguments and set needful variables
@@ -595,7 +595,7 @@ while ( true ) {
 			return history;
 		})('wscmd > ', 'wscmd :: '));
 
-		if ( result !== undefined ) {
+		if ( result !== void 0 ) {
 			WScript.Echo(result);
 		}
 
