@@ -860,6 +860,52 @@ Date.prototype.moveYear = function(to, exactly)
 
 }
 
+if ( ! Date.prototype.moveNextWeekday ) {
+
+/**
+ * Moves the actual Date object to the definite weekday forward
+ * This method modifies the Date object.
+ *
+ * @param	Number	to
+ * @return	Date
+ * @access	public
+ */
+Date.prototype.moveNextWeekday = function(to)
+{
+	var d = to - this.getDay();
+	if ( d <= 0 ) {
+		d += 7;
+	}
+
+	this.setDate(this.getDate() + d);
+	return this;
+};
+
+}
+
+if ( ! Date.prototype.movePreviousWeekday ) {
+
+/**
+ * Moves the actual Date object to the definite weekday backward
+ * This method modifies the Date object.
+ *
+ * @param	Number	to
+ * @return	Date
+ * @access	public
+ */
+Date.prototype.movePreviousWeekday = function(to)
+{
+	var d = to - this.getDay();
+	if ( d >= 0 ) {
+		d -= 7;
+	}
+
+	this.setDate(this.getDate() + d);
+	return this;
+};
+
+}
+
 if ( ! Date.prototype.clone ) {
 
 /**
