@@ -3,30 +3,15 @@
  * z = x + iy
  *
  */
-function Complex()
+
+function Complex(x, y, r, f)
 {
-
-	var self = this;
-
-	// Cartesian notation
-	// z = x + iy
-	var x;
-	var y;
-
-	// Polar notation
-	// z = r (cos(f) + i sin(f))
-	// z = r exp(if)
-	var r;
-	var f;
-
-	// Initialization
-	x = Number(arguments[0]) || 0;
-	y = Number(arguments[1]) || 0;
-
 	if ( arguments.callee.caller == Complex.construct ) {
-		r = Number(arguments[2]);
-		f = Number(arguments[3]);
+		r = Number(r);
+		f = Number(f);
 	} else {
+		x = Number(x) || 0;
+		y = Number(y) || 0;
 		r = Math.sqrt(x * x + y * y);
 		f = Math.atan2(y, x);
 	}
@@ -40,254 +25,284 @@ function Complex()
 		f -= Math.PI;
 	}
 
-	/**
-	 * Comparison of complex
-	 *
-	 */
-	self.equals = function(z)
-	{
-		return x == z.re() && y == z.im();
+	var parts = {
+		x: x, 
+		y: y, 
+		r: r, 
+		f: f
 	};
 
 	/**
-	 * True if the complex is real
+	 * Subsidiary method - wrapper to have access to internal parts of the object
 	 *
 	 */
-	self.isReal = function()
+	this.getPart = function(name)
 	{
-		return y == 0;
+		return parts[name];
+	};
+};
+
+/**
+ * Comparison of complex
+ *
+ */
+Complex.prototype.equals = function(z)
+{
+	return this.re() == z.re() && this.im() == z.im();
+};
+
+/**
+ * True if the complex is real
+ *
+ */
+Complex.prototype.isReal = function()
+{
+	return this.im() == 0;
+};
+
+/**
+ * Re(z) = x
+ *
+ */
+Complex.prototype.re = function()
+{
+	return this.getPart('x');
+};
+
+/**
+ * Im(z) = y
+ *
+ */
+Complex.prototype.im = function()
+{
+	return this.getPart('y');
+};
+
+/**
+ * Module (absolute value) of z
+ * |z| = sqrt(x^2 + y^2)
+ *
+ */
+Complex.prototype.abs = function()
+{
+	return this.getPart('r');
+};
+
+/**
+ * Argument of z
+ * Arg(z) = arctg(y / x)
+ *
+ */
+Complex.prototype.arg = function()
+{
+	return this.getPart('f');
+};
+
+/**
+ * Complex conjugate
+ * z  = x + iy
+ * z' = x - iy
+ *
+ */
+Complex.prototype.conj = function()
+{
+	return Complex.construct(this.re(), -this.im(), this.abs(), -this.arg());
+};
+
+/**
+ * Complex negative
+ *
+ */
+Complex.prototype.neg = function()
+{
+	var r = this.abs();
+	return Complex.construct(-this.re(), -this.im(), r, r ? this.arg() + Math.PI : 0);
+};
+
+/**
+ * Add
+ *
+ */
+Complex.prototype.add = function()
+{
+	var x1 = this.re();
+	var y1 = this.im();
+	for (var i = 0; i < arguments.length; i++) {
+		var z = arguments[i];
+		x1 += z.re();
+		y1 += z.im();
+	}
+	return new Complex(x1, y1);
+};
+
+/**
+ * Substract
+ *
+ */
+Complex.prototype.sub = function()
+{
+	var x1 = this.re();
+	var y1 = this.im();
+	for (var i = 0; i < arguments.length; i++) {
+		var z = arguments[i];
+		x1 -= z.re();
+		y1 -= z.im();
+	}
+	return new Complex(x1, y1);
+};
+
+/**
+ * Multiply
+ *
+ */
+Complex.prototype.mul = function()
+{
+	var r1 = this.abs();
+	var f1 = this.arg();
+	for (var i = 0; i < arguments.length; i++) {
+		var z = arguments[i];
+		r1 *= z.abs();
+		f1 += z.arg();
+	}
+	return Complex.fromPolar(r1, f1);
+};
+
+/**
+ * Divide
+ *
+ */
+Complex.prototype.div = function()
+{
+	var r1 = this.abs();
+	var f1 = this.arg();
+	for (var i = 0; i < arguments.length; i++) {
+		var z = arguments[i];
+		r1 /= z.abs();
+		f1 -= z.arg();
+	}
+	return Complex.fromPolar(r1, f1);
+};
+
+/**
+ * Degree z^n
+ *
+ */
+Complex.prototype.pow = function(n)
+{
+	n = Number(n) || 0;
+	var r = this.abs();
+	var f = this.arg();
+	return Complex.fromPolar(Math.pow(r, n), f * n);
+};
+
+/**
+ * Returns the list of n-th roots
+ *
+ */
+Complex.prototype.roots = function(n, toPolar)
+{
+	n = Number(n);
+
+	if ( n - Math.floor(n) ) {
+		return Number.NaN;
+	}
+
+	var r = this.abs();
+	var f = this.arg();
+
+	var nr = Math.pow(r, 1 / n);
+	var nf = [];
+
+	var fi = f / n;
+	var d = Math.PI * 2 / n;
+   
+	n = Math.abs(n);
+	var i = n;
+	while ( i-- ) {
+		nf.push(fi);
+		fi += d;
 	};
 
-	/**
-	 * Re(z) = x
-	 *
-	 */
-	self.re = function()
-	{
-		return x;
-	};
+	if ( toPolar ) {
+		nf.abs = nr;
+		return nf;
+	}
 
-	/**
-	 * Im(z) = y
-	 *
-	 */
-	self.im = function()
-	{
-		return y;
-	};
+	var z = [];
+	for (var i = 0; i < n; i++) {
+		z.push(Complex.fromPolar(nr, nf[i]));
+	}
 
-	/**
-	 * Module (absolute value) of z
-	 * |z| = sqrt(x^2 + y^2)
-	 *
-	 */
-	self.abs = function()
-	{
-		return r;
-	};
+	return z;
+};
 
-	/**
-	 * Argument of z
-	 * Arg(z) = arctg(y / x)
-	 *
-	 */
-	self.arg = function()
-	{
-		return f;
-	};
+/**
+ * Square root of z
+ *
+ */
+Complex.prototype.sqrt = function()
+{
+	var r = this.abs();
+	var f = this.arg();
 
-	/**
-	 * Complex conjugate
-	 * z  = x + iy
-	 * z' = x - iy
-	 *
-	 */
-	self.conj = function()
-	{
-		return Complex.construct(x, -y, r, -f);
-	};
+	return Complex.fromPolar(Math.sqrt(r), f / 2);
+};
 
-	/**
-	 * Complex negative
-	 *
-	 */
-	self.neg = function()
-	{
-		return Complex.construct(-x, -y, r, r ? f + Math.PI : 0);
-	};
+/**
+ * Exponential exp(z)
+ *
+ */
+Complex.prototype.exp = function()
+{
+	var x = this.re();
+	var y = this.im();
 
-	/**
-	 * Add
-	 *
-	 */
-	self.add = function()
-	{
-		var x1 = x;
-		var y1 = y;
-		for (var i = 0; i < arguments.length; i++) {
-			var z = arguments[i];
-			x1 += z.re();
-			y1 += z.im();
-		}
-		return new Complex(x1, y1);
-	};
+	return Complex.fromPolar(Math.exp(x), y);
+};
 
-	/**
-	 * Substract
-	 *
-	 */
-	self.sub = function()
-	{
-		var x1 = x;
-		var y1 = y;
-		for (var i = 0; i < arguments.length; i++) {
-			var z = arguments[i];
-			x1 -= z.re();
-			y1 -= z.im();
-		}
-		return new Complex(x1, y1);
-	};
+/**
+ * Natural logarithm ln(z)
+ *
+ */
+Complex.prototype.log = function()
+{
+	var r = this.abs();
+	var f = this.arg();
 
-	/**
-	 * Multiply
-	 *
-	 */
-	self.mul = function()
-	{
-		var r1 = r;
-		var f1 = f;
-		for (var i = 0; i < arguments.length; i++) {
-			var z = arguments[i];
-			r1 *= z.abs();
-			f1 += z.arg();
-		}
-		return Complex.fromPolar(r1, f1);
-	};
+	return new Complex(Math.log(r), f);
+};
 
-	/**
-	 * Divide
-	 *
-	 */
-	self.div = function()
-	{
-		var r1 = r;
-		var f1 = f;
-		for (var i = 0; i < arguments.length; i++) {
-			var z = arguments[i];
-			r1 /= z.abs();
-			f1 -= z.arg();
-		}
-		return Complex.fromPolar(r1, f1);
-	};
+/**
+ * Creates a new complex from itself
+ *
+ */
+Complex.prototype.z = function()
+{
+	return Complex.construct(this.re(), this.im(), this.abs(), this.arg());
+};
 
-	/**
-	 * Degree z^n
-	 *
-	 */
-	self.pow = function(n)
-	{
-		n = Number(n) || 0;
-		return Complex.fromPolar(Math.pow(r, n), f * n);
-	};
+/**
+ * String presentation of the complex number
+ * If toPolar is true then this method returns the (r, f) pair
+ * Otherwise the (x, y) pair
+ *
+ */
+Complex.prototype.toString = function(toPolar)
+{
+	if ( toPolar ) {
+		var r = this.abs();
+		var f = this.arg();
+		return [Complex.isZero(r), Complex.isZero(f)].join(' ');
+	}
 
-	/**
-	 * Returns the list of n-th roots
-	 *
-	 */
-	self.roots = function(n, toPolar)
-	{
-		n = Number(n);
+	var x = this.re();
+	var y = this.im();
 
-		if ( n - Math.floor(n) ) {
-			return Number.NaN;
-		}
+	if ( ! Complex.isZero(y) ) {
+		return '' + Complex.isZero(x);
+	}
 
-		var nr = Math.pow(r, 1 / n);
-		var nf = [];
-
-		var fi = f / n;
-		var d = Math.PI * 2 / n;
-	   
-		n = Math.abs(n);
-		var i = n;
-		while ( i-- ) {
-			nf.push(fi);
-			fi += d;
-		};
-
-		if ( toPolar ) {
-			nf.abs = nr;
-			return nf;
-		}
-
-		var z = [];
-		for (var i = 0; i < n; i++) {
-			z.push(Complex.fromPolar(nr, nf[i]));
-		}
-
-		return z;
-	};
-
-	/**
-	 * Square root of z
-	 *
-	 */
-	self.sqrt = function()
-	{
-		return Complex.fromPolar(Math.sqrt(r), f / 2);
-	};
-
-	/**
-	 * Exponential exp(z)
-	 *
-	 */
-	self.exp = function()
-	{
-		return Complex.fromPolar(Math.exp(x), y);
-	};
-
-	/**
-	 * Natural logarithm ln(z)
-	 *
-	 */
-	self.log = function()
-	{
-		return new Complex(Math.log(r), f);
-	};
-
-	/**
-	 * Creates a new complex from itself
-	 *
-	 */
-	self.z = function()
-	{
-		return Complex.construct(this.re(), this.im(), this.abs(), this.arg());
-	};
-
-	var eps = function(x)
-	{
-		return Math.abs(x) <= Complex.ZERO_THRESHOLD ? 0 : x;
-	};
-
-	/**
-	 * String presentation of the complex number
-	 * If toPolar is true then this method returns the (r, f) pair
-	 * Otherwise the (x, y) pair
-	 *
-	 */
-	self.toString = function(toPolar)
-	{
-		if ( toPolar ) {
-			return [eps(r), eps(f)].join(' ');
-		}
-
-		if ( ! eps(y) ) {
-			return '' + eps(x);
-		}
-
-		return [eps(x), y].join('i');
-	};
-
+	return [Complex.isZero(x), y].join('i');
 };
 
 /**
@@ -295,6 +310,11 @@ function Complex()
  * ZERO_THRESHOLD = 1e-15
  */
 Complex.ZERO_THRESHOLD = 1e-15;
+
+Complex.isZero = function(x)
+{
+	return Math.abs(x) <= Complex.ZERO_THRESHOLD ? 0 : x;
+};
 
 /**
  * Internally used method
