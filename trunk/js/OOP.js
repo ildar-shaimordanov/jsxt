@@ -102,7 +102,7 @@ Object.mixin = function(dst /*, arg1, arg2... */)
 		}
 	}
 	return dst;
-}
+};
 
 Function.prototype.inherit = function(proto)
 {

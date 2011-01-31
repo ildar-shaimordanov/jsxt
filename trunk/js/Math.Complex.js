@@ -1,9 +1,16 @@
+//
+// JScript and JavaScript unit
+// This module implements complex numbers 
+//
+// Copyright (c) 2010, 2011 by Ildar Shaimordanov
+//
+
+
 /**
  * Constructor of the complex in the cartesian coordinates (x, y)
  * z = x + iy
  *
  */
-
 function Complex(x, y, r, f)
 {
 	if ( arguments.callee.caller == Complex.construct ) {
