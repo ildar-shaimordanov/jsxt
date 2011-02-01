@@ -2,7 +2,7 @@
 // JavaScript unit
 // Add-on for the object manipulation
 //
-// Copyright (c) 2009 by Ildar Shaimordanov
+// Copyright (c) 2009, 2010, 2011 by Ildar Shaimordanov
 //
 
 if ( ! Object.isa ) {
@@ -17,7 +17,7 @@ if ( ! Object.isa ) {
  */
 Object.isa = function(value, constructor)
 {
-	return value !== undefined && value !== null && value.constructor == constructor;
+	return value !== (void 0) && value !== null && value.constructor == constructor;
 };
 
 }
@@ -207,7 +207,7 @@ if ( ! Object.isUndefined ) {
  */
 Object.isUndefined = function(value)
 {
-	return value === undefined;
+	return value === void 0;
 };
 
 }
@@ -418,7 +418,7 @@ Object.dump = function(object, options)
 {
 	options = options || {};
 	options.padding = options.padding || '';
-	if ( ! Number(options.nesting) || options.nesting < 0 ) {
+	if ( isNaN(options.nesting) || options.nesting < 0 ) {
 		options.nesting = 5;
 	}
 
