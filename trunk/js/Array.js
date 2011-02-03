@@ -308,7 +308,7 @@ if (!Array.prototype.indexOf) {
  * @access	public
  * @see		https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/indexOf
  */
-Array.prototype.indexOf = function(elt /*, from*/)
+Array.prototype.indexOf = function(elt)
 {
 	var len = this.length;
 
@@ -364,7 +364,7 @@ if (!Array.prototype.lastIndexOf) {
  * @access	public
  * @see		https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/lastIndexOf
  */
-Array.prototype.lastIndexOf = function(elt /*, from*/)
+Array.prototype.lastIndexOf = function(elt)
 {
 	var len = this.length;
 
