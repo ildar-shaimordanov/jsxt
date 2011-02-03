@@ -92,7 +92,7 @@ c.draw();
 */
 
 
-Object.mixin = function(dst /*, arg1, arg2... */)
+Object.mixin = function(dst)
 {
 	for (var i = 1; i < arguments.length; i++) {
 		for (var prop in arguments[i]) {
