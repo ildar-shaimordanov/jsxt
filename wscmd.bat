@@ -8,7 +8,7 @@ setlocal enabledelayedexpansion
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.10.2 Beta
+set wscmd.version=0.10.3 Beta
 
 
 :: Parse command line arguments and set needful variables
@@ -436,127 +436,76 @@ while ( true ) {
 					// not bring to crash of the code. 
 					var c = input[i];
 
-					// Store the state of [a-z0-9_], or \] or \) to 
-					// differ regexes and division in expressions
-					// Use the direct comparacy with chacarters instead 
-					// of the regex testing to bypass possible problems
-					//expr = ( (/[\w\)\]\.]/).test(c) || (/[^:,;\[\(!\&\|=]/).test(c) ) && ! regex && ! quote;
-					expr = ( 
-							(
-								c >= 'a' && c <= 'z' 
-								|| 
-								c >= 'A' && c <= 'Z' 
-								|| 
-								c >= '0' && c <= '9' 
-								|| 
-								c == '_' 
-								|| 
-								c == ')' 
-								|| 
-								c == ']' 
-								|| 
-								c == '.' 
-							) 
-							|| 
-							(
-								c != ':' 
-								|| 
-								c != ',' 
-								|| 
-								c != ';' 
-								|| 
-								c != '[' 
-								|| 
-								c != '(' 
-								|| 
-								c != '!' 
-								|| 
-								c != '&' 
-								|| 
-								c != '|' 
-								|| 
-								c != '=' 
-							) 
-						)
-						&& 
-						! regex 
-						&& 
-						! quote;
-
-					// SLASH is special character
+					// The last character was the back slash. 
+					// Goto the next
 					if ( slash ) {
 						slash = false;
 						continue;
 					}
 
-					slash = c == '\\';
-
-					// Process literal strings
-					if ( c == '\'' || c == '\"' ) {
-						if ( regex ) {
-							continue;
-						}
-
-						if ( slash ) {
-							continue;
-						}
-
-						if ( quote ) {
-							if ( c == stack[stack.length - 1] ) {
-								quote = false;
-								stack.length--;
-							}
-						} else {
-							quote = true;
-							stack[stack.length] = c;
-						}
-
+					// Store the state of the back slash
+					// and goto the next
+					if ( c == '\\' ) {
+						slash = true;
 						continue;
 					}
 
-					// Process regular expressions
+					// There was a  literal string
+					if ( quote && c == stack[stack.length - 1] ) {
+						quote = false;
+						stack.length--;
+						continue;
+					}
+
+					// There was a regular expression
+					if ( regex && c == stack[stack.length - 1] ) {
+						regex = false;
+						stack.length--;
+						if ( input[i - 1] == c ) {
+							break;
+						}
+						continue;
+					}
+
+					// There is literal string or regular expression yet
+					// Goto the next
+					if ( regex || quote ) {
+						continue;
+					}
+
+					// Meet the slash
+					// It may be a regular expression or comment
 					if ( c == '/' ) {
-						if ( quote ) {
-							continue;
-						}
-
-						if ( slash ) {
-							continue;
-						}
-
-						if ( regex ) {
-							if ( c == stack[stack.length - 1] ) {
-								regex = false;
-								stack.length--;
-							}
-						} else {
-							if ( expr ) {
-								expr = false;
-								continue;
-							}
-							regex = true;
-							stack[stack.length] = c;
-						}
-
-						continue;
-					}
-
-					// Store on the stack opening brackets
-					if ( c == '[' || c == '(' || c == '{' ) {
+						regex = true;
 						stack[stack.length] = c;
 						continue;
 					}
 
-					// Release stack when closing brackets arise
+					// Meet quotes
+					// It is literal string
+					if ( c == '\'' || c == '\"' ) {
+						quote = true;
+						stack[stack.length] = c;
+						continue;
+					}
+
+					// Meet opening brackets
+					if ( c == '[' || c == '{' || c == '(' ) {
+						stack[stack.length] = c;
+						continue;
+					}
+
+					// Meet closing brackets
 					var o = stack[stack.length - 1];
 					if (
-						o == '[' && c == ']' 
+						( o == '[' && c == ']' ) 
 						|| 
-						o == '(' && c == ')' 
+						( o == '{' && c == '}' ) 
 						|| 
-						o == '{' && c == '}' 
+						( o == '(' && c == ')' ) 
 					) {
 						stack.length--;
+						continue;
 					}
 
 				}; // for (var i = 0; i < input.length; i++)
