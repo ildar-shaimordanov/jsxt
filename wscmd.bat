@@ -450,17 +450,20 @@ while ( true ) {
 						continue;
 					}
 
-					// There was a  literal string
+					// There was one of a single or double quote
+					// Let's consider this as a literal string
 					if ( quote && c == stack[stack.length - 1] ) {
 						quote = false;
 						stack.length--;
 						continue;
 					}
 
-					// There was a regular expression
+					// There was the direct slash
+					// (it might be a regular expression or a single line comment)
 					if ( regex && c == stack[stack.length - 1] ) {
 						regex = false;
 						stack.length--;
+						// Really... This is comment
 						if ( input[i - 1] == c ) {
 							break;
 						}
