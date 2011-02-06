@@ -29,7 +29,7 @@ wscmd /help
 
 Both these commands show the help looking like below:
 
-{{{
+{{{`
 Windows Scripting Command Interpreter
 
 Usage:
@@ -45,7 +45,7 @@ Valid options are:
     /js        - Assume a value as a JavaScript source
     /vbs       - Assume a value as a VBScript code
     /e         - Assume a value as a string to be executed
-}}}
+`}}}
 
 Looking on this help we can say that the tool has some arguments but all of them are optional. 
 
