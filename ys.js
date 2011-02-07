@@ -2,7 +2,7 @@
 // http://slovari.yandex.ru
 // Command line version
 //
-// Copyright (c) 2010, Ildar Shaimordanov
+// Copyright (c) 2010, 2011, Ildar Shaimordanov
 //
 
 ///////////////////////////////////////////////////////////////////////////
@@ -13,7 +13,7 @@
 
 var YandexSlovary = {
 	// Looking for text within these tags
-	re_content: /(?:[\r\n]|.)*?<div class="b-holster.*">((?:[\r\n]|.)*)<\/div>\s*<.+?class="b-foot"(?:[\r\n]|.)*?/m, 
+	re_content: /<div class="b-holster.*?">((?:[\r\n]|.)*)<\/div>\s*<div class="b-foot">/m, 
 
 	re_notags: [
 		/<(form|select|script)(?:[\r\n]|.)+?\/\1>/img, 
@@ -30,13 +30,13 @@ var YandexSlovary = {
 
 	// Yandex Slovary Shell
 	name: 'Yandex.Slovari Shell', 
-	version: '0.1.3 Beta'
+	version: '0.1.4 Beta'
 };
 
 YandexSlovary.help = function()
 {
 	return this.name + '/' + this.version + '\n'
-		+ 'Copyright (C) 2010, Ildar Shaimordanov\n' 
+		+ 'Copyright (C) 2010, 2011, Ildar Shaimordanov\n' 
 		+ '\n' 
 		+ 'Usage: ' + WScript.ScriptName + ' "PHRASE" [ /LANG:lang-abbr-list ]';
 };
@@ -48,7 +48,7 @@ YandexSlovary.parse = function(xml)
 		return '';
 	}
 
-	var result = m[1];
+	var result = m[0];
 
 	// Removes all unused tags and their contents
 	for (var i = 0; i < this.re_notags.length; i++) {
@@ -67,6 +67,9 @@ YandexSlovary.parse = function(xml)
 
 		// Replaces tagged line breaks to text-oriented line breaks
 		.replace(/<br[^>]*>/ig, '\n')
+
+		// Replaces <img alt="..."> with the text from the alt attribute
+//		.replace(/<img.+?alt="([^"]+)"[^>]*>/g, '$1')
 
 		// Removes the rest of tags
 		.replace(/<[^<>]+>/g, '')
