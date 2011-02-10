@@ -1,10 +1,422 @@
 //
 // JScript add-on
+// Wrappers over jsmin and js_beautify
 //
-// @require	Ajax.js
+// @copyright	Copyright (c) 2009, 2011 by Ildar Shaimordanov
 //
-// @copyright	Copyright (c) 2009 by Ildar Shaimordanov
-//
+
+/*
+
+jsmin.c
+Copyright (c) 2002 Douglas Crockford  (www.crockford.com)
+
+jsmin.js
+Copyright (c) 2006 Franck Marcia (http://www.fmarcia.info/jsmin/test.html)
+
+beautify.js
+Copyright (c) Einar Lielmanis (http://jsbeautifier.org)
+
+eval.minify 
+eval.beautify 
+There are wrappers over jsmin and js_beautofy
+
+*/
+
+(function()
+{
+
+eval.minify = function(input, options)
+{
+	options = options || {};
+
+	var level = (+options.level + 1) || 1;
+	level = Math.min(Math.max(level, 1), 3);
+
+	var comment = options.comment || '';
+	if ( comment.constructor == Array ) {
+		comment = comment.join('\n// ');
+	}
+	if ( comment.length > 0 ) {
+		comment = '// ' + comment + '\n';
+	}
+
+	return jsmin(comment, input, level);
+};
+
+eval.beautify = function(input, options)
+{
+	return js_beautify.apply(null, arguments);
+};
+
+/*! 
+jsmin.js - 2010-01-15
+Author: NanaLich (http://www.cnblogs.com/NanaLich)
+Another patched version for jsmin.js patched by Billy Hoffman, 
+this version will try to keep CR LF pairs inside the important comments
+away from being changed into double LF pairs. 
+
+jsmin.js - 2009-11-05
+Author: Billy Hoffman
+This is a patched version of jsmin.js created by Franck Marcia which
+supports important comments denoted with /*! ...
+Permission is hereby granted to use the Javascript version under the same
+conditions as the jsmin.js on which it is based.
+
+jsmin.js - 2006-08-31
+Author: Franck Marcia
+This work is an adaptation of jsminc.c published by Douglas Crockford.
+Permission is hereby granted to use the Javascript version under the same
+conditions as the jsmin.c on which it is based.
+
+jsmin.c
+2006-05-04
+
+Copyright (c) 2002 Douglas Crockford  (www.crockford.com)
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+The Software shall be used for Good, not Evil.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+Update:
+add level:
+1: minimal, keep linefeeds if single
+2: normal, the standard algorithm
+3: agressive, remove any linefeed and doesn't take care of potential
+missing semicolons (can be regressive)
+store stats
+jsmin.oldSize
+jsmin.newSize
+*/
+
+String.prototype.has = function(c) {
+  return this.indexOf(c) > -1;
+};
+
+function jsmin(comment, input, level) {
+
+  if(input === undefined) {
+    input = comment;
+    comment = '';
+    level = 2;
+  } else if(level === undefined || level < 1 || level > 3) {
+    level = 2;
+  }
+
+  if(comment.length > 0) {
+    comment += '\n';
+  }
+
+  var a = '',
+		b = '',
+		EOF = -1,
+		LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+		DIGITS = '0123456789',
+		ALNUM = LETTERS + DIGITS + '_$\\',
+		theLookahead = EOF;
+
+
+  /* isAlphanum -- return true if the character is a letter, digit, underscore,
+  dollar sign, or non-ASCII character.
+  */
+
+  function isAlphanum(c) {
+    return c != EOF && (ALNUM.has(c) || c.charCodeAt(0) > 126);
+  }
+
+
+  /* getc(IC) -- return the next character. Watch out for lookahead. If the
+  character is a control character, translate it to a space or
+  linefeed.
+  */
+
+  var iChar = 0, lInput = input.length;
+  function getc() {
+
+    var c = theLookahead;
+    if(iChar == lInput) {
+      return EOF;
+    }
+    theLookahead = EOF;
+    if(c == EOF) {
+      c = input.charAt(iChar);
+      ++iChar;
+    }
+    if(c >= ' ' || c == '\n') {
+      return c;
+    }
+    if(c == '\r') {
+      return '\n';
+    }
+    return ' ';
+  }
+  function getcIC() {
+    var c = theLookahead;
+    if(iChar == lInput) {
+      return EOF;
+    }
+    theLookahead = EOF;
+    if(c == EOF) {
+      c = input.charAt(iChar);
+      ++iChar;
+    }
+    if(c >= ' ' || c == '\n' || c == '\r') {
+      return c;
+    }
+    return ' ';
+  }
+
+
+  /* peek -- get the next character without getting it.
+  */
+
+  function peek() {
+    theLookahead = getc();
+    return theLookahead;
+  }
+
+
+  /* next -- get the next character, excluding comments. peek() is used to see
+  if a '/' is followed by a '/' or '*'.
+  */
+
+  function next() {
+
+    var c = getc();
+    if(c == '/') {
+      switch(peek()) {
+        case '/':
+          for(; ; ) {
+            c = getc();
+            if(c <= '\n') {
+              return c;
+            }
+          }
+          break;
+        case '*':
+          //this is a comment. What kind?
+          getc();
+          if(peek() == '!') {
+            // kill the extra one
+            getc();
+            //important comment
+            var d = '/*!';
+            for(; ; ) {
+              c = getcIC(); // let it know it's inside an important comment
+              switch(c) {
+                case '*':
+                  if(peek() == '/') {
+                    getc();
+                    return d + '*/';
+                  }
+                  break;
+                case EOF:
+                  throw 'Error: Unterminated comment.';
+                default:
+                  //modern JS engines handle string concats much better than the 
+                  //array+push+join hack.
+                  d += c;
+              }
+            }
+          } else {
+            //unimportant comment
+            for(; ; ) {
+              switch(getc()) {
+                case '*':
+                  if(peek() == '/') {
+                    getc();
+                    return ' ';
+                  }
+                  break;
+                case EOF:
+                  throw 'Error: Unterminated comment.';
+              }
+            }
+          }
+          break;
+        default:
+          return c;
+      }
+    }
+    return c;
+  }
+
+
+  /* action -- do something! What you do is determined by the argument:
+  1   Output A. Copy B to A. Get the next B.
+  2   Copy B to A. Get the next B. (Delete A).
+  3   Get the next B. (Delete B).
+  action treats a string as a single character. Wow!
+  action recognizes a regular expression if it is preceded by ( or , or =.
+  */
+
+  function action(d) {
+
+    var r = [];
+
+    if(d == 1) {
+      r.push(a);
+    }
+
+    if(d < 3) {
+      a = b;
+      if(a == '\'' || a == '"') {
+        for(; ; ) {
+          r.push(a);
+          a = getc();
+          if(a == b) {
+            break;
+          }
+          if(a <= '\n') {
+            throw 'Error: unterminated string literal: ' + a;
+          }
+          if(a == '\\') {
+            r.push(a);
+            a = getc();
+          }
+        }
+      }
+    }
+
+    b = next();
+
+    if(b == '/' && '(,=:[!&|'.has(a)) {
+      r.push(a);
+      r.push(b);
+      for(; ; ) {
+        a = getc();
+        if(a == '/') {
+          break;
+        } else if(a == '\\') {
+          r.push(a);
+          a = getc();
+        } else if(a <= '\n') {
+          throw 'Error: unterminated Regular Expression literal';
+        }
+        r.push(a);
+      }
+      b = next();
+    }
+
+    return r.join('');
+  }
+
+
+  /* m -- Copy the input to the output, deleting the characters which are
+  insignificant to JavaScript. Comments will be removed. Tabs will be
+  replaced with spaces. Carriage returns will be replaced with
+  linefeeds.
+  Most spaces and linefeeds will be removed.
+  */
+
+  function m() {
+
+    var r = [];
+    a = '\n';
+
+    r.push(action(3));
+
+    while(a != EOF) {
+      switch(a) {
+        case ' ':
+          if(isAlphanum(b)) {
+            r.push(action(1));
+          } else {
+            r.push(action(2));
+          }
+          break;
+        case '\n':
+          switch(b) {
+            case '{':
+            case '[':
+            case '(':
+            case '+':
+            case '-':
+              r.push(action(1));
+              break;
+            case ' ':
+              r.push(action(3));
+              break;
+            default:
+              if(isAlphanum(b)) {
+                r.push(action(1));
+              } else {
+                if(level == 1 && b != '\n') {
+                  r.push(action(1));
+                } else {
+                  r.push(action(2));
+                }
+              }
+          }
+          break;
+        default:
+          switch(b) {
+            case ' ':
+              if(isAlphanum(a)) {
+                r.push(action(1));
+                break;
+              }
+              r.push(action(3));
+              break;
+            case '\n':
+              if(level == 1 && a != '\n') {
+                r.push(action(1));
+              } else {
+                switch(a) {
+                  case '}':
+                  case ']':
+                  case ')':
+                  case '+':
+                  case '-':
+                  case '"':
+                  case '\'':
+                    if(level == 3) {
+                      r.push(action(3));
+                    } else {
+                      r.push(action(1));
+                    }
+                    break;
+                  default:
+                    if(isAlphanum(a)) {
+                      r.push(action(1));
+                    } else {
+                      r.push(action(3));
+                    }
+                }
+              }
+              break;
+            default:
+              r.push(action(1));
+              break;
+          }
+      }
+    }
+
+    return r.join('');
+  }
+
+  jsmin.oldSize = input.length;
+  ret = m(input);
+  jsmin.newSize = ret.length;
+
+  return comment + ret;
+
+}
 
 /*jslint onevar: false, plusplus: false */
 /*
@@ -13,7 +425,7 @@
 ---------------
 
 
-  Written by Einar Lielmanis, <einars@gmail.com>
+  Written by Einar Lielmanis, <einar@jsbeautifier.org>
       http://jsbeautifier.org/
 
   Originally converted to javascript by Vital, <vital76@gmail.com>
@@ -25,13 +437,15 @@
     js_beautify(js_source_text, options);
 
   The options are:
-    indent_size (default 4) — indentation size,
-    indent_char (default space) — character to indent with,
-    preserve_newlines (default true) — whether existing line breaks should be preserved,
-    indent_level (default 0)  — initial indentation level, you probably won't need this ever,
+    indent_size (default 4)          вЂ” indentation size,
+    indent_char (default space)      вЂ” character to indent with,
+    preserve_newlines (default true) вЂ” whether existing line breaks should be preserved,
+    preserve_max_newlines (default unlimited) - maximum number of line breaks to be preserved in one chunk,
+    indent_level (default 0)         вЂ” initial indentation level, you probably won't need this ever,
 
-    space_after_anon_function (default false) — if true, then space is added between "function ()"
+    space_after_anon_function (default false) вЂ” if true, then space is added between "function ()"
             (jslint is happy about this); if false, then the common "function()" output is used.
+    braces_on_own_line (default false) - ANSI / Allman brace style, each opening/closing brace gets its own line.
 
     e.g
 
@@ -42,7 +456,7 @@
 
 
 
-eval.beautify = function(js_source_text, options) {
+function js_beautify(js_source_text, options) {
 
     var input, output, token_text, last_type, last_text, last_last_text, last_word, flags, flag_store, indent_string;
     var whitespace, wordchar, punct, parser_pos, line_starters, digits;
@@ -50,21 +464,33 @@ eval.beautify = function(js_source_text, options) {
     var wanted_newline, just_added_newline, n_newlines;
 
 
-    options = options || {};
-    var opt_indent_size = options.indent_size || 4;
-    var opt_indent_char = options.indent_char || ' ';
+    // Some interpreters have unexpected results with foo = baz || bar;
+    options = options ? options : {};
+    var opt_braces_on_own_line = options.braces_on_own_line ? options.braces_on_own_line : false;
+    var opt_indent_size = options.indent_size ? options.indent_size : 4;
+    var opt_indent_char = options.indent_char ? options.indent_char : ' ';
     var opt_preserve_newlines = typeof options.preserve_newlines === 'undefined' ? true : options.preserve_newlines;
-    var opt_indent_level = options.indent_level || 0; // starting indentation
+    var opt_max_preserve_newlines = typeof options.max_preserve_newlines === 'undefined' ? false : options.max_preserve_newlines;
+    var opt_indent_level = options.indent_level ? options.indent_level : 0; // starting indentation
     var opt_space_after_anon_function = options.space_after_anon_function === 'undefined' ? false : options.space_after_anon_function;
-    var opt_keep_array_indentation = typeof options.keep_array_indentation === 'undefined' ? true : options.keep_array_indentation;
+    var opt_keep_array_indentation = typeof options.keep_array_indentation === 'undefined' ? false : options.keep_array_indentation;
 
     just_added_newline = false;
 
+    // cache the source's length.
+    var input_length = js_source_text.length;
 
-    function trim_output() {
-        while (output.length && (output[output.length - 1] === ' ' || output[output.length - 1] === indent_string)) {
+    function trim_output(eat_newlines) {
+        eat_newlines = typeof eat_newlines === 'undefined' ? false : eat_newlines;
+        while (output.length && (output[output.length - 1] === ' '
+            || output[output.length - 1] === indent_string
+            || (eat_newlines && (output[output.length - 1] === '\n' || output[output.length - 1] === '\r')))) {
             output.pop();
         }
+    }
+
+    function trim(s) {
+        return s.replace(/^\s\s*|\s\s*$/, '');
     }
 
     function print_newline(ignore_repeated) {
@@ -89,6 +515,13 @@ eval.beautify = function(js_source_text, options) {
         }
         for (var i = 0; i < flags.indentation_level; i += 1) {
             output.push(indent_string);
+        }
+        if (flags.var_line && flags.var_line_reindented) {
+            if (opt_indent_char === ' ') {
+                output.push('    '); // var_line always pushes 4 spaces, so that the variables would be one under another
+            } else {
+                output.push(indent_string); // skip space-stuffing, if indenting with a tab
+            }
         }
     }
 
@@ -126,40 +559,31 @@ eval.beautify = function(js_source_text, options) {
         }
     }
 
-    function print_javadoc_comment() {
-        var lines = token_text.split('\n');
-        output.push(lines[0]);
-        for (var i = 1; i < lines.length; i++) {
-            print_newline();
-            output.push(' ');
-            output.push(lines[i].replace(/^\s+/, ''));
-        }
-    }
-
-
     function set_mode(mode) {
         if (flags) {
             flag_store.push(flags);
         }
         flags = {
+            previous_mode: flags ? flags.mode : 'BLOCK',
             mode: mode,
             var_line: false,
             var_line_tainted: false,
+            var_line_reindented: false,
             in_html_comment: false,
             if_line: false,
             in_case: false,
             eat_next_space: false,
             indentation_baseline: -1,
-            indentation_level: (flags ? flags.indentation_level : opt_indent_level)
+            indentation_level: (flags ? flags.indentation_level + ((flags.var_line && flags.var_line_reindented) ? 1 : 0) : opt_indent_level)
         };
-    }
-
-    function is_expression(mode) {
-        return mode === '[EXPRESSION]' || mode === '[INDENTED-EXPRESSION]' || mode === '(EXPRESSION)';
     }
 
     function is_array(mode) {
         return mode === '[EXPRESSION]' || mode === '[INDENTED-EXPRESSION]';
+    }
+
+    function is_expression(mode) {
+        return mode === '[EXPRESSION]' || mode === '[INDENTED-EXPRESSION]' || mode === '(EXPRESSION)';
     }
 
     function restore_mode() {
@@ -223,23 +647,20 @@ eval.beautify = function(js_source_text, options) {
         }
     }
 
-    function op_requires_right_side(op) {
-        return true;
-    }
-
     function get_next_token() {
         n_newlines = 0;
 
-        if (parser_pos >= input.length) {
+        if (parser_pos >= input_length) {
             return ['', 'TK_EOF'];
         }
+
+        wanted_newline = false;
 
         var c = input.charAt(parser_pos);
         parser_pos += 1;
 
 
         var keep_whitespace = opt_keep_array_indentation && is_array(flags.mode);
-        wanted_newline = false;
 
         if (keep_whitespace) {
 
@@ -268,12 +689,14 @@ eval.beautify = function(js_source_text, options) {
                 } else {
                     if (c === '\t') {
                         whitespace_count += 4;
+                    } else if (c === '\r') {
+                        // nothing
                     } else {
                         whitespace_count += 1;
                     }
                 }
 
-                if (parser_pos >= input.length) {
+                if (parser_pos >= input_length) {
                     return ['', 'TK_EOF'];
                 }
 
@@ -286,11 +709,12 @@ eval.beautify = function(js_source_text, options) {
             }
 
             if (just_added_newline) {
-                for (var i = 0; i < flags.indentation_level + 1; i += 1) {
+                var i;
+                for (i = 0; i < flags.indentation_level + 1; i += 1) {
                     output.push(indent_string);
                 }
                 if (flags.indentation_baseline !== -1) {
-                    for (var i = 0; i < whitespace_count - flags.indentation_baseline; i++) {
+                    for (i = 0; i < whitespace_count - flags.indentation_baseline; i++) {
                         output.push(' ');
                     }
                 }
@@ -300,11 +724,11 @@ eval.beautify = function(js_source_text, options) {
             while (in_array(c, whitespace)) {
 
                 if (c === "\n") {
-                    n_newlines += 1;
+                    n_newlines += ( (opt_max_preserve_newlines) ? (n_newlines <= opt_max_preserve_newlines) ? 1: 0: 1 );
                 }
 
 
-                if (parser_pos >= input.length) {
+                if (parser_pos >= input_length) {
                     return ['', 'TK_EOF'];
                 }
 
@@ -315,7 +739,7 @@ eval.beautify = function(js_source_text, options) {
 
             if (opt_preserve_newlines) {
                 if (n_newlines > 1) {
-                    for (var i = 0; i < n_newlines; i += 1) {
+                    for (i = 0; i < n_newlines; i += 1) {
                         print_newline(i === 0);
                         just_added_newline = true;
                     }
@@ -326,18 +750,18 @@ eval.beautify = function(js_source_text, options) {
 
 
         if (in_array(c, wordchar)) {
-            if (parser_pos < input.length) {
+            if (parser_pos < input_length) {
                 while (in_array(input.charAt(parser_pos), wordchar)) {
                     c += input.charAt(parser_pos);
                     parser_pos += 1;
-                    if (parser_pos === input.length) {
+                    if (parser_pos === input_length) {
                         break;
                     }
                 }
             }
 
             // small and surprisingly unugly hack for 1E-10 representation
-            if (parser_pos !== input.length && c.match(/^[0-9]+[Ee]$/) && (input.charAt(parser_pos) === '-' || input.charAt(parser_pos) === '+')) {
+            if (parser_pos !== input_length && c.match(/^[0-9]+[Ee]$/) && (input.charAt(parser_pos) === '-' || input.charAt(parser_pos) === '+')) {
 
                 var sign = input.charAt(parser_pos);
                 parser_pos += 1;
@@ -379,27 +803,36 @@ eval.beautify = function(js_source_text, options) {
         if (c === '/') {
             var comment = '';
             // peek for comment /* ... */
+            var inline_comment = true;
             if (input.charAt(parser_pos) === '*') {
                 parser_pos += 1;
-                if (parser_pos < input.length) {
-                    while (! (input.charAt(parser_pos) === '*' && input.charAt(parser_pos + 1) && input.charAt(parser_pos + 1) === '/') && parser_pos < input.length) {
-                        comment += input.charAt(parser_pos);
+                if (parser_pos < input_length) {
+                    while (! (input.charAt(parser_pos) === '*' && input.charAt(parser_pos + 1) && input.charAt(parser_pos + 1) === '/') && parser_pos < input_length) {
+                        c = input.charAt(parser_pos);
+                        comment += c;
+                        if (c === '\x0d' || c === '\x0a') {
+                            inline_comment = false;
+                        }
                         parser_pos += 1;
-                        if (parser_pos >= input.length) {
+                        if (parser_pos >= input_length) {
                             break;
                         }
                     }
                 }
                 parser_pos += 2;
-                return ['/*' + comment + '*/', 'TK_BLOCK_COMMENT'];
+                if (inline_comment) {
+                    return ['/*' + comment + '*/', 'TK_INLINE_COMMENT'];
+                } else {
+                    return ['/*' + comment + '*/', 'TK_BLOCK_COMMENT'];
+                }
             }
             // peek for comment // ...
             if (input.charAt(parser_pos) === '/') {
                 comment = c;
-                while (input.charAt(parser_pos) !== "\x0d" && input.charAt(parser_pos) !== "\x0a") {
+                while (input.charAt(parser_pos) !== '\r' && input.charAt(parser_pos) !== '\n') {
                     comment += input.charAt(parser_pos);
                     parser_pos += 1;
-                    if (parser_pos >= input.length) {
+                    if (parser_pos >= input_length) {
                         break;
                     }
                 }
@@ -414,12 +847,14 @@ eval.beautify = function(js_source_text, options) {
 
         if (c === "'" || // string
         c === '"' || // string
-        (c === '/' && ((last_type === 'TK_WORD' && in_array(last_text, ['return', 'do'])) || (last_type === 'TK_START_EXPR' || last_type === 'TK_START_BLOCK' || last_type === 'TK_END_BLOCK' || last_type === 'TK_OPERATOR' || last_type === 'TK_EQUALS' || last_type === 'TK_EOF' || last_type === 'TK_SEMICOLON')))) { // regexp
+        (c === '/' &&
+            ((last_type === 'TK_WORD' && in_array(last_text, ['return', 'do'])) ||
+                (last_type === 'TK_COMMENT' || last_type === 'TK_START_EXPR' || last_type === 'TK_START_BLOCK' || last_type === 'TK_END_BLOCK' || last_type === 'TK_OPERATOR' || last_type === 'TK_EQUALS' || last_type === 'TK_EOF' || last_type === 'TK_SEMICOLON')))) { // regexp
             var sep = c;
             var esc = false;
             var resulting_string = c;
 
-            if (parser_pos < input.length) {
+            if (parser_pos < input_length) {
                 if (sep === '/') {
                     //
                     // handle regexp separately...
@@ -438,8 +873,8 @@ eval.beautify = function(js_source_text, options) {
                             esc = false;
                         }
                         parser_pos += 1;
-                        if (parser_pos >= input.length) {
-                            // incomplete string/rexp when end-of-file reached. 
+                        if (parser_pos >= input_length) {
+                            // incomplete string/rexp when end-of-file reached.
                             // bail out with what had been received so far.
                             return [resulting_string, 'TK_STRING'];
                         }
@@ -457,8 +892,8 @@ eval.beautify = function(js_source_text, options) {
                             esc = false;
                         }
                         parser_pos += 1;
-                        if (parser_pos >= input.length) {
-                            // incomplete string/rexp when end-of-file reached. 
+                        if (parser_pos >= input_length) {
+                            // incomplete string/rexp when end-of-file reached.
                             // bail out with what had been received so far.
                             return [resulting_string, 'TK_STRING'];
                         }
@@ -475,7 +910,7 @@ eval.beautify = function(js_source_text, options) {
 
             if (sep === '/') {
                 // regexps may have modifiers /regexp/MOD , so fetch those, too
-                while (parser_pos < input.length && in_array(input.charAt(parser_pos), wordchar)) {
+                while (parser_pos < input_length && in_array(input.charAt(parser_pos), wordchar)) {
                     resulting_string += input.charAt(parser_pos);
                     parser_pos += 1;
                 }
@@ -484,22 +919,39 @@ eval.beautify = function(js_source_text, options) {
         }
 
         if (c === '#') {
+
+
+            if (output.length === 0 && input.charAt(parser_pos) === '!') {
+                // shebang
+                resulting_string = c;
+                while (parser_pos < input_length && c != '\n') {
+                    c = input.charAt(parser_pos);
+                    resulting_string += c;
+                    parser_pos += 1;
+                }
+                output.push(trim(resulting_string) + '\n');
+                print_newline();
+                return get_next_token();
+            }
+
+
+
             // Spidermonkey-specific sharp variables for circular references
             // https://developer.mozilla.org/En/Sharp_variables_in_JavaScript
             // http://mxr.mozilla.org/mozilla-central/source/js/src/jsscan.cpp around line 1935
             var sharp = '#';
-            if (parser_pos < input.length && in_array(input.charAt(parser_pos), digits)) {
+            if (parser_pos < input_length && in_array(input.charAt(parser_pos), digits)) {
                 do {
                     c = input.charAt(parser_pos);
                     sharp += c;
                     parser_pos += 1;
-                } while (parser_pos < input.length && c !== '#' && c !== '=');
+                } while (parser_pos < input_length && c !== '#' && c !== '=');
                 if (c === '#') {
-                    // 
-                } else if (input.charAt(parser_pos) == '[' && input.charAt(parser_pos + 1) === ']') {
+                    //
+                } else if (input.charAt(parser_pos) === '[' && input.charAt(parser_pos + 1) === ']') {
                     sharp += '[]';
                     parser_pos += 2;
-                } else if (input.charAt(parser_pos) == '{' && input.charAt(parser_pos + 1) === '}') {
+                } else if (input.charAt(parser_pos) === '{' && input.charAt(parser_pos + 1) === '}') {
                     sharp += '{}';
                     parser_pos += 2;
                 }
@@ -523,10 +975,10 @@ eval.beautify = function(js_source_text, options) {
         }
 
         if (in_array(c, punct)) {
-            while (parser_pos < input.length && in_array(c + input.charAt(parser_pos), punct)) {
+            while (parser_pos < input_length && in_array(c + input.charAt(parser_pos), punct)) {
                 c += input.charAt(parser_pos);
                 parser_pos += 1;
-                if (parser_pos >= input.length) {
+                if (parser_pos >= input_length) {
                     break;
                 }
             }
@@ -638,8 +1090,8 @@ eval.beautify = function(js_source_text, options) {
 
             if (last_text === ';' || last_type === 'TK_START_BLOCK') {
                 print_newline();
-            } else if (last_type === 'TK_END_EXPR' || last_type === 'TK_START_EXPR' || last_type === 'TK_END_BLOCK') {
-                // do nothing on (( and )( and ][ and ]( ..
+            } else if (last_type === 'TK_END_EXPR' || last_type === 'TK_START_EXPR' || last_type === 'TK_END_BLOCK' || last_text === '.') {
+                // do nothing on (( and )( and ][ and ]( and .(
             } else if (last_type !== 'TK_WORD' && last_type !== 'TK_OPERATOR') {
                 print_single_space();
             } else if (last_word === 'function') {
@@ -655,13 +1107,24 @@ eval.beautify = function(js_source_text, options) {
             break;
 
         case 'TK_END_EXPR':
-            if (token_text === ']' && !opt_keep_array_indentation) {
-                if (flags.mode === '[INDENTED-EXPRESSION]') {
-                    if (last_text === ']') {
-                        restore_mode();
-                        print_newline();
+            if (token_text === ']') {
+                if (opt_keep_array_indentation) {
+                    if (last_text === '}') {
+                        // trim_output();
+                        // print_newline(true);
+                        remove_indent();
                         print_token();
+                        restore_mode();
                         break;
+                    }
+                } else {
+                    if (flags.mode === '[INDENTED-EXPRESSION]') {
+                        if (last_text === ']') {
+                            restore_mode();
+                            print_newline();
+                            print_token();
+                            break;
+                        }
                     }
                 }
             }
@@ -676,31 +1139,67 @@ eval.beautify = function(js_source_text, options) {
             } else {
                 set_mode('BLOCK');
             }
-            if (last_type !== 'TK_OPERATOR' && last_type !== 'TK_START_EXPR') {
-                if (last_type === 'TK_START_BLOCK') {
-                    print_newline();
-                } else {
-                    print_single_space();
+            if (opt_braces_on_own_line) {
+                if (last_type !== 'TK_OPERATOR') {
+                    if (last_text == 'return') {
+                        print_single_space();
+                    } else {
+                        print_newline(true);
+                    }
                 }
+                print_token();
+                indent();
+            } else {
+                if (last_type !== 'TK_OPERATOR' && last_type !== 'TK_START_EXPR') {
+                    if (last_type === 'TK_START_BLOCK') {
+                        print_newline();
+                    } else {
+                        print_single_space();
+                    }
+                } else {
+                    // if TK_OPERATOR or TK_START_EXPR
+                    if (is_array(flags.previous_mode) && last_text === ',') {
+                        if (last_last_text === '}') {
+                            // }, { in array context
+                            print_single_space();
+                        } else {
+                            print_newline(); // [a, b, c, {
+                        }
+                    }
+                }
+                indent();
+                print_token();
             }
-            indent();
-            print_token();
+
             break;
 
         case 'TK_END_BLOCK':
             restore_mode();
-            if (last_type === 'TK_START_BLOCK') {
-                // nothing
-                if (just_added_newline) {
-                     remove_indent();
-                } else {
-                    // {}
-                    trim_output();
-                }
-            } else {
+            if (opt_braces_on_own_line) {
                 print_newline();
+                print_token();
+            } else {
+                if (last_type === 'TK_START_BLOCK') {
+                    // nothing
+                    if (just_added_newline) {
+                        remove_indent();
+                    } else {
+                        // {}
+                        trim_output();
+                    }
+                } else {
+                    if (is_array(flags.mode) && opt_keep_array_indentation) {
+                        // we REALLY need a newline here, but newliner would skip that
+                        opt_keep_array_indentation = false;
+                        print_newline();
+                        opt_keep_array_indentation = true;
+
+                    } else {
+                        print_newline();
+                    }
+                }
+                print_token();
             }
-            print_token();
             break;
 
         case 'TK_WORD':
@@ -717,17 +1216,20 @@ eval.beautify = function(js_source_text, options) {
             }
 
             if (token_text === 'function') {
-                if ((just_added_newline || last_text == ';') && last_text !== '{') {
+                if ((just_added_newline || last_text === ';') && last_text !== '{') {
                     // make sure there is a nice clean space of at least one blank line
                     // before a new function definition
                     n_newlines = just_added_newline ? n_newlines : 0;
+                    if ( ! opt_preserve_newlines) {
+                        n_newlines = 1;
+                    }
 
                     for (var i = 0; i < 2 - n_newlines; i++) {
                         print_newline(false);
                     }
-
                 }
             }
+
             if (token_text === 'case' || token_text === 'default') {
                 if (last_text === ':') {
                     // switch cases following one another
@@ -749,8 +1251,12 @@ eval.beautify = function(js_source_text, options) {
                 if (!in_array(token_text.toLowerCase(), ['else', 'catch', 'finally'])) {
                     prefix = 'NEWLINE';
                 } else {
-                    prefix = 'SPACE';
-                    print_single_space();
+                    if (opt_braces_on_own_line) {
+                        prefix = 'NEWLINE';
+                    } else {
+                        prefix = 'SPACE';
+                        print_single_space();
+                    }
                 }
             } else if (last_type === 'TK_SEMICOLON' && (flags.mode === 'BLOCK' || flags.mode === 'DO_BLOCK')) {
                 prefix = 'NEWLINE';
@@ -767,13 +1273,18 @@ eval.beautify = function(js_source_text, options) {
                 prefix = 'NEWLINE';
             }
 
-            if (last_type !== 'TK_END_BLOCK' && in_array(token_text.toLowerCase(), ['else', 'catch', 'finally'])) {
-                print_newline();
-            } else if (in_array(token_text, line_starters) || prefix === 'NEWLINE') {
-                if (last_text === 'else') {
-                    // no need to force newline on else break
+            if (flags.if_line && last_type === 'TK_END_EXPR') {
+                flags.if_line = false;
+            }
+            if (in_array(token_text.toLowerCase(), ['else', 'catch', 'finally'])) {
+                if (last_type !== 'TK_END_BLOCK' || opt_braces_on_own_line) {
+                    print_newline();
+                } else {
+                    trim_output(true);
                     print_single_space();
-                } else if ((last_type === 'TK_START_EXPR' || last_text === '=' || last_text === ',') && token_text === 'function') {
+                }
+            } else if (in_array(token_text, line_starters) || prefix === 'NEWLINE') {
+                if ((last_type === 'TK_START_EXPR' || last_text === '=' || last_text === ',') && token_text === 'function') {
                     // no need to force newline on 'function': (function
                     // DONOTHING
                 } else if (last_text === 'return' || last_text === 'throw') {
@@ -794,6 +1305,8 @@ eval.beautify = function(js_source_text, options) {
                         print_newline();
                     }
                 }
+            } else if (is_array(flags.mode) && last_text === ',' && last_last_text === '}') {
+                print_newline(); // }, in lists get a newline treatment
             } else if (prefix === 'SPACE') {
                 print_single_space();
             }
@@ -802,11 +1315,15 @@ eval.beautify = function(js_source_text, options) {
 
             if (token_text === 'var') {
                 flags.var_line = true;
+                flags.var_line_reindented = false;
                 flags.var_line_tainted = false;
             }
 
-            if (token_text === 'if' || token_text === 'else') {
+            if (token_text === 'if') {
                 flags.if_line = true;
+            }
+            if (token_text === 'else') {
+                flags.if_line = false;
             }
 
             break;
@@ -815,6 +1332,7 @@ eval.beautify = function(js_source_text, options) {
 
             print_token();
             flags.var_line = false;
+            flags.var_line_reindented = false;
             break;
 
         case 'TK_STRING':
@@ -851,9 +1369,9 @@ eval.beautify = function(js_source_text, options) {
                 if (token_text === ',') {
                     if (flags.var_line_tainted) {
                         print_token();
-                        print_newline();
-                        output.push(indent_string);
+                        flags.var_line_reindented = true;
                         flags.var_line_tainted = false;
+                        print_newline();
                         break;
                     } else {
                         flags.var_line_tainted = false;
@@ -896,9 +1414,13 @@ eval.beautify = function(js_source_text, options) {
                     }
                 } else if (last_type === 'TK_END_BLOCK' && flags.mode !== "(EXPRESSION)") {
                     print_token();
-                    print_newline();
+                    if (flags.mode === 'OBJECT' && last_text === '}') {
+                        print_newline();
+                    } else {
+                        print_single_space();
+                    }
                 } else {
-                    if (flags.mode === 'BLOCK') {
+                    if (flags.mode === 'OBJECT') {
                         print_token();
                         print_newline();
                     } else {
@@ -908,7 +1430,8 @@ eval.beautify = function(js_source_text, options) {
                     }
                 }
                 break;
-            } else if (in_array(token_text, ['--', '++', '!']) || (in_array(token_text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS']) || in_array(last_text, line_starters)))) { 
+            // } else if (in_array(token_text, ['--', '++', '!']) || (in_array(token_text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS']) || in_array(last_text, line_starters) || in_array(last_text, ['==', '!=', '+=', '-=', '*=', '/=', '+', '-'])))) {
+            } else if (in_array(token_text, ['--', '++', '!']) || (in_array(token_text, ['-', '+']) && (in_array(last_type, ['TK_START_BLOCK', 'TK_START_EXPR', 'TK_EQUALS', 'TK_OPERATOR']) || in_array(last_text, line_starters)))) {
                 // unary operators (and binary +/- pretending to be unary) special cases
 
                 space_before = false;
@@ -933,7 +1456,8 @@ eval.beautify = function(js_source_text, options) {
                 space_before = false;
 
             } else if (token_text === ':') {
-                if ( ! is_ternary_op()) {
+                if (!is_ternary_op()) {
+                    flags.mode = 'OBJECT';
                     space_before = false;
                 }
             }
@@ -955,13 +1479,49 @@ eval.beautify = function(js_source_text, options) {
 
         case 'TK_BLOCK_COMMENT':
 
-            print_newline();
-            if (token_text.substring(0, 3) == '/**') {
-                print_javadoc_comment();
+            var lines = token_text.split(/\x0a|\x0d\x0a/);
+
+            if (/^\/\*\*/.test(token_text)) {
+                // javadoc: reformat and reindent
+                print_newline();
+                output.push(lines[0]);
+                for (i = 1; i < lines.length; i++) {
+                    print_newline();
+                    output.push(' ');
+                    output.push(trim(lines[i]));
+                }
+
             } else {
-                print_token();
+
+                // simple block comment: leave intact
+                if (lines.length > 1) {
+                    // multiline comment block starts with a new line
+                    print_newline();
+                    trim_output();
+                } else {
+                    // single-line /* comment */ stays where it is
+                    print_single_space();
+
+                }
+
+                for (i = 0; i < lines.length; i++) {
+                    output.push(lines[i]);
+                    output.push('\n');
+                }
+
             }
             print_newline();
+            break;
+
+        case 'TK_INLINE_COMMENT':
+
+            print_single_space();
+            print_token();
+            if (is_expression(flags.mode)) {
+                print_single_space();
+            } else {
+                print_newline();
+            }
             break;
 
         case 'TK_COMMENT':
@@ -977,6 +1537,9 @@ eval.beautify = function(js_source_text, options) {
             break;
 
         case 'TK_UNKNOWN':
+            if (last_text === 'return' || last_text === 'throw') {
+                print_single_space();
+            }
             print_token();
             break;
         }
@@ -988,410 +1551,12 @@ eval.beautify = function(js_source_text, options) {
 
     return output.join('').replace(/[\n ]+$/, '');
 
-};
+}
 
-/* jsmin.js - 2006-08-31
-Author: Franck Marcia
-This work is an adaptation of jsminc.c published by Douglas Crockford.
-Permission is hereby granted to use the Javascript version under the same
-conditions as the jsmin.c on which it is based.
+// Add support for CommonJS. Just put this file somewhere on your require.paths
+// and you will be able to `var js_beautify = require("beautify").js_beautify`.
+if (typeof exports !== "undefined")
+    exports.js_beautify = js_beautify;
 
-jsmin.c
-2006-05-04
-
-Copyright (c) 2002 Douglas Crockford  (www.crockford.com)
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of
-this software and associated documentation files (the "Software"), to deal in
-the Software without restriction, including without limitation the rights to
-use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
-of the Software, and to permit persons to whom the Software is furnished to do
-so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-The Software shall be used for Good, not Evil.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-Update:
-	add level:
-		1: minimal, keep linefeeds if single
-		2: normal, the standard algorithm
-		3: agressive, remove any linefeed and doesn't take care of potential
-		   missing semicolons (can be regressive)
-	store stats
-		jsmin.oldSize
-		jsmin.newSize
-*/
-
-/*
-
-Updates:
-
-2009/02/26	String.prototype.has was removed
-2009/02/28	The order of arguments was modified
-2009/04/03	Levels are changed to start from 0 (instead of 1)
-2010/01/23	optional arguments, number and string, are removed into the single object-argument
-
-*/
-
-
-//String.prototype.has = function(c) {
-//	return this.indexOf(c) > -1;
-//};
-
-
-eval.minify = function(input, options)
-{
-	options = options || {};
-
-	var level = Number(options.level) || 0;
-	var comment = options.comment;
-
-//	if (level === undefined || level < 1 || level > 3) {
-//		level = 2;
-//	}
-
-	if ( ! comment ) {
-		comment = '';
-	}
-	if ( comment.constructor == Array ) {
-		comment = comment.join('\n// ');
-	}
-	if ( comment.length > 0 ) {
-		comment = '// ' + comment + '\n';
-	}
-
-//	if (input === undefined) {
-//		input = comment;
-//		comment = '';
-//		level = 2;
-//	} else if (level === undefined || level < 1 || level > 3) {
-//		level = 2;
-//	}
-//
-//	if (comment.length > 0) {
-//		comment += '\n';
-//	}
-
-	var a = '',
-		b = '',
-		EOF = -1,
-		LETTERS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
-		DIGITS = '0123456789',
-		ALNUM = LETTERS + DIGITS + '_$\\',
-		theLookahead = EOF;
-
-
-	/* isAlphanum -- return true if the character is a letter, digit, underscore,
-			dollar sign, or non-ASCII character.
-	*/
-
-	function isAlphanum(c) {
-		return c != EOF && (ALNUM.indexOf(c) > -1 || c.charCodeAt(0) > 126);
-//		return c != EOF && (ALNUM.has(c) || c.charCodeAt(0) > 126);
-	};
-
-
-	/* get -- return the next character. Watch out for lookahead. If the
-			character is a control character, translate it to a space or
-			linefeed.
-	*/
-
-	function get() {
-
-		var c = theLookahead;
-		if (get.i == get.l) {
-			return EOF;
-		}
-		theLookahead = EOF;
-		if (c == EOF) {
-			c = input.charAt(get.i);
-			++get.i;
-		}
-		if (c >= ' ' || c == '\n') {
-			return c;
-		}
-		if (c == '\r') {
-			return '\n';
-		}
-		return ' ';
-	};
-
-	get.i = 0;
-	get.l = input.length;
-
-
-	/* peek -- get the next character without getting it.
-	*/
-
-	function peek() {
-		theLookahead = get();
-		return theLookahead;
-	};
-
-
-	/* next -- get the next character, excluding comments. peek() is used to see
-			if a '/' is followed by a '/' or '*'.
-	*/
-
-	function next() {
-
-		var c = get();
-		if (c == '/') {
-			switch (peek()) {
-			case '/':
-				for (;;) {
-					c = get();
-					if (c <= '\n') {
-						return c;
-					}
-				}
-				break;
-			case '*':
-				get();
-				for (;;) {
-					switch (get()) {
-					case '*':
-						if (peek() == '/') {
-							get();
-							return ' ';
-						}
-						break;
-					case EOF:
-						throw 'Error: Unterminated comment.';
-					}
-				}
-				break;
-			default:
-				return c;
-			}
-		}
-		return c;
-	};
-
-
-	/* action -- do something! What you do is determined by the argument:
-			1   Output A. Copy B to A. Get the next B.
-			2   Copy B to A. Get the next B. (Delete A).
-			3   Get the next B. (Delete B).
-	   action treats a string as a single character. Wow!
-	   action recognizes a regular expression if it is preceded by ( or , or =.
-	*/
-
-	function action(d) {
-
-		var r = [];
-
-		if (d == 1) {
-			r.push(a);
-		}
-
-		if (d < 3) {
-			a = b;
-			if (a == '\'' || a == '"') {
-				for (;;) {
-					r.push(a);
-					a = get();
-					if (a == b) {
-						break;
-					}
-					if (a <= '\n') {
-						throw 'Error: unterminated string literal: ' + a;
-					}
-					if (a == '\\') {
-						r.push(a);
-						a = get();
-					}
-				}
-			}
-		}
-
-		b = next();
-
-		if (b == '/' && '(,=:[!&|'.indexOf(a) > -1) {
-//		if (b == '/' && '(,=:[!&|'.has(a)) {
-			r.push(a);
-			r.push(b);
-			for (;;) {
-				a = get();
-				if (a == '/') {
-					break;
-				} else if (a =='\\') {
-					r.push(a);
-					a = get();
-				} else if (a <= '\n') {
-					throw 'Error: unterminated Regular Expression literal';
-				}
-				r.push(a);
-			}
-			b = next();
-		}
-
-		return r.join('');
-	};
-
-
-	/* m -- Copy the input to the output, deleting the characters which are
-			insignificant to JavaScript. Comments will be removed. Tabs will be
-			replaced with spaces. Carriage returns will be replaced with
-			linefeeds.
-			Most spaces and linefeeds will be removed.
-	*/
-
-	function m() {
-
-		var r = [];
-		a = '\n';
-
-		r.push(action(3));
-
-		while (a != EOF) {
-			switch (a) {
-			case ' ':
-				if (isAlphanum(b)) {
-					r.push(action(1));
-				} else {
-					r.push(action(2));
-				}
-				break;
-			case '\n':
-				switch (b) {
-				case '{':
-				case '[':
-				case '(':
-				case '+':
-				case '-':
-					r.push(action(1));
-					break;
-				case ' ':
-					r.push(action(3));
-					break;
-				default:
-					if (isAlphanum(b)) {
-						r.push(action(1));
-					} else {
-						if (level == 0 && b != '\n') {
-//						if (level == 1 && b != '\n') {
-							r.push(action(1));
-						} else {
-							r.push(action(2));
-						}
-					}
-				}
-				break;
-			default:
-				switch (b) {
-				case ' ':
-					if (isAlphanum(a)) {
-						r.push(action(1));
-						break;
-					}
-					r.push(action(3));
-					break;
-				case '\n':
-					if (level == 0 && a != '\n') {
-//					if (level == 1 && a != '\n') {
-						r.push(action(1));
-					} else {
-						switch (a) {
-						case '}':
-						case ']':
-						case ')':
-						case '+':
-						case '-':
-						case '"':
-						case '\'':
-							if (level >= 2) {
-//							if (level == 3) {
-								r.push(action(3));
-							} else {
-								r.push(action(1));
-							}
-							break;
-						default:
-							if (isAlphanum(a)) {
-								r.push(action(1));
-							} else {
-								r.push(action(3));
-							}
-						}
-					}
-					break;
-				default:
-					r.push(action(1));
-					break;
-				}
-			}
-		}
-
-		return r.join('');
-	};
-
-	arguments.callee.oldSize = input.length;
-	ret = m(input);
-	arguments.callee.newSize = ret.length;
-
-	return comment + ret;
-
-};
-
-/**
- * Wrapper over eval and Ajax.queryFile to simplify usage from CLI.
- * Shortly, this is equvalent of 'include' or 'export' within other languages.
- *
- * @param	String	Filename
- * @param	Object	Ajax options
- * @result	String
- *
- * @access	public
- */
-eval.file = function(filename, ajaxOptions)
-{
-	var input = Ajax.queryFile(filename, ajaxOptions);
-
-	return eval(input);
-};
-
-/**
- * Wrapper over jsbeautify and Ajax.queryFile to simplify usage from CLI
- *
- * @param	String
- * @param	Object
- * @param	Object	Ajax options
- * @result	String
- *
- * @access	public
- */
-eval.beautify.file = function(filename, options, ajaxOptions)
-{
-	var input = Ajax.queryFile(filename, ajaxOptions);
-
-	return eval.beautify(input, options);
-};
-
-/**
- * Wrapper over jsmin and Ajax.queryFile to simplify usage from CLI
- *
- * @param	String
- * @param	Object
- * @param	Object	Ajax options
- * @result	String
- *
- * @access	public
- */
-eval.minify.file = function(filename, options, ajaxOptions)
-{
-	var input = Ajax.queryFile(filename, ajaxOptions);
-
-	return eval.minify(input, options);
-};
+})();
 

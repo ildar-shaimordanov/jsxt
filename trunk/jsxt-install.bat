@@ -94,9 +94,9 @@ if ( inc.length == 0 ) {
 var JSFILE = /\.js$/i;
 var WSFILE = /\.wsf$/i;
 var JS2BAT = [
-	'@set @x=0 /*', 
+	'@set @x=0 /*!', 
 	'@set @x=', 
-	'@cscript //nologo /e:javascript "%~dpnx0" %*', 
+	'@cscript //nologo //e:javascript "%~dpnx0" %*', 
 	'@goto :eof */', 
 	'', 
 	''].join('\n');

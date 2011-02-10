@@ -7,11 +7,20 @@
 
 ///////////////////////////////////////////////////////////////////////////
 
-// [requires[ js/Ajax.js ]]
+//[requires[ js/Ajax.js ]]
 
 ///////////////////////////////////////////////////////////////////////////
 
 var YandexSlovary = {
+	// Yandex Slovary Shell
+	name: 'Yandex.Slovari Shell', 
+	version: '0.1.5 Beta', 
+	userAgent: function()
+	{
+		return this.name + '/' + this.version + '; (compatible; Windows Script Host, Version ' + WScript.Version + ')';
+	}, 
+
+
 	// Looking for text within these tags
 	re_content: /<div class="b-holster.*?">((?:[\r\n]|.)*)<\/div>\s*<div class="b-foot">/m, 
 
@@ -26,19 +35,31 @@ var YandexSlovary = {
 	], 
 
 	// Use mobile version of Ynadex.Slovari
-	url: 'http://m.slovari.yandex.ru/search.xml', 
-
-	// Yandex Slovary Shell
-	name: 'Yandex.Slovari Shell', 
-	version: '0.1.4 Beta'
+	url: 'http://m.slovari.yandex.ru/search.xml'
 };
 
 YandexSlovary.help = function()
 {
-	return this.name + '/' + this.version + '\n'
+	var msg = this.name + '/' + this.version + '\n'
 		+ 'Copyright (C) 2010, 2011, Ildar Shaimordanov\n' 
 		+ '\n' 
-		+ 'Usage: ' + WScript.ScriptName + ' "PHRASE" [ /LANG:lang-abbr-list ]';
+		+ 'Usage: ' + WScript.ScriptName + ' "PHRASE" [ /LANG:lang-abbr-list ]' 
+		;
+	this.alert(msg);
+};
+
+YandexSlovary.alert = function()
+{
+	if ( arguments.length == 0 ) {
+		return;
+	}
+
+	WScript.Echo([].slice.call(arguments));
+};
+
+YandexSlovary.quit = function(exitCode)
+{
+	WScript.Quit(exitCode);
 };
 
 YandexSlovary.parse = function(xml)
@@ -89,7 +110,7 @@ YandexSlovary.query = function(url)
 /*
 	return Ajax.queryFile(this.url + '?' + queryString, {
 		headers: {
-			'User-Agent': this.name + '/' + this.version + '; (compatible; Windows Script Host, Version ' + WScript.Version + ')'
+			'User-Agent': this.userAgent()
 		}
 	});
 */
@@ -126,7 +147,7 @@ YandexSlovary.query = function(url)
 	xmlhttp.open('GET', url, false);
 
 	xmlhttp.setRequestHeader('If-Modified-Since', (new Date(0)).toUTCString());
-	xmlhttp.setRequestHeader('User-Agent', this.name + '/' + this.version + '; (compatible; Windows Script Host, Version ' + WScript.Version + ')');
+	xmlhttp.setRequestHeader('User-Agent', this.userAgent());
 
 	xmlhttp.send();
 
@@ -158,8 +179,8 @@ YandexSlovary.glossary = function(word, lang)
 ///////////////////////////////////////////////////////////////////////////
 
 if ( WScript.Arguments.Unnamed.length == 0 ) {
-	WScript.Echo(YandexSlovary.help());
-	WScript.Quit();
+	YandexSlovary.help();
+	YandexSlovary.quit();
 }
 
 var word = (function()
@@ -183,5 +204,5 @@ var lang = (function()
 
 var text = YandexSlovary.glossary(word, lang);
 
-WScript.Echo(text);
+YandexSlovary.alert(text);
 

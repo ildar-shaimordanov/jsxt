@@ -2,9 +2,11 @@
 // Display the minimal usage screen
 if ( ! WScript.FullName.match(/cscript/i) || WScript.Arguments.Named.Exists('H') ) {
 	WScript.Echo([
+		'js2bat', 
+		'Copyright (C) 2010, 2011, Ildar Shaimordanov', 
 		'Usage:',
-		'\tJS2BAT [/H]',
-		'\tJS2BAT [file] [/W] [/A:"string"]',
+		'\tjs2bat [/H]',
+		'\tjs2bat [file] [/W] [/A:"string"]',
 		].join('\n'));
 
 	WScript.Quit();
@@ -21,10 +23,10 @@ var args = WScript.Arguments.Named('A')
 	: '//nologo';
 
 var prolog = [
-	'@set @x=0 /*', 
+	'@set @x=0 /*!', 
 	'@set @x=', 
 	['@', host, args, '//e:javascript "%~dpnx0" %*'].join(' '), 
-	'@goto:eof */', 
+	'@goto :eof */', 
 	'', 
 	''].join('\n');
 
