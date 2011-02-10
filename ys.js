@@ -14,7 +14,7 @@
 var YandexSlovary = {
 	// Yandex Slovary Shell
 	name: 'Yandex.Slovari Shell', 
-	version: '0.1.5 Beta', 
+	version: '0.1.6 Beta', 
 	userAgent: function()
 	{
 		return this.name + '/' + this.version + '; (compatible; Windows Script Host, Version ' + WScript.Version + ')';
@@ -107,13 +107,12 @@ YandexSlovary.parse = function(xml)
 
 YandexSlovary.query = function(url)
 {
-/*
-	return Ajax.queryFile(this.url + '?' + queryString, {
+	return Ajax.queryFile(url, {
 		headers: {
 			'User-Agent': this.userAgent()
 		}
 	});
-*/
+/*
 	var IDs = [
 		'Msxml2.XMLHTTP', 
 		'Microsoft.XMLHTTP'];
@@ -152,6 +151,7 @@ YandexSlovary.query = function(url)
 	xmlhttp.send();
 
 	return result;
+*/
 };
 
 YandexSlovary.get = function(word, lang)
