@@ -8,7 +8,7 @@ setlocal enabledelayedexpansion
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.10.3 Beta
+set wscmd.version=0.10.4 Beta
 
 
 :: Parse command line arguments and set needful variables
@@ -216,7 +216,7 @@ for %%l in ( %wscmd.ini.include% ) do (
 
 if defined wscmd.script (
 	if defined wscmd.debug echo.File: "%wscmd.script%">&2
-	call :wscmd.%wscmd.link%%wscmd.engine% %wscmd.script%
+	call :wscmd.%wscmd.link%%wscmd.engine% "%wscmd.script%"
 ) else if defined wscmd.inline (
 	if defined wscmd.debug echo.Inline: %wscmd.inline%>&2
 	call :wscmd.inline%wscmd.engine%
