@@ -29,7 +29,8 @@ var install = {
 		exit();
 	}
 /*[[
-Installer of JSXT tools Copyright (C) 2009, 2010 Ildar Shaimordanov
+Installer of JSXT tools
+Copyright (C) 2009, 2010, 2011, Ildar Shaimordanov
 
 This is not mandatory action. You can use all these tools "as is". 
 You do not need run this untility. Download archive and place it's 
@@ -49,7 +50,7 @@ tool can be used without emergency of lost some parts of tool.
 ]]*/
 })();
 
-function expandFileList(list)
+function expandFileList(list, skipWarn)
 {
 	return list
 		.map(function(v)
@@ -59,9 +60,16 @@ function expandFileList(list)
 			try {
 				glob = FileSystem.glob(v);
 			} catch (e) {
+				if ( skipWarn ) {
+					return null;
+				}
 				e.description.print();
 			}
 			return glob;
+		})
+		.filter(function(v)
+		{
+			return v;
 		})
 		.flatten()
 		.map(function(v)
@@ -70,7 +78,7 @@ function expandFileList(list)
 		});
 };
 
-var exc = [].union(expandFileList(install.exclude));
+var exc = [].union(expandFileList(install.exclude, true));
 
 var inc = WScript.Arguments.Unnamed.length == 0 
 	? install.include 
@@ -119,7 +127,14 @@ inc.forEach(function(inpfile)
 		var f = $1 || $2;
 		var s;
 
-		s = FileSystem.readFile(f);
+//		s = FileSystem.readFile(f);
+		var e;
+		try {
+			s = FileSystem.readFile(f);
+		} catch (e) {
+			'The exception has arisen when reading the file "%s": %s'.sprintf(f, e.message).print();
+			exit();
+		}
 		if ( install.squeeze ) {
 			s = eval.minify(s, {
 				level: 3, 
