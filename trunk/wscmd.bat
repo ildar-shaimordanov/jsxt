@@ -8,7 +8,7 @@ setlocal enabledelayedexpansion
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.10.4 Beta
+set wscmd.version=0.10.5 Beta
 
 
 :: Parse command line arguments and set needful variables
@@ -27,13 +27,6 @@ if "%~1" == "" (
 )
 
 
-if /i "%~1" == "/q" (
-	set wscmd.quiet=/q
-	shift /1
-	goto wscmd.2
-)
-
-
 if /i "%~1" == "/h" (
 	goto wscmd.help
 )
@@ -41,6 +34,13 @@ if /i "%~1" == "/h" (
 
 if /i "%~1" == "/help" (
 	goto wscmd.help
+)
+
+
+if /i "%~1" == "/q" (
+	set wscmd.quiet=/q
+	shift /1
+	goto wscmd.2
 )
 
 
