@@ -2,7 +2,7 @@
 // JavaScript unit
 // Add-on for the string and number manipulation
 //
-// Copyright (c) 2005, 2006, 2007 by Ildar N. Shaimordanov aka Rumata
+// Copyright (c) 2005, 2006, 2007, 2010, 2011 by Ildar N. Shaimordanov aka Rumata
 //
 
 
@@ -228,6 +228,81 @@ Number.prototype.hex = function(n, c)
 {
 	return this.hexl(n, c).toUpperCase();
 };
+
+}
+
+if ( ! Number.prototype.human ) {
+
+/**
+ * object.human([digits[, true]])
+ * Transform the number object to string in human-readable format (e.h., 1k, 234M, 5G)
+ *
+ * @example
+ * var n = 1001;
+ *
+ * // will output 1.001K
+ * var h = n.human(3);
+ *
+ * // will output 1001.000
+ * var H = n.human(3, true);
+ *
+ * @param	integer	Optional. Number of digits after the decimal point. Must be in the range 0 – 20, inclusive. 
+ * @param	boolean	Optional. If true then use powers of 1024 not 1000
+ * @return	string	Human-readable string
+ * @access	public
+ */
+Number.prototype.human = function(digits, binary)
+{
+	var n = this.valueOf();
+	var s = '';
+	var divs = arguments.callee.add(binary);
+	for (var i = divs.length - 1; i >= 0; i--) {
+		if ( n >= divs[i].d ) {
+			n = n / divs[i].d;
+			s = divs[i].s;
+			break;
+		}
+	}
+	return n.toFixed(digits) + s;
+};
+
+/**
+ * Subsidiary method. 
+ * Stores suffixes and divisors to use in Number.prototype.human. 
+ *
+ * @param	boolean
+ * @param	string
+ * @param	divisor
+ * @return	array
+ * @access	static
+ */
+Number.prototype.human.add = function(binary, suffix, divisor)
+{
+	var name = binary ? 'div2' : 'div10';
+	var divs = Number.prototype.human[name] = Number.prototype.human[name] || [];
+
+	if ( arguments.length < 3 ) {
+		return divs;
+	}
+
+	divs.push({s: suffix, d: divisor});
+	divs.sort(function(a, b)
+	{
+		return a.d - b.d;
+	});
+
+	return divs;
+};
+
+// Binary prefixes
+Number.prototype.human.add(true,  'K', 1 << 10);
+Number.prototype.human.add(true,  'M', 1 << 20);
+Number.prototype.human.add(true,  'G', 1 << 30);
+
+// Decimal prefixes
+Number.prototype.human.add(false, 'K', 1e3);
+Number.prototype.human.add(false, 'M', 1e6);
+Number.prototype.human.add(false, 'G', 1e9);
 
 }
 
@@ -488,6 +563,10 @@ if ( ! String.prototype.sprintf ) {
  *	 number (with lowercase letters).
  * X - the argument is treated as an integer and presented as a hexadecimal 
  *	 number (with uppercase letters).
+ * h - the argument is treated as an integer and presented in human-readable format 
+ *	 using powers of 1024.
+ * H - the argument is treated as an integer and presented in human-readable format 
+ *	 using powers of 1000.
  */
 String.prototype.sprintf = function()
 {
@@ -517,74 +596,82 @@ String.prototype.sprintf = function()
 
 		x = [];
 		for (var i = 0; i < arguments.length; i++) {
-			x[i] = arguments[i] === undefined 
-				? "" 
-				: arguments[i];
+			x[i] = arguments[i] || '';
+//			x[i] = arguments[i] === void 0 
+//				? "" 
+//				: arguments[i];
 		}
+		x[3] = x[3].slice(-1) || ' ';
 
-//		index++;
 		ins = (x[1]) 
-			? args[x[1].substring(0, x[1].length - 1) - 1] 
+			? args[x[1] - 1] 
 			: args[index];
 		index++;
 
-		switch (x[6]) {
-		case "b":
-//			ins = Number(ins).bin();
-			ins = Number(ins);
-			fn = Number.prototype.bin;
-			break;
-		case "c":
-			ins = String.fromCharCode(ins);
-			fn = String.prototype.padding;
-			break;
-		case "d":
-		case "u":
-//			ins = Number(ins).dec();
-			ins = Number(ins);
-			fn = Number.prototype.dec;
-			break;
-		case "f":
-			ins = Number(ins);
-			fn = String.prototype.padding;
-			if (x[5]) {
-				ins = ins.toFixed(x[5].substr(1));
-			} else if (x[4]) {
-				ins = ins.toExponential(x[4]);
-			} else {
-				ins = ins.toExponential();
-			}
-			// Invert sign because this is not number but string
-			x[2] = x[2] == "-" ? "+" : "-";
-			break;
-		case "o":
-//			ins = Number(ins).oct();
-			ins = Number(ins);
-			fn = Number.prototype.oct;
-			break;
-		case "s":
-			ins = String(ins);
-			fn = String.prototype.padding;
-			break;
-		case "x":
-//			ins = Number(ins).hexl();
-			ins = Number(ins);
-			fn = Number.prototype.hexl;
-			break;
-		case "X":
-//			ins = Number(ins).hex();
-			ins = Number(ins);
-			fn = Number.prototype.hex;
-			break;
-		}
-
-		return fn.call(ins, 
-			x[2] + x[4], 
-			x[3].substr(x[3].length - 1) || " ");
+		return String.prototype.sprintf[x[6]](ins, x);
 	});
 };
 
-String.prototype.sprintf.re = /%%|%(\d+[\$#])?([+-])?('.|0| )?(\d*)(\.\d*)?([bcdfosuxX])/g;
+String.prototype.sprintf.re = /%%|%(?:(\d+)[\$#])?([+-])?('.|0| )?(\d*)(?:\.(\d+))?([bcdfosuxXhH])/g;
+
+String.prototype.sprintf.b = function(ins, x)
+{
+	return Number(ins).bin(x[2] + x[4], x[3]);
+};
+String.prototype.sprintf.c = function(ins, x)
+{
+	return String.fromCharCode(ins).padding(x[2] + x[4], x[3]);
+};
+String.prototype.sprintf.d = 
+String.prototype.sprintf.u = function(ins, x)
+{
+	return Number(ins).dec(x[2] + x[4], x[3]);
+};
+String.prototype.sprintf.f = function(ins, x)
+{
+	var ins = Number(ins);
+	var fn = String.prototype.padding;
+	if (x[5]) {
+		ins = ins.toFixed(x[5]);
+	} else if (x[4]) {
+		ins = ins.toExponential(x[4]);
+	} else {
+		ins = ins.toExponential();
+	}
+	// Invert sign because this is not number but string
+	x[2] = x[2] == "-" ? "+" : "-";
+	return fn.call(ins, x[2] + x[4], x[3]);
+};
+String.prototype.sprintf.o = function(ins, x)
+{
+	return Number(ins).oct(x[2] + x[4], x[3]);
+};
+String.prototype.sprintf.s = function(ins, x)
+{
+	return String(ins).padding(x[2] + x[4], x[3]);
+};
+String.prototype.sprintf.x = function(ins, x)
+{
+	return Number(ins).hexl(x[2] + x[4], x[3]);
+};
+String.prototype.sprintf.X = function(ins, x)
+{
+	return Number(ins).hex(x[2] + x[4], x[3]);
+};
+String.prototype.sprintf.h = function(ins, x)
+{
+	var ins = String.prototype.replace.call(ins, /,/g, '');
+	// Invert sign because this is not number but string
+	x[2] = x[2] == "-" ? "+" : "-";
+	return Number(ins).human(x[5], true).padding(x[2] + x[4], x[3]);
+};
+String.prototype.sprintf.H = function(ins, x)
+{
+	var ins = String.prototype.replace.call(ins, /,/g, '');
+	// Invert sign because this is not number but string
+	x[2] = x[2] == "-" ? "+" : "-";
+	return Number(ins).human(x[5], false).padding(x[2] + x[4], x[3]);
+};
 
 /**
  * compile()
@@ -616,7 +703,6 @@ String.prototype.compile = function()
 	var x;
 	var ins;
 	var fn;
-	var conv;
 
 	/*
 	 * The callback function accepts the following properties
@@ -629,7 +715,7 @@ String.prototype.compile = function()
 	 *	x[5] contains the floating-point precision specifier (as \.\d*)
 	 *	x[6] contains the type specifier (as [bcdfosuxX])
 	 */
-	var result = this.replace(String.prototype.sprintf.re, function()
+	var result = this.replace(/(\\|")/g, '\\$1').replace(String.prototype.sprintf.re, function()
 	{
 		if ( arguments[0] == "%%" ) {
 			return "%";
@@ -637,72 +723,17 @@ String.prototype.compile = function()
 
 		x = [];
 		for (var i = 0; i < arguments.length; i++) {
-			x[i] = arguments[i] === undefined 
-				? "" 
-				: arguments[i];
+			x[i] = arguments[i] || '';
 		}
+		x[3] = x[3].slice(-1) || ' ';
 
-//		index++;
-		ins = 'arguments[' + ( x[1] ? x[1].substring(0, x[1].length - 1) - 1 : index ) + ']';
+		ins = x[1] ? x[1] - 1 : index;
 		index++;
 
-		switch (x[6]) {
-		case "b":
-			ins = 'Number(' + ins + ')';
-			fn = 'Number.prototype.bin';
-			break;
-		case "c":
-			ins = 'String.fromCharCode(' + ins + ')';
-			fn = 'String.prototype.padding';
-			break;
-		case "d":
-		case "u":
-			ins = 'Number(' + ins + ')';
-			fn = 'Number.prototype.dec';
-			break;
-		case "f":
-			ins = 'Number(' + ins + ')';
-			fn = 'String.prototype.padding';
-			if (x[5]) {
-				ins = ins + '.toFixed(' + x[5].substr(1) + ')';
-			} else if (x[4]) {
-				ins = ins + '.toExponential(' + x[4] + ')';
-			} else {
-				ins = ins + '.toExponential()';
-			}
-			// Invert sign because this is not number but string
-			x[2] = x[2] == "-" ? "+" : "-";
-			break;
-		case "o":
-			ins = 'Number(' + ins + ')';
-			fn = 'Number.prototype.oct';
-			break;
-		case "s":
-			ins = 'String(' + ins + ')';
-			fn = 'String.prototype.padding';
-			break;
-		case "x":
-			ins = 'Number(' + ins + ')';
-			fn = 'Number.prototype.hexl';
-			break;
-		case "X":
-			ins = 'Number(' + ins + ')';
-			fn = 'Number.prototype.hex';
-			break;
-		}
-
-		return '", ' + fn + '.call(' + ins + ', "' 
-			+ (x[2] + x[4]) + '", "' 
-			+ (x[3].substr(x[3].length - 1) || " ") + '"), "';
+		return '", String.prototype.sprintf.' + x[6] + '(arguments[' + ins + '], ["' + x.join('", "') + '"]), "';
 	});
 
-	result = '(function(){ return function() { return ["' + result + '"].join(""); }; })()';
-	result = result
-		.split(/\r/).join('\\r')
-		.split(/\n/).join('\\n')
-		;
-
-	return eval(result);
+	return Function('', 'return ["' + result + '"].join("")');
 };
 
 }
@@ -827,24 +858,12 @@ if ( ! String.prototype.uncamelize ) {
 
 String.prototype.uncamelize = function(capitalize)
 {
-	if ( capitalize ) {
-		return this
-			.replace(/[A-Z]/g, function($0)
-			{
-				return '-' + $0;
-			})
-			.replace(/^[a-z]/, function($0)
-			{
-				return $0.toUpperCase();
-			});
-	}
-
 	return this
 		.replace(/[A-Z]/g, function($0)
 		{
 			return '-' + $0.toLowerCase();
 		})
-		.replace(/^[A-Z]/, function($0)
+		.replace(capitalize ? /^[a-z]/ : /^[A-Z]/, function($0)
 		{
 			return $0.toUpperCase();
 		});
