@@ -246,7 +246,7 @@ if ( ! Number.prototype.human ) {
  * // will output 1001.000
  * var H = n.human(3, true);
  *
- * @param	integer	Optional. Number of digits after the decimal point. Must be in the range 0 – 20, inclusive. 
+ * @param	integer	Optional. Number of digits after the decimal point. Must be in the range 0-20, inclusive. 
  * @param	boolean	Optional. If true then use powers of 1024 not 1000
  * @return	string	Human-readable string
  * @access	public
