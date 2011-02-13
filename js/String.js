@@ -298,11 +298,13 @@ Number.prototype.human.add = function(binary, suffix, divisor)
 Number.prototype.human.add(true,  'K', 1 << 10);
 Number.prototype.human.add(true,  'M', 1 << 20);
 Number.prototype.human.add(true,  'G', 1 << 30);
+Number.prototype.human.add(true,  'T', 1 << 40);
 
 // Decimal prefixes
 Number.prototype.human.add(false, 'K', 1e3);
 Number.prototype.human.add(false, 'M', 1e6);
 Number.prototype.human.add(false, 'G', 1e9);
+Number.prototype.human.add(false, 'T', 1e12);
 
 }
 

@@ -2,7 +2,7 @@
 // XML.js
 // Cross-browser JScript / Javascript extension for XML processing
 //
-// Copyright (c) 2010 by Ildar Shaimordanov
+// Copyright (c) 2010, 2011 by Ildar Shaimordanov
 //
 
 if ( ! this.XML ) {
@@ -23,7 +23,10 @@ XML.create = function(root, namespace)
 	}
 
 	var IDs = [
-		'Msxml2.DOMDocument', 
+		'Msxml2.DOMDocument.6.0', 
+		'Msxml2.DOMDocument.5.0', 
+		'Msxml2.DOMDocument.4.0', 
+		'Msxml2.DOMDocument.3.0', 
 		'Microsoft.XMLDOM'];
 
 	var xmldoc;
@@ -31,6 +34,7 @@ XML.create = function(root, namespace)
 		var e;
 		try {
 			xmldoc = new ActiveXObject(IDs[i]);
+			break;
 		} catch (e) {
 		}
 	}
@@ -167,7 +171,7 @@ Node.prototype.transformNode = function (oXslDom)
 	if ( result.indexOf('<transformiix:result') > -1 ) {
 		result = result.substring(result.indexOf('>') + 1, result.lastIndexOf('<'));
 	}
-	return result;                
+	return result;
 };
 
 }
