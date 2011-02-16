@@ -8,7 +8,7 @@ setlocal enabledelayedexpansion
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.10.5 Beta
+set wscmd.version=0.10.6 Beta
 
 
 :: Parse command line arguments and set needful variables
@@ -459,14 +459,16 @@ while ( true ) {
 					}
 
 					// There was the direct slash
-					// (it might be a regular expression or a single line comment)
+					// (it might be a regular expression)
 					if ( regex && c == stack[stack.length - 1] ) {
 						regex = false;
 						stack.length--;
+/*
 						// Really... This is comment
 						if ( input[i - 1] == c ) {
 							break;
 						}
+*/
 						continue;
 					}
 
@@ -477,12 +479,28 @@ while ( true ) {
 					}
 
 					// Meet the slash
-					// It may be a regular expression or comment
+					// It may be a regular expression or a part of an expression
+					if ( c == '/' ) {
+						if ( expr ) {
+							expr = false;
+						} else {
+							regex = true;
+							stack[stack.length] = c;
+						}
+						continue;
+					}
+
+					// Maybe this is expression
+					if ( (/[^:,;\[\(\!\&\|=]/).test(c) ) {
+						expr = true;
+					}
+/*
 					if ( c == '/' ) {
 						regex = true;
 						stack[stack.length] = c;
 						continue;
 					}
+*/
 
 					// Meet quotes
 					// It is literal string

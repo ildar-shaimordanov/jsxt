@@ -6,25 +6,6 @@
 //
 
 
-if ( ! String.prototype.htmlize ) {
-/**
- * Modifies the string to present within HTML page
- *
- * @param	void
- * @return	String
- * @access	public
- */
-String.prototype.htmlize = function()
-{
-	return this
-		.replace(/&/g, '&amp;')
-		.replace(/"/g, '&quot;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;');
-};
-
-}
-
 if ( ! String.validBrackets ) {
 
 /**
@@ -599,9 +580,6 @@ String.prototype.sprintf = function()
 		x = [];
 		for (var i = 0; i < arguments.length; i++) {
 			x[i] = arguments[i] || '';
-//			x[i] = arguments[i] === void 0 
-//				? "" 
-//				: arguments[i];
 		}
 		x[3] = x[3].slice(-1) || ' ';
 
