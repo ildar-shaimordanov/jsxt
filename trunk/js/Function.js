@@ -81,10 +81,8 @@ if ( ! Function.prototype.getOneResource ) {
  */
 Function.prototype.getOneResource = function()
 {
-	return this
-		.toString()
-		.match(/\/\*\[\[((?:[\r\n]|.)*?)\]\]\*\//m)[1]
-		;
+	var m = this.toString().match(/\/\*\[\[((?:[\r\n]|.)*?)\]\]\*\//m);
+	return m ? m[1] : '';
 };
 
 }
