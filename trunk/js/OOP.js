@@ -2,7 +2,11 @@
 // JScript and JavaScript unit
 // This module provides methods for the classical OOP
 //
+// Classical OOP implementation
 // http://javascript.ru/forum/66098-post2.html
+//
+// Interface implementation
+// http://javascript.ru/forum/90496-post55.html
 //
 
 
