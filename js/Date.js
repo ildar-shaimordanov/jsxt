@@ -339,12 +339,12 @@ if ( ! Date.prototype.getWorkingDaysInMonth ) {
  * Pass a non-false value to the second argument to consider 
  * a 6 days' wroking week. 
  *
- * @param	Callback
  * @param	Integer
+ * @param	Callback
  * @result	Integer
  * @access	public
  */
-Date.prototype.getWorkingDaysInMonth = function(func, longWeek)
+Date.prototype.getWorkingDaysInMonth = function(longWeek, func)
 {
 	var dim = this.getDaysInMonth();
 	var ldm = this.getLastDay();
