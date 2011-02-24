@@ -212,8 +212,6 @@ Number.prototype.hex = function(n, c)
 
 }
 
-if ( ! Number.prototype.human ) {
-
 /**
  * object.human([digits[, true]])
  * Transform the number object to string in human-readable format (e.h., 1k, 234M, 5G)
@@ -234,12 +232,12 @@ if ( ! Number.prototype.human ) {
  */
 Number.prototype.human = function(digits, binary)
 {
-	var n = this.valueOf();
+	var n = Math.abs(this);
 	var s = '';
 	var divs = arguments.callee.add(binary);
 	for (var i = divs.length - 1; i >= 0; i--) {
 		if ( n >= divs[i].d ) {
-			n = n / divs[i].d;
+			n = this / divs[i].d;
 			s = divs[i].s;
 			break;
 		}
@@ -266,7 +264,7 @@ Number.prototype.human.add = function(binary, suffix, divisor)
 		return divs;
 	}
 
-	divs.push({s: suffix, d: divisor});
+	divs.push({s: suffix, d: Math.abs(divisor)});
 	divs.sort(function(a, b)
 	{
 		return a.d - b.d;
@@ -279,7 +277,7 @@ Number.prototype.human.add = function(binary, suffix, divisor)
 Number.prototype.human.add(true,  'K', 1 << 10);
 Number.prototype.human.add(true,  'M', 1 << 20);
 Number.prototype.human.add(true,  'G', 1 << 30);
-Number.prototype.human.add(true,  'T', 1 << 40);
+Number.prototype.human.add(true,  'T', Math.pow(2, 40));
 
 // Decimal prefixes
 Number.prototype.human.add(false, 'K', 1e3);
@@ -287,7 +285,23 @@ Number.prototype.human.add(false, 'M', 1e6);
 Number.prototype.human.add(false, 'G', 1e9);
 Number.prototype.human.add(false, 'T', 1e12);
 
-}
+Number.fromHuman = function(value, binary)
+{
+	var m = String(value).match(/^([\-\+]?\d+\.?\d*)([A-Z])?$/);
+	if ( ! m ) {
+		return Number.NaN;
+	}
+	if ( ! m[2] ) {
+		return +m[1];
+	}
+	var divs = Number.prototype.human.add(binary);
+	for (var i = 0; i < divs.length; i++) {
+		if ( divs[i].s == m[2] ) {
+			return m[1] * divs[i].d;
+		}
+	}
+	return Number.NaN;
+};
 
 if ( ! String.prototype.trim ) {
 
