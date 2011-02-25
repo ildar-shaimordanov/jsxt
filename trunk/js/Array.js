@@ -3,7 +3,7 @@
 // Add-on for the array manipulation
 //
 // Copyright (c) 1998-2008 by mozilla.org http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Array:every
-// Copyright (c) 2005, 2006, 2007 by Ildar Shaimordanov aka Rumata
+// Copyright (c) 2005, 2006, 2007, 2011 by Ildar Shaimordanov
 //
 
 
@@ -1155,81 +1155,6 @@ Object.prototype.fill.clone = function(object)
 		}
 		result[p] = arguments.callee(object[p]);
 	}
-	return result;
-};
-
-}
-
-if ( ! Number.prototype.step ) {
-
-/**
- * Number.prototype.step
- *
- * @description
- * Creates an array containing values between two numeric 
- * values passed to the method through the step interval.
- *
- * @param	Integer
- * @param	Integer
- * @result	Array
- * @access	public
- * @see		http://forum.dklab.ru/viewtopic.php?t=21702
- * @see		http://tokyoenvious.xrea.jp/javascript/functional/array.js
- */
-Number.prototype.step = function()
-{
-	var from = arguments[0];
-	var to   = arguments[1];
-
-	var less = Math.min(from, to);
-	var more = Math.max(from, to);
-
-	var result = [];
-
-	if ( this < 0 ) {
-		for (var i = more; i >= less; i += this) {
-			result.push(i);
-		}
-	} else if ( this > 0 ) {
-		for (var i = less; i <= more; i += this) {
-			result.push(i);
-		}
-	}
-
-	return result;
-};
-
-}
-
-if ( ! Number.prototype.to ) {
-
-/**
- * Number.prototype.to
- *
- * @description
- * Creates an array containing values starting from 
- * the actual value until to value, inclusively.
- *
- * @param	Integer
- * @result	Array
- * @access	public
- * @see		http://forum.dklab.ru/viewtopic.php?t=21702
- * @see		http://tokyoenvious.xrea.jp/javascript/functional/array.js
- */
-Number.prototype.to = function(to)
-{
-	var result = [];
-
-	if ( this <= to ) {
-		for (var i = this; i <= to; i++) {
-			result.push(i);
-		}
-	} else {
-		for (var i = this; i >= to; i--) {
-			result.push(i);
-		}
-	}
-
 	return result;
 };
 

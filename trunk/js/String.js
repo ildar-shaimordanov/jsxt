@@ -2,11 +2,9 @@
 // JavaScript unit
 // Add-on for the string and number manipulation
 //
-// Copyright (c) 2005, 2006, 2007, 2010, 2011 by Ildar N. Shaimordanov aka Rumata
+// Copyright (c) 2005, 2006, 2007, 2010, 2011 by Ildar Shaimordanov
 //
 
-
-if ( ! String.validBrackets ) {
 
 /**
  * String.validBrackets(string)
@@ -35,10 +33,6 @@ String.validBrackets = function(br)
 		|| (br.length == 4 && dbl.indexOf(br) != -1);
 };
 
-}
-
-if ( ! String.prototype.brace || ! String.prototype.bracketize ) {
-
 /**
  * object.bracketize(string)
  * Transform the string object by setting in frame of valid brackets
@@ -57,10 +51,6 @@ String.prototype.bracketize = function(br)
 	var midPos = br.length / 2;
 	return br.substr(0, midPos) + string.toString() + br.substr(midPos);
 };
-
-}
-
-if ( ! String.prototype.unbrace || ! String.prototype.unbracketize ) {
 
 /**
  * object.unbracketize(string)
@@ -96,10 +86,6 @@ String.prototype.unbracketize = function(br)
 	return string;
 };
 
-}
-
-if ( ! Number.prototype.radix ) {
-
 /**
  * object.radix(number, number, string)
  * Transform the number object to string in accordance with a scale of notation
@@ -117,10 +103,6 @@ Number.prototype.radix = function(r, n, c)
 //	return this.toString(r).padding(-Math.abs(n), c);
 };
 
-}
-
-if ( ! Number.prototype.bin ) {
-
 /**
  * object.bin(number, string)
  * Transform the number object to string of binary presentation
@@ -135,10 +117,6 @@ Number.prototype.bin = function(n, c)
 	return this.radix(0x02, n, c);
 //	return this.radix(0x02, (n) ? n : 16, c);
 };
-
-}
-
-if ( ! Number.prototype.oct ) {
 
 /**
  * object.oct(number, string)
@@ -155,10 +133,6 @@ Number.prototype.oct = function(n, c)
 //	return this.radix(0x08, (n) ? n : 6, c);
 };
 
-}
-
-if ( ! Number.prototype.dec ) {
-
 /**
  * object.dec(number, string)
  * Transform the number object to string of decimal presentation
@@ -172,10 +146,6 @@ Number.prototype.dec = function(n, c)
 {
 	return this.radix(0x0A, n, c);
 };
-
-}
-
-if ( ! Number.prototype.hexl ) {
 
 /**
  * object.hexl(number, string)
@@ -192,10 +162,6 @@ Number.prototype.hexl = function(n, c)
 //	return this.radix(0x10, (n) ? n : 4, c);
 };
 
-}
-
-if ( ! Number.prototype.hex ) {
-
 /**
  * object.hex(number, string)
  * Transform the number object to string of hexadecimal presentation in upper-case of major characters (0-9 and A-F)
@@ -209,8 +175,6 @@ Number.prototype.hex = function(n, c)
 {
 	return this.hexl(n, c).toUpperCase();
 };
-
-}
 
 /**
  * object.human([digits[, true]])
@@ -351,8 +315,6 @@ String.prototype.trimRight = function()
 
 }
 
-if ( ! String.prototype.dup ) {
-
 /**
  * object.dup()
  * Transform the string object duplicating the string
@@ -365,10 +327,6 @@ String.prototype.dup = function()
 	var val = this.valueOf();
 	return val + val;
 };
-
-}
-
-if ( ! String.prototype.x || ! String.prototype.repeat ) {
 
 /**
  * object.x(number)
@@ -388,40 +346,7 @@ String.prototype.repeat = function(n)
 	}
 
 	return Array(n + 1).join(this.valueOf());
-/*
-	var r = [this];
-	var l;
-
-	n--;
-	while ( n ) {
-		l = r.length;
-
-		if ( n <= l ) {
-			r = r.concat(r.slice(-n));
-			break;
-		}
-
-		n -= l;
-		r = r.concat(r);
-	}
-
-	return r.join("");
-*/
-/*
-	if ( ! n || n <= 0 ) {
-		return "";
-	}
-	if ( n == 1 ) {
-		return this.origin = this.valueOf();
-	}
-	var val = this.repeat(parseInt(n / 2));
-	return ((n % 2) ? this.origin : "") + val + val;
-*/
 };
-
-}
-
-if ( ! String.prototype.padding ) {
 
 /**
  * object.padding(number, string)
@@ -447,10 +372,6 @@ String.prototype.padding = function(n, c)
 //	return (n < 0) ? val + pad : pad + val;
 };
 
-}
-
-if ( ! String.prototype.padLeft ) {
-
 /**
  * object.padLeft(number, string)
  * Wrapper for object.padding
@@ -466,10 +387,6 @@ String.prototype.padLeft = function(n, c)
 	return this.padding(-Math.abs(n), c);
 };
 
-}
-
-if ( ! String.prototype.alignRight ) {
-
 /**
  * object.alignRight(number, string)
  * Wrapper for object.padding
@@ -481,10 +398,6 @@ if ( ! String.prototype.alignRight ) {
  * @access	public
  */
 String.prototype.alignRight = String.prototype.padLeft;
-
-}
-
-if ( ! String.prototype.padRight ) {
 
 /**
  * object.padRight(number, string)
@@ -501,10 +414,6 @@ String.prototype.padRight = function(n, c)
 	return this.padding(Math.abs(n), c);
 };
 
-}
-
-if ( ! String.prototype.alignLeft ) {
-
 /**
  * object.alignLeft(number, string)
  * Wrapper for object.padding
@@ -516,10 +425,6 @@ if ( ! String.prototype.alignLeft ) {
  * @access	public
  */
 String.prototype.alignLeft = String.prototype.padRight;
-
-}
-
-if ( ! String.prototype.sprintf ) {
 
 /**
  * sprintf(format, argument_list)
@@ -730,10 +635,6 @@ String.prototype.compile = function()
 	return Function('', 'return ["' + result + '"].join("")');
 };
 
-}
-
-if ( ! String.prototype.splitLimit ) {
-
 /**
  * Corrects the result of the standard method like described below:
  *
@@ -798,11 +699,6 @@ String.prototype.splitLimit = function(delim, limit)
 	return this.valueOf();
 };
 
-}
-
-
-if ( ! String.prototype.parseUrl ) {
-
 /**
  * Considers the string object as URL and returns it's parts separately
  *
@@ -834,10 +730,6 @@ String.prototype.parseUrl = function()
 
 String.prototype.parseUrl.re = /^(?:([a-z]+):(?:([a-z]*):)?\/\/)?(?:([^:@]*)(?::([^:@]*))?@)?((?:[a-z0-9_-]+\.)+[a-z]{2,}|localhost|(?:(?:[01]?\d\d?|2[0-4]\d|25[0-5])\.){3}(?:(?:[01]?\d\d?|2[0-4]\d|25[0-5])))(?::(\d+))?(?:([^:\?\#]+))?(?:\?([^\#]+))?(?:\#([^\s]+))?$/i;
 
-}
-
-if ( ! String.prototype.camelize ) {
-
 String.prototype.camelize = function()
 {
 	return this.replace(/([^-]+)|(?:-(.)([^-]+))/mg, function($0, $1, $2, $3)
@@ -846,22 +738,12 @@ String.prototype.camelize = function()
 	});
 };
 
-}
-
-if ( ! String.prototype.uncamelize ) {
-
-String.prototype.uncamelize = function(capitalize)
+String.prototype.uncamelize = function()
 {
 	return this
 		.replace(/[A-Z]/g, function($0)
 		{
 			return '-' + $0.toLowerCase();
-		})
-		.replace(capitalize ? /^[a-z]/ : /^[A-Z]/, function($0)
-		{
-			return $0.toUpperCase();
 		});
 };
-
-}
 

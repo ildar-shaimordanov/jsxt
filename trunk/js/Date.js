@@ -2,200 +2,112 @@
 // JavaScript unit
 // Extension of the Date object
 //
-// Copyright (c) 2006 by Ildar N. Shaimordanov aka Rumata
+// Copyright (c) 2006, 2011 by Ildar Shaimordanov
 //
 
-Date.english = {
-	WEEKDAY_SHORT: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-	WEEKDAY_LONG: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-	MONTH_SHORT: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-	MONTH_LONG: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-};
-
-Date.locale = {
-	WEEKDAY_SHORT: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-	WEEKDAY_LONG: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-	MONTH_SHORT: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-	MONTH_LONG: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-};
-
-if ( ! Date.prototype.getDayShortName ) {
+if ( ! Date.now ) {
 
 /**
- * Date.prototype.getDayShortName
- *
- * @syntax
- * object.getDayShortName()
- *
- * @description
- * Returns the short name of weekday
+ * Creates new Date object with the current date value.
  *
  * @param	void
- * @return	String
- * @access	public
+ * @return	Date
+ * @access	static
  */
-Date.prototype.getDayShortName = function()
+Date.now = function()
 {
-	return Date.english.WEEKDAY_SHORT[this.getDay()];
+	return new Date();
 };
 
 }
 
-if ( ! Date.prototype.getDayLongName ) {
-
 /**
- * Date.prototype.getDayLongName
+ * Calculates difference of two dates and returns result as the object with properties:
+ * -- milliseconds
+ * -- seconds
+ * -- minutes
+ * -- hours
+ * -- days
  *
- * @syntax
- * object.getDayLongName()
- *
- * @description
- * Returns the long name of weekday
- *
- * @param	void
- * @return	String
- * @access	public
+ * @param	Date	date1
+ * @param	Date	date2
+ * @param	Boolean	detail
+ * @return	Object
+ * @access	static
  */
-Date.prototype.getDayLongName = function()
+Date.diff = function(date1, date2, detail)
 {
-	return Date.english.WEEKDAY_LONG[this.getDay()];
+	var result = date1.getTime() - date2.getTime();
+
+	if ( ! detail ) {
+		return result;
+	}
+
+	var d = Math.abs(result);
+
+	var f, h, m, s, ms;
+
+	ms = d % 1000;
+	d /= 1000;
+
+	s = Math.floor(d % 60);
+	d /= 60;
+
+	m = Math.floor(d % 60);
+	d /= 60;
+
+	h = Math.floor(d % 24);
+	d /= 24;
+
+	f = Math.floor(d);
+
+	return {
+		milliseconds: ms,
+		seconds: s,
+		minutes: m,
+		hours: h,
+		days: f,
+		rdays: d
+	};
 };
 
-}
-
-if ( ! Date.prototype.getLocaleDayShortName ) {
-
 /**
- * Date.prototype.getLocaleDayShortName
+ * Compares the Date object is the same date to compare to.
+ * If the Date object is not specified then the current time is used.
  *
- * @syntax
- * object.getLocaleDayShortName()
- *
- * @description
- * Returns the short name of weekday using the current locale
- *
- * @param	void
- * @return	String
- * @access	public
+ * @param	Date	date1
+ * @param	Date	date2
+ * @return	Boolean
+ * @acceess	public
  */
-Date.prototype.getLocaleDayShortName = function()
+Date.equal = function(date1, date2)
 {
-	return Date.locale.WEEKDAY_SHORT[this.getDay()];
+	return Math.abs(Date.diff(dat1, date2)) < 86400000;
 };
 
-}
-
-if ( ! Date.prototype.getLocaleDayLongName ) {
-
 /**
- * Date.prototype.getLocaleDayLongName
+ * Validates that the current Date object is between range of two Date objects. 
+ * This method does not differ minimal and maximal values of the range. 
+ * At least, they should be instances of Date object and identify edge of the range. 
  *
- * @syntax
- * object.getLocaleDayLongName()
- *
- * @description
- * Returns the long name of weekday using the current locale
- *
- * @param	void
- * @return	String
+ * @param	Date	date
+ * @param	Date	date1
+ * @param	Date	date2
+ * @return	Boolean
  * @access	public
  */
-Date.prototype.getLocaleDayLongName = function()
+Date.between = function(date, date1, date2)
 {
-	return Date.locale.WEEKDAY_LONG[this.getDay()];
+	var d1 = date1.getTime();
+	var d2 = date2.getTime();
+
+	var c = date.getTime();
+
+	var a = Math.min(d1, d2);
+	var b = Math.max(d1, d2);
+
+	return c >= a && c <= b;
 };
-
-}
-
-if ( ! Date.prototype.getMonthShortName ) {
-
-/**
- * Date.prototype.getMonthShortName
- *
- * @syntax
- * object.getMonthShortName()
- *
- * @description
- * Returns the short name of month
- *
- * @param	void
- * @return	String
- * @access	public
- */
-Date.prototype.getMonthShortName = function()
-{
-	return Date.english.MONTH_SHORT[this.getMonth()];
-};
-
-}
-
-if ( ! Date.prototype.getMonthLongName ) {
-
-/**
- * Date.prototype.getMonthLongName
- *
- * @syntax
- * object.getMonthLongName()
- *
- * @description
- * Returns the long name of month
- *
- * @param	void
- * @return	String
- * @access	public
- */
-Date.prototype.getMonthLongName = function()
-{
-	return Date.english.MONTH_LONG[this.getMonth()];
-};
-
-}
-
-if ( ! Date.prototype.getLocaleMonthShortName ) {
-
-/**
- * Date.prototype.getLocaleMonthShortName
- *
- * @syntax
- * object.getLocaleMonthShortName()
- *
- * @description
- * Returns the short name of month using the current locale
- *
- * @param	void
- * @return	String
- * @access	public
- */
-Date.prototype.getLocaleMonthShortName = function()
-{
-	return Date.locale.MONTH_SHORT[this.getMonth()];
-};
-
-}
-
-if ( ! Date.prototype.getLocaleMonthLongName ) {
-
-/**
- * Date.prototype.getLocaleMonthLongName
- *
- * @syntax
- * object.getLocaleMonthLongName()
- *
- * @description
- * Returns the long name of month
- *
- * @param	void
- * @return	String
- * @access	public
- */
-Date.prototype.getLocaleMonthLongName = function()
-{
-	return Date.locale.MONTH_LONG[this.getMonth()];
-};
-
-}
-
-if ( ! Date.prototype.getTZ || ! Date.prototype.getTimezone ) {
 
 /**
  * Date.prototype.getTZ
@@ -222,10 +134,6 @@ Date.prototype.getTimezone = function()
 	return result;
 };
 
-}
-
-if ( ! Date.prototype.getDaytime ) {
-
 /**
  * Date.prototype.getDaytime
  *
@@ -241,10 +149,6 @@ Date.prototype.getDaytime = function()
 {
 	return this.getHours() < 12 ? 'AM' : 'PM';
 };
-
-}
-
-if ( ! Date.prototype.getDayOfYear ) {
 
 /**
  * Date.prototype.getDayOfYear
@@ -265,10 +169,6 @@ Date.prototype.getDayOfYear = function ()
 	return 1 + Math.round((this - here) / (60 * 60 * 24 * 1000));
 };
 
-}
-
-if ( ! Date.prototype.getWeekOfYear ) {
-
 /**
  * Date.prototype.getWeekOfYear
  *
@@ -288,10 +188,6 @@ Date.prototype.getWeekOfYear = function ()
 	return Math.ceil((this - here) / (7 * 60 * 60 * 24 * 1000));
 };
 
-}
-
-if ( ! Date.prototype.getDaysInMonth ) {
-
 /**
  * Date.prototype.getDaysInMonth
  *
@@ -309,18 +205,21 @@ Date.prototype.getDaysInMonth = function()
 	return (new Date(this.getFullYear(), this.getMonth() + 1, 0)).getDate();
 };
 
-/*
-Date.prototype.getDaysInMonth = function ()
+/**
+ * Date.prototype.getDaysInYear
+ *
+ * @syntax
+ * object.getDaysInYear()
+ *
+ * @description
+ * Returns the number of days in the year corresponding this Date
+ *
+ * @result   Integer
+ */
+Date.prototype.getDaysInYear = function()
 {
-	var here = new Date(this.getTime());
-	here.setDate(32);
-	return 32 - here.getDate();
+	return this.isLeapYear() ? 366 : 365;
 };
-*/
-
-}
-
-if ( ! Date.prototype.getWorkingDaysInMonth ) {
 
 /**
  * Date.prototype.getWorkingDaysInMonth
@@ -349,13 +248,6 @@ Date.prototype.getWorkingDaysInMonth = function(longWeek, func)
 	var dim = this.getDaysInMonth();
 	var ldm = this.getLastDay();
 
-//	var here = new Date(
-//		x.getFullYear(), 
-//		x.getMonth(), 
-//		dim);
-//
-//	var ldm = here.getDay();
-
 	var holidays = typeof func == 'function' ? func(this) : 0;
 
 	return arguments.callee[longWeek ? 6 : 5][dim][ldm] - holidays;
@@ -380,10 +272,6 @@ Date.prototype.getWorkingDaysInMonth[6] = {
 	31: [26, 26, 26, 27, 27, 27, 27]
 };
 
-};
-
-if ( ! Date.prototype.getFirstDay ) {
-
 /**
  * Date.prototype.getFirstDay
  *
@@ -401,10 +289,6 @@ Date.prototype.getFirstDay = function()
 {
 	return (new Date(this.getFullYear(), this.getMonth(), 1)).getDay();
 };
-
-}
-
-if ( ! Date.prototype.getLastDay ) {
 
 /**
  * Date.prototype.getLastDay
@@ -424,29 +308,104 @@ Date.prototype.getLastDay = function()
 	return (new Date(this.getFullYear(), this.getMonth() + 1, 0)).getDay();
 };
 
-}
-
-if ( ! Date.prototype.getDaysInYear ) {
-
 /**
- * Date.prototype.getDaysInYear
+ * NOTE!!! 
+ * The original code of this method can be found by the following link: 
+ * http://svn.debugger.ru/repos/jslibs/BrowserExtensions/trunk/ext/date.js
+ * @author
+ * Ilya Lebedev
  *
- * @syntax
- * object.getDaysInYear()
+ *  return year according to Iso notation
  *
- * @description
- * Returns the number of days in the year corresponding this Date
- *
- * @result   Integer
+ *  @return int year number
+ *  @access public
  */
-Date.prototype.getDaysInYear = function()
+Date.prototype.getIsoYear = function()
 {
-	return this.isLeapYear() ? 366 : 365;
+	var d = this.getDayOfYear();
+	var j1 = (new Date(this.getFullYear(), 0, 1)).getIsoDay();
+	var y = this.getFullYear();
+	if ( d <= (8 - j1) && j1 > 4 ) {
+		return y - 1;
+	} else if ( ( this.getDaysInYear() - d ) < ( 4 - this.getIsoDay() ) ) {
+		return y + 1;
+	} else {
+		return y;
+	}
 };
 
-}
+/**
+ * NOTE!!! 
+ * The original code of this method can be found by the following link: 
+ * http://svn.debugger.ru/repos/jslibs/BrowserExtensions/trunk/ext/date.js
+ * @author
+ * Ilya Lebedev
+ *
+ *  find day number in ISO notation (Mon = 1, Sun=7)
+ *
+ *  @return day number
+ *  @access public
+ */
+Date.prototype.getIsoDay = function()
+{
+	var y = this.getFullYear();
+	var yy = (y - 1) % 100;
+	var c = (y - 1) - yy;
+	var g = yy + Math.floor(yy/4);
+	var j1 = 1 + ((((Math.floor(c / 100) % 4) * 5) + g) % 7);
+	return (1 + ((this.getDayOfYear() + (j1 - 1) - 1) % 7));
+};
 
-if ( ! Date.prototype.getCalendar ) {
+/**
+ * NOTE!!! 
+ * The original code of this method can be found by the following link: 
+ * http://svn.debugger.ru/repos/jslibs/BrowserExtensions/trunk/ext/date.js
+ * @author
+ * Ilya Lebedev
+ *
+ *  return week number in ISO notation
+ *
+ *  @return int week number
+ *  @access public
+ */
+Date.prototype.getIsoWeek = function()
+{
+	var y = this.getFullYear();
+	var yi = this.getIsoYear();
+	var j1 = (new Date(y, 0, 1)).getIsoDay();
+	if ( yi < y ) {
+		if ( j1 == 5 || ( j1 == 6 && (new Date(yi, 0, 1)).isLeapYear() ) ) {
+			w = 53;
+		} else {
+			w = 52;
+		}
+	} else if (yi > y) {
+		w = 1;
+	} else {
+		var w = Math.floor((this.getDayOfYear() + (7 - this.getIsoDay()) + (j1 - 1)) / 7);
+		if ( j1 > 4 ) {
+			w -= 1;
+		}
+	}
+	return w;
+};
+
+/**
+ * Date.prototype.isLeapYear
+ *
+ * @syntax
+ * object.isLeapYear()
+ *
+ * @description
+ * Evaluates the Date object that it corresponds to the leap year
+ *
+ * @result   Boolean
+ */
+Date.prototype.isLeapYear = function()
+{
+	var y = this.getFullYear();
+	return y % 4 == 0 && y % 100 != 0 || y % 400 == 0;
+};
 
 /**
  * Date.prototype.getCalendar
@@ -520,124 +479,68 @@ Date.prototype.getCalendar = function ()
 	return weeks;
 };
 
-}
-
-if ( ! Date.prototype.getIsoYear ) {
+/**
+ * Moves the actual Date object to the start of day corresponding to the midnight.
+ *
+ * @param	void
+ * @return	Date
+ * @access	public
+ */
+Date.prototype.midnight = function()
+{
+	this.setMilliseconds(0);
+	this.setSeconds(0);
+	this.setMinutes(0);
+	this.setHours(0);
+	return this;
+};
 
 /**
- * NOTE!!! 
- * The original code of this method can be found by the following link: 
- * http://svn.debugger.ru/repos/jslibs/BrowserExtensions/trunk/ext/date.js
- * @author
- * Ilya Lebedev
+ * Creates new Date object with the current date value.
+ * Adjust the date to the start of day corresponding to the midnight.
  *
- *  return year according to Iso notation
- *
- *  @return int year number
- *  @access public
+ * @param	Boolean	midnight
+ * @return	Date
+ * @access	static
  */
-Date.prototype.getIsoYear = function()
+Date.today = function(midnight)
 {
-	var d = this.getDayOfYear();
-	var j1 = (new Date(this.getFullYear(), 0, 1)).getIsoDay();
-	var y = this.getFullYear();
-	if ( d <= (8 - j1) && j1 > 4 ) {
-		return y - 1;
-	} else if ( ( this.getDaysInYear() - d ) < ( 4 - this.getIsoDay() ) ) {
-		return y + 1;
-	} else {
-		return y;
+	var here = Date.now();
+	if ( midnight ) {
+		here.midnight();
 	}
+	return here;
 };
-
-}
-
-if ( ! Date.prototype.getIsoDay ) {
 
 /**
- * NOTE!!! 
- * The original code of this method can be found by the following link: 
- * http://svn.debugger.ru/repos/jslibs/BrowserExtensions/trunk/ext/date.js
- * @author
- * Ilya Lebedev
+ * Creates new Date object with the yesterday date value.
+ * Adjust the date to the start of day corresponding to the midnight.
  *
- *  find day number in ISO notation (Mon = 1, Sun=7)
- *
- *  @return day number
- *  @access public
+ * @param	Boolean	midnight
+ * @return	Date
+ * @access	static
  */
-Date.prototype.getIsoDay = function()
+Date.yesterday = function(midnight)
 {
-	var y = this.getFullYear();
-	var yy = (y - 1) % 100;
-	var c = (y - 1) - yy;
-	var g = yy + Math.floor(yy/4);
-	var j1 = 1 + ((((Math.floor(c / 100) % 4) * 5) + g) % 7);
-	return (1 + ((this.getDayOfYear() + (j1 - 1) - 1) % 7));
+	var here = Date.today(midnight);
+	here.setDate(here.getDate() - 1);
+	return here;
 };
-
-}
-
-if ( ! Date.prototype.getIsoWeek ) {
 
 /**
- * NOTE!!! 
- * The original code of this method can be found by the following link: 
- * http://svn.debugger.ru/repos/jslibs/BrowserExtensions/trunk/ext/date.js
- * @author
- * Ilya Lebedev
+ * Creates new Date object with the tomorrow date value.
+ * Adjust the date to the start of day corresponding to the midnight.
  *
- *  return week number in ISO notation
- *
- *  @return int week number
- *  @access public
+ * @param	Boolean	midnight
+ * @return	Date
+ * @access	static
  */
-Date.prototype.getIsoWeek = function()
+Date.tomorrow = function(midnight)
 {
-	var y = this.getFullYear();
-	var yi = this.getIsoYear();
-	var j1 = (new Date(y, 0, 1)).getIsoDay();
-	if ( yi < y ) {
-		if ( j1 == 5 || ( j1 == 6 && (new Date(yi, 0, 1)).isLeapYear() ) ) {
-			w = 53;
-		} else {
-			w = 52;
-		}
-	} else if (yi > y) {
-		w = 1;
-	} else {
-		var w = Math.floor((this.getDayOfYear() + (7 - this.getIsoDay()) + (j1 - 1)) / 7);
-		if ( j1 > 4 ) {
-			w -= 1;
-		}
-	}
-	return w;
+	var here = Date.today(midnight);
+	here.setDate(here.getDate() + 1);
+	return here;
 };
-
-}
-
-if ( ! Date.prototype.isLeapYear ) {
-
-/**
- * Date.prototype.isLeapYear
- *
- * @syntax
- * object.isLeapYear()
- *
- * @description
- * Evaluates the Date object that it corresponds to the leap year
- *
- * @result   Boolean
- */
-Date.prototype.isLeapYear = function()
-{
-	var y = this.getFullYear();
-	return y % 4 == 0 && y % 100 != 0 || y % 400 == 0;
-};
-
-}
-
-if ( ! Date.prototype.moveTo ) {
 
 /**
  * Moves the actual Date object accordingly the provided parameters. 
@@ -714,153 +617,37 @@ Date.prototype.moveTo = function(to, exactly)
 	return this;
 };
 
-}
-
-if ( ! Date.prototype.moveMilliseconds ) {
-
 /**
- * Moves the actual Date object for defined value of milliseconds. 
- * This method modifies the Date object.
+ * Date.prototype.move(Millisecondsdate, to, exactly)
+ * Date.prototype.moveSeconds(date, to, exactly)
+ * Date.prototype.moveMinutes(date, to, exactly)
+ * Date.prototype.moveHours(date, to, exactly)
+ * Date.prototype.moveDate(date, to, exactly)
+ * Date.prototype.moveWeek(date, to, exactly)
+ * Date.prototype.moveMonth(date, to, exactly)
+ * Date.prototype.moveYear(date, to, exactly)
  *
- * @param	Number	to
- * @param	Boolean	exactly
- * @return	Date
- * @access	public
+ * These methods modify the actual date for the particular date part
  */
-Date.prototype.moveMilliseconds = function(to, exactly)
+(function()
 {
-	return this.moveTo({milliseconds: to}, exactly);
-};
 
+var parts = 'Milliseconds Seconds Minutes Hours Date Week Month Year'.split(/\s+/);
+for (var i = 0; i < parts.length; i++) {
+	(function()
+	{
+		var m = 'move' + parts[i];
+		var p = parts[i].toLowerCase();
+		Date.prototype[m] = function(to, exactly)
+		{
+			var o = {};
+			o[p] = to;
+			return this.moveTo(o, exactly);
+		};
+	})();
 }
 
-if ( ! Date.prototype.moveSeconds ) {
-
-/**
- * Moves the actual Date object for defined value of seconds. 
- * This method modifies the Date object.
- *
- * @param	Number	to
- * @param	Boolean	exactly
- * @return	Date
- * @access	public
- */
-Date.prototype.moveSeconds = function(to, exactly)
-{
-	return this.moveTo({seconds: to}, exactly);
-};
-
-}
-
-if ( ! Date.prototype.moveMinutes ) {
-
-/**
- * Moves the actual Date object for defined value of minutes. 
- * This method modifies the Date object.
- *
- * @param	Number	to
- * @param	Boolean	exactly
- * @return	Date
- * @access	public
- */
-Date.prototype.moveMinutes = function(to, exactly)
-{
-	return this.moveTo({minutes: to}, exactly);
-};
-
-}
-
-if ( ! Date.prototype.moveHours ) {
-
-/**
- * Moves the actual Date object for defined value of hours. 
- * This method modifies the Date object.
- *
- * @param	Number	to
- * @param	Boolean	exactly
- * @return	Date
- * @access	public
- */
-Date.prototype.moveHours = function(to, exactly)
-{
-	return this.moveTo({hours: to}, exactly);
-};
-
-}
-
-if ( ! Date.prototype.moveDate ) {
-
-/**
- * Moves the actual Date object for defined value of days. 
- * This method modifies the Date object.
- *
- * @param	Number	to
- * @param	Boolean	exactly
- * @return	Date
- * @access	public
- */
-Date.prototype.moveDate = function(to, exactly)
-{
-	return this.moveTo({date: to}, exactly);
-};
-
-}
-
-if ( ! Date.prototype.moveWeek ) {
-
-/**
- * Moves the actual Date object for defined value of weeks. 
- * This method modifies the Date object.
- *
- * @param	Number	to
- * @param	Boolean	exactly
- * @return	Date
- * @access	public
- */
-Date.prototype.moveWeek = function(to, exactly)
-{
-	return this.moveTo({week: to}, exactly);
-};
-
-}
-
-if ( ! Date.prototype.moveMonth ) {
-
-/**
- * Moves the actual Date object for defined value of months. 
- * This method modifies the Date object.
- *
- * @param	Number	to
- * @param	Boolean	exactly
- * @return	Date
- * @access	public
- */
-Date.prototype.moveMonth = function(to, exactly)
-{
-	return this.moveTo({month: to}, exactly);
-};
-
-}
-
-if ( ! Date.prototype.moveYear ) {
-
-/**
- * Moves the actual Date object for defined value of years. 
- * This method modifies the Date object.
- *
- * @param	Number	to
- * @param	Boolean	exactly
- * @return	Date
- * @access	public
- */
-Date.prototype.moveYear = function(to, exactly)
-{
-	return this.moveTo({year: to}, exactly);
-};
-
-}
-
-if ( ! Date.prototype.moveNextWeekday ) {
+})();
 
 /**
  * Moves the actual Date object to the definite weekday forward
@@ -881,10 +668,6 @@ Date.prototype.moveNextWeekday = function(to)
 	return this;
 };
 
-}
-
-if ( ! Date.prototype.movePreviousWeekday ) {
-
 /**
  * Moves the actual Date object to the definite weekday backward
  * This method modifies the Date object.
@@ -903,195 +686,6 @@ Date.prototype.movePreviousWeekday = function(to)
 	this.setDate(this.getDate() + d);
 	return this;
 };
-
-}
-
-if ( ! Date.prototype.clone ) {
-
-/**
- * Creates new instance of the existing date object
- *
- * @syntax
- * object.clone()
- *
- * @param	void
- * @return	Date
- * @access	public
- */
-Date.prototype.clone = function () {
-	return new Date(this.getTime()); 
-};
-
-}
-
-if ( ! Date.prototype.midnight ) {
-
-/**
- * Moves the actual Date object to the start of day corresponding to the midnight.
- *
- * @param	void
- * @return	Date
- * @access	public
- */
-Date.prototype.midnight = function()
-{
-	this.setMilliseconds(0);
-	this.setSeconds(0);
-	this.setMinutes(0);
-	this.setHours(0);
-	return this;
-};
-
-}
-
-if ( ! Date.now ) {
-
-/**
- * Creates new Date object with the current date value.
- *
- * @param	void
- * @return	Date
- * @access	static
- */
-Date.now = function()
-{
-	return new Date();
-};
-
-}
-
-if ( ! Date.today ) {
-
-/**
- * Creates new Date object with the current date value.
- * Adjust the date to the start of day corresponding to the midnight.
- *
- * @param	Boolean	midnight
- * @return	Date
- * @access	static
- */
-Date.today = function(midnight)
-{
-	var here = Date.now();
-	if ( midnight ) {
-		here.midnight();
-	}
-	return here;
-};
-
-}
-
-if ( ! Date.yesterday ) {
-
-/**
- * Creates new Date object with the yesterday date value.
- * Adjust the date to the start of day corresponding to the midnight.
- *
- * @param	Boolean	midnight
- * @return	Date
- * @access	static
- */
-Date.yesterday = function(midnight)
-{
-	return Date.today(midnight).moveDate(-1);
-};
-
-}
-
-if ( ! Date.tomorrow ) {
-
-/**
- * Creates new Date object with the tomorrow date value.
- * Adjust the date to the start of day corresponding to the midnight.
- *
- * @param	Boolean	midnight
- * @return	Date
- * @access	static
- */
-Date.tomorrow = function(midnight)
-{
-	return Date.today(midnight).moveDate(+1);
-};
-
-}
-
-if ( ! Date.validate ) {
-
-/**
- * Validates the Date object and returns the primitive value of Date. 
- *
- * @param	Date	date
- * @return	Number
- * @access	static
- */
-Date.validate = function(date)
-{
-	if ( date && date.constructor == Date ) {
-		date = date.getTime();
-	}
-
-	if ( isNaN(date) ) {
-		throw new TypeError();
-	}
-
-	return date;
-};
-
-}
-
-if ( ! Date.diff ) {
-
-/**
- * Calculates difference of two dates and returns result as the object with properties:
- * -- milliseconds
- * -- seconds
- * -- minutes
- * -- hours
- * -- days
- *
- * @param	Date	date1
- * @param	Date	date2
- * @return	Object
- * @access	static
- */
-Date.diff = function(date1, date2)
-{
-	date1 = Date.validate(date1);
-	date2 = Date.validate(date2 || 0);
-
-	var result = date1 - date2;
-
-	var d = Math.abs(result);
-
-	var f, h, m, s, ms;
-
-	ms = d % 1000;
-	d /= 1000;
-
-	s = Math.floor(d % 60);
-	d /= 60;
-
-	m = Math.floor(d % 60);
-	d /= 60;
-
-	h = Math.floor(d % 24);
-	d /= 24;
-
-	f = Math.floor(d);
-
-	return {
-		milliseconds: ms,
-		seconds: s,
-		minutes: m,
-		hours: h,
-		days: f,
-		rdays: d
-	};
-};
-
-}
-
-if ( ! Date.fromObject ) {
 
 /**
  * Creates new Date object from the Object object with the following properties:
@@ -1139,10 +733,6 @@ Date.fromObject = function(from)
 	return here;
 };
 
-}
-
-if ( ! Date.prototype.toObject ) {
-
 /**
  * Stores the actual Date object to the next properties of the Object object:
  * -- milliseconds
@@ -1157,140 +747,178 @@ if ( ! Date.prototype.toObject ) {
  * @return	Object
  * @access	public
  */
-Date.prototype.toObject = function()
+Date.toObject = function(date)
 {
 	return {
-		milliseconds: this.getMilliseconds(),
-		seconds: this.getSeconds(),
-		minutes: this.getMinutes(),
-		hours: this.getHours(),
-		date: this.getDate(),
-		month: this.getMonth(),
-		year: this.getFullYear(),
-		wday: this.getDay(),
-		yday: this.getYearDay()
+		milliseconds: date.getMilliseconds(),
+		seconds: date.getSeconds(),
+		minutes: date.getMinutes(),
+		hours: date.getHours(),
+		date: date.getDate(),
+		month: date.getMonth(),
+		year: date.getFullYear(),
+		wday: date.getDay(),
+		yday: date.getYearDay()
 	};
 };
 
-}
+Date.english = {
+	WEEKDAY_SHORT: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+	WEEKDAY_LONG: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+	MONTH_SHORT: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+	MONTH_LONG: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+};
 
-if ( ! Date.prototype.copy ) {
+Date.locale = {
+	WEEKDAY_SHORT: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+	WEEKDAY_LONG: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+	MONTH_SHORT: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+	MONTH_LONG: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+};
 
 /**
- * Creates (clones) new copy of the Date object.
+ * Date.prototype.getDayShortName
  *
- * @param	viod
- * @return	Date
+ * @syntax
+ * object.getDayShortName()
+ *
+ * @description
+ * Returns the short name of weekday
+ *
+ * @param	void
+ * @return	String
  * @access	public
  */
-Date.prototype.copy = 
-Date.prototype.clone = 
-function()
+Date.prototype.getDayShortName = function()
 {
-	return new Date(this.getTime());
+	return Date.english.WEEKDAY_SHORT[this.getDay()];
 };
 
-}
-
-if ( ! Date.prototype.compareTo ) {
-
 /**
- * Compares the Date object with another Date object. 
- * Returns as follows:
- * < 0 - the current object is less than the value
- * = 0 - the current object is equals to the value
- * > 0 - the current object is greater than the value
+ * Date.prototype.getDayLongName
  *
- * @param	Date	date
- * @return	Number
+ * @syntax
+ * object.getDayLongName()
+ *
+ * @description
+ * Returns the long name of weekday
+ *
+ * @param	void
+ * @return	String
  * @access	public
  */
-Date.prototype.compareTo = function(date)
+Date.prototype.getDayLongName = function()
 {
-	return Date.validate(this) - Date.validate(date);
+	return Date.english.WEEKDAY_LONG[this.getDay()];
 };
 
-}
-
-if ( ! Date.prototype.isAfter ) {
-
 /**
- * Compares the Date object is date after the date to compare to.
- * If the Date object is not specified then the current time is used.
+ * Date.prototype.getLocaleDayShortName
  *
- * @param	Date	date
- * @return	Boolean
- * @acceess	public
- */
-Date.prototype.isAfter = function(date)
-{
-	return this.compareTo(date || new Date()) > 0;
-};
-
-}
-
-if ( ! Date.prototype.isBefore ) {
-
-/**
- * Compares the Date object is date before the date to compare to.
- * If the Date object is not specified then the current time is used.
+ * @syntax
+ * object.getLocaleDayShortName()
  *
- * @param	Date	date
- * @return	Boolean
- * @acceess	public
- */
-Date.prototype.isBefore = function(date)
-{
-	return this.compareTo(date || new Date()) < 0;
-};
-
-}
-
-if ( ! Date.prototype.equals ) {
-
-/**
- * Compares the Date object is the same date to compare to.
- * If the Date object is not specified then the current time is used.
+ * @description
+ * Returns the short name of weekday using the current locale
  *
- * @param	Date	date
- * @return	Boolean
- * @acceess	public
- */
-Date.prototype.equals = function(date)
-{
-	return this.copy().midnight().compareTo(date || Date.today(true)) == 0;
-};
-
-}
-
-if ( ! Date.prototype.between ) {
-
-/**
- * Validates that the current Date object is between range of two Date objects. 
- * This method does not differ minimal and maximal values of the range. 
- * At least, they should be instances of Date object and identify edge of the range. 
- *
- * @param	Date	date1
- * @param	Date	date2
- * @return	Boolean
+ * @param	void
+ * @return	String
  * @access	public
  */
-Date.prototype.between = function(date1, date2)
+Date.prototype.getLocaleDayShortName = function()
 {
-	var d1 = Date.validate(date1);
-	var d2 = Date.validate(date2);
-
-	var c = Date.validate(this);
-
-	var a = Math.min(d1, d2);
-	var b = Math.max(d1, d2);
-
-	return c >= a && c <= b;
+	return Date.locale.WEEKDAY_SHORT[this.getDay()];
 };
 
-}
+/**
+ * Date.prototype.getLocaleDayLongName
+ *
+ * @syntax
+ * object.getLocaleDayLongName()
+ *
+ * @description
+ * Returns the long name of weekday using the current locale
+ *
+ * @param	void
+ * @return	String
+ * @access	public
+ */
+Date.prototype.getLocaleDayLongName = function()
+{
+	return Date.locale.WEEKDAY_LONG[this.getDay()];
+};
 
-if ( ! Date.prototype.format ) {
+/**
+ * Date.prototype.getMonthShortName
+ *
+ * @syntax
+ * object.getMonthShortName()
+ *
+ * @description
+ * Returns the short name of month
+ *
+ * @param	void
+ * @return	String
+ * @access	public
+ */
+Date.prototype.getMonthShortName = function()
+{
+	return Date.english.MONTH_SHORT[this.getMonth()];
+};
+
+/**
+ * Date.prototype.getMonthLongName
+ *
+ * @syntax
+ * object.getMonthLongName()
+ *
+ * @description
+ * Returns the long name of month
+ *
+ * @param	void
+ * @return	String
+ * @access	public
+ */
+Date.prototype.getMonthLongName = function()
+{
+	return Date.english.MONTH_LONG[this.getMonth()];
+};
+
+/**
+ * Date.prototype.getLocaleMonthShortName
+ *
+ * @syntax
+ * object.getLocaleMonthShortName()
+ *
+ * @description
+ * Returns the short name of month using the current locale
+ *
+ * @param	void
+ * @return	String
+ * @access	public
+ */
+Date.prototype.getLocaleMonthShortName = function()
+{
+	return Date.locale.MONTH_SHORT[this.getMonth()];
+};
+
+/**
+ * Date.prototype.getLocaleMonthLongName
+ *
+ * @syntax
+ * object.getLocaleMonthLongName()
+ *
+ * @description
+ * Returns the long name of month
+ *
+ * @param	void
+ * @return	String
+ * @access	public
+ */
+Date.prototype.getLocaleMonthLongName = function()
+{
+	return Date.locale.MONTH_LONG[this.getMonth()];
+};
 
 /**
  * NOTE!!! 
@@ -1350,65 +978,63 @@ if ( ! Date.prototype.format ) {
  *  @return string formatted Date
  *  @access public
  */
-Date.prototype.format = function (fmt, spacer)
+Date.format = function (fmt, date, spacer)
 {
-	var self = this;
+	date = date || new Date();
 
 	if ( ! fmt ) {
-		return this.toString();
-	}
-	
-	if ( typeof spacer != 'string' ) {
-		spacer = "0";
+		return date.toString();
 	}
 
-	if ( spacer.length > 1 ) {
-		spacer.length = 1;
-	}
+	var spacer = (arguments[2] || ' ').charAt(0);
 
 	return fmt.replace(/%\w+/g, function(a)
 	{
 		a = a.replace(/[%\s]/,"");
 		switch (a) {
-		case "a" : return self.getLocaleDayShortName();
-		case "A" : return self.getLocaleDayLongName();
+		case "a" : return date.getLocaleDayShortName();
+		case "A" : return date.getLocaleDayLongName();
 		case "b" : 
-		case "h" : return self.getLocaleMonthShortName();
-		case "B" : return self.getLocaleMonthLongName();
+		case "h" : return date.getLocaleMonthShortName();
+		case "B" : return date.getLocaleMonthLongName();
 		case "c" : return; //???
-		case "C" : return Math.round(self.getFullYear()/100);
-		case "d" : return String(self.getDate()).padLeft(2, spacer);
-		case "D" : return self.format("%m/%d/%y", spacer);//String(self.getMonth()+1).padLeft(2,"0")+"/"+String(self.getDate()+1).padLeft(2,"0")+"/"+String(self.getFullYear()).slice(-2);
-		case "e" : return String(self.getDate() + 1).padLeft(2);
-		case "g" : return String(self.getIsoYear()).slice(-2);
-		case "G" : return self.getIsoYear();
-		case "H" : return String(self.getHours()).padLeft(2, spacer);
-		case "I" : return String(self.getHours() > 12 ? self.getHours() - 12 : self.getHours()).padLeft(2, spacer);
-		case "j" : return String(self.getDayOfYear()).padLeft(3, spacer);
-		case "m" : return String(self.getMonth() + 1).padLeft(2, spacer);
-		case "M" : return String(self.getMinutes()).padLeft(2, spacer);
+		case "C" : return Math.round(date.getFullYear()/100);
+		case "d" : return Date.format.pad(date.getDate(), 2, spacer);
+		case "D" : return Date.format("%m/%d/%y", date, spacer);
+		case "e" : return Date.format.pad(date.getDate(), 2, ' ');
+		case "g" : return String(date.getIsoYear()).slice(-2);
+		case "G" : return date.getIsoYear();
+		case "H" : return Date.format.pad(date.getHours(), 2, spacer);
+		case "I" : return Date.format.pad(date.getHours() > 12 ? date.getHours() - 12 : date.getHours(), 2, spacer);
+		case "j" : return Date.format.pad(date.getDayOfYear(), 3, spacer);
+		case "m" : return Date.format.pad(date.getMonth() + 1, 2, spacer);
+		case "M" : return Date.format.pad(date.getMinutes(), 2, spacer);
 		case "n" : return "\n";
-		case "p" : return self.getDaytime();
-		case "r" : return self.format("%I", spacer) + ":" + self.format("%M", spacer) + ":" + self.format("%S", spacer) + " " + self.format("%p", spacer);
-		case "R" : return self.format("%H", spacer) + ":" + self.format("%M", spacer);
-		case "S" : return String(self.getSeconds()).padLeft(2, spacer);
+		case "p" : return date.getDaytime();
+		case "r" : return Date.format("%I:%M:%S %p", date, spacer);
+		case "R" : return Date.format("%H:%M", date, spacer);
+		case "S" : return Date.format.pad(date.getSeconds(), 2, spacer);
 		case "t" : return "\t";
-		case "T" : return self.format("%H", spacer) + ":" + self.format("%M", spacer) + ":" + self.format("%S", spacer);
-		case "u" : return self.getIsoDay();
-		case "U" : return String(parseInt((self.getDayOfYear() - 1 - self.getIsoDay() + 13) / 7 - 1)).padLeft(2, "0");
-		case "V" : return String(self.getIsoWeek()).padLeft(2, spacer);
-		case "w" : return self.getDay();
-		case "W" : return String(parseInt((self.getDayOfYear() - 1 - self.getDay() + 13) / 7 - 1)).padLeft(2, "0");
+		case "T" : return Date.format("%H:%M:%S", date, spacer);
+		case "u" : return date.getIsoDay();
+		case "U" : return Date.format.pad(parseInt((date.getDayOfYear() - 1 - date.getIsoDay() + 13) / 7 - 1), 2, "0");
+		case "V" : return Date.format.pad(date.getIsoWeek(), 2, spacer);
+		case "w" : return date.getDay();
+		case "W" : return Date.format.pad(parseInt((date.getDayOfYear() - 1 - date.getDay() + 13) / 7 - 1), 2, "0");
 		case "x" : return; // ???
 		case "X" : return; // ???
-		case "y" : return String(self.getFullYear()).slice(-2);
-		case "Y" : return self.getFullYear();
+		case "y" : return String(date.getFullYear()).slice(-2);
+		case "Y" : return date.getFullYear();
 		case "z" : return; // ???
-		case "Z" : return self.getTimezoneOffset() / 60;
+		case "Z" : return date.getTimezoneOffset() / 60;
 		}
 		return a;
 	})
 };
 
-}
+Date.format.pad = function(v, n, c)
+{
+	var s = new Array(Math.abs(n) + 1).join(c.charAt(0));
+	return n < 0 ? (v + s).slice(0, n) : (s + v).slice(-n)
+};
 
