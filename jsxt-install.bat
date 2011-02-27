@@ -63,7 +63,7 @@ function expandFileList(list, skipWarn)
 				if ( skipWarn ) {
 					return null;
 				}
-				e.description.print();
+				print(e.description);
 			}
 			return glob;
 		})
@@ -95,7 +95,7 @@ inc = [].union(
 	}));
 
 if ( inc.length == 0 ) {
-	'Nothing to install. Exit.'.print();
+	print('Nothing to install. Exit.');
 	exit();
 }
 
@@ -111,7 +111,7 @@ var JS2BAT = [
 
 inc.forEach(function(inpfile)
 {
-	'Processing "%s"...'.sprintf(inpfile).print();
+	print('Processing "%s"...'.sprintf(inpfile));
 
 	var scriptOuter = 
 		inpfile.match(JSFILE) 
@@ -132,7 +132,7 @@ inc.forEach(function(inpfile)
 		try {
 			s = FileSystem.readFile(f);
 		} catch (e) {
-			'The exception has arisen when reading the file "%s": %s'.sprintf(f, e.message).print();
+			print('The exception has arisen when reading the file "%s": %s'.sprintf(f, e.message));
 			exit();
 		}
 		if ( install.squeeze ) {
@@ -148,7 +148,7 @@ inc.forEach(function(inpfile)
 	var outfile = inpfile.replace(/.+\\/, install.path + '\\');
 
 	if ( inpfile.match(JSFILE) ) {
-		'js-2-bat converting...'.print();
+		print('js-2-bat converting...');
 
 		content = JS2BAT + content;
 		outfile = outfile.replace(JSFILE, '.bat');
