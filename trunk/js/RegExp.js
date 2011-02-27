@@ -54,8 +54,6 @@ alert(m2);
 
 */
 
-if ( ! RegExp.prototype.forEach ) {
-
 RegExp.prototype.forEach = function(string, fun, thisp)
 {
 	if ( typeof fun != "function" ) {
@@ -67,10 +65,6 @@ RegExp.prototype.forEach = function(string, fun, thisp)
 		fun.call(thisp, r, this);
 	}
 };
-
-}
-
-if ( ! RegExp.prototype.map ) {
 
 RegExp.prototype.map = function(string, fun, thisp)
 {
@@ -88,10 +82,6 @@ RegExp.prototype.map = function(string, fun, thisp)
 	return result;
 };
 
-}
-
-if ( ! RegExp.prototype.match ) {
-
 RegExp.prototype.match = function(string, index)
 {
 	var m = string.match(this);
@@ -102,4 +92,3 @@ RegExp.prototype.match = function(string, index)
 	return m ;
 };
 
-}

@@ -148,34 +148,6 @@ Array.prototype.filter = function(fun, thisp)
 
 }
 
-if ( ! Array.prototype.flatten ) {
-
-/**
- * Returns a "flat" (one-dimensional) version of the array. Nested arrays are recursively processed.
- *
- * @param	void
- * @return	Array
- * @access	public
- * @see		http://prototypejs.org/api/array/flatten
- */
-Array.prototype.flatten = function()
-{
-	var result = [];
-
-	var len = this.length;
-	for (var i = 0; i < len; i++) {
-		var value = this[i];
-		if ( ! value || this[i].constructor != Array ) {
-			value = [value];
-		}
-		result = result.concat(value);
-	}
-
-	return result;
-};
-
-}
-
 if ( ! Array.prototype.forEach ) {
 
 /**
@@ -236,43 +208,6 @@ Array.prototype.forEach = function(fun, thisp)
 			fun.call(thisp, this[i], i, this);
 		}
 	}
-};
-
-}
-
-if ( ! Array.prototype.grep ) {
-
-/**
- * Creates a new array with all elements that match the provided filter.
- *
- * @Description
- * grep applies the provided filter once for each element in an 
- * array, and constructs a new array of all the values that match to this filter.
- * In detail, this is wrapper method over the Array.prototype.filter.
- * filter is assumed as string, regex or eny object having test() methiod.
- * 
- * @Example
- * <code>
- * // This code will produce the following array ['hello', 'cool']
- * var result = ['hello', 'world', 'this', 'is', 'cool'].grep(/(.)\1/);
- * </code>
- *
- * @param	String, RegExp
- * @param	Object
- * @return	Array
- * @access	public
- * @see		https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/filter
- */
-Array.prototype.grep = function(filter, thisp)
-{
-	if ( 'string' == typeof filter ) {
-		filter = new RegExp(filter);
-	}
-
-	return this.filter(function(v, k)
-	{
-		return filter.test(v);
-	}, thisp);
 };
 
 }
@@ -613,32 +548,6 @@ Array.prototype.reduceRight = function(fun)
 
 }
 
-if ( ! Array.prototype.shuffle ) {
-
-/**
- * Shuffles all items in an array.
- *
- * @Example:
- * <code>
- * var ar1 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
- * var ar2 = ar1.sortRandom();
- * </code>
- *
- * @param	void
- * @return	Array
- * @access	public
- * @see		http://forum.dklab.ru/viewtopic.php?t=21753
- */
-Array.prototype.shuffle = function()
-{
-	return this.sort(function()
-	{
-		return Math.random() - 0.5;
-	});
-};
-
-}
-
 if ( ! Array.prototype.some ) {
 
 /**
@@ -706,7 +615,84 @@ Array.prototype.some = function(fun, thisp)
 
 }
 
-if ( ! Array.prototype.union ) {
+/**
+ * Returns a "flat" (one-dimensional) version of the array. Nested arrays are recursively processed.
+ *
+ * @param	void
+ * @return	Array
+ * @access	public
+ * @see		http://prototypejs.org/api/array/flatten
+ */
+Array.prototype.flatten = function()
+{
+	var result = [];
+
+	var len = this.length;
+	for (var i = 0; i < len; i++) {
+		var value = this[i];
+		if ( ! value || this[i].constructor != Array ) {
+			value = [value];
+		}
+		result = result.concat(value);
+	}
+
+	return result;
+};
+
+/**
+ * Creates a new array with all elements that match the provided filter.
+ *
+ * @Description
+ * grep applies the provided filter once for each element in an 
+ * array, and constructs a new array of all the values that match to this filter.
+ * In detail, this is wrapper method over the Array.prototype.filter.
+ * filter is assumed as string, regex or eny object having test() methiod.
+ * 
+ * @Example
+ * <code>
+ * // This code will produce the following array ['hello', 'cool']
+ * var result = ['hello', 'world', 'this', 'is', 'cool'].grep(/(.)\1/);
+ * </code>
+ *
+ * @param	String, RegExp
+ * @param	Object
+ * @return	Array
+ * @access	public
+ * @see		https://developer.mozilla.org/en/Core_JavaScript_1.5_Reference/Global_Objects/Array/filter
+ */
+Array.prototype.grep = function(filter, thisp)
+{
+	if ( 'string' == typeof filter ) {
+		filter = new RegExp(filter);
+	}
+
+	return this.filter(function(v, k)
+	{
+		return filter.test(v);
+	}, thisp);
+};
+
+/**
+ * Shuffles all items in an array.
+ *
+ * @Example:
+ * <code>
+ * var ar1 = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+ * var ar2 = ar1.sortRandom();
+ * </code>
+ *
+ * @param	void
+ * @return	Array
+ * @access	public
+ * @see		http://forum.dklab.ru/viewtopic.php?t=21753
+ */
+Array.prototype.shuffle = function()
+{
+	return this.sort(function()
+	{
+		return Math.random() - 0.5;
+	});
+};
 
 /**
  * Array.prototype.union
@@ -763,11 +749,6 @@ SEARCH_UNIQUE:
 	return result;
 };
 
-}
-
-
-if ( ! Array.prototype.invoke ) {
-
 /**
  * Invokes the method with the arguments for all elements of 
  * the array and returns the new array. The rest of arguments 
@@ -787,17 +768,13 @@ if ( ! Array.prototype.invoke ) {
  */
 Array.prototype.invoke = function(method)
 {
-	var args = Array.linearize(arguments).slice(1);
+	var args = [].slice.call(arguments, 2);
 	var result = this.map(function(v)
 	{
 		return v[method].apply(v, args);
 	});
 	return result;
 };
-
-}
-
-if ( ! Array.prototype.fetch ) {
 
 /**
  * Returns the value of the appropriate property of each element. 
@@ -823,11 +800,6 @@ Array.prototype.fetch = function(property)
 	});
 	return result;
 };
-
-}
-
-
-if ( ! Array.prototype.binarySearch ) {
 
 /**
  * int Array.prototype.binarySearch(searchItem [ , compare [ , right ]] )
@@ -891,10 +863,6 @@ Array.prototype.binarySearch = function(searchItem, compare, right)
 		return (right) ? u : l;
 };
 
-}
-
-if ( ! Array.prototype.binaryIndexOf ) {
-
 /**
  * int Array.prototype.binaryIndexOf(searchItem [ , compare ] )
  * binary search of elements within an array. Returned value is interpreted as
@@ -912,10 +880,6 @@ Array.prototype.binaryIndexOf = function(searchItem, compare)
 	return this.binarySearch(searchItem, compare, false);
 };
 
-}
-
-if ( ! Array.prototype.binaryLastIndexOf ) {
-
 /**
  * int Array.prototype.binaryLastIndexOf(searchItem [ , compare ] )
  * binary search of elements within an array. Returned value is interpreted as
@@ -932,10 +896,6 @@ Array.prototype.binaryLastIndexOf = function(searchItem, compare)
 {
 	return this.binarySearch(searchItem, compare, true);
 };
-
-}
-
-if ( ! Array.linearize ) {
 
 /**
  * Array.linearize()
@@ -964,10 +924,6 @@ Array.linearize = function(object)
 	return result;
 //	return Array.prototype.slice.call(arguments);
 };
-
-}
-
-if ( ! Array.range ) {
 
 /**
  * Array.range
@@ -1114,49 +1070,4 @@ Array.range = function()
 	}
 	return result;
 };
-
-}
-
-if ( ! Object.prototype.fill ) {
-
-/**
- * Object.prototype.fill
- *
- * @description
- * Populates an array with 'size' items of a value 
- *
- * @param	Integer
- * @result	Array
- * @access	public
- * @see		http://forum.dklab.ru/viewtopic.php?t=21702
- * @see		http://tokyoenvious.xrea.jp/javascript/functional/array.js
- */
-Object.prototype.fill = function(size)
-{
-	var self = this.valueOf();
-
-	var result = new Array(size);
-	for (var i = 0; i < size; i++) {
-		result[i] = arguments.callee.clone(self);
-	};
-	return result;
-};
-
-Object.prototype.fill.clone = function(object)
-{
-	if ( ! object || typeof object != 'object' ) {
-		return object;
-	}
-
-	var result = new object.constructor();
-	for (var p in object) {
-		if ( ! object.hasOwnProperty(p) ) {
-			continue;
-		}
-		result[p] = arguments.callee(object[p]);
-	}
-	return result;
-};
-
-}
 

@@ -5,7 +5,6 @@
 // Copyright (c) 2005, 2006, 2007, 2010, 2011 by Ildar Shaimordanov
 //
 
-
 /**
  * String.validBrackets(string)
  * Checks string to be valid brackets. Valid brackets are:
@@ -164,7 +163,8 @@ Number.prototype.hexl = function(n, c)
 
 /**
  * object.hex(number, string)
- * Transform the number object to string of hexadecimal presentation in upper-case of major characters (0-9 and A-F)
+ * Transform the number object to string of the hexadecimal presentation 
+ * in upper-case of major characters (0-9 and A-F)
  *
  * @param	number	Width of numeric string
  * @param	string	Padding chacracter (by default, '0')
@@ -173,7 +173,7 @@ Number.prototype.hexl = function(n, c)
  */
 Number.prototype.hex = function(n, c)
 {
-	return this.hexl(n, c).toUpperCase();
+	return this.radix(value, 0x10, n, c).toUpperCase();
 };
 
 /**
@@ -249,7 +249,24 @@ Number.prototype.human.add(false, 'M', 1e6);
 Number.prototype.human.add(false, 'G', 1e9);
 Number.prototype.human.add(false, 'T', 1e12);
 
-Number.fromHuman = function(value, binary)
+/**
+ * object.fromHuman([digits[, binary]])
+ * Transform the human-friendly string to the valid numeriv value
+ *
+ * @example
+ * var n = 1001;
+ *
+ * // will output 1.001K
+ * var h = n.human(3);
+ *
+ * // will output 1001
+ * var m = h.fromHuman(h);
+ *
+ * @param	boolean	Optional. If true then use powers of 1024 not 1000
+ * @return	number
+ * @access	public
+ */
+Number.fromHuman = function(binary)
 {
 	var m = String(value).match(/^([\-\+]?\d+\.?\d*)([A-Z])?$/);
 	if ( ! m ) {
@@ -361,11 +378,8 @@ String.prototype.repeat = function(n)
 String.prototype.padding = function(n, c)
 {
 	var val = this.valueOf();
-	if ( ! n ) {
+	if ( Math.abs(n) <= val.length ) {
 		return val;
-	}
-	if ( ! c ) {
-		c = " ";
 	}
 	var pad = String(c).charAt(0).repeat(Math.abs(n) - this.length);
 	return (n < 0) ? pad + val : val + pad;
@@ -502,9 +516,7 @@ String.prototype.sprintf = function()
 		}
 		x[3] = x[3].slice(-1) || ' ';
 
-		ins = (x[1]) 
-			? args[x[1] - 1] 
-			: args[index];
+		ins = args[+x[1] ? x[1] - 1 : index];
 		index++;
 
 		return String.prototype.sprintf[x[6]](ins, x);
@@ -529,7 +541,7 @@ String.prototype.sprintf.u = function(ins, x)
 String.prototype.sprintf.f = function(ins, x)
 {
 	var ins = Number(ins);
-	var fn = String.prototype.padding;
+//	var fn = String.prototype.padding;
 	if (x[5]) {
 		ins = ins.toFixed(x[5]);
 	} else if (x[4]) {
@@ -539,7 +551,8 @@ String.prototype.sprintf.f = function(ins, x)
 	}
 	// Invert sign because this is not number but string
 	x[2] = x[2] == "-" ? "+" : "-";
-	return fn.call(ins, x[2] + x[4], x[3]);
+	return ins.padding(x[2] + x[4], x[3]);
+//	return fn.call(ins, x[2] + x[4], x[3]);
 };
 String.prototype.sprintf.o = function(ins, x)
 {
@@ -620,6 +633,7 @@ String.prototype.compile = function()
 			return "%";
 		}
 
+		arguments.length = 7;
 		x = [];
 		for (var i = 0; i < arguments.length; i++) {
 			x[i] = arguments[i] || '';
@@ -633,70 +647,6 @@ String.prototype.compile = function()
 	});
 
 	return Function('', 'return ["' + result + '"].join("")');
-};
-
-/**
- * Corrects the result of the standard method like described below:
- *
- * @example
- * <code>
- * var str = "a b c d e f";
- * var arr = str.split(" ", 3);
- *
- * // standard method
- * // required ["a", "b", "c d e f"]
- * // recieved ["a", "b", "c"]
- *
- * // modified method
- * // required ["a", "b", "c d e f"]
- * </code>
- *
- * @param	Mixed
- * @param	Integer
- * @return	Array
- * @access	public
- * @see		http://forum.dklab.ru/viewtopic.php?p=74826
- * 		http://msdn.microsoft.com/library/default.asp?url=/library/en-us/jscript7/html/jsmthsplit.asp
- * 		http://wdh.suncloud.ru/js09.htm#hsplit
- */
-String.prototype.splitLimit = function(delim, limit)
-{
-	if ( ! limit && Number(limit) <= 0 ) {
-		return this.split(delim, limit);
-	}
-
-	var isRegExp = delim && delim.constructor == RegExp;
-	var res;
-	var ref;
-
-	if ( isRegExp ) {
-		res = delim.source;
-		ref = "";
-		if ( delim.ignoreCase ) {
-			ref += "i";
-		}
-		if ( delim.multiline ) {
-			ref += "m";
-		}
-//		if (delim.global) {
-//			ref += "g";
-//		}
-	} else {
-		res = delim;
-		ref = "";
-	}
-
-	var x = this.match(new RegExp("^((?:.*?" + res + "){" + (limit - 1) + "})(.*)", ref));
-	if ( x ) {
-		var result = x[1].__split__(delim, limit);
-		var n = result.length;
-		if ( ! isRegExp && n ) {
-			n--;
-		}
-		result[n] = x[2];
-		return result;
-	}
-	return this.valueOf();
 };
 
 /**

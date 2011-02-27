@@ -212,8 +212,6 @@ Object.isUndefined = function(value)
 
 }
 
-if ( ! Object.prototype.forItems ) {
-
 /**
  * Executes a provided function once per object element.
  *
@@ -243,26 +241,22 @@ if ( ! Object.prototype.forItems ) {
  * @access	public
  * @see		http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Array:forEach
  */
-Object.prototype.forItems = function(fun, skipFunction, thisp)
+Object.forItems = function(object, fun, skipFunction, thisp)
 {
 	if ( typeof fun != "function" ) {
 		throw new TypeError();
 	}
 
-	for (var p in this) {
-		if ( ! this.hasOwnProperty(p) ) {
+	for (var p in object) {
+		if ( ! object.hasOwnProperty(p) ) {
 			continue;
 		}
-		if ( skipFunction && 'function' == typeof this[p] ) {
+		if ( skipFunction && 'function' == typeof object[p] ) {
 			continue;
 		}
-		fun.call(thisp, this[p], p, this);
+		fun.call(thisp, object[p], p, object);
 	}
 };
-
-}
-
-if ( ! Object.prototype.keys ) {
 
 /**
  * Populates and returns array of the object's keys
@@ -273,15 +267,15 @@ if ( ! Object.prototype.keys ) {
  * @return	Array
  * @access	public
  */
-Object.prototype.keys = function(skipFunction)
+Object.keys = function(object, skipFunction)
 {
 	var result = [];
 
-	for (var p in this) {
-		if ( ! this.hasOwnProperty(p) ) {
+	for (var p in object) {
+		if ( ! object.hasOwnProperty(p) ) {
 			continue;
 		}
-		if ( skipFunction && 'function' == typeof this[p] ) {
+		if ( skipFunction && 'function' == typeof object[p] ) {
 			continue;
 		}
 		result.push(p);
@@ -289,10 +283,6 @@ Object.prototype.keys = function(skipFunction)
 
 	return result;
 };
-
-}
-
-if ( ! Object.prototype.values ) {
 
 /**
  * Populates and returns array of the object's values.
@@ -303,26 +293,22 @@ if ( ! Object.prototype.values ) {
  * @return	Array
  * @access	public
  */
-Object.prototype.values = function(skipFunction)
+Object.values = function(object, skipFunction)
 {
 	var result = [];
 
-	for (var p in this) {
-		if ( ! this.hasOwnProperty(p) ) {
+	for (var p in object) {
+		if ( ! object.hasOwnProperty(p) ) {
 			continue;
 		}
-		if ( skipFunction && 'function' == typeof this[p] ) {
+		if ( skipFunction && 'function' == typeof object[p] ) {
 			continue;
 		}
-		result.push(this[p]);
+		result.push(object[p]);
 	}
 
 	return result;
 };
-
-}
-
-if ( ! Object.prototype.toArray ) {
 
 /**
  * Converts an object to an array.
@@ -353,7 +339,7 @@ if ( ! Object.prototype.toArray ) {
  * @return	void
  * @access	public
  */
-Object.prototype.toArray = function(fun, skipFunction, thisp)
+Object.toArray = function(object, fun, skipFunction, thisp)
 {
 	if ( typeof fun != "function" ) {
 		throw new TypeError();
@@ -361,20 +347,18 @@ Object.prototype.toArray = function(fun, skipFunction, thisp)
 
 	var result = [];
 
-	for (var p in this) {
-		if ( ! this.hasOwnProperty(p) ) {
+	for (var p in object) {
+		if ( ! object.hasOwnProperty(p) ) {
 			continue;
 		}
-		if ( skipFunction && 'function' == typeof this[p] ) {
+		if ( skipFunction && 'function' == typeof object[p] ) {
 			continue;
 		}
-		result.push(fun.call(thisp, this[p], p, this));
+		result.push(fun.call(thisp, object[p], p, object));
 	}
 
 	return result;
 };
-
-}
 
 /**
  * Creating a copy of an object with fully replicated properties. 
@@ -497,64 +481,5 @@ Object.dump.entities = {
 	'\r': '\\r', 
 	'\n': '\\n', 
 	'\t': '\\t'
-};
-
-/**
- * Merges properties of two objects
- *
- * @syntax
- * object.merge(object[, options])
- *
- * @description
- * The method's behavior is defined by the second optional argument 
- * that can contain three valid options: 
- * -- walkPrototype - (0 - skip prototype properties, 1 - merge them) 
- * -- walkFunction - (0 - skip functions, 1 - merge functions)
- * -- overwrite - (0 - skip existing properties, 1 - overwrite them)
- *
- * @example
- * // The following example will overwrite the existing property. 
- * var x = new (function()
- * {
- *     this.pi = Math.PI;
- *     this[0] = 'This item will be overwritten';
- * })();
- * 
- * var y = [0, 1, 2];
- * 
- * var opts = {
- *     overwrite: 1
- * };
- * 
- * x.merge(y, opts);
- *
- * // before: 
- * // { pi: Math.PI, 0: 'This item will be overwritten' }
- * // after: 
- * // { pi: Math.PI, 0: [0, 1, 2] }
- *
- * @param	Mixed
- * @param	Mixed
- * @return	Mixed
- * @access	public
- */
-Object.prototype.merge = function(object, options)
-{
-	options = options || {};
-
-	for (var p in object) {
-		if ( ! options.walkPrototype && ! object.hasOwnProperty(p) ) {
-			continue;
-		}
-		if ( ! options.walkFunction && object[p] && object[p].constructor == Function ) {
-//		if ( typeof object[p] == 'function' && ! options.walkFunction ) {
-			continue;
-		}
-		if ( ! options.overwrite && ( p in this ) ) {
-			continue;
-		}
-		this[p] = object[p];
-	}
-	return this;
 };
 
