@@ -8,7 +8,7 @@ setlocal enabledelayedexpansion
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.10.6 Beta
+set wscmd.version=0.11.1 Beta
 
 
 :: Parse command line arguments and set needful variables
@@ -37,13 +37,6 @@ if /i "%~1" == "/help" (
 )
 
 
-if /i "%~1" == "/q" (
-	set wscmd.quiet=/q
-	shift /1
-	goto wscmd.2
-)
-
-
 if /i "%~1" == "/compile" (
 	set wscmd.compile=1
 	shift /1
@@ -53,6 +46,13 @@ if /i "%~1" == "/compile" (
 ) else if /i "%~1" == "/debug" (
 	set wscmd.debug=1
 	shift /1
+)
+
+
+if /i "%~1" == "/q" (
+	set wscmd.quiet=/q
+	shift /1
+	goto wscmd.2
 )
 
 
@@ -81,7 +81,7 @@ if /i "%~1" == "/e" (
 ) else (
 	set wscmd.inline=
 	set wscmd.script=%~1
-	if not exist "!wscmd.script!" (
+	if defined wscmd.script if not exist "!wscmd.script!" (
 		echo.File not found "!wscmd.script!".
 
 		endlocal
@@ -96,10 +96,13 @@ if /i "%~1" == "/e" (
 
 
 :wscmd.1
+
+
 if "%~1" == "" goto wscmd.2
 set wscmd.args=%wscmd.args% %1
 shift /1
 goto wscmd.1
+
 
 :wscmd.2
 
@@ -127,6 +130,7 @@ for %%i in ( "%wscmd.script%.ini" ".\%~n0.ini" "%~dpn0.ini" ) do (
 	)
 )
 
+
 :wscmd.3
 
 
@@ -136,16 +140,21 @@ if not defined wscmd.ini.execute set wscmd.ini.execute=.\$$$%~n0.wsf
 if not defined wscmd.ini.command set wscmd.ini.command=%WINDIR%\system32\cscript.exe //NoLogo
 
 
+:wscmd.4
+
+
 :: Compile and link the source with libraries
 call :wscmd.compile > "%wscmd.ini.execute%"
 
 
 :: Run the final script
-if not defined wscmd.compile (
-	if defined wscmd.debug echo.Running:>&2
-	%wscmd.ini.command% "%wscmd.ini.execute%" %wscmd.quiet% %wscmd.args%
-	del "%wscmd.ini.execute%"
-)
+if defined wscmd.compile goto wscmd.stop
+
+if defined wscmd.debug echo.Running:>&2
+%wscmd.ini.command% "%wscmd.ini.execute%" %wscmd.quiet% %wscmd.args%
+if errorlevel 65535 goto wscmd.4
+
+del "%wscmd.ini.execute%"
 
 
 :wscmd.stop
@@ -158,7 +167,7 @@ echo.%wscmd.name% Version %wscmd.version%
 echo.
 echo.Usage:
 echo.    %~n0 [/h ^| /help ^| /q]
-echo.    %~n0 [/compile ^| /embed ^| /debug] [/js ^| /vbs] [/e "source" ^| filename [arguments]]
+echo.    %~n0 [/compile ^| /embed ^| /debug [/q]] [/js ^| /vbs] [/e "source" ^| filename [arguments]]
 echo.
 echo.Valid options are:
 echo.    /h, /help  - Display this help
@@ -305,6 +314,7 @@ var help = (function()
 		+ 'eval.save([format])      Save the history to the file\n' 
 		+ 'cmd(), shell()           Run new DOS-session\n' 
 		+ 'sleep(n)                 Sleep n milliseconds\n' 
+		+ 'reload()                 Reload the current session\n' 
 		+ 'gc()                     Run the garbage collector\n' 
 		;
 	return function()
@@ -342,6 +352,11 @@ var cmd = shell = function()
 var sleep = function(time)
 {
 	return WScript.Sleep(time);
+};
+
+var reload = function()
+{
+	WScript.Quit(65535);
 };
 
 var gc = CollectGarbage;

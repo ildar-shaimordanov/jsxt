@@ -6,49 +6,40 @@
 // Copyright (c) 2010 by Ildar Shaimordanov
 //
 
-Number.prototype.toBencode = function()
-{
-	return 'i' + parseInt(this) + 'e';
-};
-
-String.prototype.toBencode = function()
-{
-	return this.length + ':' + this.toString();
-};
-
-Date.prototype.toBencode = function()
-{
-	return 'i' + Math.floor(this.valueOf() / 1000) + 'e';
-};
-
-Array.prototype.toBencode = function()
-{
-	var result = [];
-	for (var i = 0; i < this.length; i++) {
-		result.push(this[i].toBencode());
-	}
-	return 'l' + result.join('') + 'e';
-};
-
-Object.prototype.toBencode = function()
-{
-	var result = [];
-	for (var p in this) {
-		if ( ! this.hasOwnProperty(p) ) {
-			continue;
-		}
-		result.push(String(p).toBencode() + this[p].toBencode());
-	}
-	return 'd' + result.join('') + 'e';
-};
-
 function Bencode()
 {
 };
 
 Bencode.stringify = function(value)
 {
-	return (value || '').toBencode();
+	var constructor = Object.prototype.toString.call(value);
+
+	if ( constructor == '[object Number]' ) {
+		return 'i' + parseInt(value) + 'e';
+	}
+	if ( constructor == '[object String]' ) {
+		return value.length + ':' + value.toString();
+	}
+	if ( constructor == '[object Date]' ) {
+		return 'i' + Math.floor(this.valueOf() / 1000) + 'e';
+	}
+
+	if ( constructor == '[object Array]' ) {
+		var result = [];
+		for (var i = 0; i < value.length; i++) {
+			result.push(arguments.callee(value[i]));
+		}
+		return 'l' + result.join('') + 'e';
+	}
+
+	var result = [];
+	for (var p in value) {
+		if ( ! value.hasOwnProperty(p) ) {
+			continue;
+		}
+		result.push(arguments.callee(String(p)) + arguments.callee(value[p]));
+	}
+	return 'd' + result.join('') + 'e';
 };
 
 (function()
@@ -132,7 +123,7 @@ function parser()
 	throw new RangeError('Bencode.parse: Illegal ' + (errs[c] || 'string') + ' at ' + i + ' (0x' + i.toString(16).toUpperCase() + ')');
 };
 
-function toString()
+var toString = function()
 {
 	var result = [];
 

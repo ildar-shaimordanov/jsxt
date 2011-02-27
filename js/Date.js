@@ -408,7 +408,7 @@ Date.prototype.isLeapYear = function()
 };
 
 /**
- * Date.prototype.getCalendar
+ * Date.calendar
  *
  * @syntax
  * object.getCalendar()
@@ -426,7 +426,7 @@ Date.prototype.isLeapYear = function()
  * };
  * 
  * var now = new Date();
- * var cal = now.getCalendar();
+ * var cal = Date.calendar(now);
  * 
  * // Example will output vertically oriented weeks
  * var result = '';
@@ -453,16 +453,16 @@ Date.prototype.isLeapYear = function()
  *
  * @result   Array
  */
-Date.prototype.getCalendar = function ()
+Date.calendar = function(date)
 {
-	var here = new Date(this.getTime());
-	here.setDate(1);
-	var fday = here.getDay();
+	date = date || new Date();
+
+	var fday = (new Date(date.getFullYear(), date.getMonth(), 1)).getDay();
 	if (!fday) {
 		fday = 7;
 	}
 
-	var gdim = this.getDaysInMonth();
+	var gdim = (new Date(date.getFullYear(), date.getMonth() + 1, 0)).getDate();
 	var lday = gdim + fday;
 	var wcnt = Math.ceil((gdim + fday) / 7);
 
@@ -480,19 +480,20 @@ Date.prototype.getCalendar = function ()
 };
 
 /**
- * Moves the actual Date object to the start of day corresponding to the midnight.
+ * Moves the actual Date object to the start of day corresponding to the midnight. 
+ * This mthod modifies the Date object. 
  *
- * @param	void
+ * @param	Date
  * @return	Date
  * @access	public
  */
-Date.prototype.midnight = function()
+Date.midnight = function(date)
 {
-	this.setMilliseconds(0);
-	this.setSeconds(0);
-	this.setMinutes(0);
-	this.setHours(0);
-	return this;
+	date.setMilliseconds(0);
+	date.setSeconds(0);
+	date.setMinutes(0);
+	date.setHours(0);
+	return date;
 };
 
 /**
@@ -505,9 +506,9 @@ Date.prototype.midnight = function()
  */
 Date.today = function(midnight)
 {
-	var here = Date.now();
+	var here = new Date();
 	if ( midnight ) {
-		here.midnight();
+		Date.midnight(date);
 	}
 	return here;
 };
@@ -560,72 +561,72 @@ Date.tomorrow = function(midnight)
  * @return	Date
  * @access	public
  */
-Date.prototype.moveTo = function(to, exactly)
+Date.moveTo = function(date, to, exactly)
 {
 	var part;
 	if ( exactly ) {
 		if ( part = Number(to.milliseconds) ) {
-			this.setMilliseconds(part);
+			date.setMilliseconds(part);
 		}
 		if ( part = Number(to.seconds) ) {
-			this.setSeconds(part);
+			date.setSeconds(part);
 		}
 		if ( part = Number(to.minutes) ) {
-			this.setMinutes(part);
+			date.setMinutes(part);
 		}
 		if ( part = Number(to.hours) ) {
-			this.setHours(part);
+			date.setHours(part);
 		}
 		if ( part = Number(to.date) ) {
-			this.setDate(part);
+			date.setDate(part);
 		}
 		if ( part = Number(to.week) ) {
-			this.setDate(part * 7);
+			date.setDate(part * 7);
 		}
 		if ( part = Number(to.month) ) {
-			this.setMonth(part);
+			date.setMonth(part);
 		}
 		if ( part = Number(to.year) ) {
-			this.setFullYear(part);
+			date.setFullYear(part);
 		}
 	} else {
 		if ( part = Number(to.milliseconds) ) {
-			this.setMilliseconds(this.getMilliseconds() + part);
+			date.setMilliseconds(date.getMilliseconds() + part);
 		}
 		if ( part = Number(to.seconds) ) {
-			this.setSeconds(this.getSeconds() + part);
+			date.setSeconds(date.getSeconds() + part);
 		}
 		if ( part = Number(to.minutes) ) {
-			this.setMinutes(this.getMinutes() + part);
+			date.setMinutes(date.getMinutes() + part);
 		}
 		if ( part = Number(to.hours) ) {
-			this.setHours(this.getHours() + part);
+			date.setHours(date.getHours() + part);
 		}
 		if ( part = Number(to.date) ) {
-			this.setDate(this.getDate() + part);
+			date.setDate(date.getDate() + part);
 		}
 		if ( part = Number(to.week) ) {
-			this.setDate(this.getDate() + part * 7);
+			date.setDate(date.getDate() + part * 7);
 		}
 		if ( part = Number(to.month) ) {
-			this.setMonth(this.getMonth() + part);
+			date.setMonth(date.getMonth() + part);
 		}
 		if ( part = Number(to.year) ) {
-			this.setFullYear(this.getFullYear() + part);
+			date.setFullYear(date.getFullYear() + part);
 		}
 	}
-	return this;
+	return date;
 };
 
 /**
- * Date.prototype.move(Millisecondsdate, to, exactly)
- * Date.prototype.moveSeconds(date, to, exactly)
- * Date.prototype.moveMinutes(date, to, exactly)
- * Date.prototype.moveHours(date, to, exactly)
- * Date.prototype.moveDate(date, to, exactly)
- * Date.prototype.moveWeek(date, to, exactly)
- * Date.prototype.moveMonth(date, to, exactly)
- * Date.prototype.moveYear(date, to, exactly)
+ * Date.moveMilliseconds(date, to, exactly)
+ * Date.moveSeconds(date, to, exactly)
+ * Date.moveMinutes(date, to, exactly)
+ * Date.moveHours(date, to, exactly)
+ * Date.moveDate(date, to, exactly)
+ * Date.moveWeek(date, to, exactly)
+ * Date.moveMonth(date, to, exactly)
+ * Date.moveYear(date, to, exactly)
  *
  * These methods modify the actual date for the particular date part
  */
@@ -638,11 +639,11 @@ for (var i = 0; i < parts.length; i++) {
 	{
 		var m = 'move' + parts[i];
 		var p = parts[i].toLowerCase();
-		Date.prototype[m] = function(to, exactly)
+		Date[m] = function(date, to, exactly)
 		{
 			var o = {};
 			o[p] = to;
-			return this.moveTo(o, exactly);
+			return Date.moveTo(date, o, exactly);
 		};
 	})();
 }
@@ -657,15 +658,15 @@ for (var i = 0; i < parts.length; i++) {
  * @return	Date
  * @access	public
  */
-Date.prototype.moveNextWeekday = function(to)
+Date.moveNextWeekday = function(date, to)
 {
-	var d = to - this.getDay();
+	var d = to - date.getDay();
 	if ( d <= 0 ) {
 		d += 7;
 	}
 
-	this.setDate(this.getDate() + d);
-	return this;
+	date.setDate(date.getDate() + d);
+	return date;
 };
 
 /**
@@ -676,248 +677,15 @@ Date.prototype.moveNextWeekday = function(to)
  * @return	Date
  * @access	public
  */
-Date.prototype.movePreviousWeekday = function(to)
+Date.movePreviousWeekday = function(date, to)
 {
-	var d = to - this.getDay();
+	var d = to - date.getDay();
 	if ( d >= 0 ) {
 		d -= 7;
 	}
 
-	this.setDate(this.getDate() + d);
-	return this;
-};
-
-/**
- * Creates new Date object from the Object object with the following properties:
- * -- milliseconds
- * -- seconds
- * -- minutes
- * -- hours
- * -- date
- * -- week
- * -- year
- *
- * @param	Object	from
- * @return	Date
- * @access	static
- */
-Date.fromObject = function(from)
-{
-	var here = new Date();
-
-	from = from || {};
-
-	if ( from.hasOwnProperty('year') ) {
-		here.setFullYear(from.year);
-	}
-	if ( from.hasOwnProperty('month') ) {
-		here.setMonth(from.month);
-	}
-	if ( from.hasOwnProperty('date') ) {
-		here.setDate(from.date);
-	}
-
-	if ( from.hasOwnProperty('hours') ) {
-		here.setHours(from.hours);
-	}
-	if ( from.hasOwnProperty('minutes') ) {
-		here.setMinutes(from.minutes);
-	}
-	if ( from.hasOwnProperty('seconds') ) {
-		here.setSeconds(from.seconds);
-	}
-	if ( from.hasOwnProperty('milliseconds') ) {
-		here.setMilliseconds(from.milliseconds);
-	}
-
-	return here;
-};
-
-/**
- * Stores the actual Date object to the next properties of the Object object:
- * -- milliseconds
- * -- seconds
- * -- minutes
- * -- hours
- * -- date
- * -- week
- * -- year
- *
- * @param	void
- * @return	Object
- * @access	public
- */
-Date.toObject = function(date)
-{
-	return {
-		milliseconds: date.getMilliseconds(),
-		seconds: date.getSeconds(),
-		minutes: date.getMinutes(),
-		hours: date.getHours(),
-		date: date.getDate(),
-		month: date.getMonth(),
-		year: date.getFullYear(),
-		wday: date.getDay(),
-		yday: date.getYearDay()
-	};
-};
-
-Date.english = {
-	WEEKDAY_SHORT: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-	WEEKDAY_LONG: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-	MONTH_SHORT: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-	MONTH_LONG: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-};
-
-Date.locale = {
-	WEEKDAY_SHORT: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-	WEEKDAY_LONG: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-	MONTH_SHORT: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-	MONTH_LONG: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-};
-
-/**
- * Date.prototype.getDayShortName
- *
- * @syntax
- * object.getDayShortName()
- *
- * @description
- * Returns the short name of weekday
- *
- * @param	void
- * @return	String
- * @access	public
- */
-Date.prototype.getDayShortName = function()
-{
-	return Date.english.WEEKDAY_SHORT[this.getDay()];
-};
-
-/**
- * Date.prototype.getDayLongName
- *
- * @syntax
- * object.getDayLongName()
- *
- * @description
- * Returns the long name of weekday
- *
- * @param	void
- * @return	String
- * @access	public
- */
-Date.prototype.getDayLongName = function()
-{
-	return Date.english.WEEKDAY_LONG[this.getDay()];
-};
-
-/**
- * Date.prototype.getLocaleDayShortName
- *
- * @syntax
- * object.getLocaleDayShortName()
- *
- * @description
- * Returns the short name of weekday using the current locale
- *
- * @param	void
- * @return	String
- * @access	public
- */
-Date.prototype.getLocaleDayShortName = function()
-{
-	return Date.locale.WEEKDAY_SHORT[this.getDay()];
-};
-
-/**
- * Date.prototype.getLocaleDayLongName
- *
- * @syntax
- * object.getLocaleDayLongName()
- *
- * @description
- * Returns the long name of weekday using the current locale
- *
- * @param	void
- * @return	String
- * @access	public
- */
-Date.prototype.getLocaleDayLongName = function()
-{
-	return Date.locale.WEEKDAY_LONG[this.getDay()];
-};
-
-/**
- * Date.prototype.getMonthShortName
- *
- * @syntax
- * object.getMonthShortName()
- *
- * @description
- * Returns the short name of month
- *
- * @param	void
- * @return	String
- * @access	public
- */
-Date.prototype.getMonthShortName = function()
-{
-	return Date.english.MONTH_SHORT[this.getMonth()];
-};
-
-/**
- * Date.prototype.getMonthLongName
- *
- * @syntax
- * object.getMonthLongName()
- *
- * @description
- * Returns the long name of month
- *
- * @param	void
- * @return	String
- * @access	public
- */
-Date.prototype.getMonthLongName = function()
-{
-	return Date.english.MONTH_LONG[this.getMonth()];
-};
-
-/**
- * Date.prototype.getLocaleMonthShortName
- *
- * @syntax
- * object.getLocaleMonthShortName()
- *
- * @description
- * Returns the short name of month using the current locale
- *
- * @param	void
- * @return	String
- * @access	public
- */
-Date.prototype.getLocaleMonthShortName = function()
-{
-	return Date.locale.MONTH_SHORT[this.getMonth()];
-};
-
-/**
- * Date.prototype.getLocaleMonthLongName
- *
- * @syntax
- * object.getLocaleMonthLongName()
- *
- * @description
- * Returns the long name of month
- *
- * @param	void
- * @return	String
- * @access	public
- */
-Date.prototype.getLocaleMonthLongName = function()
-{
-	return Date.locale.MONTH_LONG[this.getMonth()];
+	date.setDate(date.getDate() + d);
+	return date;
 };
 
 /**
@@ -978,63 +746,86 @@ Date.prototype.getLocaleMonthLongName = function()
  *  @return string formatted Date
  *  @access public
  */
-Date.format = function (fmt, date, spacer)
+Date.format = function (format, date, spacer)
 {
 	date = date || new Date();
 
-	if ( ! fmt ) {
+	if ( ! format ) {
 		return date.toString();
 	}
 
-	var spacer = (arguments[2] || ' ').charAt(0);
+	var spacer = (spacer || ' ').charAt(0);
 
-	return fmt.replace(/%\w+/g, function(a)
-	{
-		a = a.replace(/[%\s]/,"");
-		switch (a) {
-		case "a" : return date.getLocaleDayShortName();
-		case "A" : return date.getLocaleDayLongName();
-		case "b" : 
-		case "h" : return date.getLocaleMonthShortName();
-		case "B" : return date.getLocaleMonthLongName();
-		case "c" : return; //???
-		case "C" : return Math.round(date.getFullYear()/100);
-		case "d" : return Date.format.pad(date.getDate(), 2, spacer);
-		case "D" : return Date.format("%m/%d/%y", date, spacer);
-		case "e" : return Date.format.pad(date.getDate(), 2, ' ');
-		case "g" : return String(date.getIsoYear()).slice(-2);
-		case "G" : return date.getIsoYear();
-		case "H" : return Date.format.pad(date.getHours(), 2, spacer);
-		case "I" : return Date.format.pad(date.getHours() > 12 ? date.getHours() - 12 : date.getHours(), 2, spacer);
-		case "j" : return Date.format.pad(date.getDayOfYear(), 3, spacer);
-		case "m" : return Date.format.pad(date.getMonth() + 1, 2, spacer);
-		case "M" : return Date.format.pad(date.getMinutes(), 2, spacer);
-		case "n" : return "\n";
-		case "p" : return date.getDaytime();
-		case "r" : return Date.format("%I:%M:%S %p", date, spacer);
-		case "R" : return Date.format("%H:%M", date, spacer);
-		case "S" : return Date.format.pad(date.getSeconds(), 2, spacer);
-		case "t" : return "\t";
-		case "T" : return Date.format("%H:%M:%S", date, spacer);
-		case "u" : return date.getIsoDay();
-		case "U" : return Date.format.pad(parseInt((date.getDayOfYear() - 1 - date.getIsoDay() + 13) / 7 - 1), 2, "0");
-		case "V" : return Date.format.pad(date.getIsoWeek(), 2, spacer);
-		case "w" : return date.getDay();
-		case "W" : return Date.format.pad(parseInt((date.getDayOfYear() - 1 - date.getDay() + 13) / 7 - 1), 2, "0");
-		case "x" : return; // ???
-		case "X" : return; // ???
-		case "y" : return String(date.getFullYear()).slice(-2);
-		case "Y" : return date.getFullYear();
-		case "z" : return; // ???
-		case "Z" : return date.getTimezoneOffset() / 60;
+	Date.locale = Date.locale || Date.english;
+	for (var p in Date.english) {
+		if ( ! Date.locale.hasOwnProperty(p) ) {
+			Date.locale[p] = Date.english[p];
 		}
-		return a;
+	}
+
+	return String(format).replace(/%(\w)/g, function($0, $1)
+	{
+		switch ($1) {
+		case 'a': return Date.locale.SWEEK[date.getDay()];
+		case 'A': return Date.locale.LWEEK[date.getDay()];
+		case 'h': 
+		case 'b': return Date.locale.SMONTH[date.getMonth()];
+		case 'B': return Date.locale.LMONTH[date.getMonth()];
+		case 'c': return Date.locale.DATETIME(date, spacer);
+		case 'C': return Math.round(date.getFullYear() / 100);
+		case 'd': return Date.format.pad(date.getDate(), 2, spacer);
+		case 'D': return Date.format("%m/%d/%y", date, spacer);
+		case 'e': return Date.format.pad(date.getDate(), 2, ' ');
+		case 'g': return String(date.getIsoYear()).slice(-2);
+		case 'G': return date.getIsoYear();
+		case 'H': return Date.format.pad(date.getHours(), 2, spacer);
+		case 'I': return Date.format.pad(date.getHours() > 12 ? date.getHours() - 12 : date.getHours(), 2, spacer);
+		case 'j': return Date.format.pad(date.getDayOfYear(), 3, spacer);
+		case 'm': return Date.format.pad(date.getMonth() + 1, 2, spacer);
+		case 'M': return Date.format.pad(date.getMinutes(), 2, spacer);
+		case 'n': return "\n";
+		case 'p': return date.getDaytime();
+		case 'r': return Date.format("%I:%M:%S %p", date, spacer);
+		case 'R': return Date.format("%H:%M", date, spacer);
+		case 'S': return Date.format.pad(date.getSeconds(), 2, spacer);
+		case 't': return "\t";
+		case 'T': return Date.format("%H:%M:%S", date, spacer);
+		case 'u': return date.getIsoDay();
+		case 'U': return Date.format.pad(parseInt((date.getDayOfYear() - 1 - date.getIsoDay() + 13) / 7 - 1), 2, "0");
+		case 'V': return Date.format.pad(date.getIsoWeek(), 2, spacer);
+		case 'w': return date.getDay();
+		case 'W': return Date.format.pad(parseInt((date.getDayOfYear() - 1 - date.getDay() + 13) / 7 - 1), 2, "0");
+		case 'x': return Date.locale.DATE(date, spacer);
+		case 'X': return Date.locale.TIME(date, spacer);
+		case 'y': return String(date.getFullYear()).slice(-2);
+		case 'Y': return date.getFullYear();
+		case 'z': 
+		case 'Z': return date.getTimezoneOffset() / 60;
+		}
+		return $1;
 	})
 };
-
 Date.format.pad = function(v, n, c)
 {
 	var s = new Array(Math.abs(n) + 1).join(c.charAt(0));
 	return n < 0 ? (v + s).slice(0, n) : (s + v).slice(-n)
+};
+Date.english = {
+	SWEEK:  'Sun Mon Tue Wed Thu Fri Sat'.split(/\s+/), 
+	LWEEK:  'Sunday Monday Tuesday Wednesday Thursday Friday Saturday'.split(/\s+/), 
+	SMONTH: 'Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec'.split(/\s+/), 
+	LMONTH: 'January February March April May June July August September October November December'.split(/\s+/), 
+	DATE: function(date, spacer)
+	{
+		return date.toLocaleDateString();
+	}, 
+	TIME: function(date, spacer)
+	{
+		return date.toLocaleTimeString();
+	}, 
+	DATETIME: function(date, spacer)
+	{
+		return date.toLocaleString();
+	}
 };
 

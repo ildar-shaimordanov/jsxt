@@ -1,7 +1,7 @@
 //
 // JScript and JavaScript unit
 //
-// Copyright (c) 2004, 2005, 2008, 2009, 2010 by Ildar Shaimordanov
+// Copyright (c) 2004, 2005, 2008, 2009, 2010, 2011 by Ildar Shaimordanov
 //
 // DESCRIPTION
 //
@@ -17,6 +17,14 @@
 //    Mozilla Firefox 3.0.7
 //
 // HISTORY
+//
+// 2011/02/27
+// all the following methods are removed
+// object.alert()
+// object.write()
+// object.writeln()
+// object.echo() 
+// object.print() 
 //
 // 2010/03/07
 // Error.format() method has been migrated to the separate module Error.js
@@ -82,90 +90,4 @@ var Core = {};
 
 	}
 })();
-
-if ( Core.browser.isJScript ) {
-
-Boolean.prototype.alert = 
-Number.prototype.alert = 
-String.prototype.alert = 
-Array.prototype.alert = 
-Object.prototype.alert = 
-
-Boolean.prototype.write = 
-Number.prototype.write = 
-String.prototype.write = 
-Array.prototype.write = 
-Object.prototype.write = 
-
-Boolean.prototype.echo = 
-Boolean.prototype.print = 
-Boolean.prototype.writeln = 
-
-Number.prototype.echo = 
-Number.prototype.print = 
-Number.prototype.writeln = 
-
-String.prototype.echo = 
-String.prototype.print = 
-String.prototype.writeln = 
-
-Array.prototype.echo = 
-Array.prototype.print = 
-Array.prototype.writeln = 
-
-Object.prototype.echo = 
-Object.prototype.print = 
-Object.prototype.writeln = function()
-{
-	WScript.Echo(this);
-	return this;
-};
-
-} else {
-
-Boolean.prototype.alert = 
-Number.prototype.alert = 
-String.prototype.alert = 
-Array.prototype.alert = 
-Object.prototype.alert = function()
-{
-	alert(this);
-	return this;
-};
-
-Boolean.prototype.write = 
-Number.prototype.write = 
-String.prototype.write = 
-Array.prototype.write = 
-Object.prototype.write = function()
-{
-	document.write(this);
-	return this;
-};
-
-Boolean.prototype.echo = 
-Boolean.prototype.print = 
-Boolean.prototype.writeln = 
-
-Number.prototype.echo = 
-Number.prototype.print = 
-Number.prototype.writeln = 
-
-String.prototype.echo = 
-String.prototype.print = 
-String.prototype.writeln = 
-
-Array.prototype.echo = 
-Array.prototype.print = 
-Array.prototype.writeln = 
-
-Object.prototype.echo = 
-Object.prototype.print = 
-Object.prototype.writeln = function()
-{
-	document.writeln(this);
-	return this;
-};
-
-}
 
