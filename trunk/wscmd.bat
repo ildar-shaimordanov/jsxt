@@ -8,7 +8,7 @@ setlocal enabledelayedexpansion
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.11.1 Beta
+set wscmd.version=0.11.2 Beta
 
 
 :: Parse command line arguments and set needful variables
@@ -140,19 +140,18 @@ if not defined wscmd.ini.execute set wscmd.ini.execute=.\$$$%~n0.wsf
 if not defined wscmd.ini.command set wscmd.ini.command=%WINDIR%\system32\cscript.exe //NoLogo
 
 
-:wscmd.4
-
-
 :: Compile and link the source with libraries
 call :wscmd.compile > "%wscmd.ini.execute%"
 
 
-:: Run the final script
+:: Compile the script and run it if it is needed
 if defined wscmd.compile goto wscmd.stop
 
 if defined wscmd.debug echo.Running:>&2
 %wscmd.ini.command% "%wscmd.ini.execute%" %wscmd.quiet% %wscmd.args%
-if errorlevel 65535 goto wscmd.4
+
+:: Reread the ini-file and reload the script
+if errorlevel 65535 goto wscmd.2
 
 del "%wscmd.ini.execute%"
 
