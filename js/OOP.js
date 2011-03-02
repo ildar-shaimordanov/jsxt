@@ -96,14 +96,13 @@ c.draw();
 */
 
 
-Object.mixin = function(dst)
+Object.mixin = function(dst, src)
 {
-	for (var i = 1; i < arguments.length; i++) {
-		for (var prop in arguments[i]) {
-			if ( arguments[i].hasOwnProperty(prop) ) {
-				dst[prop] = arguments[i][prop];
-			}
+	for (var prop in src) {
+		if ( ! src.hasOwnProperty(prop) ) {
+			continue;
 		}
+		dst[prop] = src[prop];
 	}
 	return dst;
 };
@@ -112,10 +111,13 @@ Function.prototype.inherit = function(proto)
 {
 	var that = this;
 	proto = proto || {};
+
 	var constructor = proto.hasOwnProperty('constructor') ? proto.constructor : function() { that.apply(this, arguments); };
 	var F = function() {};
 	F.prototype = this.prototype;
+
 	constructor.prototype = Object.mixin(new F(), proto);
+
 	constructor.superclass = this.prototype;
 	constructor.prototype.constructor = constructor;
 	return constructor;
