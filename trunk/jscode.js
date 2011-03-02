@@ -36,7 +36,7 @@ var jsCode = {
 
 	parse: function(text, minify, beautify)
 	{
-		var result = ''
+		var result = '';
 
 		if ( minify ) {
 			return eval.minify(text, {
