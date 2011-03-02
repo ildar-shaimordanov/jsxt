@@ -1,3 +1,12 @@
+//
+// js2bat
+// Command line tool to embed js codes to batch scripts
+//
+// Copyright (c) 2010, 2011, Ildar Shaimordanov
+//
+
+/*!
+*/
 
 // Display the minimal usage screen
 if ( ! WScript.FullName.match(/cscript/i) || WScript.Arguments.Named.Exists('H') ) {
