@@ -50,6 +50,89 @@ function Complex(x, y, r, f)
 };
 
 /**
+ * Zero displaying threshold
+ * ZERO_THRESHOLD = 1e-15
+ */
+Complex.ZERO_THRESHOLD = 1e-15;
+
+Complex.isZero = function(x)
+{
+	return Math.abs(x) <= Complex.ZERO_THRESHOLD ? 0 : x;
+};
+
+/**
+ * Internally used method
+ *
+ */
+Complex.construct = function(x, y, r, f)
+{
+	return new Complex(x, y, r, f);
+};
+
+/**
+ * Creates a complex from polar coordinates (r, f)
+ * z = r (cos(f) + isin(f))
+ * z = r exp(if)
+ *
+ */
+Complex.fromPolar = function()
+{
+	var r = Number(arguments[0]) || 0;
+	var f = Number(arguments[1]) || 0;
+
+	var x = r * Math.cos(f);
+	var y = r * Math.sin(f);
+
+	return Complex.construct(x, y, r, f);
+};
+
+/**
+ * Creates a complex from a real
+ *
+ */
+Complex.re = function()
+{
+	if ( arguments[0] && arguments[0].constructor != Number ) {
+		throw new TypeError();
+	}
+
+	var n = Number(arguments[0]) || 0;
+	return n.z();
+};
+
+/**
+ * Creates imaginary number
+ *
+ */
+Complex.im = function()
+{
+	if ( arguments[0] && arguments[0].constructor != Number ) {
+		throw new TypeError();
+	}
+
+	var y = Number(arguments[0]) || 1;
+	var f = Math.PI / 2;
+	return Complex.construct(0, y, Math.abs(y), y < 0 ? -f : f);
+};
+
+/**
+ * Clones new complex without calculation of internal variables
+ *
+ */
+Complex.z = function(x, y)
+{
+	return new Complex(x, y);
+};
+
+/**
+ * The shortcuts for the most popular methods
+ *
+ */
+var $Z  = Complex.z;
+var $Re = Complex.re;
+var $Im = Complex.im;
+
+/**
  * Comparison of complex
  *
  */
@@ -311,89 +394,6 @@ Complex.prototype.toString = function(toPolar)
 
 	return [Complex.isZero(x), y].join('i');
 };
-
-/**
- * Zero displaying threshold
- * ZERO_THRESHOLD = 1e-15
- */
-Complex.ZERO_THRESHOLD = 1e-15;
-
-Complex.isZero = function(x)
-{
-	return Math.abs(x) <= Complex.ZERO_THRESHOLD ? 0 : x;
-};
-
-/**
- * Internally used method
- *
- */
-Complex.construct = function(x, y, r, f)
-{
-	return new Complex(x, y, r, f);
-};
-
-/**
- * Creates a complex from polar coordinates (r, f)
- * z = r (cos(f) + isin(f))
- * z = r exp(if)
- *
- */
-Complex.fromPolar = function()
-{
-	var r = Number(arguments[0]) || 0;
-	var f = Number(arguments[1]) || 0;
-
-	var x = r * Math.cos(f);
-	var y = r * Math.sin(f);
-
-	return Complex.construct(x, y, r, f);
-};
-
-/**
- * Creates a complex from a real
- *
- */
-Complex.re = function()
-{
-	if ( arguments[0] && arguments[0].constructor != Number ) {
-		throw new TypeError();
-	}
-
-	var n = Number(arguments[0]) || 0;
-	return n.z();
-};
-
-/**
- * Creates imaginary number
- *
- */
-Complex.im = function()
-{
-	if ( arguments[0] && arguments[0].constructor != Number ) {
-		throw new TypeError();
-	}
-
-	var y = Number(arguments[0]) || 1;
-	var f = Math.PI / 2;
-	return Complex.construct(0, y, Math.abs(y), y < 0 ? -f : f);
-};
-
-/**
- * Clones new complex without calculation of internal variables
- *
- */
-Complex.z = function(x, y)
-{
-	return new Complex(x, y);
-};
-
-/**
- * The shortcuts for the most popular methods
- *
- */
-var $Z  = Complex.z;
-var $Re = Complex.re;
-var $Im = Complex.im;
 
 /**
  * Methods for compatibility of Number with Complex
