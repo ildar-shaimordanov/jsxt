@@ -266,7 +266,7 @@ Number.prototype.human.add(false, 'T', 1e12);
  * @return	number
  * @access	public
  */
-Number.fromHuman = function(binary)
+Number.fromHuman = function(value, binary)
 {
 	var m = String(value).match(/^([\-\+]?\d+\.?\d*)([A-Z])?$/);
 	if ( ! m ) {
