@@ -1,4 +1,4 @@
-@set @wscmd=0 /*
+@set @wscmd=0 /*!
 @set @wscmd=
 @echo off
 
@@ -8,7 +8,7 @@ setlocal enabledelayedexpansion
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.11.2 Beta
+set wscmd.version=0.12.1 Beta
 
 
 :: Parse command line arguments and set needful variables
@@ -115,7 +115,7 @@ goto wscmd.1
 :: %~x0 - the extension
 for %%i in ( "%wscmd.script%.ini" ".\%~n0.ini" "%~dpn0.ini" ) do (
 	if not "%%~ni" == "" if exist "%%~i" (
-		if defined wscmd.debug echo."%%~i" file found>&2
+		if defined wscmd.debug echo.Configuring from "%%~i">&2
 		for /f "usebackq tokens=1,* delims==" %%k in ( "%%~i" ) do (
 			set wscmd.temp=%%~l
 			if defined wscmd.temp (
@@ -315,7 +315,7 @@ var help = (function()
 		+ 'eval.save([format])      Save the history to the file\n' 
 		+ 'cmd(), shell()           Run new DOS-session\n' 
 		+ 'sleep(n)                 Sleep n milliseconds\n' 
-		+ 'reload()                 Reload the current session\n' 
+		+ 'reload()                 Stop this session and run new\n' 
 		+ 'gc()                     Run the garbage collector\n' 
 		;
 	return function()
@@ -403,21 +403,18 @@ while ( true ) {
 		// String contains result of eval'd string
 		var result = eval((function(PS1, PS2)
 		{
+
 			if ( WScript.Arguments.Named.Exists('Q') ) {
 				PS1 = '';
 				PS2 = '';
 			}
 
-			var stack = [];
-			var quote = false;
-			var regex = false;
-			var slash = false;
-			var expr = false;
+			// Validate that a user started multipe lines ended with the backslash '\\'
+			var multiline = false;
 
 			// Store all charactrrs enetred from STDIN.
 			// Array is used to prevent usage of String.charAt
 			// This makes the code the safer
-			// Look for comments maked with NOTE!!!
 			var result = [];
 
 			WScript.StdOut.Write(PS1);
@@ -444,114 +441,25 @@ while ( true ) {
 					}
 				})();
 
-				for (var i = 0; i < input.length; i++) {
+				if ( input.length == 0 ) {
+					break;
+				}
 
-					// NOTE!!!
-					// Array instead string makes the code the safer.
-					// So redeclared or deleted method String.charAt will
-					// not bring to crash of the code. 
-					var c = input[i];
+				var toBeContinued = input[input.length - 1] == '\\';
 
-					// The last character was the back slash. 
-					// Goto the next
-					if ( slash ) {
-						slash = false;
-						continue;
-					}
+				if ( ! multiline && toBeContinued ) {
+					multiline = true;
+				}
 
-					// Store the state of the back slash
-					// and goto the next
-					if ( c == '\\' ) {
-						slash = true;
-						continue;
-					}
-
-					// There was one of a single or double quote
-					// Let's consider this as a literal string
-					if ( quote && c == stack[stack.length - 1] ) {
-						quote = false;
-						stack.length--;
-						continue;
-					}
-
-					// There was the direct slash
-					// (it might be a regular expression)
-					if ( regex && c == stack[stack.length - 1] ) {
-						regex = false;
-						stack.length--;
-/*
-						// Really... This is comment
-						if ( input[i - 1] == c ) {
-							break;
-						}
-*/
-						continue;
-					}
-
-					// There is literal string or regular expression yet
-					// Goto the next
-					if ( regex || quote ) {
-						continue;
-					}
-
-					// Meet the slash
-					// It may be a regular expression or a part of an expression
-					if ( c == '/' ) {
-						if ( expr ) {
-							expr = false;
-						} else {
-							regex = true;
-							stack[stack.length] = c;
-						}
-						continue;
-					}
-
-					// Maybe this is expression
-					if ( (/[^:,;\[\(\!\&\|=]/).test(c) ) {
-						expr = true;
-					}
-/*
-					if ( c == '/' ) {
-						regex = true;
-						stack[stack.length] = c;
-						continue;
-					}
-*/
-
-					// Meet quotes
-					// It is literal string
-					if ( c == '\'' || c == '\"' ) {
-						quote = true;
-						stack[stack.length] = c;
-						continue;
-					}
-
-					// Meet opening brackets
-					if ( c == '[' || c == '{' || c == '(' ) {
-						stack[stack.length] = c;
-						continue;
-					}
-
-					// Meet closing brackets
-					var o = stack[stack.length - 1];
-					if (
-						( o == '[' && c == ']' ) 
-						|| 
-						( o == '{' && c == '}' ) 
-						|| 
-						( o == '(' && c == ')' ) 
-					) {
-						stack.length--;
-						continue;
-					}
-
-				}; // for (var i = 0; i < input.length; i++)
+				if ( toBeContinued ) {
+					input.length--;
+				}
 
 				for (var i = 0; i < input.length; i++) {
 					result[result.length] = input[i];
 				}
 
-				if ( stack.length == 0 && ! quote && ! regex ) {
+				if ( ! multiline ) {
 					break;
 				}
 
@@ -559,26 +467,31 @@ while ( true ) {
 
 			}; // while ( true )
 
-			// Use the direct comparacy with chacarters instead 
-			// of the regex testing to bypass possible problems
-			//if ( ! (/^\s*$/).test(result) ) {
-			//	eval.history += ( eval.history ? '\n' : '' ) + result;
-			//}
-			var is_empty = true;
+			// Trim left
+			var k = 0;
+			while ( result[k] <= ' ' ) {
+				k++;
+			}
+			// Trim right
+			var m = result.length - 1;
+			while ( result[m] <= ' ' ) {
+				m--;
+			}
+
 			var history = '';
-			for (var i = 0; i < result.length; i++) {
-				var c = result[i];
-				is_empty = is_empty && c <= ' ';
+			for (var i = k; i <= m; i++) {
 				history += result[i];
 			}
-			if ( is_empty ) {
+			if ( history == '' ) {
 				return '';
 			}
+
 			if ( eval.history ) {
 				eval.history += '\n';
 			}
 			eval.history += history;
 			return history;
+
 		})('wscmd > ', 'wscmd :: '));
 
 		if ( result !== void 0 ) {
