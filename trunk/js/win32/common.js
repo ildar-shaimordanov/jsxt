@@ -1,35 +1,6 @@
 
 /**
  *
- * System dependent handlers
- *
- */
-if ( ! fso ) {
-
-	var fso = new ActiveXObject('Scripting.FileSystemObject');
-
-}
-
-if ( ! shell ) {
-
-	var shell = new ActiveXObject('WScript.Shell');
-
-}
-
-if ( ! env ) {
-
-	var env = shell.Environment("PROCESS");
-
-}
-
-if ( ! WMI ) {
-
-	var WMI = GetObject('WinMgmts:');
-
-}
-
-/**
- *
  * Drive types
  *
  */
