@@ -68,9 +68,10 @@ RegExp.prototype.forEach = function(string, fun, thisp)
 
 RegExp.prototype.map = function(string, fun, thisp)
 {
-	if ( typeof fun != "function" ) {
-		throw new TypeError();
-	}
+	fun = fun || function(r, re)
+	{
+		return r;
+	};
 
 	var result = [];
 
@@ -84,11 +85,10 @@ RegExp.prototype.map = function(string, fun, thisp)
 
 RegExp.prototype.match = function(string, index)
 {
-	var m = string.match(this);
-	if ( m && index !== void 0 ) {
+	var m = String(string).match(this);
+	if ( m && arguments.length > 1 ) {
 		return m[index];
-		
 	}
-	return m ;
+	return m;
 };
 
