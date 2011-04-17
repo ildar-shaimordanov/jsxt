@@ -402,7 +402,7 @@ Object.dump = function(object, options)
 {
 	options = options || {};
 	options.padding = options.padding || '';
-	if ( isNaN(options.nesting) || options.nesting < 0 ) {
+	if ( isNaN(options.nesting) || options.nesting <= 0 ) {
 		options.nesting = 5;
 	}
 
