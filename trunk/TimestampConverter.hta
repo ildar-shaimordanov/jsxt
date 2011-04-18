@@ -205,7 +205,7 @@ behavior.updateFormat = function()
 	behavior.formatted.value = format;
 */
 
-	behavior.formatted.value = here.format(bfo[bfo.selectedIndex].value);
+	behavior.formatted.value = Date.format(bfo[bfo.selectedIndex].value, here);
 	behavior.formatter.blur();
 };
 
