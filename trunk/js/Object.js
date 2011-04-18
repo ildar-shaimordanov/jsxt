@@ -376,9 +376,147 @@ Object.clone = function(object)
 	}
 	var newObject = new object.constructor();
 	for (var p in object) {
-		newObject[p] = arguments.callee(object[p]);
+		newObject[p] = object[p] === object 
+			? newObject 
+			: arguments.callee(object[p], 1);
 	}
 	return newObject;
+};
+
+(function()
+{
+
+var entities = {
+	'&': '&amp;', 
+	'"': '&quot;', 
+	'<': '&lt;', 
+	'>': '&gt;'
+};
+
+var escaped = /["\r\n\t\b\\\\]/g;
+var special = {
+	'"': '\\"', 
+	'\r': '\\r', 
+	'\n': '\\n', 
+	'\t': '\\t', 
+	'\b': '\\b', 
+	'\\': '\\\\'
+};
+
+var space;
+var indent = '';
+
+var deep;
+
+var proto;
+var func;
+
+function _quote(value)
+{
+	var result = value.replace(escaped, function($0)
+	{
+		return special[$0];
+	});
+	return '"' + result + '"';
+};
+
+function _dump(object)
+{
+	switch (typeof object) {
+	case 'string':
+		return _quote(object);
+
+	case 'boolean':
+	case 'number':
+	case 'undefined':
+	case 'null':
+		return String(object);
+
+	case 'function':
+		if ( func == 1 ) {
+			return '[Function]';
+		}
+		if ( func > 1 ) {
+			return object.toString();
+		}
+		return '';
+
+	case 'object':
+		if ( object === null ) {
+			return String(object);
+		}
+
+		// Assume thr win32 COM object
+		if ( ! object.constructor ) {
+			return '[Object]';
+		}
+
+		// Assume the RegExp object
+		if ( object.constructor == RegExp ) {
+			return String(object);
+		}
+
+		// Assume the Date object
+		if ( object.constructor == Date ) {
+			return object.toUTCString();
+		}
+
+		// Stop the deeper nestings
+		if ( ! deep ) {
+			return '[...]';
+		}
+
+		var saveDeep = deep;
+		deep--;
+
+		var saveIndent = indent;
+		indent += space;
+
+		var result = [];
+		for (var k in object) {
+			if ( ! object.hasOwnProperty(k) && ! proto ) {
+				continue;
+			}
+
+			var v;
+
+			if ( object[k] === object ) {
+				v = '[Recursive]';
+			} else {
+				v = arguments.callee(object[k]);
+				if ( v === '' ) {
+					// Sure that any property will return non-empty string
+					// Only functions can return an empty string with walkFunction == 0
+					continue;
+				}
+			}
+
+			result.push(k + ': ' + v);
+		}
+
+		var pred;
+		var post;
+
+		if ( object.constructor == Array ) {
+			pred = 'Array(' + object.length + ') [';
+			post = ']';
+		} else {
+			pred = 'Object {';
+			post = '}';
+		}
+
+		result = result.length == 0 
+			? '\n' + saveIndent 
+			: '\n' + indent + result.join('\n' + indent) + '\n' + saveIndent;
+
+		indent = saveIndent;
+		deep = saveDeep;
+
+		return pred + result + post;
+
+	default:
+		return '[Unknown]';
+	}
 };
 
 /**
@@ -388,98 +526,42 @@ Object.clone = function(object)
  * Creates a dump of any object. 
  * The second arguments provides options affecting on the result. 
  * Options are:
- * -- nesting - defines the deep of nesting (default is 3)
- * -- padding - defines initial value of padding
- * -- walkFunction - (0 - do not show function, 1 - show [Function] string, 2 - show a details)
- * -- walkPrototype - (0 - do not show properties from prototype, 1 - show then) 
+ * -- deep
+ * defines the deep of nestings for complex structures (default is 5)
+ * -- space
+ * defines initial value of indentation (4 whitespaces, by default). 
+ * the numeric value defines indentaion size, the number of space chars
+ * -- func
+ * Numeric values controls the visibility of functions. The default value is 0. 
+ * (0 - do not show function, 1 - show [Function] string, 2 - show a details)
+ * -- proto
+ * Boolean value controls the visibility properties from the prototype of the oject. 
+ * The default value is false. (0 - do not show properties from prototype, 1 - show then) 
  *
  * @param	Mixed
  * @param	Mixed
  * @return	String
  * @access	Static
  */
-Object.dump = function(object, options)
+Object.dump = function(object)
 {
-	options = options || {};
-	options.padding = options.padding || '';
-	if ( isNaN(options.nesting) || options.nesting <= 0 ) {
-		options.nesting = 5;
+	var options = arguments[1] || {};
+
+	var t = Object.prototype.toString.call(options.space);
+	if ( t == '[object Number]' ) {
+		space = new Array(options.space + 1).join(' ');
+	} else if ( t == '[object String]' ) {
+		space = options.space;
+	} else {
+		space = '    ';
 	}
 
-	switch ( typeof object ) {
-	case 'object':
-		if ( object === null ) {
-			return String(object);
-		}
+	deep = Number(options.deep) > 0 ? options.deep : 5;
 
-		if ( ! options.nesting ) {
-			return '*** TOO MANY NESTIONS ***\n';
-		}
+	proto = options.proto || 0;
+	func = options.func || 0;
 
-		var pred;
-		var post;
-
-		if ( object.constructor == Array ) {
-			pred = 'Array(' + object.length + ') [\n';
-			post = options.padding + ']';
-		} else {
-			pred = 'Object {\n';
-			post = options.padding + '}';
-		}
-
-		var padding = options.padding + '    ';
-		var opts = {
-			nesting: options.nesting - 1, 
-			padding: padding, 
-			walkFunction: options.walkFunction, 
-			walkPrototype: options.walkPrototype
-		};
-
-		var result = [];
-		for (var value in object) {
-			if ( ! object.hasOwnProperty(value) && ! options.walkPrototype ) {
-				continue;
-			}
-			var s = arguments.callee(object[value], opts);
-			if ( s === '' ) {
-				// Sure that any property will return non-empty string
-				// Only functions can return an empty string with walkFunction == 0
-				continue;
-			}
-			result.push(padding + value + ': ' + s + '\n');
-		}
-		return pred + result.join('') + post;
-
-	case 'string':
-		return '[' + object.length + ']: \"' + object
-//			.replace(/&/g, '&amp;')
-//			.replace(/["<>\r\n\t\x00-\x1F]/g, function($0)
-//			{
-//				return Object.dump.entities[$0] || ('\\' + $0.charCodeAt(0).toString(8));
-//			})
-			+ '\"';
-
-	case 'function':
-		if ( options.walkFunction == 1 ) {
-			return '[Function]';
-		}
-		if ( options.walkFunction > 1 ) {
-			return object.toString();
-		}
-		return '';
-
-	default:
-		return String(object);
-	}
+	return _dump(object);
 };
 
-Object.dump.entities = {
-	'"': '&quot;', 
-	'<': '&lt;', 
-	'>': '&gt;', 
-	'\\': '\\\\', 
-	'\r': '\\r', 
-	'\n': '\\n', 
-	'\t': '\\t'
-};
-
+})();
