@@ -393,13 +393,14 @@ var entities = {
 	'>': '&gt;'
 };
 
-var escaped = /["\r\n\t\b\\\\]/g;
+var escaped = /["\r\n\t\b\f\\\\]/g;
 var special = {
 	'"': '\\"', 
 	'\r': '\\r', 
 	'\n': '\\n', 
 	'\t': '\\t', 
 	'\b': '\\b', 
+	'\f': '\\f', 
 	'\\': '\\\\'
 };
 
