@@ -81,7 +81,7 @@ if ( ! Function.prototype.getOneResource ) {
  */
 Function.prototype.getOneResource = function()
 {
-	var m = this.toString().match(/\/\*\[\[((?:[\r\n]|.)*?)\]\]\*\//m);
+	var m = this.toString().match(/\/\*\!\[\[((?:[\r\n]|.)*?)\]\]\*\//m);
 	return m ? m[1] : '';
 };
 
@@ -113,17 +113,17 @@ if ( ! Function.prototype.getResource ) {
  */
 Function.prototype.getResource = function(index)
 {
-/*[[
+/*![[
 This is unnamed resource #0
 ]]*/
-/*[DEMO RESOURCE[
+/*![DEMO RESOURCE[
 This is single named resource
 ]]*/
 /*
 This is simple comment, not resource
 */
-/*[[This is another unnamed resource #1]]*/
-/*[DEMO RESOURCE[
+/*![[This is another unnamed resource #1]]*/
+/*![DEMO RESOURCE[
 The named resource is continued here
 ]]*/
 	var f = this.toString();
@@ -151,7 +151,7 @@ The named resource is continued here
 		: (arguments.callee.list[f][index] || '');
 };
 
-Function.prototype.getResource.RE = /\/\*\[(\w|\w[^\[\]]*\w)?\[((?:[\r\n]|.)*?)\]\]\*\//mg;
+Function.prototype.getResource.RE = /\/\*\!\[(\w|\w[^\[\]]*\w)?\[((?:[\r\n]|.)*?)\]\]\*\//mg;
 Function.prototype.getResource.list = {};
 
 }
