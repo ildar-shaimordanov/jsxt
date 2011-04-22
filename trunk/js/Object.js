@@ -258,6 +258,8 @@ Object.forItems = function(object, fun, func, thisp)
 	}
 };
 
+if ( ! Object.keys ) {
+
 /**
  * Populates and returns array of the object's keys
  * skipFunction=true tells to exclude methods from the result.
@@ -294,6 +296,8 @@ Object.keys = function(object)
 
 	return result;
 };
+
+}
 
 /**
  * Creating a copy of an object with fully replicated properties. 
