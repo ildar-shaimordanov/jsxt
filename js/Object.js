@@ -5,24 +5,18 @@
 // Copyright (c) 2009, 2010, 2011 by Ildar Shaimordanov
 //
 
-if ( ! Object.isa ) {
-
 /**
- * Evaluates the value is defined and has constructor
+ * Evaluates that the value is defined and is identified by the provided id
  *
  * @param	mixed	value
- * @param	mixed	constructor
+ * @param	string	is
  * @return	boolean
  * @access	static
  */
-Object.isa = function(value, constructor)
+Object.isa = function(value, id)
 {
-	return value !== (void 0) && value !== null && value.constructor == constructor;
+	return value !== (void 0) && value !== null && Object.prototype.toString.call(value) == id;
 };
-
-}
-
-if ( ! Object.isArray ) {
 
 /**
  * Evaluates the value as Array
@@ -33,13 +27,8 @@ if ( ! Object.isArray ) {
  */
 Object.isArray = function(value)
 {
-	return Object.isa(value, Array);
-//	return value !== undefined && value !== null && value.constructor == Array;
+	return Object.isa(value, '[object Array]');
 };
-
-}
-
-if ( ! Object.isBoolean ) {
 
 /**
  * Evaluates the value as Boolean
@@ -50,13 +39,8 @@ if ( ! Object.isBoolean ) {
  */
 Object.isBoolean = function(value)
 {
-	return Object.isa(value, Boolean);
-//	return value !== undefined && value !== null && value.constructor == Boolean;
+	return Object.isa(value, '[object Boolean]');
 };
-
-}
-
-if ( ! Object.isEmpty ) {
 
 /**
  * Evaluates the value as Empty
@@ -76,10 +60,6 @@ Object.isEmpty = function(value)
 	return ! Boolean(value);
 };
 
-}
-
-if ( ! Object.isFunction ) {
-
 /**
  * Evaluates the value as Function
  *
@@ -89,13 +69,8 @@ if ( ! Object.isFunction ) {
  */
 Object.isFunction = function(value)
 {
-	return Object.isa(value, Function);
-//	return value !== undefined && value !== null && value.constructor == Function;
+	return Object.isa(value, '[object Function]');
 };
-
-}
-
-if ( ! Object.isIndefinite ) {
 
 /**
  * Evaluates the value as Undefined or Null
@@ -110,10 +85,6 @@ Object.isIndefinite = function(value)
 //	return value === undefined || value === null;
 };
 
-}
-
-if ( ! Object.isNull ) {
-
 /**
  * Evaluates the value as Null
  *
@@ -126,10 +97,6 @@ Object.isNull = function(value)
 	return value === null;
 };
 
-}
-
-if ( ! Object.isNumber ) {
-
 /**
  * Evaluates the value as Number
  *
@@ -139,13 +106,8 @@ if ( ! Object.isNumber ) {
  */
 Object.isNumber = function(value)
 {
-	return Object.isa(value, Number);
-//	return value !== undefined && value !== null && value.constructor == Number;
+	return Object.isa(value, '[object Number]');
 };
-
-}
-
-if ( ! Object.isObject ) {
 
 /**
  * Evaluates the value as Object
@@ -156,13 +118,8 @@ if ( ! Object.isObject ) {
  */
 Object.isObject = function(value)
 {
-	return Object.isa(value, Object);
-//	return value !== undefined && value !== null && value.constructor == Object;
+	return Object.isa(value, '[object Object]');
 };
-
-}
-
-if ( ! Object.isRegExp ) {
 
 /**
  * Evaluates the value as RegExp
@@ -173,13 +130,8 @@ if ( ! Object.isRegExp ) {
  */
 Object.isRegExp = function(value)
 {
-	return Object.isa(value, RegExp);
-//	return value !== undefined && value !== null && value.constructor == RegExp;
+	return Object.isa(value, '[object RegExp]');
 };
-
-}
-
-if ( ! Object.isString ) {
 
 /**
  * Evaluates the value as String
@@ -190,13 +142,8 @@ if ( ! Object.isString ) {
  */
 Object.isString = function(value)
 {
-	return Object.isa(value, String);
-//	return value !== undefined && value !== null && value.constructor == String;
+	return Object.isa(value, '[object String]');
 };
-
-}
-
-if ( ! Object.isUndefined ) {
 
 /**
  * Evaluates the value as Undefined
@@ -209,8 +156,6 @@ Object.isUndefined = function(value)
 {
 	return value === void 0;
 };
-
-}
 
 /**
  * Executes a provided function once per object element.
@@ -391,13 +336,15 @@ function _dump(object)
 			return '[Object]';
 		}
 
+		var t = Object.prototype.toString.call(object);
+
 		// Assume the RegExp object
-		if ( object.constructor == RegExp ) {
+		if ( t == '[object RegExp]' ) {
 			return String(object);
 		}
 
 		// Assume the Date object
-		if ( object.constructor == Date ) {
+		if ( t == '[object Date]' ) {
 			return object.toUTCString();
 		}
 
@@ -437,7 +384,7 @@ function _dump(object)
 		var pred;
 		var post;
 
-		if ( object.constructor == Array ) {
+		if ( t == '[object Array]' ) {
 			pred = 'Array(' + object.length + ') [';
 			post = ']';
 		} else {
