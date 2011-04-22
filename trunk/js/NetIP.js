@@ -9,8 +9,6 @@
 // Copyright (c) 2007 by Ildar Shaimordanov
 //
 
-if ( 'function' != typeof NetIP ) {
-
 function NetIP()
 {
 
@@ -403,10 +401,6 @@ function NetIP()
 
 };
 
-}
-
-if ( ! NetIP.atoi ) {
-
 /**
  * Converts an address in dot notation to integer
  *
@@ -416,13 +410,6 @@ if ( ! NetIP.atoi ) {
  */
 NetIP.atoi = function(value)
 {
-//	return String(value)
-//		.split('.')
-//		.reduce(function(a, b)
-//		{
-//			return a * 0x100 + Number(b);
-//		}, 0);
-
 	var bytes = String(value).split('.');
 	var result = 0;
 
@@ -432,10 +419,6 @@ NetIP.atoi = function(value)
 
 	return result;
 };
-
-}
-
-if ( ! NetIP.isBitmask ) {
 
 /**
  * Validate a value as bitmask in range 1 to 32
@@ -450,10 +433,6 @@ NetIP.isBitmask = function(value)
 	return bitmask == value && bitmask >= 1 && bitmask <= 32;
 };
 
-}
-
-if ( ! NetIP.isIP ) {
-
 /**
  * Validate a value as address in dot notation
  *
@@ -465,10 +444,6 @@ NetIP.isIP = function(value)
 {
 	return String(value).match(/^\s*(?:([01]?\d\d?|2[0-4]\d|25[0-5])\.)(?:([01]?\d\d?|2[0-4]\d|25[0-5])\.)(?:([01]?\d\d?|2[0-4]\d|25[0-5])\.)([01]?\d\d?|2[0-4]\d|25[0-5])\s*$/);
 };
-
-}
-
-if ( ! NetIP.isNetmask ) {
 
 /**
  * Validate a value as netmask (both direct and inverse)
@@ -491,10 +466,6 @@ NetIP.isNetmask = function(value)
 	ip.setNetmask(value);
 	return value === ip.getNetmask() || value === ip.getNetmask(true);
 };
-
-}
-
-if ( ! NetIP.itoa ) {
 
 /**
  * Converts an integer value to address in dot notation
@@ -533,78 +504,6 @@ NetIP.itoa = function(value, radix)
 		bytes[i] = (padding + bytes[i].toString(radix).toUpperCase()).slice(-padding.length);
 	}
 
-//	var bytes = [
-//		((value >>> 0x18) & 0xff)[radix](width, "0"),
-//		((value >>> 0x10) & 0xff)[radix](width, "0"),
-//		((value >>> 0x08) & 0xff)[radix](width, "0"),
-//		(value & 0xff)[radix](width, "0")];
-
 	return bytes.join('.');
 };
-
-}
-
-if ( ! Number.prototype.itoa ) {
-
-/**
- * Wrapper for the NetIP.itoa()
- *
- * @param	Integer	radix
- * @return	String
- * @access	public
- */
-Number.prototype.itoa = function(radix)
-{
-	return NetIP.itoa(this, radix);
-};
-
-}
-
-if ( ! String.prototype.atoi ) {
-
-/**
- * Wrapper for the NetIP.atoi()
- *
- * @param	void
- * @return	Integer
- * @access	public
- */
-String.prototype.atoi = function()
-{
-	return NetIP.atoi(this);
-};
-
-}
-
-if ( ! String.prototype.isIP ) {
-
-/**
- * Wrapper for the NetIP.isIP()
- *
- * @param	void
- * @return	Boolean
- * @access	public
- */
-String.prototype.isIP = function()
-{
-	return NetIP.isIP(this);
-};
-
-}
-
-if ( ! String.prototype.isNetmask ) {
-
-/**
- * Wrapper for the NetIP.isNetmask()
- *
- * @param	void
- * @return	Boolean
- * @access	public
- */
-String.prototype.isNetmask = function()
-{
-	return NetIP.isNetmask(this);
-};
-
-}
 
