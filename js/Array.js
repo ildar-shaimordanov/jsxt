@@ -6,6 +6,27 @@
 // Copyright (c) 2005, 2006, 2007, 2011 by Ildar Shaimordanov
 //
 
+if ( ! Array.isArray ) {
+
+/**
+ * Returns true if a variable is an array, false if it is not.
+ *
+ * @description
+ * Returns true if a variable is an array, false otherwise. This function is part of the ECMAScript5 scripting standard. 
+ *
+ * @param	Object
+ * @return	Boolean
+ * @access	static
+ *
+ * @see	https://developer.mozilla.org/web-tech/2010/07/26/determining-with-absolute-accuracy-whether-or-not-a-javascript-object-is-an-array
+ * @see	https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Array/isArray
+ */
+Array.isArray = function(object)
+{
+	return Object.prototype.toString.call(object) === '[object Array]';
+};
+
+}
 
 if ( ! Array.prototype.every ) {
 
