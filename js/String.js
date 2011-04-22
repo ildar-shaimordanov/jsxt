@@ -173,7 +173,7 @@ Number.prototype.hexl = function(n, c)
  */
 Number.prototype.hex = function(n, c)
 {
-	return this.radix(value, 0x10, n, c).toUpperCase();
+	return this.radix(0x10, n, c).toUpperCase();
 };
 
 /**

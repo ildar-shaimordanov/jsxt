@@ -11,358 +11,21 @@
 
 function NetIP()
 {
+	var privates = {
+		// IP address
+		address: 0, 
 
-	// {{{ properties
+		// Bitmask of network
+		bitmask: 24, 
 
-	/**
-	 * Reference to the NetIP object
-	 *
-	 * @var
-	 * @access	private
-	 */
-	var self = this;
-
-	/**
-	 * Map of bitmasks to networks
-	 *
-	 * @var
-	 * @access	private
-	 */
-	var netmaskMap = [
-		0x00000000,
-
-		0x80000000,
-		0xC0000000,
-		0xE0000000,
-		0xF0000000,
-		0xF8000000,
-		0xFC000000,
-		0xFE000000,
-
-		// class A
-		0xFF000000,
-		0xFF800000,
-		0xFFC00000,
-		0xFFE00000,
-		0xFFF00000,
-		0xFFF80000,
-		0xFFFC0000,
-		0xFFFE0000,
-
-		// class B
-		0xFFFF0000,
-		0xFFFF8000,
-		0xFFFFC000,
-		0xFFFFE000,
-		0xFFFFF000,
-		0xFFFFF800,
-		0xFFFFFC00,
-		0xFFFFFE00,
-
-		// class C
-		0xFFFFFF00,
-		0xFFFFFF80,
-		0xFFFFFFC0,
-		0xFFFFFFE0,
-		0xFFFFFFF0,
-		0xFFFFFFF8,
-		0xFFFFFFFC,
-
-		0xFFFFFFFE,
-		0xFFFFFFFF];
-
-	/**
-	 * IP address
-	 *
-	 * @var
-	 * @access	private
-	 */
-	var address = 0;
-
-	/**
-	 * Bitmask of network
-	 *
-	 * @var
-	 * @access	private
-	 */
-	var bitmask = 24;
-
-	/**
-	 * Network address
-	 *
-	 * @var
-	 * @access	private
-	 */
-	var network;
-
-	// }}}
-	// {{{ methods
-
-	/**
-	 * object.contains(value)
-	 *
-	 * Checks the address is in this network.
-	 * The address may be a NetIP object, a CIDR string or an array
-	 *
-	 * @param	NetIP	object
-	 * @param	Mixed	value
-	 * @return	Boolean
-	 * @access	public
-	 */
-	self.contains = function(value)
-	{
-		var ip = new NetIP(value);
-		return ip.getAddress() >= self.getNetwork() && ip.getAddress() <= self.getBroadcast();
+		// Network address
+		network: 0
 	};
 
-	/**
-	 * object.equals(value)
-	 *
-	 * Checks that the value is equal to this address.
-	 * The value may be a NetIP object, a CIDR string or an array
-	 *
-	 * @param	NetIP	object
-	 * @param	Mixed	value
-	 * @return	Boolean
-	 * @access	public
-	 */
-	self.equals = function(value)
+	this.getPrivates = function()
 	{
-		var ip = new NetIP(value);
-		return ip.getAddress() == self.getAddress();
+		return privates;
 	};
-
-	/**
-	 * object.getAddress()
-	 *
-	 * Returns the address
-	 *
-	 * @param	NetIP	object
-	 * @param	void
-	 * @return	Integer
-	 * @access	public
-	 */
-	self.getAddress = function()
-	{
-		return address;
-	};
-
-	/**
-	 * object.getBitmask()
-	 *
-	 * Returns the bitmask for this network
-	 *
-	 * @param	NetIP	object
-	 * @param	void
-	 * @return	Integer
-	 * @access	public
-	 */
-	self.getBitmask = function()
-	{
-		return bitmask;
-	};
-
-	/**
-	 * object.getBroadcast()
-	 *
-	 * Returns the broadcast address
-	 *
-	 * @param	NetIP	object
-	 * @param	void
-	 * @return	Integer
-	 * @access	public
-	 */
-	self.getBroadcast = function()
-	{
-		return self.getNetwork() + self.getNetmask(true);
-	};
-
-	/**
-	 * object.getFirstAddress()
-	 *
-	 * Returns the first address for this network
-	 *
-	 * @param	NetIP	object
-	 * @param	void
-	 * @return	Integer
-	 * @access	public
-	 */
-	self.getFirstAddress = function()
-	{
-		return self.getNetwork() + 1;
-	};
-
-	/**
-	 * object.getLastAddress()
-	 *
-	 * Returns the last address for this network
-	 *
-	 * @param	NetIP	object
-	 * @param	void
-	 * @return	Integer
-	 * @access	public
-	 */
-	self.getLastAddress = function()
-	{
-		return self.getBroadcast() - 1;
-	};
-
-	/**
-	 * object.getNetmask(inverse)
-	 *
-	 * Returns the netmask (direct or inverse)
-	 *
-	 * @param	NetIP	object
-	 * @param	Boolean	inverse
-	 * @return	Integer
-	 * @access	public
-	 */
-	self.getNetmask = function(inverse)
-	{
-		var mask = netmaskMap[self.getBitmask()];
-		return inverse ? mask ^ 0xffffffff : mask;
-	};
-
-	/**
-	 * object.getNetwork()
-	 *
-	 * Returns the address of this network
-	 *
-	 * @param	NetIP	object
-	 * @param	void
-	 * @return	Integer
-	 * @access	public
-	 */
-	self.getNetwork = function()
-	{
-		return network;
-	};
-
-	/**
-	 * object.length()
-	 *
-	 * Returns the length of this network
-	 *
-	 * @param	NetIP	object
-	 * @param	void
-	 * @return	Integer
-	 * @access	public
-	 */
-	self.length = function()
-	{
-		var count = self.getBroadcast() - self.getFirstAddress();
-		return count < 0 ? 0 : count;
-	};
-
-	/**
-	 * object.setAddress(value)
-	 *
-	 * Sets the address
-	 *
-	 * @param	NetIP	object
-	 * @param	Integer, String
-	 * @return	void
-	 * @access	public
-	 */
-	self.setAddress = function(value)
-	{
-		if ( NetIP.isIP(value) ) {
-			value = NetIP.atoi(value);
-		}
-		address = Number(value);
-		setNetwork();
-	};
-
-	/**
-	 * object.setBitmask(value)
-	 *
-	 * Sets the bitmask
-	 *
-	 * @param	NetIP	object
-	 * @param	Integer, String
-	 * @return	void
-	 * @access	public
-	 */
-	self.setBitmask = function(value)
-	{
-		if ( String(value).match(/^\/\d+$/) ) {
-			value = value.substr(1);
-		}
-
-		if ( ! NetIP.isBitmask(value) ) {
-			return;
-		}
-
-		bitmask = Number(value);
-		setNetwork();
-	};
-
-	/**
-	 * object.setNetmask(value)
-	 *
-	 * Sets the netmask
-	 *
-	 * @param	NetIP	object
-	 * @param	Integer, String
-	 * @return	void
-	 * @access	public
-	 */
-	self.setNetmask = function(value)
-	{
-		if ( NetIP.isIP(value) ) {
-			value = NetIP.atoi(value);
-		}
-		if ( value < netmaskMap[1] ) {
-			value ^= 0xffffffff;
-		}
-		if ( value < 0 ) {
-			value += 0x100000000;
-		}
-
-//		var i = netmaskMap.lastIndexOf(Number(value));
-
-		var i = netmaskMap.length - 1;
-		while ( i && netmaskMap[i] != value ) {
-			i--;
-		}
-
-		self.setBitmask(i);
-	};
-
-	/**
-	 * Sets the address of this network
-	 *
-	 * @param	void
-	 * @return	void
-	 * @access	private
-	 */
-	function setNetwork()
-	{
-		network = self.getAddress() & self.getNetmask();
-		if ( network < 0 ) {
-			network += 0x100000000;
-		}
-	};
-
-	/**
-	 * object.toString(netmask)
-	 *
-	 * Converts the NetIP object to the string and returns it.
-	 * The resulting string might be in the format 
-	 * as address/bitmask or address/netmask.
-	 *
-	 * @param	NetIP	object
-	 * @param	Boolean
-	 * @return	String
-	 * @access	public
-	 */
-	self.toString = function(netmask)
-	{
-		return NetIP.itoa(self.getAddress()) + '/' + ( netmask ? NetIP.itoa(self.getNetmask()) : self.getBitmask() );
-	};
-
-	// }}}
-	// {{{ constructor
 
 	var ip = arguments[0];
 	var pos;
@@ -386,20 +49,66 @@ function NetIP()
 		// new NetIP(addr, mask)
 		// new NetIP(addr)
 		// new NetIP()
-		addr = arguments[0] || address;
-		mask = arguments[1] || bitmask;
+		addr = arguments[0] || privates.address;
+		mask = arguments[1] || privates.bitmask;
 	}
 
-	self.setAddress(addr);
+	this.setAddress(addr);
 	if ( NetIP.isBitmask(mask) ) {
-		self.setBitmask(mask);
+		this.setBitmask(mask);
 	} else {
-		self.setNetmask(mask);
+		this.setNetmask(mask);
 	}
-
-	// }}}
-
 };
+
+/**
+ * Map of bitmasks to networks
+ *
+ * @var
+ * @access	private
+ */
+NetIP.netmaskMap = [
+	0x00000000,
+
+	0x80000000,
+	0xC0000000,
+	0xE0000000,
+	0xF0000000,
+	0xF8000000,
+	0xFC000000,
+	0xFE000000,
+
+	// class A
+	0xFF000000,
+	0xFF800000,
+	0xFFC00000,
+	0xFFE00000,
+	0xFFF00000,
+	0xFFF80000,
+	0xFFFC0000,
+	0xFFFE0000,
+
+	// class B
+	0xFFFF0000,
+	0xFFFF8000,
+	0xFFFFC000,
+	0xFFFFE000,
+	0xFFFFF000,
+	0xFFFFF800,
+	0xFFFFFC00,
+	0xFFFFFE00,
+
+	// class C
+	0xFFFFFF00,
+	0xFFFFFF80,
+	0xFFFFFFC0,
+	0xFFFFFFE0,
+	0xFFFFFFF0,
+	0xFFFFFFF8,
+	0xFFFFFFFC,
+
+	0xFFFFFFFE,
+	0xFFFFFFFF];
 
 /**
  * Converts an address in dot notation to integer
@@ -442,7 +151,7 @@ NetIP.isBitmask = function(value)
  */
 NetIP.isIP = function(value)
 {
-	return String(value).match(/^\s*(?:([01]?\d\d?|2[0-4]\d|25[0-5])\.)(?:([01]?\d\d?|2[0-4]\d|25[0-5])\.)(?:([01]?\d\d?|2[0-4]\d|25[0-5])\.)([01]?\d\d?|2[0-4]\d|25[0-5])\s*$/);
+	return !! String(value).match(/^\s*(?:([01]?\d\d?|2[0-4]\d|25[0-5])\.)(?:([01]?\d\d?|2[0-4]\d|25[0-5])\.)(?:([01]?\d\d?|2[0-4]\d|25[0-5])\.)([01]?\d\d?|2[0-4]\d|25[0-5])\s*$/);
 };
 
 /**
@@ -459,12 +168,13 @@ NetIP.isNetmask = function(value)
 	}
 
 	if ( typeof value == 'string' ) {
-		value = value.atoi();
+		value = NetIP.atoi(value);
 	}
 
 	var ip = new NetIP();
 	ip.setNetmask(value);
-	return value === ip.getNetmask() || value === ip.getNetmask(true);
+
+	return value == ip.getNetmask() || value == ip.getNetmask(true);
 };
 
 /**
@@ -507,3 +217,271 @@ NetIP.itoa = function(value, radix)
 	return bytes.join('.');
 };
 
+/**
+ * object.contains(value)
+ *
+ * Checks the address is in this network.
+ * The address may be a NetIP object, a CIDR string or an array
+ *
+ * @param	NetIP	object
+ * @param	Mixed	value
+ * @return	Boolean
+ * @access	public
+ */
+NetIP.prototype.contains = function(value)
+{
+	var ip = new NetIP(value);
+	return ip.getAddress() >= this.getNetwork() && ip.getAddress() <= this.getBroadcast();
+};
+
+/**
+ * object.equals(value)
+ *
+ * Checks that the value is equal to this address.
+ * The value may be a NetIP object, a CIDR string or an array
+ *
+ * @param	NetIP	object
+ * @param	Mixed	value
+ * @return	Boolean
+ * @access	public
+ */
+NetIP.prototype.equals = function(value)
+{
+	var ip = new NetIP(value);
+	return ip.getAddress() == this.getAddress();
+};
+
+/**
+ * object.getAddress()
+ *
+ * Returns the address
+ *
+ * @param	NetIP	object
+ * @param	void
+ * @return	Integer
+ * @access	public
+ */
+NetIP.prototype.getAddress = function()
+{
+	return this.getPrivates().address;
+};
+
+/**
+ * object.getBitmask()
+ *
+ * Returns the bitmask for this network
+ *
+ * @param	NetIP	object
+ * @param	void
+ * @return	Integer
+ * @access	public
+ */
+NetIP.prototype.getBitmask = function()
+{
+	return this.getPrivates().bitmask;
+};
+
+/**
+ * object.getBroadcast()
+ *
+ * Returns the broadcast address
+ *
+ * @param	NetIP	object
+ * @param	void
+ * @return	Integer
+ * @access	public
+ */
+NetIP.prototype.getBroadcast = function()
+{
+	return this.getNetwork() + this.getNetmask(true);
+};
+
+/**
+ * object.getFirstAddress()
+ *
+ * Returns the first address for this network
+ *
+ * @param	NetIP	object
+ * @param	void
+ * @return	Integer
+ * @access	public
+ */
+NetIP.prototype.getFirstAddress = function()
+{
+	return this.getNetwork() + 1;
+};
+
+/**
+ * object.getLastAddress()
+ *
+ * Returns the last address for this network
+ *
+ * @param	NetIP	object
+ * @param	void
+ * @return	Integer
+ * @access	public
+ */
+NetIP.prototype.getLastAddress = function()
+{
+	return this.getBroadcast() - 1;
+};
+
+/**
+ * object.getNetmask(inverse)
+ *
+ * Returns the netmask (direct or inverse)
+ *
+ * @param	NetIP	object
+ * @param	Boolean	inverse
+ * @return	Integer
+ * @access	public
+ */
+NetIP.prototype.getNetmask = function(inverse)
+{
+	var mask = NetIP.netmaskMap[this.getBitmask()];
+	return inverse ? mask ^ 0xffffffff : mask;
+};
+
+/**
+ * object.getNetwork()
+ *
+ * Returns the address of this network
+ *
+ * @param	NetIP	object
+ * @param	void
+ * @return	Integer
+ * @access	public
+ */
+NetIP.prototype.getNetwork = function()
+{
+	return this.getPrivates().network;
+};
+
+/**
+ * object.length()
+ *
+ * Returns the length of this network
+ *
+ * @param	NetIP	object
+ * @param	void
+ * @return	Integer
+ * @access	public
+ */
+NetIP.prototype.length = function()
+{
+	var count = this.getBroadcast() - this.getFirstAddress();
+	return count < 0 ? 0 : count;
+};
+
+(function()
+{
+
+/**
+ * Sets the address of this network
+ *
+ * @param	void
+ * @return	void
+ * @access	private
+ */
+var adjustNetwork = function(ip)
+{
+	var p = ip.getPrivates();
+	p.network = ip.getAddress() & ip.getNetmask();
+	if ( p.network < 0 ) {
+		p.network += 0x100000000;
+	}
+};
+
+/**
+ * object.setAddress(value)
+ *
+ * Sets the address
+ *
+ * @param	NetIP	object
+ * @param	Integer, String
+ * @return	void
+ * @access	public
+ */
+NetIP.prototype.setAddress = function(value)
+{
+	if ( NetIP.isIP(value) ) {
+		value = NetIP.atoi(value);
+	}
+	this.getPrivates().address = Number(value);
+	adjustNetwork(this);
+};
+
+/**
+ * object.setBitmask(value)
+ *
+ * Sets the bitmask
+ *
+ * @param	NetIP	object
+ * @param	Integer, String
+ * @return	void
+ * @access	public
+ */
+NetIP.prototype.setBitmask = function(value)
+{
+	if ( String(value).match(/^\/\d+$/) ) {
+		value = value.substr(1);
+	}
+
+	if ( ! NetIP.isBitmask(value) ) {
+		return;
+	}
+
+	this.getPrivates().bitmask = Number(value);
+	adjustNetwork(this);
+};
+
+})();
+
+/**
+ * object.setNetmask(value)
+ *
+ * Sets the netmask
+ *
+ * @param	NetIP	object
+ * @param	Integer, String
+ * @return	void
+ * @access	public
+ */
+NetIP.prototype.setNetmask = function(value)
+{
+	if ( NetIP.isIP(value) ) {
+		value = NetIP.atoi(value);
+	}
+	if ( value < NetIP.netmaskMap[1] ) {
+		value ^= 0xffffffff;
+	}
+	if ( value < 0 ) {
+		value += 0x100000000;
+	}
+
+//	var i = NetIP.netmaskMap.lastIndexOf(Number(value));
+
+	var i = NetIP.netmaskMap.length - 1;
+	while ( i && NetIP.netmaskMap[i] != value ) {
+		i--;
+	}
+
+	this.setBitmask(i);
+};
+
+/**
+ * object.toString(netmask)
+ *
+ * Converts the NetIP object to the string and returns it.
+ * The resulting string might be in the format 
+ * as address/bitmask or address/netmask.
+ *
+ * @param	NetIP	object
+ * @param	Boolean
+ * @return	String
+ * @access	public
+ */
+NetIP.prototype.toString = function(netmask)
+{
+	return NetIP.itoa(this.getAddress()) + '/' + ( netmask ? NetIP.itoa(this.getNetmask()) : this.getBitmask() );
+};
