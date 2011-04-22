@@ -39,7 +39,7 @@ if ( ! Function.prototype.bind ) {
  *
  * @see		https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Function/bind
  */
-Function.prototype.bind = function(context /*, arg1, arg2... */)
+Function.prototype.bind = function(context)
 {
 	'use strict';
 	if ( typeof this !== 'function' ) {

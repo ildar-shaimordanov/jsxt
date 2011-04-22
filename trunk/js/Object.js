@@ -232,8 +232,8 @@ Object.isUndefined = function(value)
  *
  * This method is the same as forEach for Array but for Object. 
  * 
- * skipFunction=true tells to exclude methods from the result.
- * By default, all properties are iterated (including methods too). 
+ * func=true tells to include methods to the result.
+ * By default, non-function properties only are iterated 
  *
  * @param	Callback
  * @param	Boolean
@@ -241,7 +241,7 @@ Object.isUndefined = function(value)
  * @access	public
  * @see		http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Array:forEach
  */
-Object.forItems = function(object, fun, skipFunction, thisp)
+Object.forItems = function(object, fun, func, thisp)
 {
 	if ( typeof fun != "function" ) {
 		throw new TypeError();
@@ -251,7 +251,7 @@ Object.forItems = function(object, fun, skipFunction, thisp)
 		if ( ! object.hasOwnProperty(p) ) {
 			continue;
 		}
-		if ( skipFunction && 'function' == typeof object[p] ) {
+		if ( ! func && 'function' == typeof object[p] ) {
 			continue;
 		}
 		fun.call(thisp, object[p], p, object);
@@ -263,98 +263,33 @@ Object.forItems = function(object, fun, skipFunction, thisp)
  * skipFunction=true tells to exclude methods from the result.
  * By default, all properties are iterated (including methods too). 
  *
+ * The second arguments provides options affecting on the result. 
+ * Options are:
+ * -- func
+ * Boolean value controls the visibility of functions. The default value is 0. 
+ * (0 - no functions, 1 - walk through functions)
+ * -- proto
+ * Boolean value controls the visibility properties from the prototype of the oject. 
+ * The default value is false. (0 - no properties from prototype, 1 - walk through prototype properties) 
+ *
  * @param	Boolean
  * @return	Array
  * @access	public
  */
-Object.keys = function(object, skipFunction)
+Object.keys = function(object)
 {
+	var options = arguments[1] || {};
+
 	var result = [];
 
 	for (var p in object) {
-		if ( ! object.hasOwnProperty(p) ) {
+		if ( ! object.hasOwnProperty(p) && ! options.proto ) {
 			continue;
 		}
-		if ( skipFunction && 'function' == typeof object[p] ) {
+		if ( ! options.func && 'function' == typeof object[p] ) {
 			continue;
 		}
 		result.push(p);
-	}
-
-	return result;
-};
-
-/**
- * Populates and returns array of the object's values.
- * skipFunction=true tells to exclude methods from the result.
- * By default, all properties are iterated (including methods too). 
- *
- * @param	Boolean
- * @return	Array
- * @access	public
- */
-Object.values = function(object, skipFunction)
-{
-	var result = [];
-
-	for (var p in object) {
-		if ( ! object.hasOwnProperty(p) ) {
-			continue;
-		}
-		if ( skipFunction && 'function' == typeof object[p] ) {
-			continue;
-		}
-		result.push(object[p]);
-	}
-
-	return result;
-};
-
-/**
- * Converts an object to an array.
- *
- * @Description
- * toArray executes the provided function (callback) once for each element 
- * present in the object. callback is invoked for each element of the array 
- * and return new item to be inserted into the array. 
- * 
- * callback is invoked with three arguments: 
- * - the value of the element, 
- * - the key of the element, 
- * - and the Object object being traversed.
- * 
- * skipFunction=true tells to exclude methods from the result.
- * By default, all properties are iterated (including methods too). 
- *
- * If a thisObject parameter is provided to toArray, it will be used as the 
- * this for each invocation of the callback. If it is not provided, or is 
- * null, the global object associated with callback is used instead. 
- * 
- * If a thisObject parameter is provided to toArray, it will be used as the 
- * this for each invocation of the callback. If it is not provided, or is 
- * null, the global object associated with callback is used instead. 
- * 
- * @param	Callback
- * @param	Boolean
- * @return	void
- * @access	public
- */
-Object.toArray = function(object, fun, skipFunction, thisp)
-{
-	if ( typeof fun != "function" ) {
-		throw new TypeError();
-	}
-
-	var result = [];
-
-	for (var p in object) {
-		if ( ! object.hasOwnProperty(p) ) {
-			continue;
-		}
-		if ( skipFunction && 'function' == typeof object[p] ) {
-			continue;
-		}
-		result.push(fun.call(thisp, object[p], p, object));
 	}
 
 	return result;
