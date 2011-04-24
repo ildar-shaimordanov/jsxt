@@ -373,7 +373,7 @@ function _dump(object)
 				v = arguments.callee(object[k]);
 				if ( v === '' ) {
 					// Sure that any property will return non-empty string
-					// Only functions can return an empty string with walkFunction == 0
+					// Only functions can return an empty string with func  == 0
 					continue;
 				}
 			}
