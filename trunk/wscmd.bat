@@ -8,7 +8,7 @@ setlocal enabledelayedexpansion
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.12.1 Beta
+set wscmd.version=0.12.2 Beta
 
 
 :: Parse command line arguments and set needful variables
@@ -208,6 +208,17 @@ echo.
 echo.var quit = exit = function^(^)
 echo.{
 echo.    WScript.Quit^(arguments[0]^);
+echo.};
+echo.
+echo.var cmd = shell = function^(^)
+echo.{
+echo.	var shell = WScript.CreateObject^('WSCript.Shell'^);
+echo.	shell.run^('cmd'^);
+echo.};
+echo.
+echo.var sleep = function^(time^)
+echo.{
+echo.	return WScript.Sleep^(time^);
 echo.};
 echo.
 echo.]]^>^</script^>
