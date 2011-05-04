@@ -37,7 +37,7 @@ eval.minify = function(input, options)
 		comment = comment.join('\n// ');
 	}
 	if ( comment.length > 0 ) {
-		comment = '// ' + comment + '\n';
+		comment = '// ' + comment;
 	}
 
 	return jsmin(comment, input, level);

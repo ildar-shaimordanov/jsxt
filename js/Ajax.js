@@ -139,7 +139,10 @@ Ajax.create = function()
 	var IDs = [
 //		'WinHttp.WinHttpRequest.5.1', 
 //		'WinHttp.WinHttpRequest.5.0', 
-		'Msxml2.XMLHTTP', 
+//		'MSXML2.XMLHttp.5.0', 
+//		'MSXML2.XMLHttp.4.0', 
+//		'MSXML2.XMLHttp.3.0', 
+		'Msxml2.XMLHttp', 
 		'Microsoft.XMLHTTP'];
 
 	for (var i = 0; i < IDs.length; i++) {
