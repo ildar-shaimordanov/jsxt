@@ -116,6 +116,51 @@ FileSystem.appendFile = function(output, text, create, format)
 
 })();
 
+(function()
+{
+
+/**
+ * Transforms standard DOS-wildcards to native Javascript regular expressions
+ *
+ * @example
+ * var w = '*.js';
+ * var r = wildcard(wc, 0); // is string: '.*?\.js'
+ * var q = wildcard(wc, 1); // is regexp: /.*?\.js/
+ *
+ * @param	string|array	wildcard
+ * @param	boolean	if is TRUE, then return a regular expression
+ * @return	string|regep
+ * @access	static
+ */
+var _wildcard2regexp = function(wildcard, returnRegex)
+{
+	var pattern = wildcard
+		.replace(/([\^\$\\\/\|\.\+\!\[\]\(\)\{\}])/g, '\\$1')
+		.replace(/\?/g, '.?')
+		.replace(/\*/g, '.*?')
+		;
+	return returnRegex 
+		? new RegExp(pattern) 
+		: pattern;
+};
+
+FileSystem.wildcard2regexp = function(wildcard, returnRegexp)
+{
+	if ( Object.prototype.toString.call(wildcard) == '[object String]' ) {
+		return _wildcard2regexp.apply(null, arguments);
+	}
+
+	var result = [];
+	for (var i = 0; i < wildcard.length; i++) {
+		if ( i in wildcard ) {
+			result.push(_wildcard2regexp(wildcard[i]));
+		}
+	}
+	return new RegExp(result.join('|'));
+};
+
+})();
+
 if ( ! FileSystem.glob ) {
 
 /**

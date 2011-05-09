@@ -5,8 +5,6 @@
 // Copyright (c) 2009 by Ildar Shaimordanov
 //
 
-if ( ! Math.GOLDEN_RATIO ) {
-
 /**
  * Returns the Golden ratio's value
  *
@@ -14,10 +12,6 @@ if ( ! Math.GOLDEN_RATIO ) {
  * @value	(Math.sqrt(5) + 1) / 2
  */
 Math.GOLDEN_RATIO = (Math.sqrt(5) + 1) / 2;
-
-}
-
-if ( ! Math.PI_2 ) {
 
 /**
  * Returns Pi / 2 value
@@ -27,10 +21,6 @@ if ( ! Math.PI_2 ) {
  */
 Math.PI_2 = Math.PI / 2;
 
-}
-
-if ( ! Math.PI_3 ) {
-
 /**
  * Returns Pi / 3 value
  *
@@ -38,10 +28,6 @@ if ( ! Math.PI_3 ) {
  * @value	Pi / 3
  */
 Math.PI_3 = Math.PI / 3;
-
-}
-
-if ( ! Math.PI_4 ) {
 
 /**
  * Returns Pi / 4 value
@@ -51,10 +37,6 @@ if ( ! Math.PI_4 ) {
  */
 Math.PI_4 = Math.PI / 4;
 
-}
-
-if ( ! Math.PI_6 ) {
-
 /**
  * Returns Pi / 6 value
  *
@@ -62,10 +44,6 @@ if ( ! Math.PI_6 ) {
  * @value	Pi / 6
  */
 Math.PI_6 = Math.PI / 6;
-
-}
-
-if ( ! Math.sign ) {
 
 /**
  * Returns the sign value of a number.
@@ -80,10 +58,6 @@ Math.sign = function(number)
 	return s == 0 ? 0 : s > 0 ? +1 : -1;
 };
 
-}
-
-if ( ! Math.square ) {
-
 /**
  * Returns the square of a number.
  *
@@ -95,10 +69,6 @@ Math.square = function(number)
 {
 	return number * number;
 };
-
-}
-
-if ( ! Math.cube ) {
 
 /**
  * Returns the cube of a number.
@@ -112,10 +82,6 @@ Math.cube = function(number)
 	return number * number * number;
 };
 
-}
-
-if ( ! Math.cubt ) {
-
 /**
  * Returns the cubic root of a number.
  *
@@ -127,10 +93,6 @@ Math.cubt = function(number)
 {
 	return Math.sign(number) * Math.pow(Math.abs(number), 1 / 3);
 };
-
-}
-
-if ( ! Math.log10 ) {
 
 /**
  * Returns the decimal logarithm of a number.
@@ -145,10 +107,6 @@ Math.lg = function(number)
 	return Math.log(number) / Math.LN10;
 };
 
-}
-
-if ( ! Math.cotan ) {
-
 /**
  * Returns the cotangent of a number.
  *
@@ -160,10 +118,6 @@ Math.cotan = function(number)
 {
 	return 1 / Math.tan(number);
 };
-
-}
-
-if ( ! Math.sec ) {
 
 /**
  * Returns the secans of a number.
@@ -177,10 +131,6 @@ Math.sec = function(number)
 	return 1 / Math.cos(number);
 };
 
-}
-
-if ( ! Math.cosec ) {
-
 /**
  * Returns the cosecans of a number.
  *
@@ -192,10 +142,6 @@ Math.cosec = function(number)
 {
 	return 1 / Math.sin(number);
 };
-
-}
-
-if ( ! Math.acotan ) {
 
 /**
  * Returns the arccotangent of a number.
@@ -209,10 +155,6 @@ Math.acotan = function(number)
 	return Math.atan(number) + Math.PI_2;
 };
 
-}
-
-if ( ! Math.asec ) {
-
 /**
  * Returns the arcsecans of a number.
  *
@@ -225,10 +167,6 @@ Math.asec = function(number)
 	return Math.atan(number / Math.sqrt(number * number - 1)) + Math.sign(number - 1) * Math.PI_2;
 };
 
-}
-
-if ( ! Math.acosec ) {
-
 /**
  * Returns the arccosecans of a number.
  *
@@ -240,10 +178,6 @@ Math.acosec = function(number)
 {
 	return Math.atan(number / Math.sqrt(number * number - 1)) + (Math.sign(number) - 1) * Math.PI_2;
 };
-
-}
-
-if ( ! Math.hsin ) {
 
 /**
  * Returns the hyperbolic sine of a number.
@@ -259,10 +193,6 @@ Math.hsin = function(number)
 	return (e - f) / 2;
 };
 
-}
-
-if ( ! Math.hcos ) {
-
 /**
  * Returns the hyperbolic cosine of a number.
  *
@@ -276,10 +206,6 @@ Math.hcos = function(number)
 	var f = 1 / e;
 	return (e + f) / 2;
 };
-
-}
-
-if ( ! Math.htan ) {
 
 /**
  * Returns the hyperbolic tangent of a number.
@@ -295,10 +221,6 @@ Math.htan = function(number)
 	return (e - f) / (e + f);
 };
 
-}
-
-if ( ! Math.hcotan ) {
-
 /**
  * Returns the hyperbolic cotangent of a number.
  *
@@ -312,10 +234,6 @@ Math.hcotan = function(number)
 	var f = 1 / e;
 	return (e + f) / (e - f);
 };
-
-}
-
-if ( ! Math.hsec ) {
 
 /**
  * Returns the hyperbolic secans of a number.
@@ -331,10 +249,6 @@ Math.hsec = function(number)
 	return 2 / (e + f);
 };
 
-}
-
-if ( ! Math.hcosec ) {
-
 /**
  * Returns the hyperbolic cosecans of a number.
  *
@@ -349,10 +263,6 @@ Math.hcosec = function(number)
 	return 2 / (e - f);
 };
 
-}
-
-if ( ! Math.hasin ) {
-
 /**
  * Returns the hyperbolic arcsine of a number.
  *
@@ -364,10 +274,6 @@ Math.hasin = function(number)
 {
 	return Math.log(number + Math.sqrt(number * number + 1));
 };
-
-}
-
-if ( ! Math.hacos ) {
 
 /**
  * Returns the hyperbolic arccosine of a number.
@@ -381,10 +287,6 @@ Math.hacos = function(number)
 	return Math.log(number + Math.sqrt(number * number - 1));
 };
 
-}
-
-if ( ! Math.hatan ) {
-
 /**
  * Returns the hyperbolic arctangent of a number.
  *
@@ -396,10 +298,6 @@ Math.hatan = function(number)
 {
 	return Math.log((1 + number) / (1 - number)) / 2;
 };
-
-}
-
-if ( ! Math.hacotan ) {
 
 /**
  * Returns the hyperbolic arccotangent of a number.
@@ -413,10 +311,6 @@ Math.hacotan = function(number)
 	return Math.log((number + 1) / (number - 1)) / 2;
 };
 
-}
-
-if ( ! Math.hasec ) {
-
 /**
  * Returns the hyperbolic arcsecans of a number.
  *
@@ -429,10 +323,6 @@ Math.hasec = function(number)
 	return Math.log((Math.sqrt(-number * number + 1) + 1) / number);
 };
 
-}
-
-if ( ! Math.hacosec ) {
-
 /**
  * Returns the hyperbolic arccosecans of a number.
  *
@@ -444,10 +334,6 @@ Math.hacosec = function(number)
 {
 	return Math.log((Sgn(number) * Math.sqrt(number * number + 1) + 1) / number);
 };
-
-}
-
-if ( ! Math.sum ) {
 
 /**
  * Returns the summa of supplied numeric expressions.
@@ -465,10 +351,6 @@ Math.sum = function()
 	return result;
 };
 
-}
-
-if ( ! Math.avg ) {
-
 /**
  * Returns the average value of supplied numeric expressions.
  *
@@ -480,10 +362,6 @@ Math.avg = function()
 {
 	return Math.sum.apply(null, arguments) / arguments.length;
 };
-
-}
-
-if ( ! Math.prd ) {
 
 /**
  * Returns the product of supplied numeric expressions.
@@ -500,10 +378,6 @@ Math.prd = function()
 	}
 	return result;
 };
-
-}
-
-if ( ! Math.dsp ) {
 
 /**
  * Returns the dispersion of supplied numeric expressions.
@@ -523,6 +397,4 @@ Math.dsp = function()
 
 	return Math.sqrt(result / arguments.length);
 };
-
-}
 

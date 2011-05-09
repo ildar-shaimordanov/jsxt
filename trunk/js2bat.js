@@ -5,85 +5,53 @@
 // Copyright (c) 2010, 2011, Ildar Shaimordanov
 //
 
-/*!
-*/
+//[requires[ js/Ajax.js ]]
+//[requires[ js/eval.js ]]
+//[requires[ tools/jsxt.tools.js ]]
+//[requires[ tools/jsxt.tools.jsCode.js ]]
+//[requires[ tools/jsxt.tools.js2bat.js ]]
+
+///////////////////////////////////////////////////////////////////////////
 
 // Display the minimal usage screen
 if ( ! WScript.FullName.match(/cscript/i) || WScript.Arguments.Named.Exists('H') ) {
-	WScript.Echo([
-		'js2bat', 
-		'Copyright (C) 2010, 2011, Ildar Shaimordanov', 
-		'Usage:',
-		'\tjs2bat [/H]',
-		'\tjs2bat [file] [/W] [/A:"string"]',
-		].join('\n'));
-
-	WScript.Quit();
+	jsxt.tools.help(
+		WScript.ScriptName.replace(/\..+?$/, ''), 
+		'Copyright (C) 2010, 2011 Ildar Shaimordanov', 
+		'', 
+		'H        - this help', 
+		'W        - force usage of WSCRIPT as a scripting host', 
+		'A:string - additional arguments for s scripting host');
+	jsxt.tools.quit();
 }
 
-// Define the script host to be launched (WSCRIPT or CSCRIPT)
-var host = WScript.Arguments.Named.Exists('W') 
-	? 'wscript'
-	: 'cscript';
+var options = {
+	// Define the script host to be launched (WSCRIPT or CSCRIPT)
+	host: WScript.Arguments.Named.Exists('W') 
+		? 'wscript'
+		: 'cscript', 
 
-// Additional arguments for the script host
-var args = WScript.Arguments.Named('A') 
-	? WScript.Arguments.Named.item('A') 
-	: '//nologo';
-
-var prolog = [
-	'@set @x=0 /*!', 
-	'@set @x=', 
-	['@', host, args, '//e:javascript "%~dpnx0" %*'].join(' '), 
-	'@goto :eof */', 
-	'', 
-	''].join('\n');
-
-var e;
-var lines;
+	// Additional arguments for the script host
+	args: WScript.Arguments.Named('A') 
+		? WScript.Arguments.Named.item('A') 
+		: '//nologo'
+};
 
 if ( WScript.Arguments.Unnamed.length == 0 ) {
-	try {
-		lines = WScript.StdIn.ReadAll();
-	} catch (e) {
-		lines = '';
-	}
-	WScript.StdOut.Write(prolog + lines);
-
-	WScript.Quit();
+	var lines = jsxt.tools.readFromConsole();
+	lines = jsxt.tools.js2bat(lines, options);
+	jsxt.tools.writeToConsole(lines);
+	jsxt.tools.quit();
 }
-
-var fso = new ActiveXObject('Scripting.FileSystemObject');
 
 for (var i = 0; i < WScript.Arguments.Unnamed.length; i++) {
-	var j_name = WScript.Arguments.Unnamed.item(i);
-	var b_name = j_name.replace(/\.js/, '.bat');
+	var i_name = WScript.Arguments.Unnamed.item(i);
+	var lines = jsxt.tools.readFromFile(i_name);
 
-	var f, h, e;
+	lines = jsxt.tools.js2bat(lines, options);
 
-	try {
-		f = fso.GetFile(j_name);
-		h = f.OpenAsTextStream();
-		lines = h.ReadAll();
-		h.Close();
-	} catch (e) {
-		// Error 62 - Input past end of file
-		// It means try to read an empty file
-		if ( (e.number & 0xffff) != 62 ) {
-			WScript.Echo('"' + j_name + '" not found.');
-			WScript.Quit(1);
-		}
-		lines = '';
-	}
-
-	try {
-		h = fso.OpenTextFile(b_name, 2, true);
-		h.Write(prolog + lines);
-		h.Close();
-	} catch (e) {
-		WScript.Echo('Cannot write to the file "' + j_name + '".');
-		WScript.Quit(1);
-	}
+	var o_name = i_name.replace(/\.js/, '.bat');
+	jsxt.tools.writeToFile(o_name, lines);
 }
 
-WScript.Quit();
+jsxt.tools.quit();

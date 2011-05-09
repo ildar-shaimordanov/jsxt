@@ -5,6 +5,7 @@ jsxt.tools.js2bat = function(text, options)
 
 	var host = options.host || 'cscript';
 	var args = options.args || '//nologo';
+
 	var prolog = [
 		'@set @x=0 /*!', 
 		'@set @x=', 
@@ -13,5 +14,5 @@ jsxt.tools.js2bat = function(text, options)
 		'', 
 		''].join('\n');
 
-	return prolog + text;
+	return prolog + this.jsCode(text, options);
 };
