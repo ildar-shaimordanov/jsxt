@@ -162,9 +162,9 @@ function netCalc()
 	var ip = new NetIP(addr, mask);
 
 	// Address frame
-	document.getElementById('address').value = ip.getAddress().itoa();
-	document.getElementById('netmaskd').value = ip.getNetmask().itoa();
-	document.getElementById('netmaski').value = ip.getNetmask(true).itoa();
+	document.getElementById('address').value = NetIP.itoa(ip.getAddress());
+	document.getElementById('netmaskd').value = NetIP.itoa(ip.getNetmask());
+	document.getElementById('netmaski').value = NetIP.itoa(ip.getNetmask(true));
 	document.getElementById('bitmask').value = ip.getBitmask();
 
 	if ( radix == 10 ) {
@@ -172,18 +172,18 @@ function netCalc()
 		document.getElementById('netmaskd_').value = ip.getNetmask();
 		document.getElementById('netmaski_').value = ip.getNetmask(true);
 	} else {
-		document.getElementById('address_').value = ip.getAddress().itoa(radix);
-		document.getElementById('netmaskd_').value = ip.getNetmask().itoa(radix);
-		document.getElementById('netmaski_').value = ip.getNetmask(true).itoa(radix);
+		document.getElementById('address_').value = NetIP.itoa(ip.getAddress(), radix);
+		document.getElementById('netmaskd_').value = NetIP.itoa(ip.getNetmask(), radix);
+		document.getElementById('netmaski_').value = NetIP.itoa(ip.getNetmask(true), radix);
 	}
 
 	// Network frame
-	document.getElementById('network').value = ip.getNetwork().itoa();
-	document.getElementById('address1').value = ip.getFirstAddress().itoa();
-	document.getElementById('addressN').value = ip.getLastAddress().itoa();
-	document.getElementById('broadcast').value = ip.getBroadcast().itoa();
+	document.getElementById('network').value = NetIP.itoa(ip.getNetwork());
+	document.getElementById('address1').value = NetIP.itoa(ip.getFirstAddress());
+	document.getElementById('addressN').value = NetIP.itoa(ip.getLastAddress());
+	document.getElementById('broadcast').value = NetIP.itoa(ip.getBroadcast());
 	document.getElementById('length').value = ip.length();
-	document.getElementById('length_').value = [ip.getFirstAddress().itoa(), ip.getLastAddress().itoa()].join(' - ');
+	document.getElementById('length_').value = [NetIP.itoa(ip.getFirstAddress()), NetIP.itoa(ip.getLastAddress())].join(' - ');
 
 	if ( radix == 10 ) {
 		document.getElementById('network_').value = ip.getNetwork();
@@ -191,10 +191,10 @@ function netCalc()
 		document.getElementById('addressN_').value = ip.getLastAddress();
 		document.getElementById('broadcast_').value = ip.getBroadcast();
 	} else {
-		document.getElementById('network_').value = ip.getNetwork().itoa(radix);
-		document.getElementById('address1_').value = ip.getFirstAddress().itoa(radix);
-		document.getElementById('addressN_').value = ip.getLastAddress().itoa(radix);
-		document.getElementById('broadcast_').value = ip.getBroadcast().itoa(radix);
+		document.getElementById('network_').value = NetIP.itoa(ip.getNetwork(), radix);
+		document.getElementById('address1_').value = NetIP.itoa(ip.getFirstAddress(), radix);
+		document.getElementById('addressN_').value = NetIP.itoa(ip.getLastAddress(), radix);
+		document.getElementById('broadcast_').value = NetIP.itoa(ip.getBroadcast(), radix);
 	}
 };
 

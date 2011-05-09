@@ -771,6 +771,37 @@ SEARCH_UNIQUE:
 };
 
 /**
+ * Creates new array from the existing removing all duplicates
+ *
+ * @xample
+ * var x = [1, 2, 1, 3, 4, 4, 5];
+ * var y = x.unique(); // y == [1, 2, 3, 4, 5]
+ *
+ * @param	Array		list
+ * @param	Function	callback
+ * @return	Array
+ * @access	public
+ */
+Array.prototype.unique = function(fun, thisp)
+{
+	fun = fun || function(value, index, orig, result)
+	{
+		return result.indexOf(value) == -1;
+	};
+
+	var result = [];
+	for (var i = 0; i < this.length; i++) {
+		if ( i in this ) {
+			var v = this[i];
+			if ( fun.call(thisp, v, i, this, result) ) {
+				result.push(v);
+			}
+		}
+	}
+	return result;
+};
+
+/**
  * Invokes the method with the arguments for all elements of 
  * the array and returns the new array. The rest of arguments 
  * will be passed to the method.
