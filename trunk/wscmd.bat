@@ -8,7 +8,7 @@ setlocal enabledelayedexpansion
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.12.2 Beta
+set wscmd.version=0.12.3 Beta
 
 
 :: Parse command line arguments and set needful variables
@@ -117,12 +117,8 @@ for %%i in ( "%wscmd.script%.ini" ".\%~n0.ini" "%~dpn0.ini" ) do (
 	if not "%%~ni" == "" if exist "%%~i" (
 		if defined wscmd.debug echo.Configuring from "%%~i">&2
 		for /f "usebackq tokens=1,* delims==" %%k in ( "%%~i" ) do (
-			set wscmd.temp=%%~l
+			call set wscmd.temp=%%~l
 			if defined wscmd.temp (
-				set wscmd.temp=!wscmd.temp:%%~d0=%~d0!
-				set wscmd.temp=!wscmd.temp:%%~p0=%~p0!
-				set wscmd.temp=!wscmd.temp:%%~n0=%~n0!
-				set wscmd.temp=!wscmd.temp:%%~x0=%~x0!
 				set wscmd.ini.%%k=!wscmd.temp!
 			)
 		)
