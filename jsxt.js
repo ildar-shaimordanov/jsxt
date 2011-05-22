@@ -24,7 +24,10 @@
 /*![[JSXT Tools Installer
 Copyright (C) 2009, 2010, 2011, Ildar Shaimordanov
 
-Usage: jsxt FILES /D:targetPath
+Usage: jsxt FILES [/D:targetPath] [/O]
+
+/D - defines the target path where processed files will be stored
+/O - use this option to overwrite an original file
 
 This is not mandatory action. You can use all these tools "as is". 
 You do not need run this untility. Download archive and place it's 
@@ -70,6 +73,9 @@ var iniOptions = {
 
 	// target directory
 	targetPath: WScript.Arguments.Named.item('D') || '',
+
+	// overwrite an original file
+	overwrite: WScript.Arguments.Named.Exists('O'), 
 
  	// minify options
 	minify: true, 
@@ -121,6 +127,8 @@ if ( processFiles.length == 0 ) {
 	jsxt.tools.quit();
 }
 
+var fso = new ActiveXObject('Scripting.FileSystemObject');
+
 processFiles.forEach(function(iname)
 {
 	iniOptions.jsFile  = !! iname.match(/\.js$/i);
@@ -151,7 +159,11 @@ processFiles.forEach(function(iname)
 
 	}
 
-	jsxt.tools.writeToFile(oname, text);
+	if ( iname != fso.GetAbsolutePathName(oname) || iniOptions.overwrite ) {
+		jsxt.tools.writeToFile(oname, text);
+	} else {
+		jsxt.tools.alert('Cannot write to the same file. Use /O option.');
+	}
 });
 
 jsxt.tools.quit();
