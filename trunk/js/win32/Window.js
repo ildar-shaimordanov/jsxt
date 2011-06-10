@@ -1,7 +1,7 @@
 
 //
-// FileSystem.js
-// Extension for FileSystemObject
+// Window.js
+// Extension for HTA
 //
 // Copyright (c) 2009, 2011 by Ildar Shaimordanov
 //
