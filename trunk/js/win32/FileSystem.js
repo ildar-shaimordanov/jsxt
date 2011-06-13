@@ -17,8 +17,6 @@ function FileSystem()
 (function()
 {
 
-if ( ! FileSystem.readFile ) {
-
 /**
  * Opens input stream or filename and reads it.
  * If input is file it will be closed.
@@ -49,8 +47,6 @@ FileSystem.readFile = function(input, iomode, format)
 	return result;
 };
 
-}
-
 var writer = function(output, text, iomode, create, format)
 {
 	var h, wasFilename;
@@ -70,8 +66,6 @@ var writer = function(output, text, iomode, create, format)
 	}
 };
 
-if ( ! FileSystem.writeFile ) {
-
 /**
  * Opens output stream or filename and writes into it.
  * If output is file it will be closed.
@@ -90,10 +84,6 @@ FileSystem.writeFile = function(output, text, create, format)
 	writer(output, text, 2, create, format);
 };
 
-}
-
-if ( ! FileSystem.appendFile ) {
-
 /**
  * Opens output stream or filename and writes to the end of file.
  * If output is file it will be closed.
@@ -111,8 +101,6 @@ FileSystem.appendFile = function(output, text, create, format)
 {
 	writer(output, text, 8, create, format);
 };
-
-}
 
 })();
 
@@ -160,8 +148,6 @@ FileSystem.wildcard2regexp = function(wildcard, returnRegexp)
 };
 
 })();
-
-if ( ! FileSystem.glob ) {
 
 /**
  * Finds pathnames matching a pattern. 
@@ -227,10 +213,6 @@ FileSystem.glob = function(pattern, foldersOnly)
 	return result;
 };
 
-}
-
-if ( ! FileSystem.GetLongPathName ) {
-
 /**
  * Calculates the long filename to the provided filespec. 
  * Resolves relative paths and short names. 
@@ -267,10 +249,6 @@ FileSystem.GetLongPathName = function(filespec, fso)
 	return ns.ParseName(name).Path;
 };
 
-}
-
-if ( ! FileSystem.GetShortPathName ) {
-
 /**
  * Calculates the short filename to the provided filespec. 
  * Resolves relative paths and short names. 
@@ -301,10 +279,6 @@ FileSystem.GetShortPathName = function(filespec, fso)
 
 	return fso[getter](filename).ShortPath;
 };
-
-}
-
-if ( ! FileSystem.BrowseForFolder ) {
 
 /**
  * Creates a dialog box that enables the user to select a folder and then returns the selected folder's path.
@@ -415,6 +389,4 @@ FileSystem.BrowseForFolder.BSF_PROFILE		= 0x28; // (40). Version 5.0. User's pro
 FileSystem.BrowseForFolder.BSF_SYSTEMx86		= 0x29; // (41). Version 5.0. System folder. A typical path is C:\Windows\System32, or C:\Windows\Syswow32 on a 64-bit computer.
 
 FileSystem.BrowseForFolder.BSF_PROGRAMFILESx86	= 0x30; // (48). Version 6.0. Program Files folder. A typical path is C:\Program Files, or C:\Program Files (X86) on a 64-bit computer.
-
-}
 
