@@ -214,14 +214,33 @@ FileSystem.glob = function(pattern, foldersOnly)
 };
 
 /**
+ * Calculates and returns a complete and unambiguous path from a provided path specification. 
+ * Resolves relative paths and short names. 
+ *
+ * @example
+ * var s = 'C:\\Windows\\..\\Program Files';
+ * 
+ * // C:\Program Files
+ * var t = FileSystem.GetAbsolutePathName(s);
+ *
+ * @param	String
+ * @return	String
+ */
+FileSystem.GetAbsolutePathName = function(filespec, fso)
+{
+	fso = fso || new ActiveXObject("Scripting.FileSystemObject");
+	return fso.GetAbsolutePathName(filespec);
+}
+
+/**
  * Calculates the long filename to the provided filespec. 
  * Resolves relative paths and short names. 
  *
  * @example
- * var s_name = 'C:\\PROGRA~1';
+ * var s = 'C:\\PROGRA~1';
  * 
  * // C:\Program Files
- * var l_name = FileSystem.getRealPath(s_name);
+ * var t = FileSystem.GetLongPathName(s);
  *
  * @param	String
  * @return	String
@@ -254,10 +273,10 @@ FileSystem.GetLongPathName = function(filespec, fso)
  * Resolves relative paths and short names. 
  *
  * @example
- * var l_name = 'C:\Program Files';
+ * var s = 'C:\\Program Files';
  * 
- * // C:\\PROGRA~1
- * var s_name = FileSystem.getRealPath(l_name);
+ * // C:\PROGRA~1
+ * var t = FileSystem.GetShortPathName(s);
  *
  * @param	String
  * @return	String
