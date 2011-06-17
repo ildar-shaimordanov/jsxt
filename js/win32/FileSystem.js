@@ -230,7 +230,7 @@ FileSystem.GetAbsolutePathName = function(filespec, fso)
 {
 	fso = fso || new ActiveXObject("Scripting.FileSystemObject");
 	return fso.GetAbsolutePathName(filespec);
-}
+};
 
 /**
  * Calculates the long filename to the provided filespec. 
