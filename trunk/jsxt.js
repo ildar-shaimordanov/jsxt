@@ -58,6 +58,7 @@ var iniOptions = {
 		'*.pl', 
 		'*.perl', 
 		'*.pm', 
+		'*.php', 
 
 		'*.js', 
 		'*.wsf', 
@@ -81,7 +82,7 @@ var iniOptions = {
 	minify: true, 
 	level: 2, 
 
-	dummy: 0
+	0: 0
 };
 
 var includePatterns = FileSystem.wildcard2regexp(iniOptions.includePatterns);
@@ -132,7 +133,7 @@ var fso = new ActiveXObject('Scripting.FileSystemObject');
 processFiles.forEach(function(iname)
 {
 	iniOptions.jsFile  = !! iname.match(/\.js$/i);
-	iniOptions.plFile  = !! iname.match(/\.(pl|perl|pm)$/i);
+	iniOptions.escaped = !! iname.match(/\.(pl|perl|pm|php)$/i);
 	iniOptions.wsfFile = !! iname.match(/\.wsf$/i);
 	iniOptions.batFile = !! iname.match(/\.bat$/i);
 
@@ -140,7 +141,10 @@ processFiles.forEach(function(iname)
 
 	var text = jsxt.tools.readFromFile(iname);
 
-	var oname = iname.replace(/.+\\/, iniOptions.targetPath + '\\');
+	var oname = iname;
+	if ( iniOptions.targetPath ) {
+		oname = oname.replace(/.+\\/, iniOptions.targetPath + '\\');
+	}
 
 	if ( iniOptions.jsFile ) {
 

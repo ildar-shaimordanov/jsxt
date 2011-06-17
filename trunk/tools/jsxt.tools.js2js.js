@@ -1,4 +1,10 @@
 
+/*
+
+Embeds one javascript file into the another one. Provides options to the 
+internally called mathod jsxt.tools.jsCode. 
+
+*/
 jsxt.tools.js2js = function(text, options)
 {
 	options = options || {};

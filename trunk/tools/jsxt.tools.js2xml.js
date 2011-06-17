@@ -1,4 +1,12 @@
 
+/*
+
+Expands the declared an external javascript file and embeds it into the 
+resulting file. Takes in account the options.escaped option to escape some 
+characters when embedding to another scripts like (Perl or PHP). Provides 
+other options to the internally called method jsxt.tools.jsCode. 
+
+*/
 jsxt.tools.js2xml = function(text, options)
 {
 	options = options || {};
@@ -13,7 +21,7 @@ jsxt.tools.js2xml = function(text, options)
 			s = that.readFromFile($1);
 			s = that.jsCode(s, options);
 
-			if ( options.plFile ) {
+			if ( options.escaped ) {
 				s = s.replace(/\\/g, '\\\\').replace(/\$/g, '\\$');
 			}
 
