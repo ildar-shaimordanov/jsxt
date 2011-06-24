@@ -14,6 +14,175 @@ function FileSystem()
 
 }
 
+/**
+ * Transforms standard DOS-wildcards to a native Javascript regular expression
+ *
+ * @example
+ * var w = ['*.js', '*.vbs'];
+ * var r = FileSystem.wildcard2regex(wc); // is regexp: /^(.*?\.js|.*?\.vbs)$/i
+ *
+ * @param	string|array	a wildcard or a list of wildcards
+ * @param	boolean	if is TRUE, then returns an array of patterns, no regexp
+ * @param	boolean	if is TRUE, then makes strict pattern (any character excepting the backslash "\\")
+ * @return	regexp|array
+ * @access	static
+ */
+FileSystem.wildcard2regex = function(wildcard, skipRegexp, strictly)
+{
+	var convert = arguments.callee[strictly ? 'strictly' : 'std'];
+
+	var result = [];
+	if ( Object.prototype.toString.call(wildcard) == '[object String]' ) {
+		result.push(convert(wildcard));
+	} else {
+		for (var i = 0; i < wildcard.length; i++) {
+			result.push(convert(wildcard[i]));
+		}
+	}
+
+	return skipRegexp 
+		? result 
+		: new RegExp('^(' + result.join('|') + ')$', 'i');
+};
+
+FileSystem.wildcard2regex.strictly = function(wildcard)
+{
+	var result = wildcard
+		.replace(/([\^\$\\\/\|\.\+\!\[\]\(\)\{\}])/g, '\\$1')
+		.replace(/\?/g, '[^\\\\]?')
+		.replace(/\*/g, '[^\\\\]*')
+		;
+	return result;
+};
+
+FileSystem.wildcard2regex.std = function(wildcard)
+{
+	var result = wildcard
+		.replace(/([\^\$\\\/\|\.\+\!\[\]\(\)\{\}])/g, '\\$1')
+		.replace(/\?/g, '.?')
+		.replace(/\*/g, '.*?')
+		;
+	return result;
+};
+
+/**
+ * The fastest looking for files/folders specified by options.
+ * The options are:
+ * -- path - string defines the folder where a search should be performed
+ * -- pattern - string/array of strings defines wildcards to be searched
+ * -- included - string/array of strings defines wildcards for files that should be leaved in the resulting list
+ * -- excluded - strinfg/array of strings defines wildcards for files that should be excluded from the resulting list
+ * -- fiolders - boolean indicates for searching of folders instead files
+ * -- recursive -- bollean indicates that a search should be performed for all subfolders recursively
+ * -- filter - function is used for aditional filtration of the resulting list, accepts full pathname, index and an observed array
+ * -- codepage - string indicates a codepage for the DOS command "CHCP", is used if it differs of a script's codepage
+ * 
+ * Returns an array containing the matched files/folders.
+ *
+ * @code
+ * <code>
+ * // Example 1
+ * // Get all files from the current directory
+ * var filelist = FileSystem.find();
+ * 
+ * // Example 2
+ * // Get all files with names x* and z*, excluding *.dll from the specified folder
+ * var options = {
+ * 	path: 'C:\\Windows\\System32', 
+ * 
+ * 	pattern: '*', 
+ * 	included: ['x*', 'z*'], 
+ * 	excluded: '*.dll'
+ * };
+ *
+ * var filelist = FileSystem.find(options);
+ * </code>
+ *
+ * @param	object	Options, modifying the resulting list
+ * @return	Array
+ * @access	static
+ */
+FileSystem.find = function(options)
+{
+	options = options || {};
+
+	// Normalize a path
+	var path = (new ActiveXObject('Scripting.FileSystemObject')).GetAbsolutePathName(options.path);
+	if ( path.slice(-2) != ':\\' ) {
+		path += '\\';
+	}
+
+	// Set auxiliary parameters:
+	// f - find folders only
+	var f;
+	if ( options.folders ) {
+		f = ' /ad ';
+	} else {
+		f = ' /a-d ';
+	}
+
+	// p - path to an object of FS
+	// s - recursive search
+	// b - left border of a pattern
+	var p;
+	var s;
+	var b;
+	if ( options.recursive ) {
+		p = '';
+		s = ' /s ';
+		b = ' \\\\';
+	} else {
+		p = path;
+		s = '';
+		b = ' ^';
+	}
+
+	// Construct the shell command that would be executed
+	var cmd = '';
+	if ( options.codepage ) {
+		cmd += 'cmd /c chcp ' + options.codepage + ' && ';
+	}
+	cmd += 'cmd /c dir /b ' + f + s + '"' + path + [].concat(options.pattern || '*').join('" "' + path) + '"';
+	if ( options.included ) {
+		cmd += ' | findstr /i /e "' + b + FileSystem.wildcard2regex(options.included, true, true).join(b) + '"';
+	}
+	if ( options.excluded ) {
+		cmd += ' | findstr /v /i /e "' + b + FileSystem.wildcard2regex(options.excluded, true, true).join(b) + '"';
+	}
+
+	// Storing the command for debugging reasons
+	arguments.callee.cmd = cmd;
+
+	// Perform the shell command ...
+	var sh = new ActiveXObject('WScript.Shell');
+	var ex = sh.Exec(cmd);
+
+	// ... and collect each string from the output to the resulting array
+	var result = [];
+	while ( ex.Status == 0 ) {
+		if ( ex.StdOut.AtEndOfStream ) {
+			break;
+		}
+		result.push(p + ex.StdOut.ReadLine());
+	}
+	while ( ! ex.StdOut.AtEndOfStream ) {
+		result.push(p + ex.StdOut.ReadLine());
+	}
+
+	if ( typeof options.filter != 'function' ) {
+		return result;
+	}
+
+	// Perform the filtering function
+	var filtered = [];
+	for (var i = 0; i < result.length; i++) {
+		if ( options.filter(result[i], i, result) ) {
+			filtered.push(result[i]);
+		}
+	}
+	return filtered;
+};
+
 (function()
 {
 
