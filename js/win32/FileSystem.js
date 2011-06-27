@@ -68,7 +68,7 @@ FileSystem.wildcard2regex.std = function(wildcard)
 /**
  * The fastest looking for files/folders specified by options.
  * The options are:
- * -- path - string defines the folder where a search should be performed
+ * -- path - string/array of strings defines folders where a search should be performed
  * -- pattern - string/array of strings defines wildcards to be searched
  * -- included - string/array of strings defines wildcards for files that should be leaved in the resulting list
  * -- excluded - strinfg/array of strings defines wildcards for files that should be excluded from the resulting list
@@ -104,6 +104,27 @@ FileSystem.wildcard2regex.std = function(wildcard)
  */
 FileSystem.find = function(options)
 {
+	// Process a list of paths
+	if ( Object.prototype.toString.call(options.path) == '[object Array]' ) {
+		var opts = {};
+		for (var p in options) {
+			if ( ! options.hasOwnProperty(p) ) {
+				continue;
+			}
+			opts[p] = options[p];
+		}
+
+		// Prepare the storage of commands for debugging reasons
+		arguments.callee.cmd = [];
+
+		var result = [];
+		for (var i = 0; i < options.path.length; i++) {
+			opts.path = options.path[i];
+			result = result.concat(arguments.callee(opts));
+		}
+		return result;
+	}
+
 	options = options || {};
 
 	// Normalize a path
@@ -150,8 +171,12 @@ FileSystem.find = function(options)
 		cmd += ' | findstr /v /i /e "' + b + FileSystem.wildcard2regex(options.excluded, true, true).join(b) + '"';
 	}
 
-	// Storing the command for debugging reasons
-	arguments.callee.cmd = cmd;
+	// Store the command for debugging reasons
+	if ( Object.prototype.toString.call(arguments.callee.cmd) == '[object Array]' ) {
+		arguments.callee.cmd.push(cmd);
+	} else {
+		arguments.callee.cmd = cmd;
+	}
 
 	// Perform the shell command ...
 	var sh = new ActiveXObject('WScript.Shell');
@@ -177,7 +202,7 @@ FileSystem.find = function(options)
 	var filtered = [];
 	for (var i = 0; i < result.length; i++) {
 		if ( options.filter(result[i], i, result) ) {
-			filtered.push(result[i]);
+			filtered.push(result[i], options);
 		}
 	}
 	return filtered;
