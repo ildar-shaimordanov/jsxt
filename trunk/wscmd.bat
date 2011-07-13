@@ -6,11 +6,6 @@
 setlocal enabledelayedexpansion
 
 
-:: Set the name and version
-set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.12.4 Beta
-
-
 :: Parse command line arguments and set needful variables
 set wscmd.temp=
 set wscmd.inline=
@@ -107,6 +102,14 @@ goto wscmd.1
 :wscmd.2
 
 
+:: Set the name and version
+set wscmd.name=Windows Scripting Command Interpreter
+set wscmd.version=0.12.5 Beta
+
+
+if defined wscmd.debug call :wscmd.version>&2
+
+
 :: Load settings from ini-files
 :: there are special macros available to be substituted
 :: %~d0 - the disk
@@ -157,8 +160,13 @@ endlocal
 goto :EOF
 
 
-:wscmd.help
+:wscmd.version
 echo.%wscmd.name% Version %wscmd.version%
+goto :EOF
+
+
+:wscmd.help
+call :wscmd.version
 echo.
 echo.Usage:
 echo.    %~n0 [/h ^| /help ^| /q]
