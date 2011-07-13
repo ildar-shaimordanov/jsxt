@@ -8,7 +8,7 @@ setlocal enabledelayedexpansion
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.12.3 Beta
+set wscmd.version=0.12.4 Beta
 
 
 :: Parse command line arguments and set needful variables
@@ -186,7 +186,7 @@ echo.^<?job error="true" debug="false" ?^>
 echo.
 echo.^<runtime^>
 echo.^<description^>^<^^^![CDATA[%wscmd.name% Version %wscmd.version%
-echo.Copyright ^(C^) 2009, 2010 Ildar Shaimordanov
+echo.Copyright ^(C^) 2009, 2010, 2011 Ildar Shaimordanov
 echo.]]^>^</description^>
 echo.^</runtime^>
 echo.^<script language="javascript"^>^<^^^![CDATA[
@@ -416,10 +416,10 @@ while ( true ) {
 				PS2 = '';
 			}
 
-			// Validate that a user started multipe lines ended with the backslash '\\'
+			// Validate that a user started multiple lines ended with the backslash '\\'
 			var multiline = false;
 
-			// Store all charactrrs enetred from STDIN.
+			// Store all characters entered from STDIN.
 			// Array is used to prevent usage of String.charAt
 			// This makes the code the safer
 			var result = [];
