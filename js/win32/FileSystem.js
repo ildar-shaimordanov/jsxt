@@ -72,12 +72,14 @@ FileSystem.wildcard2regex.std = function(wildcard)
  * -- pattern - string/array of strings defines wildcards to be searched
  * -- included - string/array of strings defines wildcards for files that should be leaved in the resulting list
  * -- excluded - strinfg/array of strings defines wildcards for files that should be excluded from the resulting list
- * -- fiolders - boolean indicates for searching of folders instead files
+ * -- folders - boolean indicates for searching of folders instead files
  * -- recursive -- bollean indicates that a search should be performed for all subfolders recursively
- * -- filter - function is used for aditional filtration of the resulting list, accepts full pathname, index and an observed array
+ * -- filter - function is used for aditional filtration of the resulting list, accepts full pathname
+ * -- each - fuunction is used to perform perform some action over each file/folder
  * -- codepage - string indicates a codepage for the DOS command "CHCP", is used if it differs of a script's codepage
  * 
- * Returns an array containing the matched files/folders.
+ * Returns an array containing the matched files/folders or the number of processed files/folders 
+ * when the 'each' function is defined.
  *
  * @code
  * <code>
@@ -99,7 +101,7 @@ FileSystem.wildcard2regex.std = function(wildcard)
  * </code>
  *
  * @param	object	Options, modifying the resulting list
- * @return	Array
+ * @return	Array|Number
  * @access	static
  */
 FileSystem.find = function(options)
@@ -117,10 +119,27 @@ FileSystem.find = function(options)
 		// Prepare the storage of commands for debugging reasons
 		arguments.callee.cmd = [];
 
-		var result = [];
+		// Collect all results for each path
+		var result;
+
+		var each;
+		if ( typeof options.each == 'function' ) {
+			result = 0;
+			each = function(v)
+			{
+				result += v;
+			};
+		} else {
+			result = [];
+			each = function(v)
+			{
+				result = result.concat(v);
+			};
+		}
+
 		for (var i = 0; i < options.path.length; i++) {
 			opts.path = options.path[i];
-			result = result.concat(arguments.callee(opts));
+			each(arguments.callee(opts));
 		}
 		return result;
 	}
@@ -183,29 +202,47 @@ FileSystem.find = function(options)
 	var ex = sh.Exec(cmd);
 
 	// ... and collect each string from the output to the resulting array
-	var result = [];
+	var result;
+
+	var each;
+	if ( typeof options.each == 'function' ) {
+		result = 0;
+		each = function(v)
+		{
+			result++;
+			options.each(v);
+		};
+	}else {
+		result = [];
+		each = function(v)
+		{
+			result.push(v);
+		};
+	}
+
+	var filter;
+	if ( typeof options.filter == 'function' ) {
+		filter = function(v)
+		{
+			if ( options.filter(v, options) ) {
+				each(v);
+			}
+		};
+	} else {
+		filter = each;
+	}
+
 	while ( ex.Status == 0 ) {
 		if ( ex.StdOut.AtEndOfStream ) {
 			break;
 		}
-		result.push(p + ex.StdOut.ReadLine());
+		filter(p + ex.StdOut.ReadLine());
 	}
 	while ( ! ex.StdOut.AtEndOfStream ) {
-		result.push(p + ex.StdOut.ReadLine());
+		filter(p + ex.StdOut.ReadLine());
 	}
 
-	if ( typeof options.filter != 'function' ) {
-		return result;
-	}
-
-	// Perform the filtering function
-	var filtered = [];
-	for (var i = 0; i < result.length; i++) {
-		if ( options.filter(result[i], i, result) ) {
-			filtered.push(result[i], options);
-		}
-	}
-	return filtered;
+	return result;
 };
 
 (function()
