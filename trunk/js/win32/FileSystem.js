@@ -212,7 +212,7 @@ FileSystem.find = function(options)
 			result++;
 			options.each(v);
 		};
-	}else {
+	} else {
 		result = [];
 		each = function(v)
 		{
