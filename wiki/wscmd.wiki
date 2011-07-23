@@ -95,7 +95,7 @@ We see that the console mode provides us several useful functions that are wrapp
 Working in this mode you can test the feature allowing to enter commands in several lines. For example:
 
 {{{
-wscmd > function sign(a, b) {
+wscmd > function sign(a, b) {\
 wscmd :: if ( a > b ) {
 wscmd :: return +1;
 wscmd :: }
@@ -104,6 +104,7 @@ wscmd :: return -1;
 wscmd :: }
 wscmd :: return 0;
 wscmd :: }
+wscmd ::
 wscmd >
 wscmd > sign
 function sign(a, b) {if ( a > b ) {return +1;}if ( a < b ) {return -1;}return 0;}
