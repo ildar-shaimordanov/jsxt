@@ -182,9 +182,9 @@ FileSystem.find = function(options)
 	// Construct the shell command that would be executed
 	var cmd = '';
 	if ( options.codepage ) {
-		cmd += 'cmd /c chcp ' + options.codepage + ' && ';
+		cmd += '%COMSPEC% /c chcp ' + options.codepage + ' && ';
 	}
-	cmd += 'cmd /c dir /b ' + f + s + '"' + path + [].concat(options.pattern || '*').join('" "' + path) + '"';
+	cmd += '%COMSPEC% /c dir /b ' + f + s + '"' + path + [].concat(options.pattern || '*').join('" "' + path) + '"';
 	if ( options.included ) {
 		cmd += ' | findstr /i /e "' + b + FileSystem.wildcard2regex(options.included, true, true).join(b) + '"';
 	}
