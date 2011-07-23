@@ -92,7 +92,7 @@ We see that the console mode provides us several useful functions that are wrapp
 
 == Multiple lines ==
 
-Working in this mode you can test the feature allowing to enter commands in several lines. For example:
+Working in this mode you can test the feature allowing to enter commands in several lines. For example (Make sure! The backslash at the end of the first line starts the multiple lines mode):
 
 {{{
 wscmd > function sign(a, b) {\
