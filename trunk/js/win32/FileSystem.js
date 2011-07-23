@@ -116,8 +116,10 @@ FileSystem.find = function(options)
 			opts[p] = options[p];
 		}
 
-		// Prepare the storage of commands for debugging reasons
+		// Prepare the storage of commands, errors and exit codes for debugging reasons
 		arguments.callee.cmd = [];
+		arguments.callee.error = [];
+		arguments.callee.exitCode = [];
 
 		// Collect all results for each path
 		var result;
@@ -190,13 +192,6 @@ FileSystem.find = function(options)
 		cmd += ' | findstr /v /i /e "' + b + FileSystem.wildcard2regex(options.excluded, true, true).join(b) + '"';
 	}
 
-	// Store the command for debugging reasons
-	if ( Object.prototype.toString.call(arguments.callee.cmd) == '[object Array]' ) {
-		arguments.callee.cmd.push(cmd);
-	} else {
-		arguments.callee.cmd = cmd;
-	}
-
 	// Perform the shell command ...
 	var sh = new ActiveXObject('WScript.Shell');
 	var ex = sh.Exec(cmd);
@@ -231,7 +226,7 @@ FileSystem.find = function(options)
 	} else {
 		filter = each;
 	}
-
+/*
 	while ( ex.Status == 0 ) {
 		if ( ex.StdOut.AtEndOfStream ) {
 			break;
@@ -240,6 +235,35 @@ FileSystem.find = function(options)
 	}
 	while ( ! ex.StdOut.AtEndOfStream ) {
 		filter(p + ex.StdOut.ReadLine());
+	}
+*/
+	var error = '';
+	while ( 1 ) {
+		if ( ! ex.StdOut.AtEndOfStream ) {
+			filter(p + ex.StdOut.ReadLine());
+			continue;
+		}
+		if ( ! ex.StdErr.AtEndOfStream ) {
+			error += ex.StdErr.ReadLine();
+			continue;
+		}
+		if ( ex.Status == 1 ) {
+			break;
+		}
+		WScript.Sleep(100);
+	}
+
+
+	// Store commands, error messages and exit codes for debugging reasons
+	if ( arguments.callee === arguments.callee.caller ) {
+//	if ( Object.prototype.toString.call(arguments.callee.cmd) == '[object Array]' ) {
+		arguments.callee.cmd.push(cmd);
+		arguments.callee.error.push(error);
+		arguments.callee.exitCode.push(ex.ExitCode);
+	} else {
+		arguments.callee.cmd = cmd;
+		arguments.callee.error = error;
+		arguments.callee.exitCode = ex.ExitCode;
 	}
 
 	return result;
