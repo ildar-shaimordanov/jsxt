@@ -72,10 +72,10 @@ FileSystem.wildcard2regex.std = function(wildcard)
  * -- pattern - string/array of strings defines wildcards to be searched
  * -- included - string/array of strings defines wildcards for files that should be leaved in the resulting list
  * -- excluded - strinfg/array of strings defines wildcards for files that should be excluded from the resulting list
- * -- folders - boolean indicates for searching of folders instead files
- * -- recursive -- bollean indicates that a search should be performed for all subfolders recursively
  * -- filter - function is used for aditional filtration of the resulting list, accepts full pathname
  * -- each - fuunction is used to perform perform some action over each file/folder
+ * -- folders - boolean indicates for searching of folders instead files
+ * -- recursive -- bollean indicates that a search should be performed for all subfolders recursively
  * -- codepage - string indicates a codepage for the DOS command "CHCP", is used if it differs of a script's codepage
  * 
  * Returns an array containing the matched files/folders or the number of processed files/folders 
