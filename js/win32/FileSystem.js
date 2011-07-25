@@ -253,17 +253,15 @@ FileSystem.find = function(options)
 		WScript.Sleep(100);
 	}
 
-
 	// Store commands, error messages and exit codes for debugging reasons
 	if ( arguments.callee === arguments.callee.caller ) {
-//	if ( Object.prototype.toString.call(arguments.callee.cmd) == '[object Array]' ) {
 		arguments.callee.cmd.push(cmd);
 		arguments.callee.error.push(error);
 		arguments.callee.exitCode.push(ex.ExitCode);
 	} else {
-		arguments.callee.cmd = cmd;
-		arguments.callee.error = error;
-		arguments.callee.exitCode = ex.ExitCode;
+		arguments.callee.cmd = [cmd];
+		arguments.callee.error = [error];
+		arguments.callee.exitCode = [ex.ExitCode];
 	}
 
 	return result;
