@@ -15,78 +15,34 @@ function FileSystem()
 }
 
 /**
- * Transforms standard DOS-wildcards to a native Javascript regular expression
- *
- * @example
- * var w = ['*.js', '*.vbs'];
- * var r = FileSystem.wildcard2regex(wc); // is regexp: /^(.*?\.js|.*?\.vbs)$/i
- *
- * @param	string|array	a wildcard or a list of wildcards
- * @param	boolean	if is TRUE, then returns an array of patterns, no regexp
- * @param	boolean	if is TRUE, then makes strict pattern (any character excepting the backslash "\\")
- * @return	regexp|array
- * @access	static
- */
-FileSystem.wildcard2regex = function(wildcard, skipRegexp, strictly)
-{
-	var convert = arguments.callee[strictly ? 'strictly' : 'std'];
-
-	var result = [];
-	if ( Object.prototype.toString.call(wildcard) == '[object String]' ) {
-		result.push(convert(wildcard));
-	} else {
-		for (var i = 0; i < wildcard.length; i++) {
-			result.push(convert(wildcard[i]));
-		}
-	}
-
-	return skipRegexp 
-		? result 
-		: new RegExp('^(' + result.join('|') + ')$', 'i');
-};
-
-FileSystem.wildcard2regex.strictly = function(wildcard)
-{
-	var result = wildcard
-		.replace(/([\^\$\\\/\|\.\+\!\[\]\(\)\{\}])/g, '\\$1')
-		.replace(/\?/g, '[^\\\\]?')
-		.replace(/\*/g, '[^\\\\]*')
-		;
-	return result;
-};
-
-FileSystem.wildcard2regex.std = function(wildcard)
-{
-	var result = wildcard
-		.replace(/([\^\$\\\/\|\.\+\!\[\]\(\)\{\}])/g, '\\$1')
-		.replace(/\?/g, '.?')
-		.replace(/\*/g, '.*?')
-		;
-	return result;
-};
-
-/**
  * The fastest looking for files/folders specified by options.
  * The options are:
  * -- path - string/array of strings defines folders where a search should be performed
  * -- pattern - string/array of strings defines wildcards to be searched
  * -- included - string/array of strings defines wildcards for files that should be leaved in the resulting list
- * -- excluded - strinfg/array of strings defines wildcards for files that should be excluded from the resulting list
+ * -- excluded - string/array of strings defines wildcards for files that should be excluded from the resulting list
  * -- filter - function is used for aditional filtration of the resulting list, accepts full pathname
- * -- each - fuunction is used to perform perform some action over each file/folder
+ * -- each - fuunction is used to perform some action over each file/folder
  * -- folders - boolean indicates for searching of folders instead files
- * -- recursive -- bollean indicates that a search should be performed for all subfolders recursively
+ * -- recursive -- boolean indicates that searching should be performed for all subfolders recursively
  * -- codepage - string indicates a codepage for the DOS command "CHCP", is used if it differs of a script's codepage
  * 
  * Returns an array containing the matched files/folders or the number of processed files/folders 
- * when the 'each' function is defined.
+ * when the 'each' function is defined. 
+ *
+ * Here are additional results for debugging reasons:
+ * FileSystem.find.cmd - a list of commands
+ * FileSystem.find.error - a list of error messages
+ * FileSystem.find.exitCode - a list of exit codes
  *
  * @code
  * <code>
  * // Example 1
  * // Get all files from the current directory
  * var filelist = FileSystem.find();
+ * </code>
  * 
+ * <code>
  * // Example 2
  * // Get all files with names x* and z*, excluding *.dll from the specified folder
  * var options = {
@@ -98,6 +54,30 @@ FileSystem.wildcard2regex.std = function(wildcard)
  * };
  *
  * var filelist = FileSystem.find(options);
+ * </code>
+ * 
+ * <code>
+ * // Example 3
+ * // Find all files corresponding the pattern z* and print a message that a file is found
+ * // Finally print the number of found files
+ * var options = {
+ * 	// search within
+ * 	path: 'C:\\Windows\\System32', 
+ * 
+ * 	// search in all subfolders
+ * 	recursive: true, 
+ * 
+ * 	// search files only corresponding the pattern z*
+ * 	filter: function(filename) { return filename.match(/\\z[^\\]*$/i); }, 
+ * 
+ * 	// for each file output a message
+ * 	each: function(filename) { WScript.Echo(filename + ' is found'); }
+ * };
+ * 
+ * var f = FileSystem.find(options);
+ * 
+ * // print the number of found files
+ * WScript.Echo(f + ' files was found');
  * </code>
  *
  * @param	object	Options, modifying the resulting list
@@ -264,6 +244,57 @@ FileSystem.find = function(options)
 		arguments.callee.exitCode = [ex.ExitCode];
 	}
 
+	return result;
+};
+
+/**
+ * Transforms standard DOS-wildcards to a native Javascript regular expression
+ *
+ * @example
+ * var w = ['*.js', '*.vbs'];
+ * var r = FileSystem.wildcard2regex(wc); // is regexp: /^(.*?\.js|.*?\.vbs)$/i
+ *
+ * @param	string|array	a wildcard or a list of wildcards
+ * @param	boolean	if is TRUE, then returns an array of patterns, no regexp
+ * @param	boolean	if is TRUE, then makes strict pattern (any character excepting the backslash "\\")
+ * @return	regexp|array
+ * @access	static
+ */
+FileSystem.wildcard2regex = function(wildcard, skipRegexp, strictly)
+{
+	var convert = arguments.callee[strictly ? 'strictly' : 'std'];
+
+	var result = [];
+	if ( Object.prototype.toString.call(wildcard) == '[object String]' ) {
+		result.push(convert(wildcard));
+	} else {
+		for (var i = 0; i < wildcard.length; i++) {
+			result.push(convert(wildcard[i]));
+		}
+	}
+
+	return skipRegexp 
+		? result 
+		: new RegExp('^(' + result.join('|') + ')$', 'i');
+};
+
+FileSystem.wildcard2regex.strictly = function(wildcard)
+{
+	var result = wildcard
+		.replace(/([\^\$\\\/\|\.\+\!\[\]\(\)\{\}])/g, '\\$1')
+		.replace(/\?/g, '[^\\\\]?')
+		.replace(/\*/g, '[^\\\\]*')
+		;
+	return result;
+};
+
+FileSystem.wildcard2regex.std = function(wildcard)
+{
+	var result = wildcard
+		.replace(/([\^\$\\\/\|\.\+\!\[\]\(\)\{\}])/g, '\\$1')
+		.replace(/\?/g, '.?')
+		.replace(/\*/g, '.*?')
+		;
 	return result;
 };
 
