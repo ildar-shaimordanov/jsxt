@@ -84,168 +84,170 @@ function FileSystem()
  * @return	Array|Number
  * @access	static
  */
-FileSystem.find = function(options)
+(function()
 {
-	// Process a list of paths
-	if ( Object.prototype.toString.call(options.path) == '[object Array]' ) {
-		var opts = {};
-		for (var p in options) {
-			if ( ! options.hasOwnProperty(p) ) {
-				continue;
-			}
-			opts[p] = options[p];
-		}
+	var p;
+	var each;
+	var filter;
+
+	var result;
+
+	var path;
+	var cmd;
+	var error;
+	var exitCode;
+
+	// Preparation procedure
+	var _prepFind = function(options)
+	{
+		options = options || {};
 
 		// Prepare the storage of commands, errors and exit codes for debugging reasons
-		arguments.callee.cmd = [];
-		arguments.callee.error = [];
-		arguments.callee.exitCode = [];
+		cmd = [];
+		error = [];
+		exitCode = [];
 
-		// Collect all results for each path
-		var result;
+		var f;
+		if ( options.folders ) {
+			f = ' /ad ';
+		} else {
+			f = ' /a-d ';
+		}
 
-		var each;
+		var s;
+		var b;
+		if ( options.recursive ) {
+			p = function(path)
+			{
+				return '';
+			};
+			s = ' /s ';
+			b = ' \\\\';
+		} else {
+			p = function(path)
+			{
+				return path;
+			};
+			s = '';
+			b = ' ^';
+		}
+
+		// Create common parts of a command
+		var cmd1 = '';
+		if ( options.codepage ) {
+			cmd1 += '%COMSPEC% /c chcp ' + options.codepage + ' && ';
+		}
+		cmd1 += '%COMSPEC% /c dir /b ' + f + s + '"';
+
+		var cmd3 = '';
+		if ( options.included ) {
+			cmd3 += ' | findstr /i /e "' + b + FileSystem.wildcard2regex(options.included, true, true).join(b) + '"';
+		}
+		if ( options.excluded ) {
+			cmd3 += ' | findstr /v /i /e "' + b + FileSystem.wildcard2regex(options.excluded, true, true).join(b) + '"';
+		}
+
+		// Normalize paths as array and create commands
+		if ( Object.prototype.toString.call(options.path) == '[object Array]' ) {
+			// Clone the array to avoid modification of items
+			path = [].concat(options.path);
+		} else {
+			path = [options.path];
+		}
+
+		var pattern = options.pattern || '*';
+
+		// Normalize paths and finish creation of commands
+		var fso = new ActiveXObject('Scripting.FileSystemObject');
+		for (var i = 0; i < path.length; i++) {
+			path[i] = fso.GetAbsolutePathName(path[i]);
+			if ( path[i].slice(-2) != ':\\' ) {
+				path[i] += '\\';
+			}
+			var cmd2 = path[i] + [].concat(pattern).join('" "' + path[i]) + '"';
+			var cmdLine = [cmd1, cmd2, cmd3].join('');
+			cmd.push(cmdLine);
+		}
+
+		// Initialize the result variable and an iterator per each resulting string
 		if ( typeof options.each == 'function' ) {
 			result = 0;
 			each = function(v)
 			{
-				result += v;
+				result++;
+				options.each(v);
 			};
 		} else {
 			result = [];
 			each = function(v)
 			{
-				result = result.concat(v);
+				result.push(v);
 			};
 		}
 
-		for (var i = 0; i < options.path.length; i++) {
-			opts.path = options.path[i];
-			each(arguments.callee(opts));
+		// Initialize a filter function
+		if ( typeof options.filter == 'function' ) {
+			filter = function(v)
+			{
+				if ( options.filter(v, options) ) {
+					each(v);
+				}
+			};
+		} else {
+			filter = each;
 		}
-		return result;
-	}
+	};
 
-	options = options || {};
+	// Searching procedure
+	var _makeFind = function(i)
+	{
+		// Perform the shell command ...
+		var sh = new ActiveXObject('WScript.Shell');
+		var ex = sh.Exec(cmd[i]);
 
-	// Normalize a path
-	var path = (new ActiveXObject('Scripting.FileSystemObject')).GetAbsolutePathName(options.path);
-	if ( path.slice(-2) != ':\\' ) {
-		path += '\\';
-	}
+		var pp = p(path[i]);
 
-	// Set auxiliary parameters:
-	// f - find folders only
-	var f;
-	if ( options.folders ) {
-		f = ' /ad ';
-	} else {
-		f = ' /a-d ';
-	}
-
-	// p - path to an object of FS
-	// s - recursive search
-	// b - left border of a pattern
-	var p;
-	var s;
-	var b;
-	if ( options.recursive ) {
-		p = '';
-		s = ' /s ';
-		b = ' \\\\';
-	} else {
-		p = path;
-		s = '';
-		b = ' ^';
-	}
-
-	// Construct the shell command that would be executed
-	var cmd = '';
-	if ( options.codepage ) {
-		cmd += '%COMSPEC% /c chcp ' + options.codepage + ' && ';
-	}
-	cmd += '%COMSPEC% /c dir /b ' + f + s + '"' + path + [].concat(options.pattern || '*').join('" "' + path) + '"';
-	if ( options.included ) {
-		cmd += ' | findstr /i /e "' + b + FileSystem.wildcard2regex(options.included, true, true).join(b) + '"';
-	}
-	if ( options.excluded ) {
-		cmd += ' | findstr /v /i /e "' + b + FileSystem.wildcard2regex(options.excluded, true, true).join(b) + '"';
-	}
-
-	// Perform the shell command ...
-	var sh = new ActiveXObject('WScript.Shell');
-	var ex = sh.Exec(cmd);
-
-	// ... and collect each string from the output to the resulting array
-	var result;
-
-	var each;
-	if ( typeof options.each == 'function' ) {
-		result = 0;
-		each = function(v)
-		{
-			result++;
-			options.each(v);
-		};
-	} else {
-		result = [];
-		each = function(v)
-		{
-			result.push(v);
-		};
-	}
-
-	var filter;
-	if ( typeof options.filter == 'function' ) {
-		filter = function(v)
-		{
-			if ( options.filter(v, options) ) {
-				each(v);
+		// ... and collect each string from the STDOUT and STDERR outputs
+		var err = '';
+		while ( 1 ) {
+			if ( ! ex.StdOut.AtEndOfStream ) {
+				filter(pp + ex.StdOut.ReadLine());
+				continue;
 			}
-		};
-	} else {
-		filter = each;
-	}
-/*
-	while ( ex.Status == 0 ) {
-		if ( ex.StdOut.AtEndOfStream ) {
-			break;
+			if ( ! ex.StdErr.AtEndOfStream ) {
+				err += ex.StdErr.ReadLine();
+				continue;
+			}
+			if ( ex.Status == 1 ) {
+				break;
+			}
+			WScript.Sleep(100);
 		}
-		filter(p + ex.StdOut.ReadLine());
-	}
-	while ( ! ex.StdOut.AtEndOfStream ) {
-		filter(p + ex.StdOut.ReadLine());
-	}
-*/
-	var error = '';
-	while ( 1 ) {
-		if ( ! ex.StdOut.AtEndOfStream ) {
-			filter(p + ex.StdOut.ReadLine());
-			continue;
-		}
-		if ( ! ex.StdErr.AtEndOfStream ) {
-			error += ex.StdErr.ReadLine();
-			continue;
-		}
-		if ( ex.Status == 1 ) {
-			break;
-		}
-		WScript.Sleep(100);
-	}
 
-	// Store commands, error messages and exit codes for debugging reasons
-	if ( arguments.callee === arguments.callee.caller ) {
-		arguments.callee.cmd.push(cmd);
-		arguments.callee.error.push(error);
-		arguments.callee.exitCode.push(ex.ExitCode);
-	} else {
-		arguments.callee.cmd = [cmd];
-		arguments.callee.error = [error];
-		arguments.callee.exitCode = [ex.ExitCode];
-	}
+		// Store error messages and exit codes for debugging reasons
+		error.push(err);
+		exitCode.push(ex.ExitCode);
+	};
 
-	return result;
-};
+	FileSystem.find = function(options)
+	{
+		// Prepare iterim variables
+		_prepFind(options);
+
+		// Perform searching
+		for (var i = 0; i < path.length; i++) {
+			_makeFind(i);
+		}
+
+		// Store commands, errors and exit codes for debugging reason
+		arguments.callee.cmd = cmd;
+		arguments.callee.error = error;
+		arguments.callee.exitCode = exitCode;
+
+		return result;
+	};
+
+})();
 
 /**
  * Transforms standard DOS-wildcards to a native Javascript regular expression
