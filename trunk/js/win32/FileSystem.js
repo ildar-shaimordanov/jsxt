@@ -148,13 +148,9 @@ function FileSystem()
 		}
 
 		// Normalize paths as array and create commands
-		if ( Object.prototype.toString.call(options.path) == '[object Array]' ) {
-			// Clone the array to avoid modification of items
-			path = [].concat(options.path);
-		} else {
-			path = [options.path];
-		}
+		path = [].concat(options.path);
 
+		// Populate a pattern by the default value
 		var pattern = options.pattern || '*';
 
 		// Normalize paths and finish creation of commands
@@ -199,34 +195,37 @@ function FileSystem()
 	};
 
 	// Searching procedure
-	var _makeFind = function(i)
+	var _makeFind = function()
 	{
 		// Perform the shell command ...
 		var sh = new ActiveXObject('WScript.Shell');
-		var ex = sh.Exec(cmd[i]);
 
-		var pp = p(path[i]);
+		for (var i = 0; i < path.length; i++) {
+			var ex = sh.Exec(cmd[i]);
 
-		// ... and collect each string from the STDOUT and STDERR outputs
-		var err = '';
-		while ( 1 ) {
-			if ( ! ex.StdOut.AtEndOfStream ) {
-				filter(pp + ex.StdOut.ReadLine());
-				continue;
+			var pp = p(path[i]);
+
+			// ... and collect each string from the STDOUT and STDERR outputs
+			var err = '';
+			while ( 1 ) {
+				if ( ! ex.StdOut.AtEndOfStream ) {
+					filter(pp + ex.StdOut.ReadLine());
+					continue;
+				}
+				if ( ! ex.StdErr.AtEndOfStream ) {
+					err += ex.StdErr.ReadLine();
+					continue;
+				}
+				if ( ex.Status == 1 ) {
+					break;
+				}
+				WScript.Sleep(100);
 			}
-			if ( ! ex.StdErr.AtEndOfStream ) {
-				err += ex.StdErr.ReadLine();
-				continue;
-			}
-			if ( ex.Status == 1 ) {
-				break;
-			}
-			WScript.Sleep(100);
+
+			// Store error messages and exit codes for debugging reasons
+			error.push(err);
+			exitCode.push(ex.ExitCode);
 		}
-
-		// Store error messages and exit codes for debugging reasons
-		error.push(err);
-		exitCode.push(ex.ExitCode);
 	};
 
 	FileSystem.find = function(options)
@@ -235,9 +234,7 @@ function FileSystem()
 		_prepFind(options);
 
 		// Perform searching
-		for (var i = 0; i < path.length; i++) {
-			_makeFind(i);
-		}
+		_makeFind();
 
 		// Store commands, errors and exit codes for debugging reason
 		arguments.callee.cmd = cmd;
