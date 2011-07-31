@@ -86,21 +86,29 @@ function FileSystem()
  */
 (function()
 {
-	var p;
 	var each;
 	var filter;
 
 	var result;
 
 	var path;
+	var pp;
+
 	var cmd;
 	var error;
 	var exitCode;
+
+	var delay = 0;
 
 	// Preparation procedure
 	var _prepFind = function(options)
 	{
 		options = options || {};
+
+		// Delay in milliseconds when collecting data from commands
+		if ( options.delay > 0 ) {
+			delay = options.delay;
+		}
 
 		// Prepare the storage of commands, errors and exit codes for debugging reasons
 		cmd = [];
@@ -137,7 +145,7 @@ function FileSystem()
 		if ( options.codepage ) {
 			cmd1 += '%COMSPEC% /c chcp ' + options.codepage + ' && ';
 		}
-		cmd1 += '%COMSPEC% /c dir /b ' + f + s + '"';
+		cmd1 += '%COMSPEC% /c dir /b ' + f + s;
 
 		var cmd3 = '';
 		if ( options.included ) {
@@ -147,21 +155,29 @@ function FileSystem()
 			cmd3 += ' | findstr /v /i /e "' + b + FileSystem.wildcard2regex(options.excluded, true, true).join(b) + '"';
 		}
 
-		// Normalize paths as array and create commands
+		// Prepare paths and prefixes
 		path = [].concat(options.path);
+		pp = [];
 
 		// Populate a pattern by the default value
-		var pattern = options.pattern || '*';
+		var pattern = [].concat(options.pattern || '*');
 
-		// Normalize paths and finish creation of commands
+		// Normalize paths, prefixes and finish creation of commands
 		var fso = new ActiveXObject('Scripting.FileSystemObject');
 		for (var i = 0; i < path.length; i++) {
 			path[i] = fso.GetAbsolutePathName(path[i]);
-			if ( path[i].slice(-2) != ':\\' ) {
-				path[i] += '\\';
+			var cmd2;
+			if ( fso.FileExists(path[i]) ) {
+				cmd2 = path[i];
+				pp[i] = path[i].replace(/[^\\]+$/, '');
+			} else {
+				if ( path[i].slice(-2) != ':\\' ) {
+					path[i] += '\\';
+				}
+				cmd2 = path[i] + pattern.join('" "' + path[i]);
+				pp[i] = p(path[i]);
 			}
-			var cmd2 = path[i] + [].concat(pattern).join('" "' + path[i]) + '"';
-			var cmdLine = [cmd1, cmd2, cmd3].join('');
+			var cmdLine = [cmd1, '"', cmd2, '"', cmd3].join('');
 			cmd.push(cmdLine);
 		}
 
@@ -203,13 +219,11 @@ function FileSystem()
 		for (var i = 0; i < path.length; i++) {
 			var ex = sh.Exec(cmd[i]);
 
-			var pp = p(path[i]);
-
 			// ... and collect each string from the STDOUT and STDERR outputs
 			var err = '';
 			while ( 1 ) {
 				if ( ! ex.StdOut.AtEndOfStream ) {
-					filter(pp + ex.StdOut.ReadLine());
+					filter(pp[i] + ex.StdOut.ReadLine());
 					continue;
 				}
 				if ( ! ex.StdErr.AtEndOfStream ) {
@@ -219,7 +233,7 @@ function FileSystem()
 				if ( ex.Status == 1 ) {
 					break;
 				}
-				WScript.Sleep(100);
+				WScript.Sleep(delay);
 			}
 
 			// Store error messages and exit codes for debugging reasons
