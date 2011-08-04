@@ -122,6 +122,7 @@ function FileSystem()
 			f = ' /a-d ';
 		}
 
+		var p;
 		var s;
 		var b;
 		if ( options.recursive ) {
