@@ -168,9 +168,10 @@ function FileSystem()
 		for (var i = 0; i < path.length; i++) {
 			path[i] = fso.GetAbsolutePathName(path[i]);
 			var cmd2;
-			if ( fso.FileExists(path[i]) ) {
+			if ( fso.FileExists(path[i]) || path[i].match(/[\?\*]/) ) {
+				// Path is the full name of an existing file or contains wildcards
 				cmd2 = path[i];
-				pp[i] = path[i].replace(/[^\\]+$/, '');
+				pp[i] = p(path[i].replace(/[^\\]+$/, ''));
 			} else {
 				if ( path[i].slice(-2) != ':\\' ) {
 					path[i] += '\\';
