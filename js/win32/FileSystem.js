@@ -144,7 +144,7 @@ function FileSystem()
 		// Create common parts of a command
 		var cmd1 = '';
 		if ( options.codepage ) {
-			cmd1 += '%COMSPEC% /c chcp ' + options.codepage + ' && ';
+			cmd1 += '%COMSPEC% /c chcp ' + options.codepage + '>nul && ';
 		}
 		cmd1 += '%COMSPEC% /c dir /b ' + f + s;
 
