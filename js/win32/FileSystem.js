@@ -246,16 +246,20 @@ function FileSystem()
 
 	FileSystem.find = function(options)
 	{
+		var start = (new Date()).getTime();
+
 		// Prepare iterim variables
 		_prepFind(options);
 
 		// Perform searching
 		_makeFind();
 
-		// Store commands, errors and exit codes for debugging reason
+		// Store commands, errors, exit codes and duration for debugging reason
 		arguments.callee.cmd = cmd;
 		arguments.callee.error = error;
 		arguments.callee.exitCode = exitCode;
+
+		arguments.callee.duration = (new Date()).getTime() - start;
 
 		return result;
 	};
