@@ -754,7 +754,7 @@ Date.format = function (format, date, spacer)
 		return date.toString();
 	}
 
-	var spacer = (spacer || ' ').charAt(0);
+	var spacer = (spacer || '0').charAt(0);
 
 	Date.locale = Date.locale || Date.english;
 	for (var p in Date.english) {
