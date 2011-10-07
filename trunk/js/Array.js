@@ -811,7 +811,7 @@ Array.prototype.unique = function(fun, thisp)
  * // Converts each numeric element to hexadecimal string
  * var arr1 = [2, 14, 7];
  * var arr2 = arr1.invoke('toString', 16);
- * // arr2 == [2, E, 7]
+ * // arr2 == ['2', 'e', '7']
  * </code>
  *
  * @param	String
@@ -820,7 +820,7 @@ Array.prototype.unique = function(fun, thisp)
  */
 Array.prototype.invoke = function(method)
 {
-	var args = [].slice.call(arguments, 2);
+	var args = [].slice.call(arguments, 1);
 	var result = this.map(function(v)
 	{
 		return v[method].apply(v, args);
