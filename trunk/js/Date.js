@@ -239,10 +239,27 @@ Date.prototype.getDaysInYear = function()
  * a 6 days' wroking week. 
  *
  * @param	Integer
- * @param	Callback
+ * @param	Callback|Integer
  * @result	Integer
  * @access	public
  */
+Date.prototype.getWorkingDaysInMonth = function(longWeek, holidays)
+{
+	var here = new Date(this.getFullYear(), this.getMonth() + 1, 0);
+	var dim = here.getDate();
+	var ldm = here.getDay();
+
+	var t = typeof holidays;
+	var h = 
+		t == 'number' 
+		? holidays 
+		: t == 'string' 
+		? holidays(this) 
+		: 0;
+
+	return arguments.callee[longWeek ? 6 : 5][dim][ldm] - h;
+};
+/*
 Date.prototype.getWorkingDaysInMonth = function(longWeek, func)
 {
 	var dim = this.getDaysInMonth();
@@ -252,6 +269,7 @@ Date.prototype.getWorkingDaysInMonth = function(longWeek, func)
 
 	return arguments.callee[longWeek ? 6 : 5][dim][ldm] - holidays;
 };
+*/
 
 // Weekday of the last day in month
 // Short week - 5 days' week
@@ -388,6 +406,45 @@ Date.prototype.getIsoWeek = function()
 		}
 	}
 	return w;
+};
+
+/**
+ * Sets the day of the week value of the Date object using local time. 
+ * 
+ * The weekday is an integer between 0 and 6 representing the day of 
+ * the week and corresponds to the day of the week as follows:
+ * 0 - Sunday
+ * 1 - Monday
+ * 2 - Tuesday
+ * 3 - Wednesday
+ * 4 - Thurday
+ * 5 - Friday
+ * 6 - Saturday
+ * 
+ * If the second argument is defined then it sets to the week number 
+ * when this day of the week ocurs. It is the number of the week 
+ * (the first week of the month is 0). 
+ *
+ * @param	Integer	Required. A numeric value of the day of the week. 
+ * @param	Integer	Optional. A numeric value of the week of the month. 
+ * @param	Date
+ * @access	public
+ */
+Date.prototype.setDay = function(w, n)
+{
+	// Get the reference to the Date object
+	var x = this;
+	// Set the date to the first day of the month
+	x.setDate(1);
+	// Calculate the distance to the nearest required weekday
+	var d = w - x.getDay() + 1;
+	if ( d < 0 ) {
+		d += 7;
+	}
+	// Calculate the date corresponding to the required weekday
+	d += (n || 0) * 7;
+	// Set the date and return the result as all methods do
+	return x.setDate(d);
 };
 
 /**
