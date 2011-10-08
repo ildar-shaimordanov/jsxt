@@ -253,7 +253,7 @@ Date.prototype.getWorkingDaysInMonth = function(longWeek, holidays)
 	var h = 
 		t == 'number' 
 		? holidays 
-		: t == 'string' 
+		: t == 'function' 
 		? holidays(this) 
 		: 0;
 
