@@ -24,5 +24,20 @@ jsxt.tools.js2bat = function(text, options)
 		'', 
 		''].join('\n');
 
+	var prolog2 = [
+		'@set @x=0 /*! && @set @x=', 
+		['@', host, args, '//e:javascript "%~dpnx0" %*'].join(' '), 
+		'@goto :eof */', 
+		'', 
+		''].join('\n');
+
+	var prolog3 = [
+		'@if (!@_jscript) == (!@_jscript) (@echo off)', 
+		[host, args, '//e:javascript "%~dpnx0" %*'].join(' '), 
+		'goto :eof', 
+		'@end', 
+		'', 
+		''].join('\n');
+
 	return prolog + this.jsCode(text, options);
 };
