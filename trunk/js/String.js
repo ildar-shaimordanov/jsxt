@@ -197,16 +197,17 @@ Number.prototype.hex = function(n, c)
 Number.prototype.human = function(digits, binary)
 {
 	var n = Math.abs(this);
+	var p = this;
 	var s = '';
 	var divs = arguments.callee.add(binary);
 	for (var i = divs.length - 1; i >= 0; i--) {
 		if ( n >= divs[i].d ) {
-			n = this / divs[i].d;
+			p /= divs[i].d;
 			s = divs[i].s;
 			break;
 		}
 	}
-	return n.toFixed(digits) + s;
+	return p.toFixed(digits) + s;
 };
 
 /**
