@@ -204,14 +204,20 @@ Ajax.query = function(url)
 
 	xmlhttp.open((options.method || 'GET'), url, options.async, options.username, options.password);
 
-	xmlhttp.onreadystatechange = function()
-	{
-		if ( 'function' != typeof options.onreadystate ) {
-			return;
-		}
-
-		result = options.onreadystate(xmlhttp);
-	};
+	if ( typeof options.onload == 'function' ) {
+		xmlhttp.onreadystatechange = function()
+		{
+			if ( xmlhttp.readyState != 4 ) {
+				return;
+			}
+			result = options.onload(xmlhttp);
+		};
+	} else if ( typeof options.onreadystate == 'function' ) {
+		xmlhttp.onreadystatechange = function()
+		{
+			result = options.onreadystate(xmlhttp);
+		};
+	}
 
 	if ( options.nocache ) {
 		if ( ! options.headers ) {
@@ -245,10 +251,6 @@ Ajax.query = function(url)
 
 	xmlhttp.send(options.content);
 
-	if ( ! options.async && 'function' == typeof options.onreadystate && 'undefined' == typeof ActiveXObject ) {
-		result = options.onreadystate(xmlhttp);
-	}
-
 	return result;
 };
 
@@ -275,7 +277,7 @@ Ajax.queryFile = function(filename, options)
 	if ( ! ( 'nocache' in options ) ) {
 		options.nocache = false;
 	}
-	if ( ! ( 'onreadystate' in options ) ) {
+	if ( ! ( 'onreadystate' in options ) && ! ( 'onload' in options ) ) {
 		options.onreadystate = function(xmlhttp)
 		{
 			if ( xmlhttp.readyState != 4 ) {
