@@ -46,6 +46,19 @@ Math.PI_4 = Math.PI / 4;
 Math.PI_6 = Math.PI / 6;
 
 /**
+ * Makes sure that the passed number is within both a minimum value and a maximum value
+ *
+ * @param	Number
+ * @param	Number
+ * @param	Number
+ * @return	Number
+ * @access	static
+ */
+Math.clamp = function(number, minValue, maxValue) {
+	return Math.max(minValue, Math.min(maxValue, number));
+};
+
+/**
  * Returns the sign value of a number.
  *
  * @param	Number
