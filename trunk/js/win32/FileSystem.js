@@ -14,6 +14,12 @@ function FileSystem()
 
 }
 
+FileSystem.fileName = WScript.ScriptName;
+
+FileSystem.fullName = WScript.ScriptFullName;
+
+FileSystem.dirName = FileSystem.fullName.replace(/\\[^\\]+$/, '');
+
 /**
  * The fastest looking for files/folders specified by options.
  * The options are:
