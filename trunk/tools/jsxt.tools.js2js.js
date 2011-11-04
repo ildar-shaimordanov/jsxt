@@ -11,7 +11,7 @@ jsxt.tools.js2js = function(text, options)
 	var that = this;
 
 	return text.replace(
-		/\s*\/\/\[requires\[\s*(.+\.js)\s*\]\]/ig, 
+		( /\s*\/\/\[requires\[\s*(.+\.js)\s*\]\]/ig ), 
 		function($0, $1)
 		{
 			var s;
