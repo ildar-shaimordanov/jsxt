@@ -13,7 +13,7 @@ jsxt.tools.js2xml = function(text, options)
 	var that = this;
 
 	return text.replace(
-		/\x3Cscript.*?src="(.+\.js)".*?\/script\x3E/ig, 
+		( /\x3Cscript.*?src="(.+\.js)".*?\/script\x3E/ig ), 
 		function($0, $1)
 		{
 			var s;
