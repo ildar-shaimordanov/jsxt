@@ -5,6 +5,40 @@
 // Copyright (c) 2006, 2011 by Ildar Shaimordanov
 //
 
+/**
+ * Parses a date string and returns the number of milliseconds 
+ * between the date string and midnight of January 1, 1970. 
+ * Extends the standard static method Date.parse allowing 
+ * milliseconds in the input. 
+ *
+ * The second optional argument, matcher is a fucntion 
+ * asccepting an input string and splitting it into an array 
+ * with two items -- the standard date string and milliseconds. 
+ *
+ * By default it considers that an input string contains 
+ * milliseconds at the end of a string. 
+ *
+ * The matcher function can be passed directly to the function 
+ * or declared globally as parseDate.matcher method. 
+ *
+ * @param	String
+ * @param	Function
+ * @return	Number
+ * @access	static
+ */
+function parseDate(v, matcher)
+{
+	var m = (matcher || arguments.callee.matcher)(v) || [v, 0];
+	return Date.parse(m[0]) + (+m[1]);
+};
+
+parseDate.matcher = function(v)
+{
+	var m = v.match(/^(.+)\.(\d{3})$/);
+	m && m.shift();
+	return m;
+};
+
 if ( ! Date.now ) {
 
 /**
