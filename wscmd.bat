@@ -104,7 +104,7 @@ goto wscmd.1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.12.5 Beta
+set wscmd.version=0.12.6 Beta
 
 
 if defined wscmd.debug call :wscmd.version>&2
@@ -416,7 +416,14 @@ while ( true ) {
 	try {
 
 		// String contains result of eval'd string
-		var result = eval((function(PS1, PS2)
+		(function(result)
+		{
+			if ( result === void 0 ) {
+				return;
+			}
+			WScript.Echo(result);
+		})
+		(eval((function(PS1, PS2)
 		{
 
 			if ( WScript.Arguments.Named.Exists('Q') ) {
@@ -470,6 +477,11 @@ while ( true ) {
 					input.length--;
 				}
 
+				// Add the new line character in the multiline mode
+				if ( result.length ) {
+					result[result.length] = '\n';
+				}
+
 				for (var i = 0; i < input.length; i++) {
 					result[result.length] = input[i];
 				}
@@ -507,11 +519,7 @@ while ( true ) {
 			eval.history += history;
 			return history;
 
-		})('wscmd > ', 'wscmd :: '));
-
-		if ( result !== void 0 ) {
-			WScript.Echo(result);
-		}
+		})('wscmd > ', 'wscmd :: ')));
 
 	} catch (e) {
 
