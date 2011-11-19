@@ -13,11 +13,7 @@
 
 (function()
 {
-	if ( WScript.Arguments.Unnamed.length == 0 ) {
-		jsxt.tools.help(arguments.callee.getOneResource());
-		jsxt.tools.quit();
-	}
-	if ( WScript.Arguments.Named.Exists('H') || WScript.Arguments.Named.Exists('HELP') ) {
+	if ( WScript.Arguments.Unnamed.length == 0 || WScript.Arguments.Named.Exists('H') || WScript.Arguments.Named.Exists('HELP') ) {
 		jsxt.tools.help(arguments.callee.getOneResource());
 		jsxt.tools.quit();
 	}
