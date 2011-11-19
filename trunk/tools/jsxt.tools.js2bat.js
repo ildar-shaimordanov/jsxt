@@ -13,11 +13,11 @@ jsxt.tools.js2bat = function(text, options)
 {
 	options = options || {};
 
-	var host = options.host || 'cscript';
+	var host = options.host || '%windir%\\System32\\cscript.exe';
 	var args = options.args || '//nologo';
 
 	var prolog = [
-		'@set @x=0 /*!', 
+		'@set @x=0/*!', 
 		'@set @x=', 
 		['@', host, args, '//e:javascript "%~dpnx0" %*'].join(' '), 
 		'@goto :eof */', 
@@ -25,7 +25,7 @@ jsxt.tools.js2bat = function(text, options)
 		''].join('\n');
 
 	var prolog2 = [
-		'@set @x=0 /*! && @set @x=', 
+		'@set @x=0/*!&&@set @x=', 
 		['@', host, args, '//e:javascript "%~dpnx0" %*'].join(' '), 
 		'@goto :eof */', 
 		'', 
@@ -39,5 +39,5 @@ jsxt.tools.js2bat = function(text, options)
 		'', 
 		''].join('\n');
 
-	return prolog + this.jsCode(text, options);
+	return prolog2 + this.jsCode(text, options);
 };
