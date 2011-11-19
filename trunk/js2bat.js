@@ -28,8 +28,8 @@ if ( ! WScript.FullName.match(/cscript/i) || WScript.Arguments.Named.Exists('H')
 var options = {
 	// Define the script host to be launched (WSCRIPT or CSCRIPT)
 	host: WScript.Arguments.Named.Exists('W') 
-		? 'wscript'
-		: 'cscript', 
+		? '%windir%\\System32\\wscript.exe'
+		: '%windir%\\System32\\cscript.exe', 
 
 	// Additional arguments for the script host
 	args: WScript.Arguments.Named('A') 
