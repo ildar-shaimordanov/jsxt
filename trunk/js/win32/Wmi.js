@@ -275,9 +275,9 @@ Wmi.Services = Wmi.inherit(Wmi.Common, {
 		}
 
 		var sinkPrefix = options.sinkPrefix || Wmi.getSinkPrefix();
-		var sink = options.sink || Wmi.getSink(sinkPrefix, options);
+		var wbemSink = options.wbemSink || Wmi.getSink(sinkPrefix, options);
 
-		return this.wbemObject.ExecNotificationQueryAsync(sink, query, 
+		return this.wbemObject.ExecNotificationQueryAsync(wbemSink, query, 
 			options.queryLaguage || 'WQL', 
 			options.flags || 0, 
 			options.wbemNamedValueSet || null, 
@@ -296,9 +296,9 @@ Wmi.Services = Wmi.inherit(Wmi.Common, {
 		}
 
 		var sinkPrefix = options.sinkPrefix || Wmi.getSinkPrefix();
-		var sink = options.sink || Wmi.getSink(sinkPrefix, options);
+		var wbemSink = options.wbemSink || Wmi.getSink(sinkPrefix, options);
 
-		return this.wbemObject.ExecQueryAsync(sink, query, 
+		return this.wbemObject.ExecQueryAsync(wbemSink, query, 
 			options.queryLaguage || 'WQL', 
 			options.flags || 0, 
 			options.wbemNamedValueSet || null, 
@@ -316,9 +316,9 @@ Wmi.Services = Wmi.inherit(Wmi.Common, {
 		}
 
 		var sinkPrefix = options.sinkPrefix || Wmi.getSinkPrefix();
-		var sink = options.sink || Wmi.getSink(sinkPrefix, options);
+		var wbemSink = options.wbemSink || Wmi.getSink(sinkPrefix, options);
 
-		return this.service.Get(sink, objectPath, 
+		return this.service.Get(wbemSink, objectPath, 
 			options.flags || 0, 
 			options.wbemNamedValueSet || null, 
 			options.wbemAsyncContext || null);
@@ -343,9 +343,9 @@ Wmi.Services = Wmi.inherit(Wmi.Common, {
 		}
 
 		var sinkPrefix = options.sinkPrefix || Wmi.getSinkPrefix();
-		var sink = options.sink || Wmi.getSink(sinkPrefix, options);
+		var wbemSink = options.wbemSink || Wmi.getSink(sinkPrefix, options);
 
-		return this.service.SubclassesOf(sink, superClass, 
+		return this.service.SubclassesOf(wbemSink, superClass, 
 			options.flags || 0, 
 			options.wbemNamedValueSet || null, 
 			options.wbemAsyncContext || null);
