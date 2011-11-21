@@ -10,16 +10,9 @@ var Wmi = function(options)
 	return Wmi.create(options);
 }
 
-Wmi.UNKNOWN   = 0;
-Wmi.OTHER     = 0;
-Wmi.NAMESPACE = 1;
-Wmi.CLASS     = 2;
-Wmi.INSTANCE  = 3;
-
 Wmi.setSecurity = function(wbemObject, options)
 {
 	var sec = wbemObject.Security_;
-
 	if ( options.impersonationLevel ) {
 		sec.ImpersonationLevel = options.impersonationLevel;
 	}
@@ -34,7 +27,7 @@ Wmi.setSecurity = function(wbemObject, options)
 			sec.Privileges.AddAsString(p, f);
 		}
 	}
-	return wbemObject
+	return wbemObject;
 };
 
 Wmi.getLocator = function(options)
@@ -105,12 +98,6 @@ Wmi.getSinkPrefix = function()
 	return 'SINK' + (new Date()).getTime() + '_';
 };
 
-Wmi.getSink = function(sinkPrefix, events)
-{
-	Wmi.setSinkEvents(sinkPrefix, events);
-	return WScript.CreateObject('WbemScripting.SWbemSink', sinkPrefix);
-};
-
 Wmi.setSinkEvents = function(sinkPrefix, events)
 {
 	var global = (function()
@@ -124,6 +111,8 @@ Wmi.setSinkEvents = function(sinkPrefix, events)
 
 	var names = arguments.callee.eventNames;
 	for (var i = 0; i < names.length; i++) {
+		// n - nameOfEvent
+		// p - NameOfEvent
 		var n = names[i].replace(/^./, function($0) { return $0.toLowerCase(); });
 		var p = names[i].replace(/^./, function($0) { return $0.toUpperCase(); });
 		if ( typeof events[n] != 'function' && typeof events[p] != 'function' ) {
@@ -134,6 +123,12 @@ Wmi.setSinkEvents = function(sinkPrefix, events)
 };
 
 Wmi.setSinkEvents.eventNames = 'completed objectPut objectReady progress'.split(' ');
+
+Wmi.getSink = function(sinkPrefix, events)
+{
+	Wmi.setSinkEvents(sinkPrefix, events);
+	return WScript.CreateObject('WbemScripting.SWbemSink', sinkPrefix);
+};
 
 Wmi.prepareQuery = function(className, whereClause)
 {
@@ -170,21 +165,15 @@ Wmi.create = function(options)
 
 	var wmi;
 
-	if ( ! wbemObject.Path_ ) {
-		//This is namespace
-		//Ex.: WinMgmts://./Root/CIMV2
+	if ( !! wbemObject.Path_ ) {
+		wmi = new Wmi.Object(wbemObject, wbemLocator);
+	} else if ( typeof wbemObject.Item == 'unknown' ) {
+		wmi = new Wmi.ObjectSet(wbemObject, wbemLocator);
+	} else {
 		wmi = new Wmi.Services(wbemObject, wbemLocator);
 		if ( options.extendSubclasses ) {
 			wmi.extendSubclasses();
 		}
-	} else if ( wbemObject.Path_.IsClass ) {
-		// This is class
-		// Ex.: WmiMgmts://./Root/CIMV2:Win32_Process
-		wmi = new Wmi.ObjectSet(wbemObject, wbemLocator);
-	} else {
-		// This is instance
-		// Ex.: WmiMgmts://./Root/CIMV2:Win32_Process:Handle=4
-		wmi = new Wmi.Object(wbemObject, wbemLocator);
 	}
 
 	return wmi;
@@ -219,13 +208,12 @@ Wmi.inherit = function(base, proto)
 };
 
 Wmi.Common = Wmi.inherit(null, {
-	type: Wmi.OTHER, 
 	constructor: function(wbemObject, wbemLocator)
 	{
 		this.wbemObject = wbemObject;
 		this.wbemLocator = wbemLocator;
 	}, 
-	abstract: function()
+	notImplemented: function()
 	{
 		throw new Error('Not implemented method');
 	}, 
@@ -236,17 +224,20 @@ Wmi.Common = Wmi.inherit(null, {
 			collection = collection(this.wbemObject);
 		} else if ( t == 'string' ) {
 			// Convert name-of-property to NameOfProperty_
-			var prop = collection.replace(/(?:^|-)(.)/g, function($0, $1)
-			{
-				return $1.toUpperCase();
-			}) + '_';
+			var prop = collection
+				.replace(/(?:^|-)([a-z])/g, function($0, $1)
+				{
+					return $1.toUpperCase();
+				})
+				.replace(/[^_]$/, function($0)
+				{
+					return $0 + '_';
+				})
+				;
 			collection = this.wbemObject[prop];
 		} else {
 			collection = collection || this.wbemObject;
 		}
-//		collection = typeof collection == 'function' 
-//			? collection(this.wbemObject) 
-//			: collection || this.wbemObject;
 		for (var e = new Enumerator(collection) ; ! e.atEnd(); e.moveNext()) {
 			var i = e.item();
 			func(i, this.wbemObject);
@@ -255,18 +246,17 @@ Wmi.Common = Wmi.inherit(null, {
 });
 
 Wmi.Services = Wmi.inherit(Wmi.Common, {
-	type: Wmi.NAMESPACE, 
 	associatorsOf: function(objectPath, options)
 	{
-		this.abstract();
+		this.notImplemented();
 	}, 
 	deleteClass: function(objectPath, options)
 	{
-		this.abstract();
+		this.notImplemented();
 	}, 
 	execMethod: function(objectPath, methodName, options)
 	{
-		this.abstract();
+		this.notImplemented();
 	}, 
 	execNotificationQuery: function(query, options)
 	{
@@ -274,12 +264,12 @@ Wmi.Services = Wmi.inherit(Wmi.Common, {
 
 		if ( ! options.async ) {
 			var eventNotifier = this.wbemObject.ExecNotificationQuery(query, 
-				options.eventLaguage || 'WQL', 
+				options.queryLaguage || 'WQL', 
 				options.flags || (16 + 32), 
 				options.wbemNamedValueSet || null);
-			var eventQuery = eventNotifier.NextEvent();
+			var event = eventNotifier.NextEvent();
 			if ( typeof options.objectReady == 'function' ) {
-				options.objectReady(eventQuery);
+				options.objectReady(event);
 			}
 			return;
 		}
@@ -288,7 +278,7 @@ Wmi.Services = Wmi.inherit(Wmi.Common, {
 		var sink = options.sink || Wmi.getSink(sinkPrefix, options);
 
 		return this.wbemObject.ExecNotificationQueryAsync(sink, query, 
-			options.eventLaguage || 'WQL', 
+			options.queryLaguage || 'WQL', 
 			options.flags || 0, 
 			options.wbemNamedValueSet || null, 
 			options.wbemAsyncContext || null);
@@ -299,17 +289,17 @@ Wmi.Services = Wmi.inherit(Wmi.Common, {
 
 		if ( ! options.async ) {
 			var wbemObject = this.wbemObject.ExecQuery(query, 
-				options.eventLaguage || 'WQL', 
+				options.queryLaguage || 'WQL', 
 				options.flags || 16, 
 				options.wbemNamedValueSet || null);
-			return new Wmi.ObjectSet(wbemObject);
+			return new Wmi.create(wbemObject);
 		}
 
 		var sinkPrefix = options.sinkPrefix || Wmi.getSinkPrefix();
 		var sink = options.sink || Wmi.getSink(sinkPrefix, options);
 
 		return this.wbemObject.ExecQueryAsync(sink, query, 
-			options.eventLaguage || 'WQL', 
+			options.queryLaguage || 'WQL', 
 			options.flags || 0, 
 			options.wbemNamedValueSet || null, 
 			options.wbemAsyncContext || null);
@@ -322,7 +312,7 @@ Wmi.Services = Wmi.inherit(Wmi.Common, {
 			var wbemObject = this.wbemObject.Get(objectPath, 
 				options.flags || 0, 
 				options.wbemNamedValueSet || null);
-			return new Wmi.Object(wbemObject);
+			return new Wmi.create(wbemObject);
 		}
 
 		var sinkPrefix = options.sinkPrefix || Wmi.getSinkPrefix();
@@ -335,24 +325,41 @@ Wmi.Services = Wmi.inherit(Wmi.Common, {
 	}, 
 	instancesOf: function(className, options)
 	{
-		this.abstract();
+		this.notImplemented();
 	}, 
 	referencesTo: function(query, options)
 	{
-		this.abstract();
+		this.notImplemented();
 	}, 
-	subclassesOf: function(className, options)
+	subclassesOf: function(superClass, options)
 	{
-		this.abstract();
+		options = options || {};
+
+		if ( ! options.async ) {
+			var wbemObject = this.wbemObject.SubclassesOf(superClass, 
+				options.flags || 0, 
+				options.wbemNamedValueSet || null);
+			return new Wmi.create(wbemObject);
+		}
+
+		var sinkPrefix = options.sinkPrefix || Wmi.getSinkPrefix();
+		var sink = options.sink || Wmi.getSink(sinkPrefix, options);
+
+		return this.service.SubclassesOf(sink, superClass, 
+			options.flags || 0, 
+			options.wbemNamedValueSet || null, 
+			options.wbemAsyncContext || null);
 	}, 
 	extendSubclasses: function()
 	{
 		var that = this;
-		var classNames = that.wbemObject.SubclassesOf();
-
-		for (var e = new Enumerator(classNames); ! e.atEnd(); e.moveNext()) {
-			var p = e.item();
-			(function()
+		this.forEach(
+//			this.subclassesOf().wbemObject, 
+			function(wbemObject)
+			{
+				return wbemObject.SubclassesOf();
+			}, 
+			function(p)
 			{
 				var className = p.Path_.Class;
 				if ( that[className] ) {
@@ -362,17 +369,15 @@ Wmi.Services = Wmi.inherit(Wmi.Common, {
 				that[className] = function(whereClause, options)
 				{
 					var query = Wmi.prepareQuery(className, whereClause);
-					return that.ExecQuery(query, options);
+					return that.execQuery(query, options);
 				};
-			})();
-		}
+			}
+		);
 	}
 });
 
 Wmi.ObjectSet = Wmi.inherit(Wmi.Common, {
-	type: Wmi.CLASS
 });
 
 Wmi.Object = Wmi.inherit(Wmi.Common, {
-	type: Wmi.INSTANCE
 });
