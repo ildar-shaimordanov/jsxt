@@ -23,11 +23,13 @@ http://msdn.microsoft.com/en-us/library/windows/desktop/aa393877%28v=vs.85%29.as
 SWbemObjectSet object
 http://msdn.microsoft.com/en-us/library/windows/desktop/aa393762%28v=vs.85%29.aspx
 
-SWbemServices object
+SWbemServices/SWbemServicesEx object
 http://msdn.microsoft.com/en-us/library/windows/desktop/aa393854%28v=vs.85%29.aspx
+http://msdn.microsoft.com/en-us/library/windows/desktop/aa393855(v=VS.85).aspx
 
-SWbemObject object
+SWbemObject/SWbemObjectEx object
 http://msdn.microsoft.com/en-us/library/windows/desktop/aa393741%28v=vs.85%29.aspx
+http://msdn.microsoft.com/en-us/library/windows/desktop/aa393742%28v=VS.85%29.aspx
 
 */
 var Wmi = function(options)
@@ -92,7 +94,7 @@ Wmi.getMoniker = function(options)
 		security.push('authority=' + options.authority);
 	}
 	if ( options.privileges ) {
-		security.push('(' + options.privileges.join(', ') + ')');
+		security.push('(' + [].concat(options.privileges).join(', ') + ')');
 	}
 
 	var moniker = ['WinMgmts:'];
@@ -540,6 +542,30 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 			true, 
 			options);
 	}, 
+	putClass: function(wbemInObject, options)
+	{
+		options = options || {};
+
+		return this.callMethod(
+			function(wbemObject, wbemNamedValueSet)
+			{
+				return wbemObject.Put(
+					wbemInObject, 
+					options.flags || 16, 
+					wbemNamedValueSet);
+			}, 
+			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
+			{
+				wbemObject.PutAsync(
+					wbemSink, 
+					wbemInObject, 
+					options.flags || 0, 
+					wbemNamedValueSet, 
+					wbemAsyncContext);
+			}, 
+			true, 
+			options);
+	}, 
 	referencesTo: function(objectPath, options)
 	{
 		options = options || {};
@@ -727,6 +753,15 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 			false, 
 			options);
 	}, 
+	getText: function(textFormat, options)
+	{
+		options = options || {};
+
+		return this.wbemObject.GetText_(
+			textFormat, 
+			options.flags || 0, 
+			Wmi.getNamedValueSet(options.namedValueSet));
+	}, 
 	getObjectText: function(options)
 	{
 		return this.wbemObject.GetObjectText_(options && options.flags || 0);
@@ -806,6 +841,14 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 			}, 
 			true, 
 			options);
+	}, 
+	refresh: function(options)
+	{
+		options = options || {};
+
+		this.wbemObject.Refresh_(
+			options.flags || 0, 
+			Wmi.getNamedValueSet(options.namedValueSet));
 	}, 
 	spawnDerivedClass: function(options)
 	{
