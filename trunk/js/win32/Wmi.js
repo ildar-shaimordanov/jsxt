@@ -7,6 +7,10 @@
 
 /*
 
+¬ведение в Windows Management Instrumentation (WMI)
+Introduction to WMI (Russian text)
+http://www.script-coding.com/WMI.html
+
 Windows Management Instrumentation
 http://msdn.microsoft.com/en-us/library/windows/desktop/aa394582%28v=VS.85%29.aspx
 
@@ -117,10 +121,14 @@ Wmi.getMoniker = function(options)
 	return moniker.join('');
 };
 
+Wmi.defaultSinkPrefix = 'SINK_';
+
 Wmi.getSinkPrefix = function()
 {
 	return 'SINK' + (new Date()).getTime() + '_';
 };
+
+Wmi.defaultSinkEventNames = 'completed objectPut objectReady progress'.split(' ');
 
 Wmi.setSinkEvents = function(sinkPrefix, events)
 {
@@ -133,7 +141,7 @@ Wmi.setSinkEvents = function(sinkPrefix, events)
 		events = { 'objectReady': events };
 	}
 
-	var names = arguments.callee.eventNames;
+	var names = Wmi.defaultSinkEventNames;
 	for (var i = 0; i < names.length; i++) {
 		// n - nameOfEvent
 		// p - NameOfEvent
@@ -144,8 +152,6 @@ Wmi.setSinkEvents = function(sinkPrefix, events)
 		}
 	}
 };
-
-Wmi.setSinkEvents.eventNames = 'completed objectPut objectReady progress'.split(' ');
 
 Wmi.getSink = function(sinkPrefix, events)
 {
@@ -277,7 +283,7 @@ Wmi.Common = Wmi.inherit(null, {
 	}, 
 	callMethod: function(wrapMethod, wrapAsyncMethod, useForEach, options)
 	{
-		var wbemNamedValueSet = Wmi.getNamedValueSet(options.wbemNamedValueSet || options.namedValueSet);
+		var wbemNamedValueSet = Wmi.getNamedValueSet(options.namedValueSet);
 
 		if ( ! options.async ) {
 			var wbemResult = wrapMethod(this.wbemObject, wbemNamedValueSet);
@@ -295,7 +301,7 @@ Wmi.Common = Wmi.inherit(null, {
 		var sinkPrefix = options.sinkPrefix || Wmi.getSinkPrefix();
 		var wbemSink = options.wbemSink || Wmi.getSink(sinkPrefix, options);
 
-		var wbemAsyncContext = Wmi.getNamedValueSet(options.wbemAsyncContext || options.asyncContext || {});
+		var wbemAsyncContext = Wmi.getNamedValueSet(options.asyncContext || {});
 		wbemAsyncContext.Add('asyncCompleted', false);
 
 		wrapAsyncMethod(this.wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext);
@@ -407,7 +413,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 	{
 		options = options || {};
 
-		var wbemInParams = this.getInParams(objectPath, methodName, options.wbemInParams || options.inParams);
+		var wbemInParams = this.getInParams(objectPath, methodName, options.inParams);
 
 		return this.callMethod(
 			function(wbemObject, wbemNamedValueSet)
@@ -697,7 +703,7 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 	{
 		options = options || {};
 
-		var wbemInParams = this.getInParams(methodName, options.wbemInParams || options.inParams);
+		var wbemInParams = this.getInParams(methodName, options.inParams);
 
 		return this.callMethod(
 			function(wbemObject, wbemNamedValueSet)
