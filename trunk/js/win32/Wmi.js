@@ -195,6 +195,8 @@ Wmi.prepareQuery = function(className, whereClause, selectors, withinClause)
 	return query;
 };
 
+Wmi.extendSubclasses = false;
+
 Wmi.create = function(options)
 {
 	options = options || {};
@@ -226,7 +228,7 @@ Wmi.create = function(options)
 		wmi = new Wmi.ObjectSet(wbemObject, wbemLocator);
 	} else if ( typeof wbemObject.InstancesOf == 'unknown' ) {
 		wmi = new Wmi.Namespace(wbemObject, wbemLocator);
-		if ( options.extendSubclasses ) {
+		if ( options.extendSubclasses || Wmi.extendSubclasses ) {
 			wmi.extendSubclasses();
 		}
 	} else {
