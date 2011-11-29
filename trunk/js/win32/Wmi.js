@@ -35,7 +35,7 @@ http://msdn.microsoft.com/en-us/library/windows/desktop/aa393742%28v=VS.85%29.as
 var Wmi = function(options)
 {
 	return Wmi.create(options);
-}
+};
 
 Wmi.setSecurity = function(wbemObject, options)
 {
@@ -67,6 +67,8 @@ Wmi.getLocator = function(options)
 Wmi.connectServer = function(wbemLocator, options)
 {
 	options = options || {};
+
+	wbemLocator = wbemLocator || Wmi.getLocator(options);
 
 	return wbemLocator.ConnectServer(
 		options.computer, 
@@ -134,10 +136,7 @@ Wmi.defaultSinkEventNames = 'completed objectPut objectReady progress'.split(' '
 
 Wmi.setSinkEvents = function(sinkPrefix, events)
 {
-	var global = (function()
-	{
-		return this;
-	})();
+	var global = (function() { return this; })();
 
 	if ( typeof events == 'function' ) {
 		events = { 'objectReady': events };
@@ -281,16 +280,13 @@ Wmi.Common = Wmi.inherit(null, {
 		this.wbemObject = wbemObject;
 		this.wbemLocator = wbemLocator;
 	}, 
-	notImplemented: function()
-	{
-		throw new Error('Not implemented method');
-	}, 
 	callMethod: function(wrapMethod, wrapAsyncMethod, useForEach, options)
 	{
 		var wbemNamedValueSet = Wmi.getNamedValueSet(options.namedValueSet);
+		var wbemObject = this.valueOf();
 
 		if ( ! options.async ) {
-			var wbemResult = wrapMethod(this.wbemObject, wbemNamedValueSet);
+			var wbemResult = wrapMethod(wbemObject, wbemNamedValueSet);
 
 			if ( options.objectReady ) {
 				if ( useForEach ) {
@@ -299,6 +295,7 @@ Wmi.Common = Wmi.inherit(null, {
 					options.objectReady(wbemResult);
 				}
 			}
+
 			return wbemResult && Wmi.create(wbemResult);
 		}
 
@@ -308,7 +305,7 @@ Wmi.Common = Wmi.inherit(null, {
 		var wbemAsyncContext = Wmi.getNamedValueSet(options.asyncContext || {});
 		wbemAsyncContext.Add('asyncCompleted', false);
 
-		wrapAsyncMethod(this.wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext);
+		wrapAsyncMethod(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext);
 
 		if ( options.wait ) {
 			while ( ! wbemAsyncContext.Item('asyncCompleted').Value ) {
@@ -318,6 +315,8 @@ Wmi.Common = Wmi.inherit(null, {
 	}, 
 	forEach: function(collection, func)
 	{
+		var wbemObject = this.valueOf();
+
 		var t = typeof collection;
 		if ( t == 'string' ) {
 			// Convert name-of-property to NameOfProperty_
@@ -331,16 +330,29 @@ Wmi.Common = Wmi.inherit(null, {
 					return $0 + '_';
 				})
 				;
-			collection = this.wbemObject[prop];
+			collection = wbemObject[prop];
 		} else if ( t == 'function' ) {
-			collection = collection(this.wbemObject);
+			collection = collection(wbemObject);
 		} else {
-			collection = collection || this.wbemObject;
+			collection = collection || wbemObject;
 		}
 		for (var e = new Enumerator(collection) ; ! e.atEnd(); e.moveNext()) {
 			var i = e.item();
-			func(i, this.wbemObject);
+			func(i, wbemObject);
 		}
+	}, 
+	map: function(collection, func)
+	{
+		var result = [];
+		this.forEach(collection, function(p)
+		{
+			result.push(func(p));
+		});
+		return result;
+	}, 
+	notImplemented: function()
+	{
+		throw new Error('Not implemented method');
 	}, 
 	valueOf: function()
 	{
@@ -413,11 +425,11 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 			false, 
 			options);
 	}, 
-	execMethod: function(objectPath, methodName, options)
+	execMethod: function(objectPath, methodName, inParams, options)
 	{
 		options = options || {};
 
-		var wbemInParams = this.getInParams(objectPath, methodName, options.inParams);
+		var wbemInParams = this.getInParams(objectPath, methodName, inParams);
 
 		return this.callMethod(
 			function(wbemObject, wbemNamedValueSet)
@@ -626,11 +638,6 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 			true, 
 			options);
 	}, 
-	getInParams: function(objectPath, methodName, options)
-	{
-		var wmi = this.getClass(objectPath);
-		return wmi.getInParams(methodName, options);
-	}, 
 	extendSubclasses: function()
 	{
 		var that = this;
@@ -649,6 +656,16 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 				};
 			}
 		});
+	}, 
+	getInParams: function(objectPath, methodName, inParams)
+	{
+		var wmi = this.getClass(objectPath);
+		return wmi.getInParams(methodName, inParams);
+	}, 
+	getPropertyNames: function(objectPath)
+	{
+		var wmi = this.getClass(objectPath);
+		return wmi.getPropertyNames();
 	}
 });
 
@@ -696,14 +713,15 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 	}, 
 	clone: function(options)
 	{
-		return this.wbemObject.Clone_();
+		var wbemObject = this.valueOf().Clone_();
+		return Wmi.create(wbemObject);
 	}, 
 	compareTo: function(object, options)
 	{
 		if ( object instanceof Wmi.Common ) {
 			object = object.wbemObject;
 		}
-		return this.wbemObject.CompareTo_(object, options && options.flags || 0);
+		return this.valueOf().CompareTo_(object, (options || {}).flags || 0);
 	}, 
 	deleteClass: function(options)
 	{
@@ -727,11 +745,11 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 			false, 
 			options);
 	}, 
-	execMethod: function(methodName, options)
+	execMethod: function(methodName, inParams, options)
 	{
 		options = options || {};
 
-		var wbemInParams = this.getInParams(methodName, options.inParams);
+		var wbemInParams = this.getInParams(methodName, inParams);
 
 		return this.callMethod(
 			function(wbemObject, wbemNamedValueSet)
@@ -759,14 +777,14 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 	{
 		options = options || {};
 
-		return this.wbemObject.GetText_(
+		return this.valueOf().GetText_(
 			textFormat, 
 			options.flags || 0, 
 			Wmi.getNamedValueSet(options.namedValueSet));
 	}, 
 	getObjectText: function(options)
 	{
-		return this.wbemObject.GetObjectText_(options && options.flags || 0);
+		return this.valueOf().GetObjectText_((options || {}).flags || 0);
 	}, 
 	instancesOf: function(options)
 	{
@@ -848,17 +866,19 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 	{
 		options = options || {};
 
-		this.wbemObject.Refresh_(
+		this.valueOf().Refresh_(
 			options.flags || 0, 
 			Wmi.getNamedValueSet(options.namedValueSet));
 	}, 
 	spawnDerivedClass: function(options)
 	{
-		return this.wbemObject.SpawnDerivedClass_(options && options.flags || 0);
+		var wbemObject = this.valueOf().SpawnDerivedClass_((options || {}).flags || 0);
+		return Wmi.create(wbemObject);
 	}, 
 	spawnInstance: function(options)
 	{
-		return this.wbemObject.SpawnInstance_(options && options.flags || 0);
+		var wbemObject = this.valueOf().SpawnInstance_((options || {}).flags || 0);
+		return Wmi.create(wbemObject);
 	}, 
 	subclassesOf: function(superClass, options)
 	{
@@ -882,8 +902,36 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 			true, 
 			options);
 	}, 
+	extendMethods: function()
+	{
+		var that = this;
+		this.forEach(
+			'methods', 
+			function(method)
+			{
+				var methodName = method.Name;
+				if ( that[methodName] ) {
+					return;
+				}
+
+				that[methodName] = function(inParams, options)
+				{
+					return that.execMethod(methodName, inParams, options);
+				};
+
+				that[methodName].paramNames = method.InParameters 
+					? that.map(method.InParameters.Properties_, function(p) { return p.Name; }) 
+					: [];
+			}
+		);
+	}, 
 	getInParams: function(methodName, inParams)
 	{
+		var wbemInParams = this.valueOf().Methods_(methodName).InParameters;
+		// this method does not support input parameters
+		if ( ! wbemInParams ) {
+			return null;
+		}
 		// nothing has been passed
 		if ( ! inParams ) {
 			return null;
@@ -893,11 +941,6 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 			return inParams;
 		}
 		// {  name: value[, ...] }
-		var wbemInParams = this.wbemObject.Methods_(methodName).InParameters;
-		// this method does not have parameters
-		if ( ! wbemInParams ) {
-			return null;
-		}
 		wbemInParams = wbemInParams.SpawnInstance_();
 		for (var p in inParams) {
 			if ( ! inParams.hasOwnProperty(p) ) {
@@ -906,5 +949,9 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 			wbemInParams.Properties_.Item(p) = inParams[p];
 		}
 		return wbemInParams;
+	}, 
+	getPropertyNames: function()
+	{
+		return this.map('properties', function(p) { return p.Name; });
 	}
 });
