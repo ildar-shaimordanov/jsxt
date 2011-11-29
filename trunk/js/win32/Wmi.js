@@ -7,7 +7,6 @@
 
 /*
 
-¬ведение в Windows Management Instrumentation (WMI)
 Introduction to WMI (Russian text)
 http://www.script-coding.com/WMI.html
 
