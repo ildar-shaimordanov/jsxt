@@ -193,6 +193,14 @@ Wmi.prepareQuery = function(className, whereClause, selectors, withinClause)
 	return query;
 };
 
+Wmi.defaultFlags = function(options, n)
+{
+	var f = Number((options || {}).flags);
+	return f == 0 ? 0 : f || n;
+};
+
+Wmi.extendMethods = false;
+
 Wmi.extendSubclasses = false;
 
 Wmi.create = function(options)
@@ -222,6 +230,9 @@ Wmi.create = function(options)
 
 	if ( !! wbemObject.Path_ ) {
 		wmi = new Wmi.Object(wbemObject, wbemLocator);
+		if ( options.extendMethods || Wmi.extendMethods ) {
+			wmi.extendMethods();
+		}
 	} else if ( typeof wbemObject.Item == 'unknown' ) {
 		wmi = new Wmi.ObjectSet(wbemObject, wbemLocator);
 	} else if ( typeof wbemObject.InstancesOf == 'unknown' ) {
@@ -279,7 +290,7 @@ Wmi.Common = Wmi.inherit(null, {
 		this.wbemObject = wbemObject;
 		this.wbemLocator = wbemLocator;
 	}, 
-	callMethod: function(wrapMethod, wrapAsyncMethod, useForEach, options)
+	callMethod: function(wrapMethod, wrapMethodAsync, useForEach, options)
 	{
 		var wbemNamedValueSet = Wmi.getNamedValueSet(options.namedValueSet);
 		var wbemObject = this.valueOf();
@@ -304,7 +315,7 @@ Wmi.Common = Wmi.inherit(null, {
 		var wbemAsyncContext = Wmi.getNamedValueSet(options.asyncContext || {});
 		wbemAsyncContext.Add('asyncCompleted', false);
 
-		wrapAsyncMethod(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext);
+		wrapMethodAsync(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext);
 
 		if ( options.wait ) {
 			while ( ! wbemAsyncContext.Item('asyncCompleted').Value ) {
@@ -377,7 +388,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 					!! options.schemaOnly, 
 					options.requiredAssocQualifier || null, 
 					options.requiredQualifier || null, 
-					options.flags || 16, 
+					Wmi.defaultFlags(options, 16), 
 					wbemNamedValueSet);
 			}, 
 			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
@@ -393,7 +404,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 					!! options.schemaOnly, 
 					options.requiredAssocQualifier || null, 
 					options.requiredQualifier || null, 
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet, 
 					wbemAsyncContext);
 			}, 
@@ -409,7 +420,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 			{
 				wbemObject.Delete(
 					objectPath, 
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet);
 			}, 
 			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
@@ -417,7 +428,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 				wbemObject.DeleteAsync(
 					wbemSink, 
 					objectPath, 
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet, 
 					wbemAsyncContext);
 			}, 
@@ -437,7 +448,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 					objectPath, 
 					methodName, 
 					wbemInParams, 
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet);
 			}, 
 			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
@@ -447,7 +458,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 					objectPath, 
 					methodName, 
 					wbemInParams, 
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet, 
 					wbemAsyncContext);
 			}, 
@@ -464,7 +475,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 				var wbemEventSource = wbemObject.ExecNotificationQuery(
 					query, 
 					options.queryLanguage || 'WQL', 
-					options.flags || (16 + 32), 
+					Wmi.defaultFlags(options, (16 + 32)), 
 					wbemNamedValueSet);
 				return wbemEventSource.NextEvent();
 			}, 
@@ -474,7 +485,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 					wbemSink, 
 					query, 
 					options.queryLanguage || 'WQL', 
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet, 
 					wbemAsyncContext);
 			}, 
@@ -491,7 +502,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 				return wbemObject.ExecQuery(
 					query, 
 					options.queryLanguage || 'WQL', 
-					options.flags || 16, 
+					Wmi.defaultFlags(options, 16), 
 					wbemNamedValueSet);
 			}, 
 			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
@@ -500,7 +511,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 					wbemSink, 
 					query, 
 					options.queryLanguage || 'WQL', 
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet, 
 					wbemAsyncContext);
 			}, 
@@ -516,7 +527,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 			{
 				return wbemObject.Get(
 					objectPath, 
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet);
 			}, 
 			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
@@ -524,7 +535,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 				wbemObject.GetAsync(
 					wbemSink, 
 					objectPath, 
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet, 
 					wbemAsyncContext);
 			}, 
@@ -540,7 +551,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 			{
 				return wbemObject.InstancesOf(
 					className, 
-					options.flags || 16, 
+					Wmi.defaultFlags(options, 16), 
 					wbemNamedValueSet);
 			}, 
 			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
@@ -548,7 +559,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 				wbemObject.InstancesOfAsync(
 					wbemSink, 
 					className, 
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet, 
 					wbemAsyncContext);
 			}, 
@@ -564,7 +575,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 			{
 				return wbemObject.Put(
 					wbemInObject, 
-					options.flags || 16, 
+					Wmi.defaultFlags(options, 16), 
 					wbemNamedValueSet);
 			}, 
 			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
@@ -572,7 +583,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 				wbemObject.PutAsync(
 					wbemSink, 
 					wbemInObject, 
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet, 
 					wbemAsyncContext);
 			}, 
@@ -593,7 +604,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 					!! options.classesOnly, 
 					!! options.schemaOnly, 
 					options.requiredQualifier || null, 
-					options.flags || 16, 
+					Wmi.defaultFlags(options, 16), 
 					wbemNamedValueSet);
 			}, 
 			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
@@ -606,7 +617,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 					!! options.classesOnly, 
 					!! options.schemaOnly, 
 					options.requiredQualifier || null, 
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet, 
 					wbemAsyncContext);
 			}, 
@@ -622,7 +633,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 			{
 				return wbemObject.SubclassesOf(
 					superClass || '', 
-					options.flags || 16, 
+					Wmi.defaultFlags(options, 16), 
 					wbemNamedValueSet);
 			}, 
 			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
@@ -630,7 +641,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 				wbemObject.SubclassesOfAsync(
 					wbemSink, 
 					superClass || '', 
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet, 
 					wbemAsyncContext);
 			}, 
@@ -688,7 +699,7 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 					!! options.schemaOnly, 
 					options.requiredAssocQualifier || null, 
 					options.requiredQualifier || null, 
-					options.flags || 16, 
+					Wmi.defaultFlags(options, 16), 
 					wbemNamedValueSet);
 			}, 
 			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
@@ -703,7 +714,7 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 					!! options.schemaOnly, 
 					options.requiredAssocQualifier || null, 
 					options.requiredQualifier || null, 
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet, 
 					wbemAsyncContext);
 			}, 
@@ -718,9 +729,9 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 	compareTo: function(object, options)
 	{
 		if ( object instanceof Wmi.Common ) {
-			object = object.wbemObject;
+			object = object.valueOf();
 		}
-		return this.valueOf().CompareTo_(object, (options || {}).flags || 0);
+		return this.valueOf().CompareTo_(object, Wmi.defaultFlags(options, 0));
 	}, 
 	deleteClass: function(options)
 	{
@@ -730,14 +741,14 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 			function(wbemObject, wbemNamedValueSet)
 			{
 				wbemObject.Delete_(
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet);
 			}, 
 			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
 			{
 				wbemObject.DeleteAsync_(
 					wbemSink, 
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet, 
 					wbemAsyncContext);
 			}, 
@@ -756,7 +767,7 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 				return wbemObject.ExecMethod_(
 					methodName, 
 					wbemInParams, 
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet);
 			}, 
 			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
@@ -765,7 +776,7 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 					wbemSink, 
 					methodName, 
 					wbemInParams, 
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet, 
 					wbemAsyncContext);
 			}, 
@@ -778,12 +789,12 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 
 		return this.valueOf().GetText_(
 			textFormat, 
-			options.flags || 0, 
+			Wmi.defaultFlags(options, 0), 
 			Wmi.getNamedValueSet(options.namedValueSet));
 	}, 
 	getObjectText: function(options)
 	{
-		return this.valueOf().GetObjectText_((options || {}).flags || 0);
+		return this.valueOf().GetObjectText_(Wmi.defaultFlags(options, 0));
 	}, 
 	instancesOf: function(options)
 	{
@@ -793,14 +804,14 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 			function(wbemObject, wbemNamedValueSet)
 			{
 				return wbemObject.Instances_(
-					options.flags || 16, 
+					Wmi.defaultFlags(options, 16), 
 					wbemNamedValueSet);
 			}, 
 			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
 			{
 				wbemObject.InstancesAsync_(
 					wbemSink, 
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet, 
 					wbemAsyncContext);
 			}, 
@@ -815,14 +826,14 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 			function(wbemObject, wbemNamedValueSet)
 			{
 				return wbemObject.Put_(
-					options.flags || 16, 
+					Wmi.defaultFlags(options, 16), 
 					wbemNamedValueSet);
 			}, 
 			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
 			{
 				wbemObject.PutAsync_(
 					wbemSink, 
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet, 
 					wbemAsyncContext);
 			}, 
@@ -842,7 +853,7 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 					!! options.classesOnly, 
 					!! options.schemaOnly, 
 					options.requiredQualifier || null, 
-					options.flags || 16, 
+					Wmi.defaultFlags(options, 16), 
 					wbemNamedValueSet);
 			}, 
 			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
@@ -854,7 +865,7 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 					!! options.classesOnly, 
 					!! options.schemaOnly, 
 					options.requiredQualifier || null, 
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet, 
 					wbemAsyncContext);
 			}, 
@@ -866,17 +877,17 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 		options = options || {};
 
 		this.valueOf().Refresh_(
-			options.flags || 0, 
+			Wmi.defaultFlags(options, 0), 
 			Wmi.getNamedValueSet(options.namedValueSet));
 	}, 
 	spawnDerivedClass: function(options)
 	{
-		var wbemObject = this.valueOf().SpawnDerivedClass_((options || {}).flags || 0);
+		var wbemObject = this.valueOf().SpawnDerivedClass_(Wmi.defaultFlags(options, 0));
 		return Wmi.create(wbemObject);
 	}, 
 	spawnInstance: function(options)
 	{
-		var wbemObject = this.valueOf().SpawnInstance_((options || {}).flags || 0);
+		var wbemObject = this.valueOf().SpawnInstance_(Wmi.defaultFlags(options, 0));
 		return Wmi.create(wbemObject);
 	}, 
 	subclassesOf: function(superClass, options)
@@ -887,14 +898,14 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 			function(wbemObject, wbemNamedValueSet)
 			{
 				return wbemObject.Subclasses_(
-					options.flags || 1, 
+					Wmi.defaultFlags(options, 1), 
 					wbemNamedValueSet);
 			}, 
 			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
 			{
 				wbemObject.SubclassesAsync_(
 					wbemSink, 
-					options.flags || 0, 
+					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet, 
 					wbemAsyncContext);
 			}, 
@@ -919,7 +930,8 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 				};
 
 				that[methodName].paramNames = method.InParameters 
-					? that.map(method.InParameters.Properties_, function(p) { return p.Name; }) 
+					? Wmi.create(method.InParameters).getPropertyNames() 
+//					? that.map(method.InParameters.Properties_, function(p) { return p.Name; }) 
 					: [];
 			}
 		);
