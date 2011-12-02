@@ -323,7 +323,7 @@ Wmi.Common = Wmi.inherit(null, {
 			}
 		}
 	}, 
-	forEach: function(collection, func)
+	forEach: function(collection, func, before)
 	{
 		var wbemObject = this.valueOf();
 
@@ -346,18 +346,25 @@ Wmi.Common = Wmi.inherit(null, {
 		} else {
 			collection = collection || wbemObject;
 		}
-		for (var e = new Enumerator(collection) ; ! e.atEnd(); e.moveNext()) {
+		var e = new Enumerator(collection);
+		if ( before ) {
+			before(e.item(), wbemObject);
+		}
+		for ( ; ! e.atEnd(); e.moveNext()) {
 			var i = e.item();
 			func(i, wbemObject);
 		}
 	}, 
-	map: function(collection, func)
+	map: function(collection, func, before)
 	{
 		var result = [];
-		this.forEach(collection, function(p)
-		{
-			result.push(func(p));
-		});
+		this.forEach(
+			collection, 
+			function(p)
+			{
+				result.push(func(p));
+			}, 
+			before);
 		return result;
 	}, 
 	notImplemented: function()
