@@ -288,7 +288,7 @@ Wmi.Common = Wmi.inherit(null, {
 	constructor: function(wbemObject, wbemLocator)
 	{
 		this.wbemObject = wbemObject;
-		this.wbemLocator = wbemLocator;
+		this.wbemLocator = wbemLocator || null;
 	}, 
 	callMethod: function(wrapMethod, wrapMethodAsync, useForEach, options)
 	{
@@ -310,7 +310,7 @@ Wmi.Common = Wmi.inherit(null, {
 		}
 
 		var sinkPrefix = options.sinkPrefix || Wmi.getSinkPrefix();
-		var wbemSink = options.wbemSink || Wmi.getSink(sinkPrefix, options);
+		var wbemSink = options.sink || Wmi.getSink(sinkPrefix, options);
 
 		var wbemAsyncContext = Wmi.getNamedValueSet(options.asyncContext || {});
 		wbemAsyncContext.Add('asyncCompleted', false);
