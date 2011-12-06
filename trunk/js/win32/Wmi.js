@@ -193,6 +193,32 @@ Wmi.prepareQuery = function(className, whereClause, selectors, withinClause)
 	return query;
 };
 
+Wmi.forEach = function(collection, func, before)
+{
+	var e = new Enumerator(collection);
+	if ( before ) {
+		before(e.item());
+	}
+	for ( ; ! e.atEnd(); e.moveNext()) {
+		var i = e.item();
+		func(i);
+	}
+};
+
+Wmi.map = function(collection, func, before)
+{
+	var result = [];
+	var e = new Enumerator(collection);
+	if ( before ) {
+		before(e.item());
+	}
+	for ( ; ! e.atEnd(); e.moveNext()) {
+		var i = e.item();
+		result.push(func(i));
+	}
+	return result;
+};
+
 Wmi.defaultFlags = function(options, n)
 {
 	var f = Number((options || {}).flags);
@@ -213,7 +239,7 @@ Wmi.create = function(options)
 
 	if ( options instanceof ActiveXObject ) {
 		wbemObject = options;
-	} else if ( options instanceof Wmi ) {
+	} else if ( options instanceof Wmi.Common ) {
 		wbemObject = options.wbemObject;
 	} else if ( typeof options == 'string' || options.moniker ) {
 		moniker = options || options.moniker;
@@ -300,7 +326,7 @@ Wmi.Common = Wmi.inherit(null, {
 
 			if ( options.objectReady ) {
 				if ( useForEach ) {
-					this.forEach(wbemResult, options.objectReady);
+					Wmi.forEach(wbemResult, options.objectReady);
 				} else {
 					options.objectReady(wbemResult);
 				}
@@ -323,7 +349,7 @@ Wmi.Common = Wmi.inherit(null, {
 			}
 		}
 	}, 
-	forEach: function(collection, func, before)
+	getCollection: function(collection)
 	{
 		var wbemObject = this.valueOf();
 
@@ -346,26 +372,18 @@ Wmi.Common = Wmi.inherit(null, {
 		} else {
 			collection = collection || wbemObject;
 		}
-		var e = new Enumerator(collection);
-		if ( before ) {
-			before(e.item(), wbemObject);
-		}
-		for ( ; ! e.atEnd(); e.moveNext()) {
-			var i = e.item();
-			func(i, wbemObject);
-		}
+
+		return collection;
+	}, 
+	forEach: function(collection, func, before)
+	{
+		var c = this.getCollection(collection);
+		Wmi.forEach(c, func, before);
 	}, 
 	map: function(collection, func, before)
 	{
-		var result = [];
-		this.forEach(
-			collection, 
-			function(p)
-			{
-				result.push(func(p));
-			}, 
-			before);
-		return result;
+		var c = this.getCollection(collection);
+		return Wmi.map(c, func, before);
 	}, 
 	notImplemented: function()
 	{
@@ -892,9 +910,15 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 		var wbemObject = this.valueOf().SpawnDerivedClass_(Wmi.defaultFlags(options, 0));
 		return Wmi.create(wbemObject);
 	}, 
-	spawnInstance: function(options)
+	spawnInstance: function(inParams, options)
 	{
 		var wbemObject = this.valueOf().SpawnInstance_(Wmi.defaultFlags(options, 0));
+		for (var p in inParams) {
+			if ( ! inParams.hasOwnProperty(p) ) {
+				continue;
+			}
+			wbemObject[p] = inParams[p];
+		}
 		return Wmi.create(wbemObject);
 	}, 
 	subclassesOf: function(superClass, options)
