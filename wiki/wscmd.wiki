@@ -155,11 +155,13 @@ wscmd /vbs /e "print "Hello, world""
 
 I have made many tests - I have changed the logic of conditional operators checking arguments of the command line, added extra quotation marks and escaping characters, etc. But nothing has helped me. I will work on this to fix it but this drawback is present now. As a workaround, you can create a file or use the console mode. 
 
-Any way, ther is good workaound solution to fix the problem in JScript. Se below:
+Any way, ther is good workaound solution to fix the problem in JScript. See below:
 
 {{{
 echo print("Hello, world") | wscmd /q
 }}}
+
+For VBScript Inline mode the workaround solution was not found. 
 
 = Extras =
 
