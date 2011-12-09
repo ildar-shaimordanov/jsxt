@@ -145,7 +145,21 @@ wscmd /js  /e "print(2 * 2)"
 wscmd /vbs /e "print 2 * 2"
 }}}
 
-Unfortunately the DOS-shell has many restrictions in it's syntax, and we cannot use double quotation marks that strongly used as string literals in VBScript. So the following code will be failed  `wscmd /vbs /e "print "Hello, world""`. I have made many tests - I have changed the logic of conditional operators checking arguments of the command line, added extra quotation marks and escaping characters, etc. But nothing has helped me. I will work on this to fix it but this drawback is present now. As a workaround, you can create a file or use the console mode. 
+Unfortunately the DOS-shell has many restrictions in it's syntax, and we cannot use double quotation marks that strongly used as string literals in VBScript. So the following codes will be failed
+
+{{{
+wscmd /js  /e "print("Hello, world")"
+
+wscmd /vbs /e "print "Hello, world""
+}}}
+
+I have made many tests - I have changed the logic of conditional operators checking arguments of the command line, added extra quotation marks and escaping characters, etc. But nothing has helped me. I will work on this to fix it but this drawback is present now. As a workaround, you can create a file or use the console mode. 
+
+Any way, ther is good workaound solution to fix the problem in JScript. Se below:
+
+{{{
+echo print("Hello, world") | wscmd /q
+}}}
 
 = Extras =
 
@@ -185,7 +199,7 @@ The default value allows all `js\*.js`, `js\win32\*.js` and `vbs\win32\*.vbs` fi
 
 = Shortcomings =
 
-At the beginning of this article I have said that unfortunately this tool has some shortcomings. Above we met one of them. Inner double quotation marks are restricted when they are passing via the command line. 
+At the beginning of this article I have said that unfortunately this tool has some shortcomings. Above we know one of them. Inner double quotation marks are restricted when they are passing via the command line. For JScript there is workaround solution that uses a pipe (as it was noticed in the section [wscmd#Inline_mode Inline mode]. 
 
 = Conclusion =
 
