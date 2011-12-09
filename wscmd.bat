@@ -104,7 +104,7 @@ goto wscmd.1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.12.6 Beta
+set wscmd.version=0.13.1 Beta
 
 
 if defined wscmd.debug call :wscmd.version>&2
@@ -431,12 +431,31 @@ while ( true ) {
 				PS2 = '';
 			}
 
-			// Validate that a user started multiple lines ended with the backslash '\\'
-			var multiline = false;
+			/*
+			Validate that a user started multiple lines ending 
+			with the backslash character '\\'. 
 
-			// Store all characters entered from STDIN.
-			// Array is used to prevent usage of String.charAt
-			// This makes the code the safer
+			The number of tailing backslashes affects on the 
+			behavior of the input. 
+
+			When a user ends a line with the single backslash 
+			it will be considered as continuing on next lines 
+			until a user enters an empty line. 
+
+			When a user enters a line only with two 
+			backslashes then it will be considered as 
+			multilinear entering as well. 
+			The main difference with the first case is a 
+			possibility to enter any number of empty lines. 
+			*/
+			var multiline = 0
+
+			/*
+			Store all characters entered from STDIN. 
+
+			Array is used to prevent usage of String.charAt that can be 
+			overriden. This makes the code the safer. 
+			*/
 			var result = [];
 
 			WScript.StdOut.Write(PS1);
@@ -463,18 +482,18 @@ while ( true ) {
 					}
 				})();
 
-				if ( input.length == 0 ) {
+				if ( input.length == 0 && multiline != 2 ) {
 					break;
 				}
 
-				var toBeContinued = input[input.length - 1] == '\\';
-
-				if ( ! multiline && toBeContinued ) {
-					multiline = true;
-				}
-
-				if ( toBeContinued ) {
+				if ( input.length == 2 && input[0] + input[1] == '\\\\' ) {
+					input.length -= 2;
+					multiline = multiline == 2 ? 0 : 2;
+				} else if ( input[input.length - 1] == '\\' ) {
 					input.length--;
+					if ( ! multiline ) {
+						multiline = 1;
+					}
 				}
 
 				// Add the new line character in the multiline mode
@@ -492,7 +511,7 @@ while ( true ) {
 
 				WScript.StdOut.Write(PS2);
 
-			}; // while ( true )
+			} // while ( true )
 
 			// Trim left
 			var k = 0;
