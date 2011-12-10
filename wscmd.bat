@@ -9,12 +9,12 @@ setlocal enabledelayedexpansion
 set wscmd.started=
 
 
-:wscmd.0
+:wscmd.start
 
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.13.6 Beta
+set wscmd.version=0.13.7 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -48,6 +48,18 @@ if /i "%~1" == "/help" (
 )
 
 
+:wscmd.quiet
+if /i "%~1" == "/q" (
+	set wscmd.quiet=/q
+	if /i "%~2" == "/debug" (
+		set wscmd.debug=1
+		shift /1
+	)
+	shift /1
+	goto wscmd.2
+)
+
+
 if /i "%~1" == "/compile" (
 	set wscmd.compile=1
 	shift /1
@@ -57,15 +69,6 @@ if /i "%~1" == "/compile" (
 ) else if /i "%~1" == "/debug" (
 	set wscmd.debug=1
 	shift /1
-	if /i "%~1" == "/q" goto wscmd.quiet
-)
-
-
-:wscmd.quiet
-if /i "%~1" == "/q" (
-	set wscmd.quiet=/q
-	shift /1
-	goto wscmd.2
 )
 
 
@@ -170,7 +173,7 @@ if defined wscmd.debug echo.Running:>&2
 %wscmd.ini.command% "%wscmd.ini.execute%" %wscmd.args%
 
 :: Reread the ini-file and reload the script
-if errorlevel 65535 goto wscmd.0
+if errorlevel 65535 goto wscmd.start
 
 del "%wscmd.ini.execute%"
 
