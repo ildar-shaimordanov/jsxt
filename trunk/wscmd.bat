@@ -104,7 +104,7 @@ goto wscmd.1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.13.1 Beta
+set wscmd.version=0.13.2 Beta
 
 
 if defined wscmd.debug call :wscmd.version>&2
@@ -122,7 +122,11 @@ for %%i in ( "%wscmd.script%.ini" ".\%~n0.ini" "%~dpn0.ini" ) do (
 		for /f "usebackq tokens=1,* delims==" %%k in ( "%%~i" ) do (
 			call set wscmd.temp=%%~l
 			if defined wscmd.temp (
-				set wscmd.ini.%%k=!wscmd.temp!
+				if /i "%%k" == "import" (
+					set wscmd.ini.include=!wscmd.ini.include! !wscmd.temp!
+				) else (
+					set wscmd.ini.%%k=!wscmd.temp!
+				)
 			)
 		)
 		goto wscmd.3
