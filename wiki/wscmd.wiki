@@ -30,11 +30,12 @@ wscmd /help
 Both these commands show the help looking like below:
 
 {{{
-Windows Scripting Command Interpreter Version 0.13.3 Beta
+Windows Scripting Command Interpreter Version 0.13.6 Beta
 
 Usage:
-    wscmd [/h | /help | /q]
-    wscmd [/compile | /embed | /debug [/q]] [/js | /vbs] [/e "source" | filename [arguments]]
+    wscmd [/h | /help | [/debug] /q]
+    wscmd [/compile | /embed | /debug] [/js | /vbs] /e "string" [arguments]
+    wscmd [/compile | /embed | /debug] [/js | /vbs] filename [arguments]
 
 Valid options are:
     /h, /help  - Display this help
