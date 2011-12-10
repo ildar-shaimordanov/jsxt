@@ -6,6 +6,18 @@
 setlocal enabledelayedexpansion
 
 
+:wscmd.0
+
+
+:: Set the name and version
+set wscmd.name=Windows Scripting Command Interpreter
+set wscmd.version=0.13.3 Beta
+
+
+:: Prevent re-parsing of command line arguments
+set wscmd.ini>nul 2>&1 && goto wscmd.2
+
+
 :: Parse command line arguments and set needful variables
 set wscmd.temp=
 set wscmd.inline=
@@ -102,11 +114,6 @@ goto wscmd.1
 :wscmd.2
 
 
-:: Set the name and version
-set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.13.2 Beta
-
-
 if defined wscmd.debug call :wscmd.version>&2
 
 
@@ -116,6 +123,9 @@ if defined wscmd.debug call :wscmd.version>&2
 :: %~p0 - the path
 :: %~n0 - the filename
 :: %~x0 - the extension
+set wscmd.ini.include=
+set wscmd.ini.execute=
+set wscmd.ini.command=
 for %%i in ( "%wscmd.script%.ini" ".\%~n0.ini" "%~dpn0.ini" ) do (
 	if not "%%~ni" == "" if exist "%%~i" (
 		if defined wscmd.debug echo.Configuring from "%%~i">&2
@@ -154,7 +164,7 @@ if defined wscmd.debug echo.Running:>&2
 %wscmd.ini.command% "%wscmd.ini.execute%" %wscmd.quiet% %wscmd.args%
 
 :: Reread the ini-file and reload the script
-if errorlevel 65535 goto wscmd.2
+if errorlevel 65535 goto wscmd.0
 
 del "%wscmd.ini.execute%"
 
