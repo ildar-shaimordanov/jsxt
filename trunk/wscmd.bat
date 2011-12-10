@@ -14,7 +14,7 @@ set wscmd.started=
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.13.5 Beta
+set wscmd.version=0.13.6 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -57,9 +57,11 @@ if /i "%~1" == "/compile" (
 ) else if /i "%~1" == "/debug" (
 	set wscmd.debug=1
 	shift /1
+	if /i "%~1" == "/q" goto wscmd.quiet
 )
 
 
+:wscmd.quiet
 if /i "%~1" == "/q" (
 	set wscmd.quiet=/q
 	shift /1
