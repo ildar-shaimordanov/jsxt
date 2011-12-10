@@ -14,7 +14,7 @@ set wscmd.started=
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.13.7 Beta
+set wscmd.version=0.13.8 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -192,7 +192,7 @@ goto :EOF
 call :wscmd.version
 echo.
 echo.Usage:
-echo.    %~n0 [/h ^| /help ^| [/debug] /q]
+echo.    %~n0 [/h ^| /help ^| /q [/debug]]
 echo.    %~n0 [/compile ^| /embed ^| /debug] [/js ^| /vbs] /e "string" [arguments]
 echo.    %~n0 [/compile ^| /embed ^| /debug] [/js ^| /vbs] filename [arguments]
 echo.
