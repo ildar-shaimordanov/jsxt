@@ -14,7 +14,7 @@ set wscmd.started=
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.13.4 Beta
+set wscmd.version=0.13.5 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -165,7 +165,7 @@ call :wscmd.compile > "%wscmd.ini.execute%"
 if defined wscmd.compile goto wscmd.stop
 
 if defined wscmd.debug echo.Running:>&2
-%wscmd.ini.command% "%wscmd.ini.execute%" %wscmd.quiet% %wscmd.args%
+%wscmd.ini.command% "%wscmd.ini.execute%" %wscmd.args%
 
 :: Reread the ini-file and reload the script
 if errorlevel 65535 goto wscmd.0
@@ -187,8 +187,9 @@ goto :EOF
 call :wscmd.version
 echo.
 echo.Usage:
-echo.    %~n0 [/h ^| /help ^| /q]
-echo.    %~n0 [/compile ^| /embed ^| /debug [/q]] [/js ^| /vbs] [/e "source" ^| filename [arguments]]
+echo.    %~n0 [/h ^| /help ^| [/debug] /q]
+echo.    %~n0 [/compile ^| /embed ^| /debug] [/js ^| /vbs] /e "string" [arguments]
+echo.    %~n0 [/compile ^| /embed ^| /debug] [/js ^| /vbs] filename [arguments]
 echo.
 echo.Valid options are:
 echo.    /h, /help  - Display this help
@@ -444,7 +445,8 @@ while ( true ) {
 		(eval((function(PS1, PS2)
 		{
 
-			if ( WScript.Arguments.Named.Exists('Q') ) {
+			var env = WScript.CreateObject('WScript.Shell').Environment('PROCESS');
+			if ( env('wscmd.quiet') ) {
 				PS1 = '';
 				PS2 = '';
 			}
