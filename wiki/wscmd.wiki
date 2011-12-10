@@ -30,11 +30,11 @@ wscmd /help
 Both these commands show the help looking like below:
 
 {{{
-Windows Scripting Command Interpreter
+Windows Scripting Command Interpreter Version 0.13.3 Beta
 
 Usage:
     wscmd [/h | /help | /q]
-    wscmd [/compile | /embed | /debug] [/js | /vbs] [/e "source" | filename [arguments]]
+    wscmd [/compile | /embed | /debug [/q]] [/js | /vbs] [/e "source" | filename [arguments]]
 
 Valid options are:
     /h, /help  - Display this help
@@ -85,6 +85,7 @@ eval.history             Display the history
 eval.save([format])      Save the history to the file
 cmd(), shell()           Run new DOS-session
 sleep(n)                 Sleep n milliseconds
+reload()                 Stop this session and run new
 gc()                     Run the garbage collector
 }}}
 
