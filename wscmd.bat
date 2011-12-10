@@ -6,16 +6,20 @@
 setlocal enabledelayedexpansion
 
 
+set wscmd.started=
+
+
 :wscmd.0
 
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.13.3 Beta
+set wscmd.version=0.13.4 Beta
 
 
 :: Prevent re-parsing of command line arguments
-set wscmd.ini>nul 2>&1 && goto wscmd.2
+set wscmd.started>nul 2>&1 && goto wscmd.2
+set wscmd.started=1
 
 
 :: Parse command line arguments and set needful variables
