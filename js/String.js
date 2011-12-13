@@ -5,6 +5,142 @@
 // Copyright (c) 2005, 2006, 2007, 2010, 2011 by Ildar Shaimordanov
 //
 
+/*
+
+The following code is described in ECMA drafts and 
+might be implemented in the future of ECMA
+
+*/
+
+if ( ! String.prototype.repeat ) {
+/**
+ * object.x(number)
+ * object.repeat(number)
+ * Transform the string object multiplying the string
+ *
+ * @param	number	Amount of repeating
+ * @return	string
+ * @access	public
+ * @see		http://svn.debugger.ru/repos/jslibs/BrowserExtensions/trunk/ext/string.js
+ * @see		http://wiki.ecmascript.org/doku.php?id=harmony:string_extras
+ */
+String.prototype.repeat = function(n)
+{
+	if ( ! n || n <= 0 || this.length == 0 ) {
+		return "";
+	}
+
+	return Array(n + 1).join(this.valueOf());
+};
+
+}
+
+if ( ! String.prototype.startsWith ) {
+
+/**
+ * Returns true if the sequence of characters of searchString converted 
+ * to a String match the corresponding characters of this object (
+ * converted to a String) starting at position. Otherwise returns false.
+ *
+ * @param	string
+ * @param	integer
+ * @return	bollean
+ * @acess	public
+ */
+String.prototype.startsWith = function(searchString, position)
+{
+	position = Math.max(position || 0, 0);
+	return this.indexOf(searchString) == position;
+};
+
+}
+
+if ( ! String.prototype.endsWith ) {
+
+/**
+ * Returns true if the sequence of characters of searchString converted 
+ * to a String match the corresponding characters of this object 
+ * (converted to a String) starting at endPosition – length(this). 
+ * Otherwise returns false.
+ *
+ * @param	string
+ * @param	integer
+ * @return	bollean
+ * @acess	public
+ */
+String.prototype.endsWith = function(searchString, endPosition)
+{
+	var len = this.length;
+	var pos = endPosition || len;
+	var end = Math.min(Math.max(pos, 0), len);
+	var start = end - String(searchString).length;
+	return start >= 0 && this.lastIndexOf(searchString) == start;
+};
+
+}
+
+if ( ! String.prototype.contains ) {
+
+/**
+ * If searchString appears as a substring of the result of converting 
+ * this object to a String, at one or more positions that are greater than 
+ * or equal to position, then return true; otherwise, returns false. 
+ * If position is undefined, 0 is assumed, so as to search all of the String.
+ *
+ * @param	string
+ * @param	integer
+ * @return	bollean
+ * @acess	public
+ */
+String.prototype.contains = function(searchString, position)
+{
+	position = Math.max(position || 0, 0);
+	return this.indexOf(searchString) != -1;
+};
+
+}
+
+if ( ! String.prototype.toArray ) {
+
+/**
+ * Returns an Array object with elements corresponding to 
+ * the characters of this object (converted to a String).
+ *
+ * @param	void
+ * @return	array
+ * @acess	public
+ */
+String.prototype.toArray = function()
+{
+	return this.split('');
+};
+
+}
+
+if ( ! String.prototype.reverse ) {
+
+
+/**
+ * Returns an Array object with elements corresponding to 
+ * the characters of this object (converted to a String) in reverse order.
+ *
+ * @param	void
+ * @return	string
+ * @acess	public
+ */
+String.prototype.reverse = function()
+{
+	return this.split('').reverse().join('');
+};
+
+}
+
+/*
+
+The following ode is not described in ECMA specs or drafts.
+
+*/
+
 /**
  * String.validBrackets(string)
  * Checks string to be valid brackets. Valid brackets are:
@@ -344,26 +480,6 @@ String.prototype.dup = function()
 {
 	var val = this.valueOf();
 	return val + val;
-};
-
-/**
- * object.x(number)
- * object.repeat(number)
- * Transform the string object multiplying the string
- *
- * @param	number	Amount of repeating
- * @return	string
- * @access	public
- * @see		http://svn.debugger.ru/repos/jslibs/BrowserExtensions/trunk/ext/string.js
- */
-String.prototype.x = 
-String.prototype.repeat = function(n)
-{
-	if ( ! n || n <= 0 || this.length == 0 ) {
-		return "";
-	}
-
-	return Array(n + 1).join(this.valueOf());
 };
 
 /**

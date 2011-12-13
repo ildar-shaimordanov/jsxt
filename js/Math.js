@@ -2,412 +2,239 @@
 // Math.js
 // Extension for Math object
 //
-// Copyright (c) 2009 by Ildar Shaimordanov
+// Copyright (c) 2009, 2011 by Ildar Shaimordanov
+//
+// @see	http://wiki.ecmascript.org/doku.php?id=harmony:more_math_functions
 //
 
-/**
- * Returns the Golden ratio's value
- *
- * @const	Number
- * @value	(Math.sqrt(5) + 1) / 2
- */
-Math.GOLDEN_RATIO = (Math.sqrt(5) + 1) / 2;
+if ( ! Math.log10 ) {
 
 /**
- * Returns Pi / 2 value
+ * Returns an implementation-dependent approximation 
+ * to the base 10 logarithm of x.
  *
- * @const	Number
- * @value	Pi / 2
- */
-Math.PI_2 = Math.PI / 2;
-
-/**
- * Returns Pi / 3 value
- *
- * @const	Number
- * @value	Pi / 3
- */
-Math.PI_3 = Math.PI / 3;
-
-/**
- * Returns Pi / 4 value
- *
- * @const	Number
- * @value	Pi / 4
- */
-Math.PI_4 = Math.PI / 4;
-
-/**
- * Returns Pi / 6 value
- *
- * @const	Number
- * @value	Pi / 6
- */
-Math.PI_6 = Math.PI / 6;
-
-/**
- * Makes sure that the passed number is within both a minimum value and a maximum value
- *
- * @param	Number
- * @param	Number
  * @param	Number
  * @return	Number
  * @access	static
  */
-Math.clamp = function(number, minValue, maxValue) {
-	return Math.max(minValue, Math.min(maxValue, number));
+Math.log10 = function(x)
+{
+	return Math.log(x) / Math.LN10;
 };
 
-/**
- * Returns the sign value of a number.
- *
- * @param	Number
- * @return	Number
- * @access	static
- */
-Math.sign = function(number)
-{
-	var s = Number(number);
-	return s == 0 ? 0 : s > 0 ? +1 : -1;
-};
+}
+
+if ( ! Math.log2 ) {
 
 /**
- * Returns the square of a number.
+ * Returns an implementation-dependent approximation 
+ * to the base 2 logarithm of x.
  *
  * @param	Number
  * @return	Number
  * @access	static
  */
-Math.square = function(number)
+Math.log2 = function(x)
 {
-	return number * number;
+	return Math.log(x) / Math.LN2;
 };
 
-/**
- * Returns the cube of a number.
- *
- * @param	Number
- * @return	Number
- * @access	static
- */
-Math.cube = function(number)
-{
-	return number * number * number;
-};
+}
+
+if ( ! Math.log1p ) {
 
 /**
- * Returns the cubic root of a number.
+ * Returns an implementation-dependent approximation 
+ * to the natural logarithm of 1 + x. The result is computed 
+ * in a way that is accurate even when the value of x is close to zero.
  *
  * @param	Number
  * @return	Number
  * @access	static
  */
-Math.cubt = function(number)
+Math.log1p = function(x)
 {
-	return Math.sign(number) * Math.pow(Math.abs(number), 1 / 3);
+	return Math.log(1 + x);
 };
 
-/**
- * Returns the decimal logarithm of a number.
- *
- * @param	Number
- * @return	Number
- * @access	static
- */
-Math.log10 = 
-Math.lg = function(number)
-{
-	return Math.log(number) / Math.LN10;
-};
+}
+
+if ( ! Math.expm1 ) {
 
 /**
- * Returns the cotangent of a number.
+ * Returns an implementation-dependent approximation 
+ * to subtracting 1 from the exponential function of x (e raised 
+ * to the power of x, where e is the base of the natural logarithms). 
+ * The result is computed in a way that is accurate even when 
+ * the value of x is close 0.
  *
  * @param	Number
  * @return	Number
  * @access	static
  */
-Math.cotan = function(number)
+Math.expm1 = function(x)
 {
-	return 1 / Math.tan(number);
+	return Math.exp(x) - 1;
 };
 
-/**
- * Returns the secans of a number.
- *
- * @param	Number
- * @return	Number
- * @access	static
- */
-Math.sec = function(number)
-{
-	return 1 / Math.cos(number);
-};
+}
+
+if ( ! Math.cosh ) {
 
 /**
- * Returns the cosecans of a number.
+ * Returns an implementation-dependent approximation 
+ * to the hyperbolic cosine of x.
  *
  * @param	Number
  * @return	Number
  * @access	static
  */
-Math.cosec = function(number)
+Math.cosh = function(x)
 {
-	return 1 / Math.sin(number);
-};
-
-/**
- * Returns the arccotangent of a number.
- *
- * @param	Number
- * @return	Number
- * @access	static
- */
-Math.acotan = function(number)
-{
-	return Math.atan(number) + Math.PI_2;
-};
-
-/**
- * Returns the arcsecans of a number.
- *
- * @param	Number
- * @return	Number
- * @access	static
- */
-Math.asec = function(number)
-{
-	return Math.atan(number / Math.sqrt(number * number - 1)) + Math.sign(number - 1) * Math.PI_2;
-};
-
-/**
- * Returns the arccosecans of a number.
- *
- * @param	Number
- * @return	Number
- * @access	static
- */
-Math.acosec = function(number)
-{
-	return Math.atan(number / Math.sqrt(number * number - 1)) + (Math.sign(number) - 1) * Math.PI_2;
-};
-
-/**
- * Returns the hyperbolic sine of a number.
- *
- * @param	Number
- * @return	Number
- * @access	static
- */
-Math.hsin = function(number)
-{
-	var e = Math.exp(number);
-	var f = 1 / e;
-	return (e - f) / 2;
-};
-
-/**
- * Returns the hyperbolic cosine of a number.
- *
- * @param	Number
- * @return	Number
- * @access	static
- */
-Math.hcos = function(number)
-{
-	var e = Math.exp(number);
+	var e = Math.exp(x);
 	var f = 1 / e;
 	return (e + f) / 2;
 };
 
+}
+
+if ( ! Math.sinh ) {
+
 /**
- * Returns the hyperbolic tangent of a number.
+ * Returns an implementation-dependent approximation 
+ * to the hyperbolic sine of x.
  *
  * @param	Number
  * @return	Number
  * @access	static
  */
-Math.htan = function(number)
+Math.sinh = function(x)
 {
-	var e = Math.exp(number);
+	var e = Math.exp(x);
+	var f = 1 / e;
+	return (e - f) / 2;
+};
+
+}
+
+if ( ! Math.tanh ) {
+
+/**
+ * Returns an implementation-dependent approximation 
+ * to the hyperbolic tangent of x.
+ *
+ * @param	Number
+ * @return	Number
+ * @access	static
+ */
+Math.tanh = function(x)
+{
+	var e = Math.exp(x);
 	var f = 1 / e;
 	return (e - f) / (e + f);
 };
 
+}
+
+if ( ! Math.acosh ) {
+
 /**
- * Returns the hyperbolic cotangent of a number.
+ * Returns an implementation-dependent approximation 
+ * to the inverse hyperbolic cosine of x.
  *
  * @param	Number
  * @return	Number
  * @access	static
  */
-Math.hcotan = function(number)
+Math.acosh = function(x)
 {
-	var e = Math.exp(number);
-	var f = 1 / e;
-	return (e + f) / (e - f);
+	return Math.log(x + Math.sqrt(x * x - 1));
 };
 
+}
+
+if ( ! Math.asinh ) {
+
 /**
- * Returns the hyperbolic secans of a number.
+ * Returns an implementation-dependent approximation 
+ * to the inverse hyperbolic sine of x.
  *
  * @param	Number
  * @return	Number
  * @access	static
  */
-Math.hsec = function(number)
+Math.asinh = function(x)
 {
-	var e = Math.exp(number);
-	var f = 1 / e;
-	return 2 / (e + f);
+	return Math.log(x + Math.sqrt(x * x + 1));
 };
 
+}
+
+if ( ! Math.atanh ) {
+
 /**
- * Returns the hyperbolic cosecans of a number.
+ * Returns an implementation-dependent approximation 
+ * to the inverse hyperbolic tangent of x.
  *
  * @param	Number
  * @return	Number
  * @access	static
  */
-Math.hcosec = function(number)
+Math.atanh = function(x)
 {
-	var e = Math.exp(number);
-	var f = 1 / e;
-	return 2 / (e - f);
+	return Math.log((1 + x) / (1 - x)) / 2;
 };
 
+}
+
+if ( ! Math.hypot ) {
+
 /**
- * Returns the hyperbolic arcsine of a number.
+ * Returns an implementation-dependent approximation 
+ * to the hypotenuse of a right triangle with sides of length x and y.
+ *
+ * @param	Number
+ * @param	Number
+ * @return	Number
+ * @access	static
+ */
+Math.hypot = function(x, y)
+{
+	return Math.sqrt(x * x + y * y);
+};
+
+}
+
+if ( ! Math.trunc ) {
+
+/**
+ * Returns the integral part of the number x, removing 
+ * any fractional digits. If x is already an integer, the result is x.
  *
  * @param	Number
  * @return	Number
  * @access	static
  */
-Math.hasin = function(number)
+Math.trunc = function(x)
 {
-	return Math.log(number + Math.sqrt(number * number + 1));
+	return parseInt(x);
 };
 
+}
+
+if ( ! Math.sign ) {
+
 /**
- * Returns the hyperbolic arccosine of a number.
+ * Returns the sign of the x, indicating 
+ * whether x is positive, negative or zero.
  *
  * @param	Number
  * @return	Number
  * @access	static
  */
-Math.hacos = function(number)
+Math.sign = function(x)
 {
-	return Math.log(number + Math.sqrt(number * number - 1));
+	return x === 0 ? 0 : x > 0 ? +1 : -1;
 };
 
-/**
- * Returns the hyperbolic arctangent of a number.
- *
- * @param	Number
- * @return	Number
- * @access	static
- */
-Math.hatan = function(number)
-{
-	return Math.log((1 + number) / (1 - number)) / 2;
-};
-
-/**
- * Returns the hyperbolic arccotangent of a number.
- *
- * @param	Number
- * @return	Number
- * @access	static
- */
-Math.hacotan = function(number)
-{
-	return Math.log((number + 1) / (number - 1)) / 2;
-};
-
-/**
- * Returns the hyperbolic arcsecans of a number.
- *
- * @param	Number
- * @return	Number
- * @access	static
- */
-Math.hasec = function(number)
-{
-	return Math.log((Math.sqrt(-number * number + 1) + 1) / number);
-};
-
-/**
- * Returns the hyperbolic arccosecans of a number.
- *
- * @param	Number
- * @return	Number
- * @access	static
- */
-Math.hacosec = function(number)
-{
-	return Math.log((Sgn(number) * Math.sqrt(number * number + 1) + 1) / number);
-};
-
-/**
- * Returns the summa of supplied numeric expressions.
- *
- * @param	multiple
- * @return	Number
- * @access	static
- */
-Math.sum = function()
-{
-	var result = 0;
-	for (var i = 0; i < arguments.length; i++) {
-		result += +arguments[i];
-	}
-	return result;
-};
-
-/**
- * Returns the average value of supplied numeric expressions.
- *
- * @param	multiple
- * @return	Number
- * @access	static
- */
-Math.avg = function()
-{
-	return Math.sum.apply(null, arguments) / arguments.length;
-};
-
-/**
- * Returns the product of supplied numeric expressions.
- *
- * @param	multiple
- * @return	Number
- * @access	static
- */
-Math.prd = function()
-{
-	var result = 1;
-	for (var i = 0; i < arguments.length; i++) {
-		result *= arguments[i];
-	}
-	return result;
-};
-
-/**
- * Returns the dispersion of supplied numeric expressions.
- *
- * @param	multiple
- * @return	Number
- * @access	static
- */
-Math.dsp = function()
-{
-	var avg = Math.avg.apply(null, arguments);
-
-	var result = 0;
-	for (var i = 0; i < arguments.length; i++) {
-		result += Math.square(arguments[i] - avg);
-	}
-
-	return Math.sqrt(result / arguments.length);
-};
-
+}
