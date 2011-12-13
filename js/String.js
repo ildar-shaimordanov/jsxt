@@ -26,11 +26,8 @@ if ( ! String.prototype.repeat ) {
  */
 String.prototype.repeat = function(n)
 {
-	if ( ! n || n <= 0 || this.length == 0 ) {
-		return "";
-	}
-
-	return Array(n + 1).join(this.valueOf());
+	n = Math.max(n || 0, 0);
+	return new Array(n + 1).join(this.valueOf());
 };
 
 }
@@ -497,7 +494,9 @@ String.prototype.padding = function(n, c)
 	if ( Math.abs(n) <= val.length ) {
 		return val;
 	}
-	var pad = String(c || ' ').charAt(0).repeat(Math.abs(n) - this.length);
+	var m = Math.max((Math.abs(n) - this.length) || 0, 0);
+	var pad = Array(m + 1).join(String(c || ' ').charAt(0));
+//	var pad = String(c || ' ').charAt(0).repeat(Math.abs(n) - this.length);
 	return (n < 0) ? pad + val : val + pad;
 //	return (n < 0) ? val + pad : pad + val;
 };
