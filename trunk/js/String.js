@@ -70,11 +70,10 @@ if ( ! String.prototype.endsWith ) {
  */
 String.prototype.endsWith = function(searchString, endPosition)
 {
-	var len = this.length;
-	var pos = endPosition || len;
-	var end = Math.min(Math.max(pos, 0), len);
-	var start = end - String(searchString).length;
-	return start >= 0 && this.lastIndexOf(searchString) == start;
+	endPosition = Math.max(endPosition || 0, 0);
+	var s = String(searchString);
+	var pos = this.lastIndexOf(s);
+	return pos >= 0 && pos == this.length - s.length - endPosition;
 };
 
 }
