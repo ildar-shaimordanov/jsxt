@@ -14,7 +14,7 @@ set wscmd.started=
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.13.8 Beta
+set wscmd.version=0.13.9 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -324,6 +324,7 @@ goto :EOF
 
 :wscmd.inline
 set wscmd.inline=!wscmd.inline:~1,-1!
+set wscmd.inline=!wscmd.inline:""="!
 echo.^<script language="%1"^>^<^^^![CDATA[
 echo.
 echo.!wscmd.inline!%~2
