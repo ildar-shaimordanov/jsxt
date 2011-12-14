@@ -3,7 +3,7 @@
 // FileSystem.js
 // Extension for FileSystemObject
 //
-// Copyright (c) 2009 by Ildar Shaimordanov
+// Copyright (c) 2011 by Ildar Shaimordanov
 //
 
 /**
@@ -164,16 +164,16 @@ ScriptControl.WScript = {
 
 	/**
 	 * here are created three methods that are
-	 * -- Adds a subroutine to the ScriptControl
-	 * -- Evaluates an expression
-	 * -- Executes a single statement
+	 * -- addCode - Adds a subroutine to the ScriptControl
+	 * -- eval    - Evaluates an expression
+	 * -- exec    - Executes a single statement
 	 *
 	 * The last argument is function that will be launched to 
 	 * catch an exception and handle it. 
 	 *
 	 * @param	string	A subroutine, expression or statement
 	 * @param	function	An error handler
-	 * @return	void
+	 * @return	mixed
 	 */
 	for (var p in methods) {
 		if ( ! methods.hasOwnProperty(p) ) {
