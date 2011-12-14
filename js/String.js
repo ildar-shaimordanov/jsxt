@@ -36,8 +36,8 @@ if ( ! String.prototype.startsWith ) {
 
 /**
  * Returns true if the sequence of characters of searchString converted 
- * to a String match the corresponding characters of this object (
- * converted to a String) starting at position. Otherwise returns false.
+ * to a String match the corresponding characters of this object 
+ * (converted to a String) starting at position. Otherwise returns false.
  *
  * @param	string
  * @param	integer
@@ -57,7 +57,7 @@ if ( ! String.prototype.endsWith ) {
 /**
  * Returns true if the sequence of characters of searchString converted 
  * to a String match the corresponding characters of this object 
- * (converted to a String) starting at endPosition – length(this). 
+ * (converted to a String) starting at endPosition - length(this). 
  * Otherwise returns false.
  *
  * @param	string
