@@ -14,7 +14,7 @@ set wscmd.started=
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.13.9 Beta
+set wscmd.version=0.14.0 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -25,6 +25,7 @@ set wscmd.started=1
 :: Parse command line arguments and set needful variables
 set wscmd.temp=
 set wscmd.inline=
+set wscmd.inproc=
 set wscmd.script=
 set wscmd.engine=.js
 set wscmd.compile=
@@ -84,18 +85,22 @@ if /i "%~1" == "/js" (
 
 
 if /i "%~1" == "/e" (
-	set wscmd.inline=%2
-	set wscmd.script=
-	if not defined wscmd.inline (
-		echo.No code specified for /e.
-
-		endlocal
-		exit /b 1
+	set wscmd.inline=1
+	if /i "%~2" == "/p" (
+		set wscmd.inproc=1
+		set wscmd.script=%3
+		shift /1
+	) else (
+		set wscmd.inproc=
+		set wscmd.script=%2
 	)
+	if defined wscmd.script set wscmd.script=!wscmd.script:~1,-1!
+	if defined wscmd.script set wscmd.script=!wscmd.script:""="!
 	shift /1
 	shift /1
 ) else (
 	set wscmd.inline=
+	set wscmd.inproc=
 	set wscmd.script=%~1
 	if defined wscmd.script if not exist "!wscmd.script!" (
 		echo.File not found "!wscmd.script!".
@@ -135,14 +140,18 @@ if defined wscmd.debug call :wscmd.version>&2
 set wscmd.ini.include=
 set wscmd.ini.execute=
 set wscmd.ini.command=
-for %%i in ( "%wscmd.script%.ini" ".\%~n0.ini" "%~dpn0.ini" ) do (
+set wscmd.inifiles=".\%~n0.ini" "%~dpn0.ini"
+if not defined wscmd.inline (
+	set wscmd.inifiles="!wscmd.script!.ini" ".\%~n0.ini" "%~dpn0.ini"
+)
+for %%i in ( %wscmd.inifiles% ) do (
 	if not "%%~ni" == "" if exist "%%~i" (
 		if defined wscmd.debug echo.Configuring from "%%~i">&2
 		for /f "usebackq tokens=1,* delims==" %%k in ( "%%~i" ) do (
 			call set wscmd.temp=%%~l
 			if defined wscmd.temp (
 				if /i "%%k" == "import" (
-					set wscmd.ini.include=!wscmd.ini.include! !wscmd.temp!
+					set wscmd.ini.include=!wscmd.ini.include! "!wscmd.temp!"
 				) else (
 					set wscmd.ini.%%k=!wscmd.temp!
 				)
@@ -193,7 +202,7 @@ call :wscmd.version
 echo.
 echo.Usage:
 echo.    %~n0 [/h ^| /help ^| /q [/debug]]
-echo.    %~n0 [/compile ^| /embed ^| /debug] [/js ^| /vbs] /e "string" [arguments]
+echo.    %~n0 [/compile ^| /embed ^| /debug] [/js ^| /vbs] /e [/p] "string" [arguments]
 echo.    %~n0 [/compile ^| /embed ^| /debug] [/js ^| /vbs] filename [arguments]
 echo.
 echo.Valid options are:
@@ -205,6 +214,7 @@ echo.    /debug     - Output debugging information and execute
 echo.    /js        - Assume a value as a JavaScript source
 echo.    /vbs       - Assume a value as a VBScript code
 echo.    /e         - Assume a value as a string to be executed
+echo.    /p         - Assume to process each line of file^(s^)
 
 goto wscmd.stop
 
@@ -225,17 +235,17 @@ echo.^<script language="javascript"^>^<^^^![CDATA[
 echo.
 echo.var help = function^(^)
 echo.{
-echo.    WScript.Arguments.ShowUsage^(^);
+echo.	WScript.Arguments.ShowUsage^(^);
 echo.};
 echo.
 echo.var alert = echo = print = function^(^)
 echo.{
-echo.    WScript.Echo(Array.prototype.slice.call(arguments));
+echo.	WScript.Echo(Array.prototype.slice.call(arguments));
 echo.};
 echo.
 echo.var quit = exit = function^(^)
 echo.{
-echo.    WScript.Quit^(arguments[0]^);
+echo.	WScript.Quit^(arguments[0]^);
 echo.};
 echo.
 echo.var cmd = shell = function^(^)
@@ -256,17 +266,21 @@ if defined wscmd.debug echo.Libraries:>&2
 set wscmd.link=include
 if "%wscmd.compile%" == "2" set wscmd.link=embed
 
-for %%l in ( %wscmd.ini.include% ) do (
+for %%l in ( !wscmd.ini.include! ) do (
 	if defined wscmd.debug echo.    "%%~l">&2
-	call :wscmd.%wscmd.link%%%~xl "%%l"
+	call :wscmd.%wscmd.link%%%~xl "%%~l"
 )
 
-if defined wscmd.script (
-	if defined wscmd.debug echo.File: "%wscmd.script%">&2
-	call :wscmd.%wscmd.link%%wscmd.engine% "%wscmd.script%"
-) else if defined wscmd.inline (
-	if defined wscmd.debug echo.Inline: %wscmd.inline%>&2
-	call :wscmd.inline%wscmd.engine%
+if defined wscmd.inline (
+	if defined wscmd.debug echo.Inline: !wscmd.script!>&2
+	if defined wscmd.inproc (
+		call :wscmd.inproc%wscmd.engine%
+	) else (
+		call :wscmd.inline%wscmd.engine%
+	)
+) else if defined wscmd.script (
+	if defined wscmd.debug echo.File: "!wscmd.script!">&2
+	call :wscmd.%wscmd.link%%wscmd.engine% "!wscmd.script!"
 ) else (
 	rem Console mode, no inline scripts and no script files
 	call :wscmd.%wscmd.link%%wscmd.engine% "%~dpnx0"
@@ -323,11 +337,102 @@ goto :EOF
 
 
 :wscmd.inline
-set wscmd.inline=!wscmd.inline:~1,-1!
-set wscmd.inline=!wscmd.inline:""="!
 echo.^<script language="%1"^>^<^^^![CDATA[
 echo.
-echo.!wscmd.inline!%~2
+echo.!wscmd.script!%~2
+echo.
+echo.]]^>^</script^>
+goto :EOF
+
+
+:wscmd.inproc.js
+echo.^<script language="javascript"^>^<^^^![CDATA[
+echo.
+echo.function userFunc^(line, lineNumber, filename, fso, stdin, stdout, stderr^)
+echo.{
+echo.	!wscmd.script!;
+echo.	return line;
+echo.};
+echo.
+echo.]]^>^</script^>
+call :wscmd.inproc
+goto :EOF
+
+
+:wscmd.inproc.vbs
+echo.^<script language="vbscript"^>^<^^^![CDATA[
+echo.
+echo.Function userFunc^(line, lineNumber, filename, fso, stdin, stdout, stderr^)
+echo.	!wscmd.script!
+echo.	userFunc = line
+echo.End Function
+echo.
+echo.]]^>^</script^>
+call :wscmd.inproc
+goto :EOF
+
+
+:wscmd.inproc
+echo.^<script language="javascript"^>^<^^^![CDATA[
+echo.
+echo.^(function^(^)
+echo.{
+echo.	var fso = new ActiveXObject^('Scripting.FileSystemObject'^);
+echo.
+echo.	var format = 0;
+echo.	var lineNumber = 0;
+echo.
+echo.	var args = WScript.Arguments;
+echo.	if ^( args.length == 0 ^) {
+echo.		args = ['-'];
+echo.		args.item = function^(i^) { return this[i]; };
+echo.	}
+echo.	for ^(var i = 0; i ^< args.length; i++^) {
+echo.		var arg = args.item^(i^);
+echo.
+echo.		if ^( arg == '/D' ^|^| arg == '/d' ^) {
+echo.			format = -2;
+echo.			continue;
+echo.		}
+echo.
+echo.		if ^( arg == '/U' ^|^| arg == '/u' ^) {
+echo.			format = -1;
+echo.			continue;
+echo.		}
+echo.
+echo.		if ^( arg == '/A' ^|^| arg == '/a' ^) {
+echo.			format = 0;
+echo.			continue;
+echo.		}
+echo.
+echo.		var e;
+echo.		try {
+echo.			var stream = arg == '-' ? WScript.StdIn : fso.OpenTextFile^(arg, 1, false, format^);
+echo.		} catch ^(e^) {
+echo.			WScript.StdErr.Writeline^(e.message + ': ' + arg^);
+echo.			continue;
+echo.		}
+echo.
+echo.		while ^( ^^^! stream.AtEndOfStream ^) {
+echo.			lineNumber++;
+echo.			var line = stream.readline^(^);
+echo.			try {
+echo.				line = userFunc^(
+echo.					line, lineNumber, arg, 
+echo.					fso, WScript.StdIn, WScript.StdOut, WScript.StdErr^);
+echo.			} catch ^(e^) {
+echo.				stream.Close^(^);
+echo.				WScript.StdErr.WriteLine^(e.message^);
+echo.				WScript.Quit^(^);
+echo.			}
+echo.			if ^( line ^^^!== void 0 ^) {
+echo.				WScript.StdOut.WriteLine^(line^);
+echo.			}
+echo.		}
+echo.
+echo.		stream.Close^(^);
+echo.	}
+echo.}^)^(^);
 echo.
 echo.]]^>^</script^>
 goto :EOF
