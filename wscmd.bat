@@ -14,7 +14,7 @@ set wscmd.started=
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.14.0 Beta
+set wscmd.version=0.15.0 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -27,7 +27,7 @@ set wscmd.temp=
 set wscmd.inline=
 set wscmd.inproc=
 set wscmd.script=
-set wscmd.engine=.js
+set wscmd.engine=javascript
 set wscmd.compile=
 set wscmd.debug=
 set wscmd.quiet=
@@ -75,11 +75,11 @@ if /i "%~1" == "/compile" (
 
 if /i "%~1" == "/js" (
 	set wscmd.temp=1
-	set wscmd.engine=.js
+	set wscmd.engine=javascript
 	shift /1
 ) else if /i "%~1" == "/vbs" (
 	set wscmd.temp=1
-	set wscmd.engine=.vbs
+	set wscmd.engine=vbscript
 	shift /1
 )
 
@@ -110,7 +110,7 @@ if /i "%~1" == "/e" (
 	)
 	if not defined wscmd.temp (
 		rem VBS files only are considered directly, others are JS
-		if /i "%~x1" == ".vbs" set wscmd.engine=%~x1
+		call :wscmd.engine "!wscmd.script!"
 	)
 	shift /1
 )
@@ -192,6 +192,12 @@ endlocal
 goto :EOF
 
 
+:wscmd.engine
+set wscmd.engine=javascript
+if /i "%~x1" == ".vbs" set wscmd.engine=vbscript
+goto :EOF
+
+
 :wscmd.version
 echo.%wscmd.name% Version %wscmd.version%
 goto :EOF
@@ -215,6 +221,11 @@ echo.    /js        - Assume a value as a JavaScript source
 echo.    /vbs       - Assume a value as a VBScript code
 echo.    /e         - Assume a value as a string to be executed
 echo.    /p         - Assume to process each line of file^(s^)
+echo.
+echo.Extra options are used with /e /p:
+echo.    /d         - Opens the file using the system default
+echo.    /u         - Opens the file as Unicode
+echo.    /a         - Opens the file as ASCII
 
 goto wscmd.stop
 
@@ -266,24 +277,27 @@ if defined wscmd.debug echo.Libraries:>&2
 set wscmd.link=include
 if "%wscmd.compile%" == "2" set wscmd.link=embed
 
+setlocal
 for %%l in ( !wscmd.ini.include! ) do (
 	if defined wscmd.debug echo.    "%%~l">&2
-	call :wscmd.%wscmd.link%%%~xl "%%~l"
+	call :wscmd.engine "%%~l"
+	call :wscmd.%wscmd.link% "%%~l"
 )
+endlocal
 
 if defined wscmd.inline (
 	if defined wscmd.debug echo.Inline: !wscmd.script!>&2
 	if defined wscmd.inproc (
-		call :wscmd.inproc%wscmd.engine%
+		call :wscmd.inproc.%wscmd.engine%
 	) else (
-		call :wscmd.inline%wscmd.engine%
+		call :wscmd.inline
 	)
 ) else if defined wscmd.script (
 	if defined wscmd.debug echo.File: "!wscmd.script!">&2
-	call :wscmd.%wscmd.link%%wscmd.engine% "!wscmd.script!"
+	call :wscmd.%wscmd.link% "!wscmd.script!"
 ) else (
 	rem Console mode, no inline scripts and no script files
-	call :wscmd.%wscmd.link%%wscmd.engine% "%~dpnx0"
+	call :wscmd.%wscmd.link% "%~dpnx0"
 )
 
 echo.^</job^>
@@ -291,34 +305,14 @@ echo.^</package^>
 goto :EOF
 
 
-:wscmd.include.js
-call :wscmd.include "%~1" javascript
-goto :EOF
-
-
-:wscmd.include.vbs
-call :wscmd.include "%~1" vbscript
-goto :EOF
-
-
 :wscmd.include
-echo.^<script language="%~2" src="%~f1"^>^</script^>
-goto :EOF
-
-
-:wscmd.embed.js
-call :wscmd.embed "%~1" javascript
-goto :EOF
-
-
-:wscmd.embed.vbs
-call :wscmd.embed "%~1" vbscript
+echo.^<script language="%wscmd.engine%" src="%~f1"^>^</script^>
 goto :EOF
 
 
 :wscmd.embed
 echo.^<^^^!-- "%~1" --^>
-echo.^<script language="%2"^>^<^^^![CDATA[
+echo.^<script language="%wscmd.engine%"^>^<^^^![CDATA[
 echo.
 type "%~1"
 echo.
@@ -326,18 +320,8 @@ echo.]]^>^</script^>
 goto :EOF
 
 
-:wscmd.inline.js
-call :wscmd.inline javascript ";"
-goto :EOF
-
-
-:wscmd.inline.vbs
-call :wscmd.inline vbscript
-goto :EOF
-
-
 :wscmd.inline
-echo.^<script language="%1"^>^<^^^![CDATA[
+echo.^<script language="%wscmd.engine%"^>^<^^^![CDATA[
 echo.
 echo.!wscmd.script!%~2
 echo.
@@ -345,12 +329,13 @@ echo.]]^>^</script^>
 goto :EOF
 
 
-:wscmd.inproc.js
+:wscmd.inproc.javascript
 echo.^<script language="javascript"^>^<^^^![CDATA[
 echo.
-echo.function userFunc^(line, lineNumber, filename, fso, stdin, stdout, stderr^)
+echo.var userFunc = function^(line, lineNumber, filename, fso, stdin, stdout, stderr^)
 echo.{
 echo.	!wscmd.script!;
+echo.	userFunc = arguments.callee;
 echo.	return line;
 echo.};
 echo.
@@ -359,7 +344,7 @@ call :wscmd.inproc
 goto :EOF
 
 
-:wscmd.inproc.vbs
+:wscmd.inproc.vbscript
 echo.^<script language="vbscript"^>^<^^^![CDATA[
 echo.
 echo.Function userFunc^(line, lineNumber, filename, fso, stdin, stdout, stderr^)
@@ -384,6 +369,7 @@ echo.	var lineNumber = 0;
 echo.
 echo.	var args = WScript.Arguments;
 echo.	if ^( args.length == 0 ^) {
+echo.		// Emulate empty list of arguments
 echo.		args = ['-'];
 echo.		args.item = function^(i^) { return this[i]; };
 echo.	}
