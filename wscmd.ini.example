@@ -6,4 +6,4 @@ import=%~d0%~p0.DEVEL\jsxt\vbs\win32\*.vbs
 
 execute=.\$$$%~n0.wsf
 
-command=cscript //NoLogo
+command=%windir%\system32\cscript.exe //nologo
