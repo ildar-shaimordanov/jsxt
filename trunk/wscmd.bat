@@ -6,7 +6,7 @@
 setlocal enabledelayedexpansion
 
 
-set wscmd.started=
+set wscmd.started=1
 
 
 :wscmd.start
@@ -14,12 +14,12 @@ set wscmd.started=
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.15.0 Beta
+set wscmd.version=0.16.0 Beta
 
 
 :: Prevent re-parsing of command line arguments
-set wscmd.started>nul 2>&1 && goto wscmd.2
-set wscmd.started=1
+if not defined wscmd.started goto wscmd.2
+set wscmd.started=
 
 
 :: Parse command line arguments and set needful variables
@@ -46,6 +46,11 @@ if /i "%~1" == "/h" (
 
 if /i "%~1" == "/help" (
 	goto wscmd.help
+)
+
+
+if /i "%~1" == "/help-ini" (
+	goto wscmd.help.ini
 )
 
 
@@ -137,13 +142,12 @@ if defined wscmd.debug call :wscmd.version>&2
 :: %~p0 - the path
 :: %~n0 - the filename
 :: %~x0 - the extension
+set wscmd.noimport=
 set wscmd.ini.include=
 set wscmd.ini.execute=
 set wscmd.ini.command=
 set wscmd.inifiles=".\%~n0.ini" "%~dpn0.ini"
-if not defined wscmd.inline (
-	set wscmd.inifiles="!wscmd.script!.ini" ".\%~n0.ini" "%~dpn0.ini"
-)
+if not defined wscmd.inline set wscmd.inifiles="!wscmd.script!.ini" ".\%~n0.ini" "%~dpn0.ini"
 for %%i in ( %wscmd.inifiles% ) do (
 	if not "%%~ni" == "" if exist "%%~i" (
 		if defined wscmd.debug echo.Configuring from "%%~i">&2
@@ -151,7 +155,11 @@ for %%i in ( %wscmd.inifiles% ) do (
 			call set wscmd.temp=%%~l
 			if defined wscmd.temp (
 				if /i "%%k" == "import" (
-					set wscmd.ini.include=!wscmd.ini.include! "!wscmd.temp!"
+					if /i "!wscmd.temp!" == "no" (
+						set wscmd.noimport=1
+					) else (
+						set wscmd.ini.include=!wscmd.ini.include! "!wscmd.temp!"
+					)
 				) else (
 					set wscmd.ini.%%k=!wscmd.temp!
 				)
@@ -169,6 +177,7 @@ for %%i in ( %wscmd.inifiles% ) do (
 if not defined wscmd.ini.include set wscmd.ini.include=%~dp0js\*.js %~dp0js\win32\*.js %~dp0vbs\win32\*.vbs
 if not defined wscmd.ini.execute set wscmd.ini.execute=.\$$$%~n0.wsf
 if not defined wscmd.ini.command set wscmd.ini.command=%WINDIR%\system32\cscript.exe //NoLogo
+if defined wscmd.noimport set wscmd.ini.include=
 
 
 :: Compile and link the source with libraries
@@ -207,15 +216,16 @@ goto :EOF
 call :wscmd.version
 echo.
 echo.Usage:
-echo.    %~n0 [/h ^| /help ^| /q [/debug]]
+echo.    %~n0 [/h ^| /help ^| /help-ini ^| /q [/debug]]
 echo.    %~n0 [/compile ^| /embed ^| /debug] [/js ^| /vbs] /e [/p] "string" [arguments]
 echo.    %~n0 [/compile ^| /embed ^| /debug] [/js ^| /vbs] filename [arguments]
 echo.
 echo.Valid options are:
 echo.    /h, /help  - Display this help
+echo.    /help-ini  - Display the description of configurational files
 echo.    /q         - Quiet mode, affects when run interactively or through pipes
-echo.    /compile   - Compile but not execute. Just store a temporary file on a disk
-echo.    /embed     - Embed external scripts into the resulting file
+echo.    /compile   - Compile but not execute. Just store a temporary file
+echo.    /embed     - The same as above but embed external scripts into a file
 echo.    /debug     - Output debugging information and execute
 echo.    /js        - Assume a value as a JavaScript source
 echo.    /vbs       - Assume a value as a VBScript code
@@ -226,6 +236,72 @@ echo.Extra options are used with /e /p:
 echo.    /d         - Opens the file using the system default
 echo.    /u         - Opens the file as Unicode
 echo.    /a         - Opens the file as ASCII
+
+goto wscmd.stop
+
+
+:wscmd.help.ini
+echo.PREAMBLE
+echo.
+echo.This page shows how to control a content and behavior of the resulting 
+echo.script using configurational files. You can do this using by one of three 
+echo.ways. All options described below are common for all of them. 
+echo.
+echo.1.  Create the "%~n0.ini" file in the same directory where "%~nx0" is 
+echo.    located. This file is common and it will be used in all other cases. 
+echo.    That means that it will affect on all scripts always if other ways 
+echo.    are not used. 
+echo.
+echo.2.  Create the "%~n0.ini" file in the current directory where some script 
+echo.    will be launched. This file will affect on all files launched from the 
+echo.    current directory only. 
+echo.
+echo.3.  Create the "SCRIPT.ini" file (where SCRIPT is a name and an extension 
+echo.    of a file). This file will afect on the SCRIPTNAME file only. 
+echo.
+echo.SYNTAX
+echo.
+echo.There are three documented options available in ini-files. The syntax for 
+echo.all options is common and looks like below:
+echo.
+echo.    name=value
+echo.
+echo.You are able to use them in any order but it is recommended to grouup them 
+echo.and use as described below:
+echo.
+echo.import
+echo.    This option specifies a path to librarian files that will be linked to 
+echo.    the resulting script. Placeholders "*" or "?" are available to specify 
+echo.    a group of files. Environment variables are enabled. In addition, you 
+echo.    can use the following modifiers to refer to librarian files relatively 
+echo.    the location of "%~nx0". Other modifiers are available but useless. 
+echo.
+echo.    %%~d0 - means a drive letter
+echo.    %%~p0 - means a path only
+echo.
+echo.    There is special value "import=no" that suppresses inclusion of files. 
+echo.    Just write out it directly in a custom configurational file to suppress 
+echo.    inclusion of any librarian file. 
+echo.
+echo.execute
+echo.    This option defines a name of the resulting file. If it is not specially 
+echo.    specified, the default value will be used. 
+echo.
+echo.command
+echo.    This option specifies a binary executable file that will be invoked to 
+echo.    launch a script. 
+echo.
+echo.EXAMPLE
+echo.
+echo.The following example orders to add all js-files and vbs-files relatively 
+echo.the directory where "%~nx0" was run. The name of the executed script 
+echo.will be created in the current directory with the specified filename. 
+echo.The launcher is "CSCRIPT.EXE" with the suppressed banner. 
+echo.
+echo.    import=%%~dp0\js\*.js
+echo.    import=%%~dp0\vbs\*.vbs
+echo.    execute=.\$$$%%~n0.wsf
+echo.    command=%%windir%%\system32\cscript.exe //nologo
 
 goto wscmd.stop
 
