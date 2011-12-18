@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.16.0 Beta
+set wscmd.version=0.16.1 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -148,7 +148,7 @@ set wscmd.ini.execute=
 set wscmd.ini.command=
 set wscmd.inifiles=".\%~n0.ini" "%~dpn0.ini"
 if not defined wscmd.inline set wscmd.inifiles="!wscmd.script!.ini" ".\%~n0.ini" "%~dpn0.ini"
-for %%i in ( %wscmd.inifiles% ) do (
+for %%i in ( !wscmd.inifiles! ) do (
 	if not "%%~ni" == "" if exist "%%~i" (
 		if defined wscmd.debug echo.Configuring from "%%~i">&2
 		for /f "usebackq tokens=1,* delims==" %%k in ( "%%~i" ) do (
@@ -520,6 +520,7 @@ var help = (function()
 		+ 'quit(), exit()           Quit this shell\n' 
 		+ 'eval.history             Display the history\n' 
 		+ 'eval.save([format])      Save the history to the file\n' 
+		+ 'eval.transform           The stub to transform output additionally\n' 
 		+ 'cmd(), shell()           Run new DOS-session\n' 
 		+ 'sleep(n)                 Sleep n milliseconds\n' 
 		+ 'reload()                 Stop this session and run new\n' 
@@ -612,6 +613,9 @@ while ( true ) {
 		{
 			if ( result === void 0 ) {
 				return;
+			}
+			if ( typeof eval.transform == 'function' ) {
+				result = eval.transform(result);
 			}
 			WScript.Echo(result);
 		})
