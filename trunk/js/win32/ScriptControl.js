@@ -16,6 +16,8 @@
  * 			The default value is 'VBScript'
  * @param	object	Optional, an object available for the script. 
  * @return	object
+ * @see	http://msdn.microsoft.com/en-us/library/aa227430%28v=VS.60%29.aspx
+ * @see	http://msdn.microsoft.com/en-us/library/aa227637%28v=VS.60%29.aspx
  */
 function ScriptControl(language, options)
 {
