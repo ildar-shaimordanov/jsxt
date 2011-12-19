@@ -544,6 +544,27 @@ String.prototype.padRight = function(n, c)
 };
 
 /**
+ * Formats arguments accordingly the formatting string. 
+ * Each occurence of the "{\d+}" substring refers to 
+ * the appropriate argument. 
+ *
+ * @example
+ * '{0}is not {1} + {2}'.format('JavaScript', 'Java', 'Script');
+ *
+ * @param	mixed
+ * @return	string
+ * @access	public
+ */
+String.prototype.format = function()
+{
+	var args = arguments;
+	return this.replace(/\{(\d+)\}/g, function($0, $1)
+	{
+		return args[$1] !== void 0 ? args[$1] : $0;
+	});
+};
+
+/**
  * object.alignLeft(number, string)
  * Wrapper for object.padding
  * Synonym for object.padRight
@@ -631,8 +652,8 @@ String.prototype.sprintf = function()
 		}
 		x[3] = x[3].slice(-1) || ' ';
 
-		ins = args[+x[1] ? x[1] - 1 : index];
-		index++;
+		ins = args[+x[1] ? x[1] - 1 : index++];
+//		index++;
 
 		return String.prototype.sprintf[x[6]](ins, x);
 	});
@@ -755,8 +776,8 @@ String.prototype.compile = function()
 		}
 		x[3] = x[3].slice(-1) || ' ';
 
-		ins = x[1] ? x[1] - 1 : index;
-		index++;
+		ins = x[1] ? x[1] - 1 : index++;
+//		index++;
 
 		return '", String.prototype.sprintf.' + x[6] + '(arguments[' + ins + '], ["' + x.join('", "') + '"]), "';
 	});
