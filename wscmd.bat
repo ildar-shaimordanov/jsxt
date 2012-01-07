@@ -13,8 +13,8 @@ set wscmd.started=1
 
 
 :: Set the name and version
-set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.16.3 Beta
+set wscmd.name=Windows Scripting Command
+set wscmd.version=0.16.4 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -314,8 +314,8 @@ echo.^<job id="wscmd"^>
 echo.^<?job error="true" debug="false" ?^>
 echo.
 echo.^<runtime^>
-echo.^<description^>^<^^^![CDATA[%wscmd.name% Version %wscmd.version%
-echo.Copyright ^(C^) 2009, 2010, 2011 Ildar Shaimordanov
+echo.^<description^>^<^^^![CDATA[Created by %wscmd.name% Version %wscmd.version%
+echo.Copyright ^(C^) 2009-2012 Ildar Shaimordanov
 echo.]]^>^</description^>
 echo.^</runtime^>
 echo.^<script language="javascript"^>^<^^^![CDATA[
