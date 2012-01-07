@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.16.1 Beta
+set wscmd.version=0.16.2 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -441,7 +441,6 @@ echo.{
 echo.	var fso = new ActiveXObject^('Scripting.FileSystemObject'^);
 echo.
 echo.	var format = 0;
-echo.	var lineNumber = 0;
 echo.
 echo.	var args = WScript.Arguments;
 echo.	if ^( args.length == 0 ^) {
@@ -452,32 +451,53 @@ echo.	}
 echo.	for ^(var i = 0; i ^< args.length; i++^) {
 echo.		var arg = args.item^(i^);
 echo.
+echo.		// Opens the file using the system default
 echo.		if ^( arg == '/D' ^|^| arg == '/d' ^) {
 echo.			format = -2;
 echo.			continue;
 echo.		}
 echo.
+echo.		// Opens the file as Unicode
 echo.		if ^( arg == '/U' ^|^| arg == '/u' ^) {
 echo.			format = -1;
 echo.			continue;
 echo.		}
 echo.
+echo.		// Opens the file as ASCII
 echo.		if ^( arg == '/A' ^|^| arg == '/a' ^) {
 echo.			format = 0;
 echo.			continue;
 echo.		}
 echo.
+echo.		var stream;
+echo.
 echo.		var e;
 echo.		try {
-echo.			var stream = arg == '-' ? WScript.StdIn : fso.OpenTextFile^(arg, 1, false, format^);
+echo.			if ( arg == '-' ) {
+echo.				stream = WScript.StdIn;
+echo.				arg = '^<stdin^>';
+echo.			} else {
+echo.				stream = fso.OpenTextFile^(arg, 1, false, format^);
+echo.			}
 echo.		} catch ^(e^) {
-echo.			WScript.StdErr.Writeline^(e.message + ': ' + arg^);
+echo.			WScript.StdErr.WriteLine^(e.message + ': ' + arg^);
 echo.			continue;
 echo.		}
 echo.
+echo.		// Prevent fail of reading out of STDIN stream
+echo.		// The real exception number is 800a005b
+echo.		// Object variable or With block variable not set
+echo.		try {
+echo.			stream.AtEndOfStream;
+echo.		} catch ^(e^) {
+echo.			WScript.StdErr.WriteLine^('Out of stream: ' + arg^);
+echo.			continue;
+echo.		}
+echo.
+echo.		var lineNumber = 0;
 echo.		while ^( ^^^! stream.AtEndOfStream ^) {
 echo.			lineNumber++;
-echo.			var line = stream.readline^(^);
+echo.			var line = stream.ReadLine^(^);
 echo.			try {
 echo.				line = userFunc^(
 echo.					line, lineNumber, arg, 
