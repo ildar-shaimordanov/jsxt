@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command Interpreter
-set wscmd.version=0.16.2 Beta
+set wscmd.version=0.16.3 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -470,14 +470,17 @@ echo.			continue;
 echo.		}
 echo.
 echo.		var stream;
+echo.		var isFile;
 echo.
 echo.		var e;
 echo.		try {
 echo.			if ( arg == '-' ) {
 echo.				stream = WScript.StdIn;
 echo.				arg = '^<stdin^>';
+echo.				isFile = false;
 echo.			} else {
 echo.				stream = fso.OpenTextFile^(arg, 1, false, format^);
+echo.				isFile = true;
 echo.			}
 echo.		} catch ^(e^) {
 echo.			WScript.StdErr.WriteLine^(e.message + ': ' + arg^);
@@ -512,7 +515,9 @@ echo.				WScript.StdOut.WriteLine^(line^);
 echo.			}
 echo.		}
 echo.
-echo.		stream.Close^(^);
+echo.		if ( isFile ) {
+echo.			stream.Close^(^);
+echo.		}
 echo.	}
 echo.}^)^(^);
 echo.
