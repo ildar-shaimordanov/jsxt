@@ -52,7 +52,7 @@ Valid options are:
 Extra options are used with /e /p:
     /d         - Opens the file using the system default
     /u         - Opens the file as Unicode
-    /a         - Opens the file as ASCII}}}
+    /a         - Opens the file as ASCII
 }}}
 
 Looking on this help we can say that the tool has a lot of arguments but all of them are optional. 
