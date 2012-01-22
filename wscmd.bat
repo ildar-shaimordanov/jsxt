@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.16.4 Beta
+set wscmd.version=0.16.5 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -364,7 +364,7 @@ endlocal
 if defined wscmd.inline (
 	if defined wscmd.debug echo.Inline: !wscmd.script!>&2
 	if defined wscmd.inproc (
-		call :wscmd.inproc.%wscmd.engine%
+		call :wscmd.inproc
 	) else (
 		call :wscmd.inline
 	)
@@ -405,22 +405,38 @@ echo.]]^>^</script^>
 goto :EOF
 
 
+:wscmd.inproc
+call :wscmd.inproc.%wscmd.engine%
+setlocal
+set wscmd.engine=javascript
+call :wscmd.%wscmd.link% "%~dpnx0"
+endlocal
+goto :EOF
+
+
 :wscmd.inproc.javascript
 echo.^<script language="javascript"^>^<^^^![CDATA[
+echo.
+echo.//@cc_on
+echo.//@set @user_inproc_mode = 2
 echo.
 echo.var userFunc = function^(line, lineNumber, filename, fso, stdin, stdout, stderr^)
 echo.{
 echo.	!wscmd.script!;
-echo.	userFunc = arguments.callee;
 echo.	return line;
 echo.};
 echo.
 echo.]]^>^</script^>
-call :wscmd.inproc
 goto :EOF
 
 
 :wscmd.inproc.vbscript
+echo.^<script language="javascript"^>^<^^^![CDATA[
+echo.
+echo.//@cc_on
+echo.//@set @user_inproc_mode = 1
+echo.
+echo.]]^>^</script^>
 echo.^<script language="vbscript"^>^<^^^![CDATA[
 echo.
 echo.Function userFunc^(line, lineNumber, filename, fso, stdin, stdout, stderr^)
@@ -429,103 +445,109 @@ echo.	userFunc = line
 echo.End Function
 echo.
 echo.]]^>^</script^>
-call :wscmd.inproc
-goto :EOF
-
-
-:wscmd.inproc
-echo.^<script language="javascript"^>^<^^^![CDATA[
-echo.
-echo.^(function^(^)
-echo.{
-echo.	var fso = new ActiveXObject^('Scripting.FileSystemObject'^);
-echo.
-echo.	var format = 0;
-echo.
-echo.	var args = WScript.Arguments;
-echo.	if ^( args.length == 0 ^) {
-echo.		// Emulate empty list of arguments
-echo.		args = ['-'];
-echo.		args.item = function^(i^) { return this[i]; };
-echo.	}
-echo.	for ^(var i = 0; i ^< args.length; i++^) {
-echo.		var arg = args.item^(i^);
-echo.
-echo.		// Opens the file using the system default
-echo.		if ^( arg == '/D' ^|^| arg == '/d' ^) {
-echo.			format = -2;
-echo.			continue;
-echo.		}
-echo.
-echo.		// Opens the file as Unicode
-echo.		if ^( arg == '/U' ^|^| arg == '/u' ^) {
-echo.			format = -1;
-echo.			continue;
-echo.		}
-echo.
-echo.		// Opens the file as ASCII
-echo.		if ^( arg == '/A' ^|^| arg == '/a' ^) {
-echo.			format = 0;
-echo.			continue;
-echo.		}
-echo.
-echo.		var stream;
-echo.		var isFile;
-echo.
-echo.		var e;
-echo.		try {
-echo.			if ( arg == '-' ) {
-echo.				stream = WScript.StdIn;
-echo.				arg = '^<stdin^>';
-echo.				isFile = false;
-echo.			} else {
-echo.				stream = fso.OpenTextFile^(arg, 1, false, format^);
-echo.				isFile = true;
-echo.			}
-echo.		} catch ^(e^) {
-echo.			WScript.StdErr.WriteLine^(e.message + ': ' + arg^);
-echo.			continue;
-echo.		}
-echo.
-echo.		// Prevent fail of reading out of STDIN stream
-echo.		// The real exception number is 800a005b
-echo.		// Object variable or With block variable not set
-echo.		try {
-echo.			stream.AtEndOfStream;
-echo.		} catch ^(e^) {
-echo.			WScript.StdErr.WriteLine^('Out of stream: ' + arg^);
-echo.			continue;
-echo.		}
-echo.
-echo.		var lineNumber = 0;
-echo.		while ^( ^^^! stream.AtEndOfStream ^) {
-echo.			lineNumber++;
-echo.			var line = stream.ReadLine^(^);
-echo.			try {
-echo.				line = userFunc^(
-echo.					line, lineNumber, arg, 
-echo.					fso, WScript.StdIn, WScript.StdOut, WScript.StdErr^);
-echo.			} catch ^(e^) {
-echo.				stream.Close^(^);
-echo.				WScript.StdErr.WriteLine^(e.message^);
-echo.				WScript.Quit^(^);
-echo.			}
-echo.			if ^( line ^^^!== void 0 ^) {
-echo.				WScript.StdOut.WriteLine^(line^);
-echo.			}
-echo.		}
-echo.
-echo.		if ( isFile ) {
-echo.			stream.Close^(^);
-echo.		}
-echo.	}
-echo.}^)^(^);
-echo.
-echo.]]^>^</script^>
 goto :EOF
 
 
 @goto:eof */
+
+
+(function()
+{
+//@cc_on
+//@if ( ! @user_inproc_mode )
+	return;
+//@end
+
+//@if ( @user_inproc_mode == 2 )
+	var userFunc = this.userFunc;
+	var userFuncBefore = this.userFuncBefore;
+	var userFuncAfter = this.userFuncAfter;
+//@end
+
+	var fso = new ActiveXObject('Scripting.FileSystemObject');
+
+	var format = 0;
+
+	var args = WScript.Arguments;
+	if ( args.length == 0 ) {
+		// Emulate empty list of arguments
+		args = ['-'];
+		args.item = function(i) { return this[i]; };
+	}
+	for (var i = 0; i < args.length; i++) {
+		var arg = args.item(i);
+
+		// Opens the file using the system default
+		if ( arg == '/D' || arg == '/d' ) {
+			format = -2;
+			continue;
+		}
+
+		// Opens the file as Unicode
+		if ( arg == '/U' || arg == '/u' ) {
+			format = -1;
+			continue;
+		}
+
+		// Opens the file as ASCII
+		if ( arg == '/A' || arg == '/a' ) {
+			format = 0;
+			continue;
+		}
+
+		var stream;
+		var isFile;
+
+		var e;
+		try {
+			if ( arg == '-' ) {
+				stream = WScript.StdIn;
+				arg = '<stdin>';
+				isFile = false;
+			} else {
+				stream = fso.OpenTextFile(arg, 1, false, format);
+				isFile = true;
+			}
+		} catch (e) {
+			WScript.StdErr.WriteLine(e.message + ': ' + arg);
+			continue;
+		}
+
+		// Prevent fail of reading out of STDIN stream
+		// The real exception number is 800a005b
+		// Object variable or With block variable not set
+		try {
+			stream.AtEndOfStream;
+		} catch (e) {
+			WScript.StdErr.WriteLine('Out of stream: ' + arg);
+			continue;
+		}
+
+		var lineNumber = 0;
+		while ( ! stream.AtEndOfStream ) {
+			lineNumber++;
+			var line = stream.ReadLine();
+			try {
+				line = userFunc(
+					line, lineNumber, arg, 
+					fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
+			} catch (e) {
+				stream.Close();
+				WScript.StdErr.WriteLine(e.message);
+				WScript.Quit();
+			}
+			if ( line !== void 0 ) {
+				WScript.StdOut.WriteLine(line);
+			}
+		}
+
+		if ( isFile ) {
+			stream.Close();
+		}
+	}
+
+	WScript.Quit();
+})();
 
 /*!
 */
