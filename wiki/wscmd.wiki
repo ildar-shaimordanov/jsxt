@@ -5,7 +5,7 @@ _This page tells about wscmd, Windows Scripting Command Interpreter._
 
 = Introduction =
 
-Once I understood that absence of any kind of a console mode in WSH is big omission. I thought to myself why masters from Redmond have not implemented this feature for JScript and VBScript. Of course, I know that there are many !JavaScript interpreters with the supported console mode (for example, [http://www.mozilla.org/rhino/ Rhino] or [http://nodejs.org/ NodeJS], etc). But all of them have two main shortcomings: 
+Once I understood that absence of any kind of a console mode in WSH is big omission. I thought to myself why masters from Redmond have not implemented this feature for JScript and VBScript. Of course, I know that there are many !JavaScript interpreters with the supported console mode (for example, [http://www.mozilla.org/rhino/ Rhino], [http://www.jsdb.org/ JSDB] or [http://nodejs.org/ NodeJS], etc). But all of them have two main shortcomings: 
   * They are foreign tools in Windows and should be downloaded and/or installed firstly; 
   * They have their own interface of communication with the world that differs of the interface used in JScript. 
 
