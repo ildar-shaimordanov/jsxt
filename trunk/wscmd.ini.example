@@ -7,3 +7,7 @@ import=%~d0%~p0.DEVEL\jsxt\vbs\win32\*.vbs
 execute=.\$$$%~n0.wsf
 
 command=%windir%\system32\cscript.exe //nologo
+
+xml-encoding=utf-8
+enable-error=false
+enable-debug=false
