@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.16.5 Beta
+set wscmd.version=0.16.6 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -177,6 +177,9 @@ for %%i in ( !wscmd.inifiles! ) do (
 if not defined wscmd.ini.include set wscmd.ini.include=%~dp0js\*.js %~dp0js\win32\*.js %~dp0vbs\win32\*.vbs
 if not defined wscmd.ini.execute set wscmd.ini.execute=.\$$$%~n0.wsf
 if not defined wscmd.ini.command set wscmd.ini.command=%WINDIR%\system32\cscript.exe //NoLogo
+if not defined wscmd.ini.xml-encoding set wscmd.ini.xml-encoding=utf-8
+if not defined wscmd.ini.enable-error set wscmd.ini.enable-error=false
+if not defined wscmd.ini.enable-debug set wscmd.ini.enable-debug=false
 if defined wscmd.noimport set wscmd.ini.include=
 
 
@@ -291,6 +294,20 @@ echo.command
 echo.    This option specifies a binary executable file that will be invoked to 
 echo.    launch a script. 
 echo.
+echo.xml-encoding
+echo.    A string that describes the character set encoding used by the resulting 
+echo.    XML document. The string may include any of the character sets supported 
+echo.    by Microsoft Internet Explorer. The default value is utf-8. 
+echo.
+echo.enable-error
+echo.    A Boolean value. False is the default value. Set to true to allow error 
+echo.    messages for syntax or run-time errors in the resulting.wsf file. 
+echo.
+echo.enable-debug
+echo.    A Boolean value. False is the default value. Set to true to enable 
+echo.    debugging. If debugging is not enabled, you will be unable to launch 
+echo.    the script debugger for a Windows Script file.
+echo.
 echo.EXAMPLE
 echo.
 echo.The following example orders to add all js-files and vbs-files relatively 
@@ -307,11 +324,11 @@ goto wscmd.stop
 
 
 :wscmd.compile
-echo.^<?xml version="1.0" encoding="utf-8" ?^>
+echo.^<?xml version="1.0" encoding="%wscmd.ini.xml-encoding%" ?^>
 echo.
 echo.^<package^>
 echo.^<job id="wscmd"^>
-echo.^<?job error="true" debug="false" ?^>
+echo.^<?job error="%wscmd.ini.enable-error%" debug="%wscmd.ini.enable-debug%" ?^>
 echo.
 echo.^<runtime^>
 echo.^<description^>^<^^^![CDATA[Created by %wscmd.name% Version %wscmd.version%
