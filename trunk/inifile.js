@@ -1,10 +1,18 @@
+//
+// inifile
+// Command line tool for working with ini-files
+//
+// Copyright (c) 2012, Ildar Shaimordanov
+//
 
 function help()
 {
 	alert([
 		'IniFile Version 0.1 Beta', 
+		'Copyright (C) 2012 Ildar Shaimordanov', 
 		'', 
 		'Usage: ' + WScript.ScriptName + ' OPTIONS filename', 
+		'', 
 		'    /D       - Opens the file using the system default', 
 		'    /U       - Opens the file as Unicode', 
 		'    /A       - Opens the file as ASCII', 
@@ -38,7 +46,11 @@ if ( uArgs.length != 1 || WScript.FullName.match(/wscript\.exe/i) ) {
 	quit(1);
 }
 
+///////////////////////////////////////////////////////////////////////////
+
 //[requires[ js/INI.js ]]
+
+///////////////////////////////////////////////////////////////////////////
 
 var filename = uArgs.item(0);
 var format = nArgs.Exists('D') ? -2 : nArgs.Exists('U') ? -1 : 0;
