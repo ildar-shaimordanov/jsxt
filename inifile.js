@@ -8,7 +8,7 @@
 function help()
 {
 	alert([
-		'IniFile Version 0.1 Beta', 
+		'IniFile Version 0.2 Beta', 
 		'Copyright (C) 2012 Ildar Shaimordanov', 
 		'', 
 		'Usage: ' + WScript.ScriptName + ' OPTIONS filename', 
@@ -66,13 +66,13 @@ var iniObj = (function()
 	}
 	var h = f.OpenAsTextStream(1, format);
 
-//	var iniTxt = h.ReadAll();
-//	var iniTxt = iniTxt.split('\n');
-//	var result = INI.parse(iniTxt);
-	var result = INI.parse(function()
-	{
-		return h.AtEndOfStream ? null : h.ReadLine();
-	});
+	var iniTxt = h.ReadAll();
+//	var iniTxt = iniTxt.split(/\r\n|\r|\n/);
+	var result = INI.parse(iniTxt);
+//	var result = INI.parse(function()
+//	{
+//		return h.AtEndOfStream ? null : h.ReadLine();
+//	});
 
 	h.Close();
 
