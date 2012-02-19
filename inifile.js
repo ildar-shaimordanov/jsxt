@@ -8,7 +8,7 @@
 function help()
 {
 	alert([
-		'IniFile Version 0.2 Beta', 
+		'IniFile Version 0.3 Beta', 
 		'Copyright (C) 2012 Ildar Shaimordanov', 
 		'', 
 		'Usage: ' + WScript.ScriptName + ' OPTIONS filename', 

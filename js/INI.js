@@ -345,8 +345,13 @@ INI.parse = function(text, levelDelimiter, deepen)
 
 	})();
 
+	// This regular expression parses the input string and extracts the 
+	// name of the section
 	var reSec = /^\s*\[([^\[\]]+)\]\s*$/;
-	var reKey = /^\s*([^;#\s][^=]*?)\s*=\s*([^\r\n]*?)\s*$/;
+
+	// This regular expression parses the input string and extracts the 
+	// name and the value of the parameter
+	var reKey = /^\s*([^;#\s][^=]*?)\s*=([^\r\n]*?)$/;
 
 	var line, m, k, v;
 
