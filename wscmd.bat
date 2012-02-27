@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.17.1 Beta
+set wscmd.version=0.17.2 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -478,18 +478,18 @@ echo.
 echo.//@cc_on
 echo.//@set @user_inproc_mode = 2
 echo.
-echo.var userFunc = function^(line, lineNumber, filename, totalNumber, fso, stdin, stdout, stderr^)
+echo.var userFunc = function^(line, currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
 echo.{
 echo.	!wscmd.script!;
 echo.	return line;
 echo.};
 echo.
-echo.var userFuncBefore = function^(lineNumber, filename, totalNumber, fso, stdin, stdout, stderr^)
+echo.var userFuncBefore = function^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
 echo.{
 echo.	!wscmd.script.before!;
 echo.};
 echo.
-echo.var userFuncAfter = function^(lineNumber, filename, totalNumber, fso, stdin, stdout, stderr^)
+echo.var userFuncAfter = function^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
 echo.{
 echo.	!wscmd.script.after!;
 echo.};
@@ -507,16 +507,16 @@ echo.
 echo.]]^>^</script^>
 echo.^<script language="vbscript"^>^<^^^![CDATA[
 echo.
-echo.Function userFunc^(line, lineNumber, filename, totalNumber, fso, stdin, stdout, stderr^)
+echo.Function userFunc^(line, currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
 echo.	!wscmd.script!
 echo.	userFunc = line
 echo.End Function
 echo.
-echo.Function userFuncBefore^(lineNumber, filename, totalNumber, fso, stdin, stdout, stderr^)
+echo.Function userFuncBefore^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
 echo.	!wscmd.script.before!
 echo.End Function
 echo.
-echo.Function userFuncAfter^(lineNumber, filename, totalNumber, fso, stdin, stdout, stderr^)
+echo.Function userFuncAfter^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
 echo.	!wscmd.script.after!
 echo.End Function
 echo.
@@ -552,10 +552,13 @@ goto :EOF
 	}
 
 	// The number of all lines of all files
-	var totalNumber = 0;
+	var lineNumber = 0;
 
+	// the function is called before processing the list of files. 
+	// the filename and the number of the current line are undefined. 
+	// The total number of input lines is 0. 
 	userFuncBefore(
-		void 0, void 0, totalNumber, 
+		void 0, void 0, lineNumber, 
 		fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
 
 	for (var i = 0; i < args.length; i++) {
@@ -579,10 +582,13 @@ goto :EOF
 			continue;
 		}
 
-		var lineNumber = 0;
+		// The number of the current line for the actual file.
+		var currentNumber = 0;
 
+		// The function called before opening of the file. 
+		// The filename is known, the current line is 0. 
 		userFuncBefore(
-			lineNumber, arg, totalNumber, 
+			currentNumber, arg, lineNumber, 
 			fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
 
 		var stream;
@@ -614,12 +620,15 @@ goto :EOF
 		}
 
 		while ( ! stream.AtEndOfStream ) {
+			currentNumber++;
 			lineNumber++;
-			totalNumber++;
 			var line = stream.ReadLine();
 			try {
+				// Processing of the file. Available parameters are the 
+				// current line, it's number in the file, and the number 
+				// of the line in the list of all files. 
 				line = userFunc(
-					line, lineNumber, arg, totalNumber, 
+					line, currentNumber, arg, lineNumber, 
 					fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
 			} catch (e) {
 				stream.Close();
@@ -635,14 +644,20 @@ goto :EOF
 			stream.Close();
 		}
 
+		// A file processing is completed, and a file is closed already. 
+		// The filename and the total number of lines are known. 
+		// The currentNumber is the number of lines of the last file. 
 		userFuncAfter(
-			lineNumber, arg, totalNumber, 
+			currentNumber, arg, lineNumber, 
 			fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
 
 	}
 
+	// The function will be executed after all files have been processed. 
+	// There are no processed files so the file and the current line are 
+	// not defined. Only the lineNumber total amount of lines is known. 
 	userFuncAfter(
-		void 0, void 0, totalNumber, 
+		void 0, void 0, lineNumber, 
 		fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
 
 	WScript.Quit();
