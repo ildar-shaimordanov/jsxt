@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.16.6 Beta
+set wscmd.version=0.17.1 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -89,21 +89,10 @@ if /i "%~1" == "/js" (
 )
 
 
-if /i "%~1" == "/e" (
-	set wscmd.inline=1
-	if /i "%~2" == "/p" (
-		set wscmd.inproc=1
-		set wscmd.script=%3
-		shift /1
-	) else (
-		set wscmd.inproc=
-		set wscmd.script=%2
-	)
-	if defined wscmd.script set wscmd.script=!wscmd.script:~1,-1!
-	if defined wscmd.script set wscmd.script=!wscmd.script:""="!
-	shift /1
-	shift /1
-) else (
+if /i "%~1" == "/e" goto wscmd.opt.e.1
+
+	rem wscmd ... "filename" ...
+
 	set wscmd.inline=
 	set wscmd.inproc=
 	set wscmd.script=%~1
@@ -118,7 +107,51 @@ if /i "%~1" == "/e" (
 		call :wscmd.engine "!wscmd.script!"
 	)
 	shift /1
-)
+
+goto wscmd.opt.e.2
+:wscmd.opt.e.1
+
+	rem wscmd ... /e ... "string" ...
+	set wscmd.inline=1
+
+	rem wscmd ... /e /p "string" ...
+	rem wscmd ... /e /n "string" ...
+	if /i "%~2" == "/p" (
+		set wscmd.inproc=1
+		set wscmd.script=%3
+		shift /1
+		shift /1
+	)
+
+	rem wscmd ... /e [/p "string"] /before "string" ...
+	if /i "%~2" == "/before" (
+		set wscmd.inproc=1
+		set wscmd.script.before=%3
+		call :wscmd.script wscmd.script.before
+		shift /1
+		shift /1
+	)
+
+	rem wscmd ... /e [/p "string"] [/before "string"] /after "string" ...
+	if /i "%~2" == "/after" (
+		set wscmd.inproc=1
+		set wscmd.script.after=%3
+		call :wscmd.script wscmd.script.after
+		shift /1
+		shift /1
+	)
+
+	rem wscmd ... /e "string" ...
+	if not defined wscmd.inproc (
+		set wscmd.script=%2
+		shift /1
+	)
+
+	call :wscmd.script wscmd.script
+
+	shift /1
+
+:wscmd.opt.e.2
 
 
 :wscmd.1
@@ -204,6 +237,12 @@ endlocal
 goto :EOF
 
 
+:wscmd.script
+if defined %1 set %1=!%1:~1,-1!
+if defined %1 set %1=!%1:""="!
+goto :EOF
+
+
 :wscmd.engine
 set wscmd.engine=javascript
 if /i "%~x1" == ".vbs" set wscmd.engine=vbscript
@@ -239,6 +278,8 @@ echo.Extra options are used with /e /p:
 echo.    /d         - Opens the file using the system default
 echo.    /u         - Opens the file as Unicode
 echo.    /a         - Opens the file as ASCII
+echo.    /before    - Assume a code to be executed before a file
+echo.    /after     - Assume a code to be executed after a file
 
 goto wscmd.stop
 
@@ -437,10 +478,20 @@ echo.
 echo.//@cc_on
 echo.//@set @user_inproc_mode = 2
 echo.
-echo.var userFunc = function^(line, lineNumber, filename, fso, stdin, stdout, stderr^)
+echo.var userFunc = function^(line, lineNumber, filename, totalNumber, fso, stdin, stdout, stderr^)
 echo.{
 echo.	!wscmd.script!;
 echo.	return line;
+echo.};
+echo.
+echo.var userFuncBefore = function^(lineNumber, filename, totalNumber, fso, stdin, stdout, stderr^)
+echo.{
+echo.	!wscmd.script.before!;
+echo.};
+echo.
+echo.var userFuncAfter = function^(lineNumber, filename, totalNumber, fso, stdin, stdout, stderr^)
+echo.{
+echo.	!wscmd.script.after!;
 echo.};
 echo.
 echo.]]^>^</script^>
@@ -456,9 +507,17 @@ echo.
 echo.]]^>^</script^>
 echo.^<script language="vbscript"^>^<^^^![CDATA[
 echo.
-echo.Function userFunc^(line, lineNumber, filename, fso, stdin, stdout, stderr^)
+echo.Function userFunc^(line, lineNumber, filename, totalNumber, fso, stdin, stdout, stderr^)
 echo.	!wscmd.script!
 echo.	userFunc = line
+echo.End Function
+echo.
+echo.Function userFuncBefore^(lineNumber, filename, totalNumber, fso, stdin, stdout, stderr^)
+echo.	!wscmd.script.before!
+echo.End Function
+echo.
+echo.Function userFuncAfter^(lineNumber, filename, totalNumber, fso, stdin, stdout, stderr^)
+echo.	!wscmd.script.after!
 echo.End Function
 echo.
 echo.]]^>^</script^>
@@ -491,6 +550,14 @@ goto :EOF
 		args = ['-'];
 		args.item = function(i) { return this[i]; };
 	}
+
+	// The number of all lines of all files
+	var totalNumber = 0;
+
+	userFuncBefore(
+		void 0, void 0, totalNumber, 
+		fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
+
 	for (var i = 0; i < args.length; i++) {
 		var arg = args.item(i);
 
@@ -511,6 +578,12 @@ goto :EOF
 			format = 0;
 			continue;
 		}
+
+		var lineNumber = 0;
+
+		userFuncBefore(
+			lineNumber, arg, totalNumber, 
+			fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
 
 		var stream;
 		var isFile;
@@ -540,13 +613,13 @@ goto :EOF
 			continue;
 		}
 
-		var lineNumber = 0;
 		while ( ! stream.AtEndOfStream ) {
 			lineNumber++;
+			totalNumber++;
 			var line = stream.ReadLine();
 			try {
 				line = userFunc(
-					line, lineNumber, arg, 
+					line, lineNumber, arg, totalNumber, 
 					fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
 			} catch (e) {
 				stream.Close();
@@ -561,7 +634,16 @@ goto :EOF
 		if ( isFile ) {
 			stream.Close();
 		}
+
+		userFuncAfter(
+			lineNumber, arg, totalNumber, 
+			fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
+
 	}
+
+	userFuncAfter(
+		void 0, void 0, totalNumber, 
+		fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
 
 	WScript.Quit();
 })();
