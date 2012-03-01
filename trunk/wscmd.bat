@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.18.0 Beta
+set wscmd.version=0.18.1 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -409,7 +409,24 @@ for %%l in ( !wscmd.ini.include! ) do (
 endlocal
 
 if defined wscmd.inline (
-	if defined wscmd.debug echo.Inline: !wscmd.script!>&2
+	if defined wscmd.debug (
+		echo.Inline:
+		if defined wscmd.script (
+			echo.    !wscmd.script!
+		) else (
+			if defined wscmd.script.begin  echo.    !wscmd.script.begin!
+			echo.    for each file {
+			if defined wscmd.script.before echo.      !wscmd.script.before!
+			echo.      while not EOF {
+			if defined wscmd.script.n      echo.        !wscmd.script.n!
+			if defined wscmd.script.p      echo.        !wscmd.script.p!
+			echo.      }
+			if defined wscmd.script.after  echo.      !wscmd.script.after!
+			echo.    }
+			if defined wscmd.script.end    echo.    !wscmd.script.end!
+		)
+	)>&2
+rem	if defined wscmd.debug echo.Inline: !wscmd.script!>&2
 	if defined wscmd.inproc (
 		call :wscmd.inproc
 	) else (
