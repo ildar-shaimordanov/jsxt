@@ -30,29 +30,34 @@ wscmd /help
 Both these commands show the help looking like below:
 
 {{{
-Windows Scripting Command Interpreter Version 0.16.1 Beta
+Windows Scripting Command Version 0.18.0 Beta
 
-Usage:
-    wscmd [/h | /help | /help-ini | /q [/debug]]
-    wscmd [/compile | /embed | /debug] [/js | /vbs] /e [/p] "string" [arguments]
-    wscmd [/compile | /embed | /debug] [/js | /vbs] filename [arguments]
+wscmd [/h | /help | /man | [/q] [/debug]]
+wscmd [/compile | /embed | /debug] [/js | /vbs] /e [/n | /p] "code" [arguments]
+wscmd [/compile | /embed | /debug] [/js | /vbs] scriptfile [arguments]
 
-Valid options are:
     /h, /help  - Display this help
-    /help-ini  - Display the description of configurational files
+    /man       - Display the description of configuration files
     /q         - Quiet mode, affects when run interactively or through pipes
     /compile   - Compile but not execute. Just store a temporary file
     /embed     - The same as above but embed external scripts into a file
     /debug     - Output debugging information and execute
-    /js        - Assume a value as a JavaScript source
-    /vbs       - Assume a value as a VBScript code
-    /e         - Assume a value as a string to be executed
-    /p         - Assume to process each line of file(s)
+    /js        - Assume a value as a JavaScript
+    /vbs       - Assume a value as a VBScript
+    /e         - Assume a value as a code to be executed
+    /n         - Apply a code in a loop per each line of file(s)
+    /p         - The same as /n but print a line also
 
-Extra options are used with /e /p:
+Extra options are used with /e /n or /e /p:
     /d         - Opens the file using the system default
     /u         - Opens the file as Unicode
     /a         - Opens the file as ASCII
+
+Extra options are used like /n or /p
+    /begin     - Assume a code to be executed at the very beginning
+    /end       - Assume a code to be executed at the very end
+    /before    - Assume a code to be executed before a file
+    /after     - Assume a code to be executed after a file
 }}}
 
 Looking on this help we can say that the tool has a lot of arguments but all of them are optional. 
@@ -207,15 +212,9 @@ echo alert("Hello, world") | wscmd /q
 
 For VBScript Inline mode the workaround solution was not found. 
 
-= Inline mode processing of files =
+= Inline mode for processing of files =
 
-I have imported the good feature from the Perl interpreter -- processing of files. It is the same as above but the rest of arguments are considered as filenames. Thus each file is opened and read line-by-line. An inline script is used to do something per each line of a file. 
-
-{{{
-wscmd /e /p "line = filename + ':' + lineNumber + ':' + line" file1 file2 
-}}}
-
-The command above considers both `file1` and `file2` as input files, reads them line-by-line and applies the inline script per each line. As we can see this example outputs the filename, the line number and the line itself separated by the colon character `:`. 
+Using the `/e /n` (or `/e /p`) option the rest of arguments is considered as a list of files. Thus each file will be open, read and processed line-by-line. The code provided in the command line will be applied per each line. 
 
 This is good feature because you do not need to implement a code like below: 
 
@@ -237,12 +236,46 @@ for (var i = 0; i < args.length; i++) {
 }
 }}}
 
-It should be noticed that the code above does not implement needful validation of input files (file existence, readable, etc). Using `/e /p` you are free of this because it is implemented already.
+The following examples show how use this option with others. 
+
+{{{
+wscmd /e /n "line && alert(line)" file1
+}}}
+
+The code above will display non-empty lines only from the `file1` file. 
+
+Another option, `/p`, is the same as but prints each line:
+
+{{{
+wscmd /e /p "line = lineNumber + line" file1
+}}}
+
+The code above will display all lines with the line number at the beginning of a line.
+
+There are several options performing preprocessing and postprocessing actions
+  * `/begin` assumes a code to be executed at the very beginning, before any file will be processed. 
+  * `/end` assumes a code to be executed at the very end, after all fies have been processed. 
+  * `/before` will execute a code before opening a file. 
+  * `/after` will execute a code after closing a file. 
+
+The next code shows how to print the summary line number for all files:
+
+{{{
+wscmd /e /end "alert(lineNumber)" file1 file2
+}}}
+
+This code shows how to print the number of lines in each file: 
+
+{{{
+wscmd /e /after "alert(currentNumber)" file1 file2
+}}}
+
+It should be noticed that the code above does not implement needful validation of input files (file existence, readable, etc). Using `/e /n` (or `/e /p`) you are free of this because it is implemented already.
 
 To force a format of input files there are three additional arguments: 
-  * /d - Opens the file using the system default
-  * /u - Opens the file as Unicode
-  * /a - Opens the file as ASCII
+  * `/d` - Opens the file using the system default
+  * `/u` - Opens the file as Unicode
+  * `/a` - Opens the file as ASCII
 
 The next example shows how to parse both Unicode and ASCII encoded files: 
 {{{
