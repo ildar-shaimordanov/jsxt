@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.17.2 Beta
+set wscmd.version=0.18.0 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -49,8 +49,8 @@ if /i "%~1" == "/help" (
 )
 
 
-if /i "%~1" == "/help-ini" (
-	goto wscmd.help.ini
+if /i "%~1" == "/man" (
+	goto wscmd.man
 )
 
 
@@ -92,7 +92,6 @@ if /i "%~1" == "/js" (
 if /i "%~1" == "/e" goto wscmd.opt.e.1
 
 	rem wscmd ... "filename" ...
-
 	set wscmd.inline=
 	set wscmd.inproc=
 	set wscmd.script=%~1
@@ -113,41 +112,27 @@ goto wscmd.opt.e.2
 
 	rem wscmd ... /e ... "string" ...
 	set wscmd.inline=1
+	set wscmd.inproc=
 
-	rem wscmd ... /e /p "string" ...
-	rem wscmd ... /e /n "string" ...
-	if /i "%~2" == "/p" (
-		set wscmd.inproc=1
-		set wscmd.script=%3
-		shift /1
-		shift /1
-	)
+:wscmd.opt.e.again
 
-	rem wscmd ... /e [/p "string"] /before "string" ...
-	if /i "%~2" == "/before" (
-		set wscmd.inproc=1
-		set wscmd.script.before=%3
-		call :wscmd.script wscmd.script.before
-		shift /1
-		shift /1
-	)
-
-	rem wscmd ... /e [/p "string"] [/before "string"] /after "string" ...
-	if /i "%~2" == "/after" (
-		set wscmd.inproc=1
-		set wscmd.script.after=%3
-		call :wscmd.script wscmd.script.after
-		shift /1
-		shift /1
+	for %%k in ( p n begin end before after ) do (
+		if /i "%~2" == "/%%~k" (
+			set wscmd.inproc=1
+			set wscmd.script.%%~k=%3
+			call :wscmd.script wscmd.script.%%~k
+			shift /1
+			shift /1
+			goto wscmd.opt.e.again
+		)
 	)
 
 	rem wscmd ... /e "string" ...
 	if not defined wscmd.inproc (
 		set wscmd.script=%2
+		call :wscmd.script wscmd.script
 		shift /1
 	)
-
-	call :wscmd.script wscmd.script
 
 	shift /1
 
@@ -238,6 +223,7 @@ goto :EOF
 
 
 :wscmd.script
+if !%1! == "" set %1=" "
 if defined %1 set %1=!%1:~1,-1!
 if defined %1 set %1=!%1:""="!
 goto :EOF
@@ -257,38 +243,41 @@ goto :EOF
 :wscmd.help
 call :wscmd.version
 echo.
-echo.Usage:
-echo.    %~n0 [/h ^| /help ^| /help-ini ^| /q [/debug]]
-echo.    %~n0 [/compile ^| /embed ^| /debug] [/js ^| /vbs] /e [/p] "string" [arguments]
-echo.    %~n0 [/compile ^| /embed ^| /debug] [/js ^| /vbs] filename [arguments]
+echo.%~n0 [/h ^| /help ^| /man ^| [/q] [/debug]]
+echo.%~n0 [/compile ^| /embed ^| /debug] [/js ^| /vbs] /e [/n ^| /p] "code" [arguments]
+echo.%~n0 [/compile ^| /embed ^| /debug] [/js ^| /vbs] scriptfile [arguments]
 echo.
-echo.Valid options are:
 echo.    /h, /help  - Display this help
-echo.    /help-ini  - Display the description of configurational files
+echo.    /man       - Display the description of configuration files
 echo.    /q         - Quiet mode, affects when run interactively or through pipes
 echo.    /compile   - Compile but not execute. Just store a temporary file
 echo.    /embed     - The same as above but embed external scripts into a file
 echo.    /debug     - Output debugging information and execute
-echo.    /js        - Assume a value as a JavaScript source
-echo.    /vbs       - Assume a value as a VBScript code
-echo.    /e         - Assume a value as a string to be executed
-echo.    /p         - Assume to process each line of file^(s^)
+echo.    /js        - Assume a value as a JavaScript
+echo.    /vbs       - Assume a value as a VBScript
+echo.    /e         - Assume a value as a code to be executed
+echo.    /n         - Apply a code in a loop per each line of file^(s^)
+echo.    /p         - The same as /n but print a line also
 echo.
-echo.Extra options are used with /e /p:
+echo.Extra options are used with /e /n or /e /p:
 echo.    /d         - Opens the file using the system default
 echo.    /u         - Opens the file as Unicode
 echo.    /a         - Opens the file as ASCII
+echo.
+echo.Extra options are used like /n or /p
+echo.    /begin     - Assume a code to be executed at the very beginning
+echo.    /end       - Assume a code to be executed at the very end
 echo.    /before    - Assume a code to be executed before a file
 echo.    /after     - Assume a code to be executed after a file
 
 goto wscmd.stop
 
 
-:wscmd.help.ini
+:wscmd.man
 echo.PREAMBLE
 echo.
 echo.This page shows how to control a content and behavior of the resulting 
-echo.script using configurational files. You can do this using by one of three 
+echo.script using configuration files. You can do this using by one of three 
 echo.ways. All options described below are common for all of them. 
 echo.
 echo.1.  Create the "%~n0.ini" file in the same directory where "%~nx0" is 
@@ -301,7 +290,7 @@ echo.    will be launched. This file will affect on all files launched from the
 echo.    current directory only. 
 echo.
 echo.3.  Create the "SCRIPT.ini" file (where SCRIPT is a name and an extension 
-echo.    of a file). This file will afect on the SCRIPTNAME file only. 
+echo.    of a file). This file will affect on the SCRIPTNAME file only. 
 echo.
 echo.SYNTAX
 echo.
@@ -480,8 +469,23 @@ echo.//@set @user_inproc_mode = 2
 echo.
 echo.var userFunc = function^(line, currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
 echo.{
-echo.	!wscmd.script!;
-echo.	return line;
+echo.	!wscmd.script.n!;
+if defined wscmd.script.p (
+echo.	!wscmd.script.p!;
+echo.	if ^( line ^^^!== void 0 ^) {
+echo.		WScript.StdOut.WriteLine^(line^);
+echo.	}
+)
+echo.};
+echo.
+echo.var userFuncBegin = function^(lineNumber, fso, stdin, stdout, stderr^)
+echo.{
+echo.	!wscmd.script.begin!;
+echo.};
+echo.
+echo.var userFuncEnd = function^(lineNumber, fso, stdin, stdout, stderr^)
+echo.{
+echo.	!wscmd.script.end!;
 echo.};
 echo.
 echo.var userFuncBefore = function^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
@@ -508,8 +512,21 @@ echo.]]^>^</script^>
 echo.^<script language="vbscript"^>^<^^^![CDATA[
 echo.
 echo.Function userFunc^(line, currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
-echo.	!wscmd.script!
-echo.	userFunc = line
+echo.	!wscmd.script.n!
+if defined wscmd.script.p (
+echo.	!wscmd.script.p!
+echo.	If line ^<^> Empty Then
+echo.		WScript.StdOut.WriteLine line
+echo.	End If
+)
+echo.End Function
+echo.
+echo.Function userFuncBegin^(lineNumber, fso, stdin, stdout, stderr^)
+echo.	!wscmd.script.begin!
+echo.End Function
+echo.
+echo.Function userFuncEnd^(lineNumber, fso, stdin, stdout, stderr^)
+echo.	!wscmd.script.end!
 echo.End Function
 echo.
 echo.Function userFuncBefore^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
@@ -536,6 +553,8 @@ goto :EOF
 
 //@if ( @user_inproc_mode == 2 )
 	var userFunc = this.userFunc;
+	var userFuncBegin = this.userFuncBegin;
+	var userFuncEnd = this.userFuncEnd;
 	var userFuncBefore = this.userFuncBefore;
 	var userFuncAfter = this.userFuncAfter;
 //@end
@@ -544,40 +563,39 @@ goto :EOF
 
 	var format = 0;
 
-	var args = WScript.Arguments;
-	if ( args.length == 0 ) {
+	var files = WScript.Arguments;
+	if ( files.length == 0 ) {
 		// Emulate empty list of arguments
-		args = ['-'];
-		args.item = function(i) { return this[i]; };
+		files = ['-'];
+		files.item = function(i) { return this[i]; };
 	}
 
 	// The number of all lines of all files
 	var lineNumber = 0;
 
-	// the function is called before processing the list of files. 
-	// the filename and the number of the current line are undefined. 
+	// the function is called before processing any file. 
 	// The total number of input lines is 0. 
-	userFuncBefore(
-		void 0, void 0, lineNumber, 
+	userFuncBegin(
+		lineNumber, 
 		fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
 
-	for (var i = 0; i < args.length; i++) {
-		var arg = args.item(i);
+	for (var i = 0; i < files.length; i++) {
+		var file = files.item(i);
 
 		// Opens the file using the system default
-		if ( arg == '/D' || arg == '/d' ) {
+		if ( file == '/D' || file == '/d' ) {
 			format = -2;
 			continue;
 		}
 
 		// Opens the file as Unicode
-		if ( arg == '/U' || arg == '/u' ) {
+		if ( file == '/U' || file == '/u' ) {
 			format = -1;
 			continue;
 		}
 
 		// Opens the file as ASCII
-		if ( arg == '/A' || arg == '/a' ) {
+		if ( file == '/A' || file == '/a' ) {
 			format = 0;
 			continue;
 		}
@@ -586,9 +604,9 @@ goto :EOF
 		var currentNumber = 0;
 
 		// The function called before opening of the file. 
-		// The filename is known, the current line is 0. 
+		// The file name is known, the number of line of the file is 0. 
 		userFuncBefore(
-			currentNumber, arg, lineNumber, 
+			currentNumber, file, lineNumber, 
 			fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
 
 		var stream;
@@ -596,16 +614,16 @@ goto :EOF
 
 		var e;
 		try {
-			if ( arg == '-' ) {
+			if ( file == '-' ) {
 				stream = WScript.StdIn;
-				arg = '<stdin>';
+				file = '<stdin>';
 				isFile = false;
 			} else {
-				stream = fso.OpenTextFile(arg, 1, false, format);
+				stream = fso.OpenTextFile(file, 1, false, format);
 				isFile = true;
 			}
 		} catch (e) {
-			WScript.StdErr.WriteLine(e.message + ': ' + arg);
+			WScript.StdErr.WriteLine(e.message + ': ' + file);
 			continue;
 		}
 
@@ -615,7 +633,7 @@ goto :EOF
 		try {
 			stream.AtEndOfStream;
 		} catch (e) {
-			WScript.StdErr.WriteLine('Out of stream: ' + arg);
+			WScript.StdErr.WriteLine('Out of stream: ' + file);
 			continue;
 		}
 
@@ -627,16 +645,13 @@ goto :EOF
 				// Processing of the file. Available parameters are the 
 				// current line, it's number in the file, and the number 
 				// of the line in the list of all files. 
-				line = userFunc(
-					line, currentNumber, arg, lineNumber, 
+				userFunc(
+					line, currentNumber, file, lineNumber, 
 					fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
 			} catch (e) {
 				stream.Close();
 				WScript.StdErr.WriteLine(e.message);
 				WScript.Quit();
-			}
-			if ( line !== void 0 ) {
-				WScript.StdOut.WriteLine(line);
 			}
 		}
 
@@ -648,23 +663,19 @@ goto :EOF
 		// The filename and the total number of lines are known. 
 		// The currentNumber is the number of lines of the last file. 
 		userFuncAfter(
-			currentNumber, arg, lineNumber, 
+			currentNumber, file, lineNumber, 
 			fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
 
 	}
 
-	// The function will be executed after all files have been processed. 
-	// There are no processed files so the file and the current line are 
-	// not defined. Only the lineNumber total amount of lines is known. 
-	userFuncAfter(
-		void 0, void 0, lineNumber, 
+	// The function will be executed when all files have been processed. 
+	// Only lineNumber, the total amount of lines is known. 
+	userFuncEnd(
+		lineNumber, 
 		fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
 
 	WScript.Quit();
 })();
-
-/*!
-*/
 
 /**
  *
