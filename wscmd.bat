@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.18.1 Beta
+set wscmd.version=0.18.2 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -27,6 +27,12 @@ set wscmd.temp=
 set wscmd.inline=
 set wscmd.inproc=
 set wscmd.script=
+set wscmd.script.n=
+set wscmd.script.p=
+set wscmd.script.begin=
+set wscmd.script.end=
+set wscmd.script.before=
+set wscmd.script.after=
 set wscmd.engine=javascript
 set wscmd.compile=
 set wscmd.debug=
@@ -79,11 +85,9 @@ if /i "%~1" == "/compile" (
 
 
 if /i "%~1" == "/js" (
-	set wscmd.temp=1
 	set wscmd.engine=javascript
 	shift /1
 ) else if /i "%~1" == "/vbs" (
-	set wscmd.temp=1
 	set wscmd.engine=vbscript
 	shift /1
 )
@@ -100,10 +104,6 @@ if /i "%~1" == "/e" goto wscmd.opt.e.1
 
 		endlocal
 		exit /b 1
-	)
-	if not defined wscmd.temp (
-		rem VBS files only are considered directly, others are JS
-		call :wscmd.engine "!wscmd.script!"
 	)
 	shift /1
 
