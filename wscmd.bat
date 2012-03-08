@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.18.2 Beta
+set wscmd.version=0.18.3 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -420,9 +420,10 @@ if defined wscmd.inline (
 			echo.      while not EOF {
 			if defined wscmd.script.n      echo.        !wscmd.script.n!
 			if defined wscmd.script.p      echo.        !wscmd.script.p!
-			echo.      }
+			if defined wscmd.script.p      echo.        print line
+			echo.      end while
 			if defined wscmd.script.after  echo.      !wscmd.script.after!
-			echo.    }
+			echo.    end for
 			if defined wscmd.script.end    echo.    !wscmd.script.end!
 		)
 	)>&2
