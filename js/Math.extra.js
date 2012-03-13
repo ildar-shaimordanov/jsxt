@@ -92,7 +92,9 @@ Math.cube = function(x)
  */
 Math.cubt = function(x)
 {
-	return Math.sign(x) * Math.pow(Math.abs(x), 1 / 3);
+//	return Math.sign(x) * Math.pow(Math.abs(x), 1 / 3);
+	var r = x && Math.pow(Math.abs(x), 1 / 3);
+	return x < 0 ? -r : r;
 };
 
 /**
