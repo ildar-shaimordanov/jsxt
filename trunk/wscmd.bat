@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.18.3 Beta
+set wscmd.version=0.18.4 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -105,6 +105,7 @@ if /i "%~1" == "/e" goto wscmd.opt.e.1
 		endlocal
 		exit /b 1
 	)
+	call :wscmd.engine "!wscmd.script!"
 	shift /1
 
 goto wscmd.opt.e.2
@@ -367,7 +368,7 @@ echo.]]^>^</description^>
 echo.^</runtime^>
 echo.^<script language="javascript"^>^<^^^![CDATA[
 echo.
-echo.var help = function^(^)
+echo.var help = usage = function^(^)
 echo.{
 echo.	WScript.Arguments.ShowUsage^(^);
 echo.};
@@ -526,6 +527,11 @@ echo.
 echo.//@cc_on
 echo.//@set @user_inproc_mode = 1
 echo.
+echo.function Var^(name, value^)
+echo.{
+echo.	this[name] = value;
+echo.};
+echo.
 echo.]]^>^</script^>
 echo.^<script language="vbscript"^>^<^^^![CDATA[
 echo.
@@ -533,7 +539,7 @@ echo.Function userFunc^(line, currentNumber, filename, lineNumber, fso, stdin, s
 echo.	!wscmd.script.n!
 if defined wscmd.script.p (
 echo.	!wscmd.script.p!
-echo.	If line ^<^> Empty Then
+echo.	If Not IsEmpty^(line^) Then
 echo.		WScript.StdOut.WriteLine line
 echo.	End If
 )
@@ -700,12 +706,12 @@ goto :EOF
  * Useful functions
  *
  */
-var help = (function()
+var help = usage = (function()
 {
 	var helpMsg = '\n' 
 		+ 'Commands                 Descriptions\n' 
 		+ '========                 ============\n' 
-		+ 'help()                   Display this help\n' 
+		+ 'help(), usage()          Display this help\n' 
 		+ 'alert(), echo(), print() Print expressions\n' 
 		+ 'quit(), exit()           Quit this shell\n' 
 		+ 'eval.history             Display the history\n' 
@@ -724,12 +730,6 @@ var help = (function()
 
 var alert = echo = print = function()
 {
-	var result = '';
-
-	if ( arguments.length == 0 ) {
-		return result;
-	}
-
 	result = arguments[0];
 	for (var i = 1; i < arguments.length; i++) {
 		result += ',' + arguments[i];
