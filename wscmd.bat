@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.18.4 Beta
+set wscmd.version=0.19.0 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -394,6 +394,11 @@ echo.{
 echo.	return WScript.Sleep^(time^);
 echo.};
 echo.
+echo.var clip = function^(^)
+echo.{
+echo.	return new ActiveXObject^('htmlfile'^).parentWindow.clipboardData.getData^('Text'^);
+echo.};
+echo.
 echo.]]^>^</script^>
 
 if defined wscmd.debug echo.Libraries:>&2
@@ -719,6 +724,7 @@ var help = usage = (function()
 		+ 'eval.transform           The stub to transform output additionally\n' 
 		+ 'cmd(), shell()           Run new DOS-session\n' 
 		+ 'sleep(n)                 Sleep n milliseconds\n' 
+		+ 'clip()                   Gets from the clipboard data formatted as text\n' 
 		+ 'reload()                 Stop this session and run new\n' 
 		+ 'gc()                     Run the garbage collector\n' 
 		;
@@ -751,6 +757,11 @@ var cmd = shell = function()
 var sleep = function(time)
 {
 	return WScript.Sleep(time);
+};
+
+var clip = function()
+{
+	return new ActiveXObject('htmlfile').parentWindow.clipboardData.getData('Text');
 };
 
 var reload = function()
