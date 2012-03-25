@@ -31,6 +31,21 @@ vb.Function = function(func)
 	};
 };
 
+(function()
+{
+
+var vbe;
+
+function VBEngine()
+{
+	if ( vbe ) {
+		return;
+	}
+
+	vbe = new ActiveXObject('ScriptControl');
+	vbe.Language = 'VBScript';
+	vbe.AllowUI = true;
+};
 
 /**
  * The helper method runs VBScript functions to be available in JScript.
@@ -46,16 +61,19 @@ vb.Function.eval = function(func)
 		if ( typeof args[i] != 'string' ) {
 			continue;
 		}
-		args[i] = '"' + args[i].replace(/"/g, '" + Chr(34) + "') + '"';
+		args[i] = args[i].replace(/["\n\r]/g, function($0)
+		{
+			return '" + Chr(' + $0.charCodeAt($0) + ') + "';
+		});
+		args[i] = '"' + args[i] + '"';
 	}
 
-	var vbe;
-	vbe = new ActiveXObject('ScriptControl');
-	vbe.Language = 'VBScript';
+	VBEngine();
 
 	return vbe.eval(func + '(' + args.join(', ') + ')');
 };
 
+})();
 
 /**
  * vb.Function.declare()
