@@ -2,7 +2,7 @@
 // JavaScript unit
 // Extension of the Date object
 //
-// Copyright (c) 2006, 2011 by Ildar Shaimordanov
+// Copyright (c) 2006, 2011, 2012 by Ildar Shaimordanov
 //
 
 /**
@@ -580,6 +580,8 @@ Date.calendar = function(date)
  */
 Date.midnight = function(date)
 {
+	date = date || new Date();
+
 	date.setMilliseconds(0);
 	date.setSeconds(0);
 	date.setMinutes(0);
@@ -599,7 +601,7 @@ Date.today = function(midnight)
 {
 	var here = new Date();
 	if ( midnight ) {
-		Date.midnight(date);
+		Date.midnight(here);
 	}
 	return here;
 };
