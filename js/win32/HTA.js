@@ -125,45 +125,52 @@ printArgs('Named',   HTA.arguments.named);
 		return;
 	}
 
-	var re = /"?\/([\S\:]+?)(?:(\+)|(\-)|(?:"?:"?(.*?))?)"?(?=\s+|$)|"(.*?)"(?=\s+|$)|([\S]+)/g;
-/*
 	var re = new RegExp([
 		// named arguments rounded or not by the quote characters
 		// 	/named
-		// 	"/named"
 		// where the 'named' term stands for one of the following:
 		// 	/key+		key is true
 		// 	/key-		key is false
 		// 	/key
-		// 	/key:		key is an empty string
-		// 	/key:value	key contains string 'value'
-		'"?', 
+		// 	/key:
+		// 	/key:""		key is an empty string
+		// 	/key:value
+		// 	/key:"value"	key contains the string 'value'
 		'\\/', 
 		'([\\S\\:]+?)', 
 		'(?:', 
 			// /key+
 			'(\\+)', 
+
 			'|', 
+
 			// /key-
 			'(\\-)', 
+
 			'|', 
-			// /key
-			// /key:
-			// /key:value
+
+			// /key(:value)?
 			'(?:', 
-				'"?:"?', 
-				'(.*?)', 
+				// /key:"value"
+				// /key:""
+				':"([^"]*)"', 
+
+				'|', 
+
+				// /key:value
+				// /key:
+				':([\\S]*)', 
 			')?', 
 		')', 
 		'"?', 
-		'(?=\\s+|$)', 
+		'(?:\\s+?|$)', 
 
 		'|', 
 
 		// unnamed arguments rounded by the quote characters
 		// 	"value"
 		'"(.*?)"', 
-		'(?=\\s+|$)', 
+		'(?:\\s+|$)', 
 
 		'|', 
 
@@ -171,7 +178,6 @@ printArgs('Named',   HTA.arguments.named);
 		// 	value
 		'([\\S]+)', 
 	].join(''), 'g');
-*/
 
 	var r;
 
@@ -181,7 +187,7 @@ printArgs('Named',   HTA.arguments.named);
 		return;
 	}
 
-	var fullname = (r[5] || r[6]).replace(/"/g, '');
+	var fullname = (r[6] || r[7]).replace(/"/g, '');
 	var filename = fullname.replace(/^.+\\/, '');
 	var pathname = fullname.replace(/\\[^\\]+$/, '');
 
@@ -195,7 +201,7 @@ printArgs('Named',   HTA.arguments.named);
 
 	while ( r = re.exec(cmdLine) ) {
 		var k = r[1];
-		var v = r[2] ? true : r[3] ? false : r[4] || r[5] || r[6];
+		var v = r[2] ? true : r[3] ? false : r[4] || r[5] || r[6] || r[7];
 
 		if ( ! k && ! v ) {
 			continue;
