@@ -153,7 +153,7 @@ printArgs('Named',   HTA.arguments.named);
 			'(?:', 
 				// /key:"value"
 				// /key:""
-				':"([^"]*)"', 
+				':"(.*?)"', 
 
 				'|', 
 
