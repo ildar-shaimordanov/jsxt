@@ -137,7 +137,7 @@ printArgs('Named',   HTA.arguments.named);
 		// 	/key:value
 		// 	/key:"value"	key contains the string 'value'
 		'\\/', 
-		'([\\S\\:]+?)', 
+		'([\\S]+?)', 
 		'(?:', 
 			// /key+
 			'(\\+)', 
