@@ -245,7 +245,7 @@ printArgs('Named',   HTA.arguments.named);
 				}, 
 				length: function()
 				{
-					return named_length;
+					return named_keys.length;
 				}
 			}, 
 			unnamed: {
