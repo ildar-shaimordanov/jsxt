@@ -162,7 +162,6 @@ printArgs('Named',   HTA.arguments.named);
 				':([\\S]*)', 
 			')?', 
 		')', 
-		'"?', 
 		'(?:\\s+?|$)', 
 
 		'|', 
@@ -233,7 +232,7 @@ printArgs('Named',   HTA.arguments.named);
 			named: {
 				exists: function(key)
 				{
-					named.hasOwnProperty(key);
+					return named.hasOwnProperty(key);
 				}, 
 				item: function(key)
 				{
