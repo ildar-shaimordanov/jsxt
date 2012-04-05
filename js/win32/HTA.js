@@ -136,21 +136,20 @@ printArgs('Named',   HTA.arguments.named);
 		// 	/key:""		key is an empty string
 		// 	/key:value
 		// 	/key:"value"	key contains the string 'value'
-		'\\/', 
-		'([\\S]+?)', 
-		'(?:', 
-			// /key+
-			'(\\+)', 
-
-			'|', 
-
-			// /key-
-			'(\\-)', 
-
-			'|', 
-
-			// /key(:value)?
+		'(', 
+			'\\/', 
+			'([\\S]+?)', 
 			'(?:', 
+				// /key+
+				'(\\+)', 
+
+				'|', 
+
+				// /key-
+				'(\\-)', 
+
+				'|', 
+
 				// /key:"value"
 				// /key:""
 				':"(.*?)"', 
@@ -161,21 +160,20 @@ printArgs('Named',   HTA.arguments.named);
 				// /key:
 				':([\\S]*)', 
 			')?', 
+
+			'|', 
+
+			// unnamed arguments rounded by the quote characters
+			// 	"value"
+			'"(.*?)"', 
+
+			'|', 
+
+			// unnamed arguments without the quote characters
+			// 	value
+			'([\\S]+)', 
 		')', 
-		'(?:\\s+?|$)', 
-
-		'|', 
-
-		// unnamed arguments rounded by the quote characters
-		// 	"value"
-		'"(.*?)"', 
 		'(?:\\s+|$)', 
-
-		'|', 
-
-		// unnamed arguments without the quote characters
-		// 	value
-		'([\\S]+)', 
 	].join(''), 'g');
 
 	var r;
@@ -186,7 +184,7 @@ printArgs('Named',   HTA.arguments.named);
 		return;
 	}
 
-	var fullname = (r[6] || r[7]).replace(/"/g, '');
+	var fullname = (r[7] || r[8]).replace(/"/g, '');
 	var filename = fullname.replace(/^.+\\/, '');
 	var pathname = fullname.replace(/\\[^\\]+$/, '');
 
@@ -199,20 +197,19 @@ printArgs('Named',   HTA.arguments.named);
 	var named_keys = [];
 
 	while ( r = re.exec(cmdLine) ) {
-		var k = r[1];
-		var v = r[2] ? true : r[3] ? false : r[4] || r[5] || r[6] || r[7];
+		var k = r[2];
+		var v = r[3] ? true : r[4] ? false : r[5] || r[6] || r[7] || r[8];
 
 		if ( ! k && ! v ) {
 			continue;
 		}
 
+		args.push(r[1]);
+
 		if ( ! k ) {
-			args.push(v);
 			unnamed.push(v);
 			continue;
 		}
-
-		args.push('/' + k + ':' + v);
 
 		named_length++;
 		named[k] = (named[k] || []).concat(v);
