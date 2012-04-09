@@ -196,6 +196,17 @@ printArgs('Named',   HTA.arguments.named);
 	var named_length = 0;
 	var named_keys = [];
 
+	// This function inserts new names only of named arguments
+	var insertNewItem = function()
+	{
+		for (var i = 0; i < named_keys.length; i++) {
+			if ( k == named_keys[i] ) {
+				return;
+			}
+		}
+		named_keys.push(k);
+	};
+
 	while ( r = re.exec(cmdLine) ) {
 		var k = r[2];
 		var v = r[3] ? true : r[4] ? false : r[5] || r[6] || r[7] || r[8];
@@ -213,15 +224,7 @@ printArgs('Named',   HTA.arguments.named);
 
 		named_length++;
 		named[k] = (named[k] || []).concat(v);
-		(function()
-		{
-			for (var i = 0; i < named_keys.length; i++) {
-				if ( k == named_keys[i] ) {
-					return;
-				}
-			}
-			named_keys.push(k);
-		})();
+		insertNewItem();
 	}
 
 	var HTA = {
