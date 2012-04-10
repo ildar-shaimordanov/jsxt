@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.19.0 Beta
+set wscmd.version=0.20.0 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -34,44 +34,35 @@ set wscmd.script.end=
 set wscmd.script.before=
 set wscmd.script.after=
 set wscmd.engine=javascript
+set wscmd.var=
 set wscmd.compile=
 set wscmd.debug=
 set wscmd.quiet=
 
 
+:: Interactive mode
 if "%~1" == "" (
-	shift /1
 	goto wscmd.2
 )
 
 
+:: Help
 if /i "%~1" == "/h" (
 	goto wscmd.help
 )
-
 
 if /i "%~1" == "/help" (
 	goto wscmd.help
 )
 
 
+:: Configartion file manual
 if /i "%~1" == "/man" (
 	goto wscmd.man
 )
 
 
-:wscmd.quiet
-if /i "%~1" == "/q" (
-	set wscmd.quiet=/q
-	if /i "%~2" == "/debug" (
-		set wscmd.debug=1
-		shift /1
-	)
-	shift /1
-	goto wscmd.2
-)
-
-
+:: Compiling and debugging modes
 if /i "%~1" == "/compile" (
 	set wscmd.compile=1
 	shift /1
@@ -84,6 +75,36 @@ if /i "%~1" == "/compile" (
 )
 
 
+:: Variable definition
+:wscmd.var.again
+if /i not "%~1" == "/v" goto wscmd.var.end
+
+	set wscmd.var=!wscmd.var!var %2 = %3;
+	shift /1
+	shift /1
+	shift /1
+
+goto wscmd.var.again
+:wscmd.var.end
+
+if defined wscmd.var (
+	set wscmd.var="!wscmd.var!"
+	call :wscmd.unquote wscmd.var
+)
+
+
+:: Explicit usage of interactive mode
+if /i "%~1" == "/i" (
+	shift /1
+	goto wscmd.1
+) else if /i "%~1" == "/q" (
+	set wscmd.quiet=/q
+	shift /1
+	goto wscmd.1
+)
+
+
+:: What language will be used
 if /i "%~1" == "/js" (
 	set wscmd.engine=javascript
 	shift /1
@@ -93,6 +114,7 @@ if /i "%~1" == "/js" (
 )
 
 
+:: Code or script file
 if /i "%~1" == "/e" goto wscmd.opt.e.1
 
 	rem wscmd ... "filename" ...
@@ -121,7 +143,7 @@ goto wscmd.opt.e.2
 		if /i "%~2" == "/%%~k" (
 			set wscmd.inproc=1
 			set wscmd.script.%%~k=%3
-			call :wscmd.script wscmd.script.%%~k
+			call :wscmd.unquote wscmd.script.%%~k
 			shift /1
 			shift /1
 			goto wscmd.opt.e.again
@@ -131,7 +153,7 @@ goto wscmd.opt.e.2
 	rem wscmd ... /e "string" ...
 	if not defined wscmd.inproc (
 		set wscmd.script=%2
-		call :wscmd.script wscmd.script
+		call :wscmd.unquote wscmd.script
 		shift /1
 	)
 
@@ -143,6 +165,7 @@ goto wscmd.opt.e.2
 :wscmd.1
 
 
+:: Parse program arguments
 if "%~1" == "" goto wscmd.2
 set wscmd.args=%wscmd.args% %1
 shift /1
@@ -223,7 +246,7 @@ endlocal
 goto :EOF
 
 
-:wscmd.script
+:wscmd.unquote
 if !%1! == "" set %1=" "
 if defined %1 set %1=!%1:~1,-1!
 if defined %1 set %1=!%1:""="!
@@ -244,32 +267,39 @@ goto :EOF
 :wscmd.help
 call :wscmd.version
 echo.
-echo.%~n0 [/h ^| /help ^| /man ^| [/q] [/debug]]
-echo.%~n0 [/compile ^| /embed ^| /debug] [/js ^| /vbs] /e [/n ^| /p] "code" [arguments]
-echo.%~n0 [/compile ^| /embed ^| /debug] [/js ^| /vbs] scriptfile [arguments]
+echo.%~n0 [/h ^| /help ^| /man]
+echo.%~n0 [/compile ^| /embed] [/v var val] [/i ^| /q]
+echo.%~n0 [/compile ^| /embed] [/v var val] [/js ^| /vbs] /e "code"
+echo.%~n0 [/compile ^| /embed] [/v var val] [/js ^| /vbs] scriptfile
+echo.%~n0 [/debug] [/v var val] [/i ^| /q] [arguments]
+echo.%~n0 [/debug] [/v var val] [/js ^| /vbs] /e "code" [arguments]
+echo.%~n0 [/debug] [/v var val] [/js ^| /vbs] scriptfile [arguments]
 echo.
-echo.    /h, /help  - Display this help
-echo.    /man       - Display the description of configuration files
-echo.    /q         - Quiet mode, affects when run interactively or through pipes
-echo.    /compile   - Compile but not execute. Just store a temporary file
-echo.    /embed     - The same as above but embed external scripts into a file
-echo.    /debug     - Output debugging information and execute
-echo.    /js        - Assume a value as a JavaScript
-echo.    /vbs       - Assume a value as a VBScript
-echo.    /e         - Assume a value as a code to be executed
-echo.    /n         - Apply a code in a loop per each line of file^(s^)
-echo.    /p         - The same as /n but print a line also
+echo.    /h, /help    - Display this help
+echo.    /man         - Display the description of configuration files
+echo.    /compile     - Compile but not execute. Just store to a temporary file
+echo.    /embed       - The same as above but embed external scripts into a file
+echo.    /debug       - Output debugging information and execute
+echo.    /v var val   - Assign the value "val" to the variable "var", before
+echo.                   execution of the program begins
+echo.    /i           - Interactive mode
+echo.    /q           - The same as /i but in quiet mode
+echo.    /js          - Assume a value as a JavaScript
+echo.    /vbs         - Assume a value as a VBScript
+echo.    /e "code"    - Assume a value as a code to be executed
+echo.    /e /n "code" - Apply the code in a loop per each line of file^(s^)
+echo.    /e /p "code" - The same as /e /n but print a line also
 echo.
-echo.Extra options are used with /e /n or /e /p:
-echo.    /d         - Opens the file using the system default
-echo.    /u         - Opens the file as Unicode
-echo.    /a         - Opens the file as ASCII
+echo.Extra options are available with /e /n or /e /p:
+echo.    /d file      - Opens the file using the system default
+echo.    /u file      - Opens the file as Unicode
+echo.    /a file      - Opens the file as ASCII
 echo.
 echo.Extra options are used like /n or /p
-echo.    /begin     - Assume a code to be executed at the very beginning
-echo.    /end       - Assume a code to be executed at the very end
-echo.    /before    - Assume a code to be executed before a file
-echo.    /after     - Assume a code to be executed after a file
+echo.    /begin       - Assume a code to be executed at the very beginning
+echo.    /end         - Assume a code to be executed at the very end
+echo.    /before      - Assume a code to be executed before a file
+echo.    /after       - Assume a code to be executed after a file
 
 goto wscmd.stop
 
@@ -413,6 +443,19 @@ for %%l in ( !wscmd.ini.include! ) do (
 	call :wscmd.%wscmd.link% "%%~l"
 )
 endlocal
+
+if defined wscmd.var (
+	if defined wscmd.debug (
+		echo.Variables:
+		echo.    !wscmd.var!
+	)>&2
+
+echo.^<script language="javascript"^>^<^^^![CDATA[
+echo.
+echo.!wscmd.var!;
+echo.
+echo.]]^>^</script^>
+)
 
 if defined wscmd.inline (
 	if defined wscmd.debug (
