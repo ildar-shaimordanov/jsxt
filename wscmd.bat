@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.20.0 Beta
+set wscmd.version=0.20.1 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -779,7 +779,7 @@ var help = usage = (function()
 
 var alert = echo = print = function()
 {
-	result = arguments[0];
+	var result = arguments[0];
 	for (var i = 1; i < arguments.length; i++) {
 		result += ',' + arguments[i];
 	}
@@ -889,7 +889,7 @@ while ( true ) {
 			The main difference with the first case is a 
 			possibility to enter any number of empty lines. 
 			*/
-			var multiline = 0
+			var multiline = 0;
 
 			/*
 			Store all characters entered from STDIN. 
