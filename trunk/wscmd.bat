@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.20.1 Beta
+set wscmd.version=0.20.2 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -79,7 +79,7 @@ if /i "%~1" == "/compile" (
 :wscmd.var.again
 if /i not "%~1" == "/v" goto wscmd.var.end
 
-	set wscmd.var=!wscmd.var!var %2 = %3;
+	set "wscmd.var=!wscmd.var!var %2 = "%3";"
 	shift /1
 	shift /1
 	shift /1
