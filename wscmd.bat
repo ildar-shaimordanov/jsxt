@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.20.2 Beta
+set wscmd.version=0.21.0 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -217,12 +217,19 @@ for %%i in ( !wscmd.inifiles! ) do (
 
 :: Set defaults
 if not defined wscmd.ini.include set wscmd.ini.include=%~dp0js\*.js %~dp0js\win32\*.js %~dp0vbs\win32\*.vbs
-if not defined wscmd.ini.execute set wscmd.ini.execute=.\$$$%~n0.wsf
+if not defined wscmd.ini.execute set wscmd.ini.execute=.\$$$%~n0_$UID.wsf
 if not defined wscmd.ini.command set wscmd.ini.command=%WINDIR%\system32\cscript.exe //NoLogo
 if not defined wscmd.ini.xml-encoding set wscmd.ini.xml-encoding=utf-8
 if not defined wscmd.ini.enable-error set wscmd.ini.enable-error=false
 if not defined wscmd.ini.enable-debug set wscmd.ini.enable-debug=false
+
+
+:: Check imports
 if defined wscmd.noimport set wscmd.ini.include=
+
+
+:: Make the program name unique
+call :wscmd.execute
 
 
 :: Compile and link the source with libraries
@@ -250,6 +257,31 @@ goto :EOF
 if !%1! == "" set %1=" "
 if defined %1 set %1=!%1:~1,-1!
 if defined %1 set %1=!%1:""="!
+goto :EOF
+
+
+:wscmd.execute
+echo %wscmd.ini.execute% | %windir%\System32\find.exe "$UID">nul 2>&1 || goto :EOF
+
+setlocal
+
+:wscmd.execute.again
+
+	for /f "tokens=1,2 delims==; " %%a in ( 
+		'%windir%\System32\Wbem\wmic.exe Process call create "%windir%\System32\wscript.exe //b" 2^>nul ^| %windir%\System32\find.exe "ProcessId"' 
+	) do (
+		set wscmd.PID=%%b
+	)
+
+	set wscmd.TIME=%TIME%
+	set wscmd.TIME=%wscmd.TIME: =0%
+	set wscmd.TIME=%wscmd.TIME::=%
+	set wscmd.TIME=%wscmd.TIME:,=%
+	set wscmd.tmpfile=!wscmd.ini.execute:$UID=%wscmd.TIME%_%wscmd.PID%!
+
+if exist wscmd.tmpfile goto wscmd.execute.again
+
+endlocal && set wscmd.ini.execute=%wscmd.tmpfile%
 goto :EOF
 
 
@@ -325,8 +357,8 @@ echo.    of a file). This file will affect on the SCRIPTNAME file only.
 echo.
 echo.SYNTAX
 echo.
-echo.There are three documented options available in ini-files. The syntax for 
-echo.all options is common and looks like below:
+echo.There are documented options available in ini-files. The syntax for all 
+echo.options is common and looks like below:
 echo.
 echo.    name=value
 echo.
@@ -349,7 +381,8 @@ echo.    inclusion of any librarian file.
 echo.
 echo.execute
 echo.    This option defines a name of the resulting file. If it is not specially 
-echo.    specified, the default value will be used. 
+echo.    specified, the default value will be used. The special placeholder $UID
+echo.    is used to make the resulting file unique. 
 echo.
 echo.command
 echo.    This option specifies a binary executable file that will be invoked to 
@@ -378,7 +411,7 @@ echo.The launcher is "CSCRIPT.EXE" with the suppressed banner.
 echo.
 echo.    import=%%~dp0\js\*.js
 echo.    import=%%~dp0\vbs\*.vbs
-echo.    execute=.\$$$%%~n0.wsf
+echo.    execute=.\$$$%%~n0_$UID.wsf
 echo.    command=%%windir%%\system32\cscript.exe //nologo
 
 goto wscmd.stop

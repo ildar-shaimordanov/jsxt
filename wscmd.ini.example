@@ -4,7 +4,7 @@ import=%~d0%~p0.DEVEL\jsxt\js\win32\*.js
 import=%~d0%~p0.DEVEL\jsxt\js\web\Entity.js
 import=%~d0%~p0.DEVEL\jsxt\vbs\win32\*.vbs
 
-execute=.\$$$%~n0.wsf
+execute=.\$$$%~n0_$UID.wsf
 
 command=%windir%\system32\cscript.exe //nologo
 
