@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.21.0 Beta
+set wscmd.version=0.22.0 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -178,38 +178,8 @@ goto wscmd.1
 if defined wscmd.debug call :wscmd.version>&2
 
 
-:: Load settings from ini-files
-:: there are special macros available to be substituted
-:: %~d0 - the disk
-:: %~p0 - the path
-:: %~n0 - the filename
-:: %~x0 - the extension
-set wscmd.noimport=
-set wscmd.ini.include=
-set wscmd.ini.execute=
-set wscmd.ini.command=
-set wscmd.inifiles=".\%~n0.ini" "%~dpn0.ini"
-if not defined wscmd.inline set wscmd.inifiles="!wscmd.script!.ini" ".\%~n0.ini" "%~dpn0.ini"
-for %%i in ( !wscmd.inifiles! ) do (
-	if not "%%~ni" == "" if exist "%%~i" (
-		if defined wscmd.debug echo.Configuring from "%%~i">&2
-		for /f "usebackq tokens=1,* delims==" %%k in ( "%%~i" ) do (
-			call set wscmd.temp=%%~l
-			if defined wscmd.temp (
-				if /i "%%k" == "import" (
-					if /i "!wscmd.temp!" == "no" (
-						set wscmd.noimport=1
-					) else (
-						set wscmd.ini.include=!wscmd.ini.include! "!wscmd.temp!"
-					)
-				) else (
-					set wscmd.ini.%%k=!wscmd.temp!
-				)
-			)
-		)
-		goto wscmd.3
-	)
-)
+:: Lookup and read a configuration file
+call :wscmd.ini
 
 
 :wscmd.3
@@ -243,9 +213,12 @@ if defined wscmd.debug echo.Running:>&2
 %wscmd.ini.command% "%wscmd.ini.execute%" %wscmd.args%
 
 :: Reread the ini-file and reload the script
-if errorlevel 65535 goto wscmd.start
+if errorlevel 65535 (
+	call :wscmd.delete
+	goto wscmd.start
+)
 
-del "%wscmd.ini.execute%"
+call :wscmd.delete
 
 
 :wscmd.stop
@@ -253,35 +226,15 @@ endlocal
 goto :EOF
 
 
+:wscmd.delete
+del "%wscmd.ini.execute%"
+goto :EOF
+
+
 :wscmd.unquote
 if !%1! == "" set %1=" "
 if defined %1 set %1=!%1:~1,-1!
 if defined %1 set %1=!%1:""="!
-goto :EOF
-
-
-:wscmd.execute
-echo %wscmd.ini.execute% | %windir%\System32\find.exe "$UID">nul 2>&1 || goto :EOF
-
-setlocal
-
-:wscmd.execute.again
-
-	for /f "tokens=1,2 delims==; " %%a in ( 
-		'%windir%\System32\Wbem\wmic.exe Process call create "%windir%\System32\wscript.exe //b" 2^>nul ^| %windir%\System32\find.exe "ProcessId"' 
-	) do (
-		set wscmd.PID=%%b
-	)
-
-	set wscmd.TIME=%TIME%
-	set wscmd.TIME=%wscmd.TIME: =0%
-	set wscmd.TIME=%wscmd.TIME::=%
-	set wscmd.TIME=%wscmd.TIME:,=%
-	set wscmd.tmpfile=!wscmd.ini.execute:$UID=%wscmd.TIME%_%wscmd.PID%!
-
-if exist wscmd.tmpfile goto wscmd.execute.again
-
-endlocal && set wscmd.ini.execute=%wscmd.tmpfile%
 goto :EOF
 
 
@@ -300,19 +253,19 @@ goto :EOF
 call :wscmd.version
 echo.
 echo.%~n0 [/h ^| /help ^| /man]
-echo.%~n0 [/compile ^| /embed] [/v var val] [/i ^| /q]
-echo.%~n0 [/compile ^| /embed] [/v var val] [/js ^| /vbs] /e "code"
-echo.%~n0 [/compile ^| /embed] [/v var val] [/js ^| /vbs] scriptfile
-echo.%~n0 [/debug] [/v var val] [/i ^| /q] [arguments]
-echo.%~n0 [/debug] [/v var val] [/js ^| /vbs] /e "code" [arguments]
-echo.%~n0 [/debug] [/v var val] [/js ^| /vbs] scriptfile [arguments]
+echo.%~n0 [/compile ^| /embed] [/v var "val"] [/i ^| /q]
+echo.%~n0 [/compile ^| /embed] [/v var "val"] [/js ^| /vbs] /e "code"
+echo.%~n0 [/compile ^| /embed] [/v var "val"] [/js ^| /vbs] scriptfile
+echo.%~n0 [/debug] [/v var "val"] [/i ^| /q] [arguments]
+echo.%~n0 [/debug] [/v var "val"] [/js ^| /vbs] /e "code" [arguments]
+echo.%~n0 [/debug] [/v var "val"] [/js ^| /vbs] scriptfile [arguments]
 echo.
 echo.    /h, /help    - Display this help
-echo.    /man         - Display the description of configuration files
+echo.    /man         - Display the configuration files guide
 echo.    /compile     - Compile but not execute. Just store to a temporary file
 echo.    /embed       - The same as above but embed external scripts into a file
 echo.    /debug       - Output debugging information and execute
-echo.    /v var val   - Assign the value "val" to the variable "var", before
+echo.    /v var "val" - Assign the value "val" to the variable var, before
 echo.                   execution of the program begins
 echo.    /i           - Interactive mode
 echo.    /q           - The same as /i but in quiet mode
@@ -327,11 +280,11 @@ echo.    /d file      - Opens the file using the system default
 echo.    /u file      - Opens the file as Unicode
 echo.    /a file      - Opens the file as ASCII
 echo.
-echo.Extra options are used like /n or /p
-echo.    /begin       - Assume a code to be executed at the very beginning
-echo.    /end         - Assume a code to be executed at the very end
-echo.    /before      - Assume a code to be executed before a file
-echo.    /after       - Assume a code to be executed after a file
+echo.Extra options are used like /n or /p in the same way
+echo.    /begin       - A code will be executed at the very beginning
+echo.    /end         - A code will be executed at the very end
+echo.    /before      - A code will be executed before a file
+echo.    /after       - A code will be executed after a file
 
 goto wscmd.stop
 
@@ -352,8 +305,9 @@ echo.2.  Create the "%~n0.ini" file in the current directory where some script
 echo.    will be launched. This file will affect on all files launched from the 
 echo.    current directory only. 
 echo.
-echo.3.  Create the "SCRIPT.ini" file (where SCRIPT is a name and an extension 
-echo.    of a file). This file will affect on the SCRIPTNAME file only. 
+echo.3.  Create the "SCRIPT.ini" file nearby the SCRIPT file (where SCRIPT stands 
+echo.    for both the name and the extension of the current file). This file will 
+echo.    affect on the SCRIPT file only. 
 echo.
 echo.SYNTAX
 echo.
@@ -362,7 +316,7 @@ echo.options is common and looks like below:
 echo.
 echo.    name=value
 echo.
-echo.You are able to use them in any order but it is recommended to grouup them 
+echo.You are able to use them in any order but it is recommended to group them 
 echo.and use as described below:
 echo.
 echo.import
@@ -377,12 +331,13 @@ echo.    %%~p0 - means a path only
 echo.
 echo.    There is special value "import=no" that suppresses inclusion of files. 
 echo.    Just write out it directly in a custom configurational file to suppress 
-echo.    inclusion of any librarian file. 
+echo.    inclusion of files. 
 echo.
 echo.execute
 echo.    This option defines a name of the resulting file. If it is not specially 
-echo.    specified, the default value will be used. The special placeholder $UID
-echo.    is used to make the resulting file unique. 
+echo.    specified, the default value will be used. There is special placeholder 
+echo.    $UID, the unique number generated by the program to make the resulting 
+echo.    filename unique. 
 echo.
 echo.command
 echo.    This option specifies a binary executable file that will be invoked to 
@@ -417,6 +372,67 @@ echo.    command=%%windir%%\system32\cscript.exe //nologo
 goto wscmd.stop
 
 
+:wscmd.ini
+:: Load settings from ini-files
+:: there are special macros available to be substituted
+:: %~d0 - the disk
+:: %~p0 - the path
+:: %~n0 - the filename
+:: %~x0 - the extension
+set wscmd.noimport=
+set wscmd.ini.include=
+set wscmd.ini.execute=
+set wscmd.ini.command=
+set wscmd.inifiles=".\%~n0.ini" "%~dpn0.ini"
+if not defined wscmd.inline set wscmd.inifiles="!wscmd.script!.ini" ".\%~n0.ini" "%~dpn0.ini"
+for %%i in ( !wscmd.inifiles! ) do (
+	if not "%%~ni" == "" if exist "%%~i" (
+		if defined wscmd.debug echo.Configuring from "%%~i">&2
+		for /f "usebackq tokens=1,* delims==" %%k in ( "%%~i" ) do (
+			call set wscmd.temp=%%~l
+			if defined wscmd.temp (
+				if /i "%%k" == "import" (
+					if /i "!wscmd.temp!" == "no" (
+						set wscmd.noimport=1
+					) else (
+						set wscmd.ini.include=!wscmd.ini.include! "!wscmd.temp!"
+					)
+				) else (
+					set wscmd.ini.%%k=!wscmd.temp!
+				)
+			)
+		)
+		goto :EOF
+	)
+)
+goto :EOF
+
+
+:wscmd.execute
+echo %wscmd.ini.execute% | %windir%\System32\find.exe "$UID">nul 2>&1 || goto :EOF
+
+setlocal
+
+:wscmd.execute.again
+
+	for /f "tokens=1,2 delims==; " %%a in ( 
+		'%windir%\System32\Wbem\wmic.exe Process call create "%windir%\System32\wscript.exe //b" 2^>nul ^| %windir%\System32\find.exe "ProcessId"' 
+	) do (
+		set wscmd.PID=%%b
+	)
+
+	set wscmd.TIME=%TIME%
+	set wscmd.TIME=%wscmd.TIME: =0%
+	set wscmd.TIME=%wscmd.TIME::=%
+	set wscmd.TIME=%wscmd.TIME:,=%
+	set wscmd.tmpfile=!wscmd.ini.execute:$UID=%wscmd.TIME%_%wscmd.PID%!
+
+if exist wscmd.tmpfile goto wscmd.execute.again
+
+endlocal && set wscmd.ini.execute=%wscmd.tmpfile%
+goto :EOF
+
+
 :wscmd.compile
 echo.^<?xml version="1.0" encoding="%wscmd.ini.xml-encoding%" ?^>
 echo.
@@ -441,15 +457,15 @@ echo.{
 echo.	WScript.Echo(Array.prototype.slice.call(arguments));
 echo.};
 echo.
-echo.var quit = exit = function^(^)
+echo.var quit = exit = function^(exitCode^)
 echo.{
-echo.	WScript.Quit^(arguments[0]^);
+echo.	WScript.Quit^(exitCode^);
 echo.};
 echo.
 echo.var cmd = shell = function^(^)
 echo.{
 echo.	var shell = WScript.CreateObject^('WSCript.Shell'^);
-echo.	shell.run^('cmd'^);
+echo.	shell.run^('%%COMSPEC%%'^);
 echo.};
 echo.
 echo.var sleep = function^(time^)
@@ -509,7 +525,6 @@ if defined wscmd.inline (
 			if defined wscmd.script.end    echo.    !wscmd.script.end!
 		)
 	)>&2
-rem	if defined wscmd.debug echo.Inline: !wscmd.script!>&2
 	if defined wscmd.inproc (
 		call :wscmd.inproc
 	) else (
@@ -569,7 +584,9 @@ echo.//@set @user_inproc_mode = 2
 echo.
 echo.var userFunc = function^(line, currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
 echo.{
+if defined wscmd.script.n (
 echo.	!wscmd.script.n!;
+)
 if defined wscmd.script.p (
 echo.	!wscmd.script.p!;
 echo.	if ^( line ^^^!== void 0 ^) {
@@ -578,26 +595,34 @@ echo.	}
 )
 echo.};
 echo.
+if defined wscmd.script.begin (
 echo.var userFuncBegin = function^(lineNumber, fso, stdin, stdout, stderr^)
 echo.{
 echo.	!wscmd.script.begin!;
 echo.};
 echo.
+)
+if defined wscmd.script.end (
 echo.var userFuncEnd = function^(lineNumber, fso, stdin, stdout, stderr^)
 echo.{
 echo.	!wscmd.script.end!;
 echo.};
 echo.
+)
+if defined wscmd.script.before (
 echo.var userFuncBefore = function^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
 echo.{
 echo.	!wscmd.script.before!;
 echo.};
 echo.
+)
+if defined wscmd.script.after (
 echo.var userFuncAfter = function^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
 echo.{
 echo.	!wscmd.script.after!;
 echo.};
 echo.
+)
 echo.]]^>^</script^>
 goto :EOF
 
@@ -616,32 +641,42 @@ echo.
 echo.]]^>^</script^>
 echo.^<script language="vbscript"^>^<^^^![CDATA[
 echo.
-echo.Function userFunc^(line, currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
+echo.Sub userFunc^(line, currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
+if defined wscmd.script.n (
 echo.	!wscmd.script.n!
+)
 if defined wscmd.script.p (
 echo.	!wscmd.script.p!
 echo.	If Not IsEmpty^(line^) Then
 echo.		WScript.StdOut.WriteLine line
 echo.	End If
 )
-echo.End Function
+echo.End Sub
 echo.
-echo.Function userFuncBegin^(lineNumber, fso, stdin, stdout, stderr^)
+if defined wscmd.script.begin (
+echo.Sub userFuncBegin^(lineNumber, fso, stdin, stdout, stderr^)
 echo.	!wscmd.script.begin!
-echo.End Function
+echo.End Sub
 echo.
-echo.Function userFuncEnd^(lineNumber, fso, stdin, stdout, stderr^)
+)
+if defined wscmd.script.end (
+echo.Sub userFuncEnd^(lineNumber, fso, stdin, stdout, stderr^)
 echo.	!wscmd.script.end!
-echo.End Function
+echo.End Sub
 echo.
-echo.Function userFuncBefore^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
+)
+if defined wscmd.script.before (
+echo.Sub userFuncBefore^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
 echo.	!wscmd.script.before!
-echo.End Function
+echo.End Sub
 echo.
-echo.Function userFuncAfter^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
+)
+if defined wscmd.script.after (
+echo.Sub userFuncAfter^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
 echo.	!wscmd.script.after!
-echo.End Function
+echo.End Sub
 echo.
+)
 echo.]]^>^</script^>
 goto :EOF
 
@@ -678,7 +713,7 @@ goto :EOF
 	// The number of all lines of all files
 	var lineNumber = 0;
 
-	// the function is called before processing any file. 
+	// The function is called before processing any file. 
 	// The total number of input lines is 0. 
 	userFuncBegin(
 		lineNumber, 
@@ -705,10 +740,14 @@ goto :EOF
 			continue;
 		}
 
+		if ( file == '-' ) {
+			file = '<stdin>';
+		}
+
 		// The number of the current line for the actual file.
 		var currentNumber = 0;
 
-		// The function called before opening of the file. 
+		// The function is called before opening of the file. 
 		// The file name is known, the number of line of the file is 0. 
 		userFuncBefore(
 			currentNumber, file, lineNumber, 
@@ -718,10 +757,10 @@ goto :EOF
 		var isFile;
 
 		var e;
+
 		try {
-			if ( file == '-' ) {
+			if ( file == '<stdin>' ) {
 				stream = WScript.StdIn;
-				file = '<stdin>';
 				isFile = false;
 			} else {
 				stream = fso.OpenTextFile(file, 1, false, format);
@@ -734,7 +773,7 @@ goto :EOF
 
 		// Prevent fail of reading out of STDIN stream
 		// The real exception number is 800a005b
-		// Object variable or With block variable not set
+		// "Object variable or With block variable not set"
 		try {
 			stream.AtEndOfStream;
 		} catch (e) {
@@ -754,7 +793,9 @@ goto :EOF
 					line, currentNumber, file, lineNumber, 
 					fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
 			} catch (e) {
-				stream.Close();
+				if ( isFile ) {
+					stream.Close();
+				}
 				WScript.StdErr.WriteLine(e.message);
 				WScript.Quit();
 			}
@@ -819,15 +860,15 @@ var alert = echo = print = function()
 	WScript.Echo(result);
 };
 
-var quit = exit = function()
+var quit = exit = function(exitCode)
 {
-	WScript.Quit(arguments[0]);
+	WScript.Quit(exitCode);
 };
 
 var cmd = shell = function()
 {
 	var shell = WScript.CreateObject('WSCript.Shell');
-	shell.run('cmd');
+	shell.run('%COMSPEC%');
 };
 
 var sleep = function(time)
