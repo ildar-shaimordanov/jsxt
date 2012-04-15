@@ -2,7 +2,7 @@
 // ZipFile.js
 // Extension for handling with ZIP archives
 //
-// Copyright (c) 2010 by Ildar Shaimordanov
+// Copyright (c) 2010, 2012 by Ildar Shaimordanov
 //
 
 
@@ -103,7 +103,7 @@ function ZipFile()
 		// Opens the empty archive file and a Shell folder
 		var shell = new ActiveXObject("Shell.Application");
 
-		var zipFolder = shell.NameSpace(filename);
+		var zipFolder = shell.NameSpace(fso.GetFile(filename).Path);
 
 		if ( zipFolder == null ) {
 			if ( typeof options.onerror == 'function' ) {
@@ -118,7 +118,7 @@ function ZipFile()
 		// Copy files to an archive file
 		var o = Number(options.option) || 0;
 		for (var i = 0; i < files.length; i++) {
-			zipFolder.CopyHere(files[i], o);
+			zipFolder.CopyHere(fso.GetFile(files[i]).Path, o);
 		}
 
 		// Sleep to be sure that the zip file was created completely
@@ -153,4 +153,3 @@ ZipFile.create = function(filename, fileList, options)
 	zip.addFiles.apply(this, fileList);
 	zip.save(filename, options);
 };
-
