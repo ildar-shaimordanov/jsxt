@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.22.0 Beta
+set wscmd.version=0.22.1 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -595,34 +595,26 @@ echo.	}
 )
 echo.};
 echo.
-if defined wscmd.script.begin (
 echo.var userFuncBegin = function^(lineNumber, fso, stdin, stdout, stderr^)
 echo.{
 echo.	!wscmd.script.begin!;
 echo.};
 echo.
-)
-if defined wscmd.script.end (
 echo.var userFuncEnd = function^(lineNumber, fso, stdin, stdout, stderr^)
 echo.{
 echo.	!wscmd.script.end!;
 echo.};
 echo.
-)
-if defined wscmd.script.before (
 echo.var userFuncBefore = function^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
 echo.{
 echo.	!wscmd.script.before!;
 echo.};
 echo.
-)
-if defined wscmd.script.after (
 echo.var userFuncAfter = function^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
 echo.{
 echo.	!wscmd.script.after!;
 echo.};
 echo.
-)
 echo.]]^>^</script^>
 goto :EOF
 
@@ -653,30 +645,22 @@ echo.	End If
 )
 echo.End Sub
 echo.
-if defined wscmd.script.begin (
 echo.Sub userFuncBegin^(lineNumber, fso, stdin, stdout, stderr^)
 echo.	!wscmd.script.begin!
 echo.End Sub
 echo.
-)
-if defined wscmd.script.end (
 echo.Sub userFuncEnd^(lineNumber, fso, stdin, stdout, stderr^)
 echo.	!wscmd.script.end!
 echo.End Sub
 echo.
-)
-if defined wscmd.script.before (
 echo.Sub userFuncBefore^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
 echo.	!wscmd.script.before!
 echo.End Sub
 echo.
-)
-if defined wscmd.script.after (
 echo.Sub userFuncAfter^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
 echo.	!wscmd.script.after!
 echo.End Sub
 echo.
-)
 echo.]]^>^</script^>
 goto :EOF
 
