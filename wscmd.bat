@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.22.1 Beta
+set wscmd.version=0.22.2 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -683,6 +683,8 @@ goto :EOF
 	var userFuncAfter = this.userFuncAfter;
 //@end
 
+	var uc = String.prototype.toUpperCase;
+
 	var fso = new ActiveXObject('Scripting.FileSystemObject');
 
 	var format = 0;
@@ -724,7 +726,7 @@ goto :EOF
 			continue;
 		}
 
-		if ( file == '-' ) {
+		if ( file == '-' || uc.call(file) == 'CON' ) {
 			file = '<stdin>';
 		}
 
