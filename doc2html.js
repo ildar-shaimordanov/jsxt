@@ -134,7 +134,7 @@ try {
 			warn('The folder already exists');
 		}
 
-		formats.forItems(function(value, key)
+		Object.forIn(formats, function(value, key)
 		{
 			warn('Creating of the shortcut for "' + key + '" format');
 
@@ -180,7 +180,7 @@ try {
 
 	// Process file list
 	warn('Processing arguments');
-	var filelist = Enumerator.toArray(WScript.Arguments.Unnamed, function(i, fc)
+	var filelist = Enumerator.map(WScript.Arguments.Unnamed, function(i, fc)
 	{
 		return FileSystem.glob(i);
 	}).flatten();

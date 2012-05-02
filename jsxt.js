@@ -84,7 +84,7 @@ var iniOptions = {
 var includePatterns = FileSystem.wildcard2regexp(iniOptions.includePatterns);
 var excludePatterns = FileSystem.wildcard2regexp(iniOptions.excludePatterns);
 
-var processFiles = Enumerator.toArray(WScript.Arguments.Unnamed, function(v)
+var processFiles = Enumerator.map(WScript.Arguments.Unnamed, function(v)
 {
 	return v;
 })

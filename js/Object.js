@@ -2,7 +2,7 @@
 // JavaScript unit
 // Add-on for the object manipulation
 //
-// Copyright (c) 2009, 2010, 2011 by Ildar Shaimordanov
+// Copyright (c) 2009-2012 by Ildar Shaimordanov
 //
 
 /**
@@ -161,7 +161,7 @@ Object.isUndefined = function(value)
  * Executes a provided function once per object element.
  *
  * @Description
- * forItems executes the provided function (callback) once for each element 
+ * forIn executes the provided function (callback) once for each element 
  * present in the object. 
  * 
  * callback is invoked with three arguments: 
@@ -169,11 +169,11 @@ Object.isUndefined = function(value)
  * - the key of the element, 
  * - and the Object being traversed.
  * 
- * If a thisObject parameter is provided to forItems, it will be used as the 
+ * If a thisObject parameter is provided to forIn, it will be used as the 
  * this for each invocation of the callback. If it is not provided, or is 
  * null, the global object associated with callback is used instead. 
  * 
- * forItems does not mutate the object on which it is called. 
+ * forIn does not mutate the object on which it is called. 
  *
  * This method is the same as forEach for Array but for Object. 
  * 
@@ -186,7 +186,7 @@ Object.isUndefined = function(value)
  * @access	public
  * @see		http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Array:forEach
  */
-Object.forItems = function(object, fun, func, thisp)
+Object.forIn = function(object, fun, func, thisp)
 {
 	if ( typeof fun != "function" ) {
 		throw new TypeError();
@@ -196,7 +196,7 @@ Object.forItems = function(object, fun, func, thisp)
 		if ( ! object.hasOwnProperty(p) ) {
 			continue;
 		}
-		if ( ! func && 'function' == typeof object[p] ) {
+		if ( 'function' == typeof object[p] && ! func ) {
 			continue;
 		}
 		fun.call(thisp, object[p], p, object);
