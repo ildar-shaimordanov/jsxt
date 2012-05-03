@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.22.2 Beta
+set wscmd.version=0.22.3 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -42,7 +42,8 @@ set wscmd.quiet=
 
 :: Interactive mode
 if "%~1" == "" (
-	goto wscmd.2
+	shift /1
+	goto wscmd.1
 )
 
 
@@ -97,7 +98,9 @@ if defined wscmd.var (
 if /i "%~1" == "/i" (
 	shift /1
 	goto wscmd.1
-) else if /i "%~1" == "/q" (
+)
+
+if /i "%~1" == "/q" (
 	set wscmd.quiet=/q
 	shift /1
 	goto wscmd.1
@@ -232,7 +235,7 @@ goto :EOF
 
 
 :wscmd.unquote
-if !%1! == "" set %1=" "
+if !%1! == "" set %1=";"
 if defined %1 set %1=!%1:~1,-1!
 if defined %1 set %1=!%1:""="!
 goto :EOF
