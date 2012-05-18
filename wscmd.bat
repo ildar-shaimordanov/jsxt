@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.22.3 Beta
+set wscmd.version=0.22.4 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -480,6 +480,8 @@ echo.var clip = function^(^)
 echo.{
 echo.	return new ActiveXObject^('htmlfile'^).parentWindow.clipboardData.getData^('Text'^);
 echo.};
+echo.
+echo.var gc = CollectGarbage;
 echo.
 echo.]]^>^</script^>
 
