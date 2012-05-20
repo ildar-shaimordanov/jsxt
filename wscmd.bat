@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.22.4 Beta
+set wscmd.version=0.22.5 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -917,9 +917,19 @@ while ( true ) {
 	var e;
 	try {
 
-		// String contains result of eval'd string
-		(function(result)
+		/*
+		The eval function itself
+		String containing the result of eval'd string
+		*/
+		(function(e, result)
 		{
+			/*
+			A user can modify the code of the eval function so
+			to prevent the destruction of this function we have to 
+			keeping its original code and restore the code later
+			*/
+			eval = e;
+
 			if ( result === void 0 ) {
 				return;
 			}
@@ -928,7 +938,7 @@ while ( true ) {
 			}
 			WScript.Echo(result);
 		})
-		(eval((function(PS1, PS2)
+		(eval, eval((function(PS1, PS2)
 		{
 
 			var env = WScript.CreateObject('WScript.Shell').Environment('PROCESS');
@@ -1040,6 +1050,13 @@ while ( true ) {
 
 			if ( eval.history ) {
 				eval.history += '\n';
+			} else {
+				/*
+				The eval.history can be changed by the user as he can so
+				we should prevent a concatenation with the one of 
+				the empty values such as undefined, null, etc
+				*/
+				eval.history = '';
 			}
 			eval.history += history;
 			return history;
