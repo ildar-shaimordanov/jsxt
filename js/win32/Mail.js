@@ -133,8 +133,17 @@ Mail.setMailHeaders(options)
 
 http://msdn.microsoft.com/en-us/library/aa566465%28v=exchg.80%29.aspx
 
-Sets fields that contain Internet standard message header values. Follow 
-the link above for details. There is short list of the most useful 
+The method defines fields that contain Internet standard message header 
+values. Each field value (with a few exceptions) is stored as US-ASCII 
+characters and is identical to the ASCII string found in the message 
+stream. Non-US-ASCII characters are encoded according to the RFC 1522 
+specification. No conversion is performed when the property value is set 
+or updated. An application that sets a raw message header property within 
+this namespace must encode any non-US-ASCII characters as defined in RFC 
+1522. If these characters are not encoded, the header field value is 
+corrupted. 
+
+Follow the link above for details. There is short list of the most useful 
 headers. 
 
 	content-type
@@ -172,6 +181,47 @@ headers.
 	http://msdn.microsoft.com/en-us/library/aa580804%28v=exchg.80%29
 
 	The name of the software used to send the message. 
+
+
+Mail.setHttpMail(options)
+
+http://msdn.microsoft.com/en-us/library/ms526936%28v=exchg.10%29
+
+This method defines many fields similar to those defined by the 
+Mail.setMailHeaders() methos and comprise core properties for messages. 
+However, within this namespace, string fields are returned with all 
+characters that were encoded per RFC 1522 decoded into UNICODE 
+characters. 
+
+Follow the link above for details. There is short list of the most useful 
+headers. 
+
+	httpmail-from
+
+	http://msdn.microsoft.com/en-us/library/ms526998%28v=exchg.10%29
+
+	The addressees from whom the message was sent.
+
+
+	to
+
+	http://msdn.microsoft.com/en-us/library/ms526993%28v=exchg.10%29
+
+	The principle (To) message addressees.
+
+
+	subject
+
+	http://msdn.microsoft.com/en-us/library/ms527534%28v=exchg.10%29
+
+	The subject of the message.
+
+
+	textdescription
+
+	http://msdn.microsoft.com/en-us/library/ms526972%28v=exchg.10%29
+
+	The plain text content of the message. 
 
 
 Mail.addAttachment(URL, mimetype, options)
@@ -333,6 +383,14 @@ Mail.prototype.setMailHeaders = function(options)
 	fieldsUpdate(
 		this.driver.Fields, 
 		'urn:schemas:mailheader:', 
+		options);
+};
+
+Mail.prototype.setHttpMail = function(options)
+{
+	fieldsUpdate(
+		this.driver.Fields, 
+		'urn:schemas:httpmail:', 
 		options);
 };
 
