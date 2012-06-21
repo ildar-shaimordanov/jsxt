@@ -1,7 +1,7 @@
 
 //
-// FileSystem.js
-// Extension for FileSystemObject
+// ScriptControl.js
+// Extension for ScriptControl
 //
 // Copyright (c) 2011 by Ildar Shaimordanov
 //
