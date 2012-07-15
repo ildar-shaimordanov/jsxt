@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.22.6 Beta
+set wscmd.version=0.22.5 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -476,6 +476,11 @@ echo.{
 echo.	return WScript.Sleep^(time^);
 echo.};
 echo.
+echo.var clip = function^(^)
+echo.{
+echo.	return new ActiveXObject^('htmlfile'^).parentWindow.clipboardData.getData^('Text'^);
+echo.};
+echo.
 echo.var gc = CollectGarbage;
 echo.
 echo.]]^>^</script^>
@@ -860,6 +865,11 @@ var cmd = shell = function()
 var sleep = function(time)
 {
 	return WScript.Sleep(time);
+};
+
+var clip = function()
+{
+	return new ActiveXObject('htmlfile').parentWindow.clipboardData.getData('Text');
 };
 
 var reload = function()
