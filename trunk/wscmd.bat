@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.22.5 Beta
+set wscmd.version=0.22.6 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -692,8 +692,6 @@ goto :EOF
 
 	var fso = new ActiveXObject('Scripting.FileSystemObject');
 
-	var format = 0;
-
 	var files = WScript.Arguments;
 	if ( files.length == 0 ) {
 		// Emulate empty list of arguments
@@ -710,8 +708,14 @@ goto :EOF
 		lineNumber, 
 		fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
 
+	var format = 0;
+	var file;
+	var isFile;
+	var stream;
+
 	for (var i = 0; i < files.length; i++) {
-		var file = files.item(i);
+
+		file = files.item(i);
 
 		// Opens the file using the system default
 		if ( file == '/D' || file == '/d' ) {
@@ -731,8 +735,10 @@ goto :EOF
 			continue;
 		}
 
+		isFile = true;
 		if ( file == '-' || uc.call(file) == 'CON' ) {
 			file = '<stdin>';
+			isFile = false;
 		}
 
 		// The number of the current line for the actual file.
@@ -744,19 +750,12 @@ goto :EOF
 			currentNumber, file, lineNumber, 
 			fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
 
-		var stream;
-		var isFile;
-
 		var e;
 
 		try {
-			if ( file == '<stdin>' ) {
-				stream = WScript.StdIn;
-				isFile = false;
-			} else {
-				stream = fso.OpenTextFile(file, 1, false, format);
-				isFile = true;
-			}
+			stream = ! isFile 
+				? WScript.StdIn 
+				: fso.OpenTextFile(file, 1, false, format);
 		} catch (e) {
 			WScript.StdErr.WriteLine(e.message + ': ' + file);
 			continue;
@@ -773,6 +772,7 @@ goto :EOF
 		}
 
 		while ( ! stream.AtEndOfStream ) {
+
 			currentNumber++;
 			lineNumber++;
 			var line = stream.ReadLine();
@@ -790,7 +790,8 @@ goto :EOF
 				WScript.StdErr.WriteLine(e.message);
 				WScript.Quit();
 			}
-		}
+
+		} // while
 
 		if ( isFile ) {
 			stream.Close();
@@ -803,7 +804,7 @@ goto :EOF
 			currentNumber, file, lineNumber, 
 			fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
 
-	}
+	} // for
 
 	// The function will be executed when all files have been processed. 
 	// Only lineNumber, the total amount of lines is known. 
