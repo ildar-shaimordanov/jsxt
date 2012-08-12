@@ -30,34 +30,41 @@ wscmd /help
 Both these commands show the help looking like below:
 
 {{{
-Windows Scripting Command Version 0.18.0 Beta
+Windows Scripting Command Version 0.22.7 Beta
 
-wscmd [/h | /help | /man | [/q] [/debug]]
-wscmd [/compile | /embed | /debug] [/js | /vbs] /e [/n | /p] "code" [arguments]
-wscmd [/compile | /embed | /debug] [/js | /vbs] scriptfile [arguments]
+wscmd [/h | /help | /man]
+wscmd [/compile | /embed] [/v var "val"] [/i | /q]
+wscmd [/compile | /embed] [/v var "val"] [/js | /vbs] /e "code"
+wscmd [/compile | /embed] [/v var "val"] [/js | /vbs] scriptfile
+wscmd [/debug] [/v var "val"] [/i | /q] [arguments]
+wscmd [/debug] [/v var "val"] [/js | /vbs] /e "code" [arguments]
+wscmd [/debug] [/v var "val"] [/js | /vbs] scriptfile [arguments]
 
-    /h, /help  - Display this help
-    /man       - Display the description of configuration files
-    /q         - Quiet mode, affects when run interactively or through pipes
-    /compile   - Compile but not execute. Just store a temporary file
-    /embed     - The same as above but embed external scripts into a file
-    /debug     - Output debugging information and execute
-    /js        - Assume a value as a JavaScript
-    /vbs       - Assume a value as a VBScript
-    /e         - Assume a value as a code to be executed
-    /n         - Apply a code in a loop per each line of file(s)
-    /p         - The same as /n but print a line also
+    /h, /help    - Display this help
+    /man         - Display the configuration files guide
+    /compile     - Compile but not execute. Just store to a temporary file
+    /embed       - The same as above but embed external scripts into a file
+    /debug       - Output debugging information and execute
+    /v var "val" - Assign the value "val" to the variable var, before
+                   execution of the program begins
+    /i           - Interactive mode
+    /q           - The same as /i but in quiet mode
+    /js          - Assume a value as a JavaScript
+    /vbs         - Assume a value as a VBScript
+    /e "code"    - Assume a value as a code to be executed
+    /e /n "code" - Apply the code in a loop per each line of file(s)
+    /e /p "code" - The same as /e /n but print a line also
 
-Extra options are used with /e /n or /e /p:
-    /d         - Opens the file using the system default
-    /u         - Opens the file as Unicode
-    /a         - Opens the file as ASCII
+Extra options are available with /e /n or /e /p:
+    /d file      - Opens the file using the system default
+    /u file      - Opens the file as Unicode
+    /a file      - Opens the file as ASCII
 
-Extra options are used like /n or /p
-    /begin     - Assume a code to be executed at the very beginning
-    /end       - Assume a code to be executed at the very end
-    /before    - Assume a code to be executed before a file
-    /after     - Assume a code to be executed after a file
+Extra options are used like /n or /p in the same way
+    /begin       - A code will be executed at the very beginning
+    /end         - A code will be executed at the very end
+    /before      - A code will be executed before a file
+    /after       - A code will be executed after a file
 }}}
 
 Looking on this help we can say that the tool has a lot of arguments but all of them are optional. 
@@ -95,14 +102,15 @@ wscmd > help()
 
 Commands                 Descriptions
 ========                 ============
-help()                   Display this help
+help(), usage()          Display this help
 alert(), echo(), print() Print expressions
 quit(), exit()           Quit this shell
 eval.history             Display the history
 eval.save([format])      Save the history to the file
-eval.transform           The stub to transform output additionally
+eval.inspect()           The stub to transform output additionally
 cmd(), shell()           Run new DOS-session
 sleep(n)                 Sleep n milliseconds
+clip()                   Gets from the clipboard data formatted as text
 reload()                 Stop this session and run new
 gc()                     Run the garbage collector
 }}}
@@ -117,7 +125,9 @@ The `gc` function is the alias of the built-in function `CollectGarbage`.
 
 The `reload()`function reloads the tool and the current session. 
 
-The `eval.transform()` is the stub function. It can be useful in the case when you want customize of displaying results. For example, complex objects are displayed as the `[object Object]` string. If you have some function allowing display structures of objects so you want to apply it. Just assign this function to the `eval.transform`. 
+The `eval.inspect()` is the stub function. It can be useful in the case when you want customize of displaying results. For example, complex objects are displayed as the `[object Object]` string. If you have some function allowing display structures of objects so you want to apply it. Just assign this function to the `eval.transform`. 
+
+The `clip()` function is used to get text data from the clipboard. 
 
 == Multiple lines ==
 
@@ -212,7 +222,7 @@ echo alert("Hello, world") | wscmd /q
 
 For VBScript Inline mode the workaround solution was not found. 
 
-= Inline mode for processing of files =
+== Inline mode for processing of files ==
 
 Using the `/e /n` (or `/e /p`) option the rest of arguments is considered as a list of files. Thus each file will be open, read and processed line-by-line. The code provided in the command line will be applied per each line. 
 
@@ -282,6 +292,14 @@ The next example shows how to parse both Unicode and ASCII encoded files:
 wscmd /e /p "" /u file1 file2 /a file3 file4 
 }}}
 
+= Variables =
+
+Using `/v var "val"` option you can assign the `"val"` text value to the `var` variable, before the execution of the script (external or inline one) begins. The following example will output the string `Hello,World`:
+
+{{{
+wscmd /v x "Hello" /v y "World" /e "alert(x, y)"
+}}}
+
 = Extras =
 
 == Debug mode ==
@@ -319,8 +337,9 @@ It is possible to prevent including of any files. Just use the following configu
 `execute` - defines the path to the temporary file. The default value refers to the `$$$wscmd.wsf` file in the current directory. 
 
 `command` - defines the command that will run your script. Don't tuch it. This is `%WINDIR%\system32\cscript.exe //NoLogo`, mostly optimal for all purposes. 
+
 = Conclusion =
 
-In spite of these bugs wscmd is very useful and flexible, allows to develop new scripts and both the console mode and the inline mode aloows quickly estimate any expressions. 
+In spite of these bugs `wscmd` is very useful and flexible, allows to develop new scripts and both the console mode and the inline mode aloows quickly estimate any expressions. 
 
-Just download the tool from [http://code.google.com/p/jsxt/source/browse/trunk/wscmd.bat this page] and try its features as described here.
+Just download the actual version of the tool from [http://code.google.com/p/jsxt/source/browse/trunk/wscmd.bat this page] and try its features as described here. 
