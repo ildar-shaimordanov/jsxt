@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.22.6 Beta
+set wscmd.version=0.22.7 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -830,7 +830,7 @@ var help = usage = (function()
 		+ 'quit(), exit()           Quit this shell\n' 
 		+ 'eval.history             Display the history\n' 
 		+ 'eval.save([format])      Save the history to the file\n' 
-		+ 'eval.transform           The stub to transform output additionally\n' 
+		+ 'eval.inspect()           The stub to transform output additionally\n' 
 		+ 'cmd(), shell()           Run new DOS-session\n' 
 		+ 'sleep(n)                 Sleep n milliseconds\n' 
 		+ 'clip()                   Gets from the clipboard data formatted as text\n' 
@@ -934,8 +934,8 @@ while ( true ) {
 			if ( result === void 0 ) {
 				return;
 			}
-			if ( typeof eval.transform == 'function' ) {
-				result = eval.transform(result);
+			if ( typeof eval.inspect == 'function' ) {
+				result = eval.inspect(result);
 			}
 			WScript.Echo(result);
 		})
