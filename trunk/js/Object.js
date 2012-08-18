@@ -331,7 +331,7 @@ function _dump(object)
 			return String(object);
 		}
 
-		// Assume thr win32 COM object
+		// Assume win32 COM objects
 		if ( ! object.constructor ) {
 			return '[Object]';
 		}
@@ -373,7 +373,7 @@ function _dump(object)
 				v = arguments.callee(object[k]);
 				if ( v === '' ) {
 					// Sure that any property will return non-empty string
-					// Only functions can return an empty string with func  == 0
+					// Only functions can return an empty string when func == 0
 					continue;
 				}
 			}
@@ -430,25 +430,29 @@ function _dump(object)
  * @return	String
  * @access	Static
  */
-Object.dump = function(object)
+Object.dump = function(object, options)
 {
-	var options = arguments[1] || {};
+	var $ = Object.dump.$ || {};
+
+	options = options || {};
 
 	var t = Object.prototype.toString.call(options.space);
-	if ( t == '[object Number]' ) {
+	if ( t == '[object Number]' && options.space >= 0 ) {
 		space = new Array(options.space + 1).join(' ');
 	} else if ( t == '[object String]' ) {
 		space = options.space;
 	} else {
-		space = '    ';
+		space = $.space || '    ';
 	}
 
-	deep = Number(options.deep) > 0 ? options.deep : 5;
+	deep = Number(options.deep) > 0 ? options.deep : $.deep > 0 ? $.deep : 5;
 
-	proto = options.proto || 0;
-	func = options.func || 0;
+	proto = options.proto || $.proto || 0;
+	func = options.func || $.func || 0;
 
 	return _dump(object);
 };
+
+Object.dump.$ = {};
 
 })();
