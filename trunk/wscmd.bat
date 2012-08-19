@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.23.0 Beta
+set wscmd.version=0.23.1 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -416,7 +416,8 @@ goto :EOF
 :wscmd.execute
 if defined wscmd.execute goto :EOF
 
-echo %wscmd.ini.execute% | %windir%\System32\find.exe "$UID">nul 2>&1 || goto :EOF
+set wscmd.execute=%wscmd.ini.execute%
+echo %wscmd.execute% | %windir%\System32\find.exe "$UID">nul 2>&1 || goto :EOF
 
 setlocal
 
@@ -432,7 +433,7 @@ setlocal
 	set wscmd.TIME=%wscmd.TIME: =0%
 	set wscmd.TIME=%wscmd.TIME::=%
 	set wscmd.TIME=%wscmd.TIME:,=%
-	set wscmd.tmpfile=!wscmd.ini.execute:$UID=%wscmd.TIME%_%wscmd.PID%!
+	set wscmd.tmpfile=!wscmd.execute:$UID=%wscmd.TIME%_%wscmd.PID%!
 
 if exist wscmd.tmpfile goto wscmd.execute.again
 
