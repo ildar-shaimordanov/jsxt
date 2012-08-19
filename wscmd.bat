@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.22.7 Beta
+set wscmd.version=0.23.0 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -38,13 +38,7 @@ set wscmd.var=
 set wscmd.compile=
 set wscmd.debug=
 set wscmd.quiet=
-
-
-:: Interactive mode
-if "%~1" == "" (
-	shift /1
-	goto wscmd.1
-)
+set wscmd.execute=
 
 
 :: Help
@@ -57,7 +51,7 @@ if /i "%~1" == "/help" (
 )
 
 
-:: Configartion file manual
+:: Configuration file manual
 if /i "%~1" == "/man" (
 	goto wscmd.man
 )
@@ -94,7 +88,12 @@ if defined wscmd.var (
 )
 
 
-:: Explicit usage of interactive mode
+:: Interactive mode
+if "%~1" == "" (
+	shift /1
+	goto wscmd.1
+)
+
 if /i "%~1" == "/i" (
 	shift /1
 	goto wscmd.1
@@ -184,18 +183,15 @@ if defined wscmd.debug call :wscmd.version>&2
 :: Lookup and read a configuration file
 call :wscmd.ini
 
-
-:wscmd.3
-
-
 :: Set defaults
+if not defined wscmd.ini.session-reload set wscmd.ini.session-reload=65535
+if not defined wscmd.ini.session-renew set wscmd.ini.session-renew=65534
 if not defined wscmd.ini.include set wscmd.ini.include=%~dp0js\*.js %~dp0js\win32\*.js %~dp0vbs\win32\*.vbs
 if not defined wscmd.ini.execute set wscmd.ini.execute=.\$$$%~n0_$UID.wsf
 if not defined wscmd.ini.command set wscmd.ini.command=%WINDIR%\system32\cscript.exe //NoLogo
 if not defined wscmd.ini.xml-encoding set wscmd.ini.xml-encoding=utf-8
 if not defined wscmd.ini.enable-error set wscmd.ini.enable-error=false
 if not defined wscmd.ini.enable-debug set wscmd.ini.enable-debug=false
-
 
 :: Check imports
 if defined wscmd.noimport set wscmd.ini.include=
@@ -206,18 +202,24 @@ call :wscmd.execute
 
 
 :: Compile and link the source with libraries
-call :wscmd.compile > "%wscmd.ini.execute%"
+call :wscmd.compile > "%wscmd.execute%"
 
 
-:: Compile the script and run it if it is needed
+:: Exit on /compile or /embed
 if defined wscmd.compile goto wscmd.stop
 
 if defined wscmd.debug echo.Running:>&2
-%wscmd.ini.command% "%wscmd.ini.execute%" %wscmd.args%
+%wscmd.ini.command% "%wscmd.execute%" %wscmd.args%
 
 :: Reread the ini-file and reload the script
-if errorlevel 65535 (
+if errorlevel %wscmd.ini.session-reload% (
 	call :wscmd.delete
+	goto wscmd.start
+)
+
+if errorlevel %wscmd.ini.session-renew% (
+	call :wscmd.delete
+	set wscmd.execute=
 	goto wscmd.start
 )
 
@@ -230,7 +232,7 @@ goto :EOF
 
 
 :wscmd.delete
-del "%wscmd.ini.execute%"
+del "%wscmd.execute%"
 goto :EOF
 
 
@@ -412,6 +414,8 @@ goto :EOF
 
 
 :wscmd.execute
+if defined wscmd.execute goto :EOF
+
 echo %wscmd.ini.execute% | %windir%\System32\find.exe "$UID">nul 2>&1 || goto :EOF
 
 setlocal
@@ -432,7 +436,7 @@ setlocal
 
 if exist wscmd.tmpfile goto wscmd.execute.again
 
-endlocal && set wscmd.ini.execute=%wscmd.tmpfile%
+endlocal && set wscmd.execute=%wscmd.tmpfile%
 goto :EOF
 
 
@@ -511,35 +515,19 @@ echo.
 echo.]]^>^</script^>
 )
 
-if defined wscmd.inline (
-	if defined wscmd.debug (
-		echo.Inline:
-		if defined wscmd.script (
-			echo.    !wscmd.script!
-		) else (
-			if defined wscmd.script.begin  echo.    !wscmd.script.begin!
-			echo.    for each file {
-			if defined wscmd.script.before echo.      !wscmd.script.before!
-			echo.      while not EOF {
-			if defined wscmd.script.n      echo.        !wscmd.script.n!
-			if defined wscmd.script.p      echo.        !wscmd.script.p!
-			if defined wscmd.script.p      echo.        print line
-			echo.      end while
-			if defined wscmd.script.after  echo.      !wscmd.script.after!
-			echo.    end for
-			if defined wscmd.script.end    echo.    !wscmd.script.end!
-		)
-	)>&2
-	if defined wscmd.inproc (
-		call :wscmd.inproc
-	) else (
-		call :wscmd.inline
-	)
+if defined wscmd.inproc (
+	rem wscmd ... /e ... "string" ...
+	call :wscmd.inproc
+) else if defined wscmd.inline (
+	rem wscmd ... /e "string" ...
+	call :wscmd.inline
 ) else if defined wscmd.script (
+	rem wscmd ... "filename" ...
 	if defined wscmd.debug echo.File: "!wscmd.script!">&2
 	call :wscmd.%wscmd.link% "!wscmd.script!"
 ) else (
 	rem Console mode, no inline scripts and no script files
+	rem wscmd
 	call :wscmd.%wscmd.link% "%~dpnx0"
 )
 
@@ -564,15 +552,33 @@ goto :EOF
 
 
 :wscmd.inline
+if defined wscmd.debug (
+	echo.Inline:
+	echo.    !wscmd.script!
+)>&2
 echo.^<script language="%wscmd.engine%"^>^<^^^![CDATA[
 echo.
-echo.!wscmd.script!%~2
+echo.!wscmd.script!
 echo.
 echo.]]^>^</script^>
 goto :EOF
 
 
 :wscmd.inproc
+if defined wscmd.debug (
+	echo.Inline:
+	if defined wscmd.script.begin  echo.    !wscmd.script.begin!
+	echo.    for each file
+	if defined wscmd.script.before echo.      !wscmd.script.before!
+	echo.      while not EOF
+	if defined wscmd.script.n      echo.        !wscmd.script.n!
+	if defined wscmd.script.p      echo.        !wscmd.script.p!
+	if defined wscmd.script.p      echo.        print line
+	echo.      end while
+	if defined wscmd.script.after  echo.      !wscmd.script.after!
+	echo.    end for
+	if defined wscmd.script.end    echo.    !wscmd.script.end!
+)>&2
 call :wscmd.inproc.%wscmd.engine%
 setlocal
 set wscmd.engine=javascript
@@ -833,8 +839,8 @@ var help = usage = (function()
 		+ 'eval.inspect()           The stub to transform output additionally\n' 
 		+ 'cmd(), shell()           Run new DOS-session\n' 
 		+ 'sleep(n)                 Sleep n milliseconds\n' 
-		+ 'clip()                   Gets from the clipboard data formatted as text\n' 
-		+ 'reload()                 Stop this session and run new\n' 
+		+ 'clip()                   Get from the clipboard data formatted as text\n' 
+		+ 'reload([true])           Reload this session or open new one\n' 
 		+ 'gc()                     Run the garbage collector\n' 
 		;
 	return function()
@@ -873,9 +879,15 @@ var clip = function()
 	return new ActiveXObject('htmlfile').parentWindow.clipboardData.getData('Text');
 };
 
-var reload = function()
+var reload = function(newSession)
 {
-	WScript.Quit(65535);
+	var shell = new ActiveXObject('WScript.Shell');
+	var env = shell.Environment('PROCESS');
+
+	var name = newSession ? 'wscmd.ini.session-renew' : 'wscmd.ini.session-reload';
+	var code = env(name);
+
+	WScript.Quit(code);
 };
 
 var gc = CollectGarbage;
