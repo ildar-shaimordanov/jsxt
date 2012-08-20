@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.23.1 Beta
+set wscmd.version=0.23.2 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -237,7 +237,7 @@ goto :EOF
 
 
 :wscmd.unquote
-if !%1! == "" set %1=";"
+if !%1! == "" set %1=" "
 if defined %1 set %1=!%1:~1,-1!
 if defined %1 set %1=!%1:""="!
 goto :EOF
