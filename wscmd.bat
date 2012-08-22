@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.23.3 Beta
+set wscmd.version=0.23.4 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -490,6 +490,10 @@ echo.	return new ActiveXObject^('htmlfile'^).parentWindow.clipboardData.getData^
 echo.};
 echo.
 echo.var gc = CollectGarbage;
+echo.
+echo.var cArgs = WScript.Arguments;
+echo.var nArgs = WScript.Arguments.Named;
+echo.var uArgs = WScript.Arguments.Unnamed;
 echo.
 echo.]]^>^</script^>
 
