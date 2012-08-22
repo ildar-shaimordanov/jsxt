@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.23.2 Beta
+set wscmd.version=0.23.3 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -284,6 +284,9 @@ echo.Extra options are available with /e /n or /e /p:
 echo.    /d file      - Opens the file using the system default
 echo.    /u file      - Opens the file as Unicode
 echo.    /a file      - Opens the file as ASCII
+echo.
+echo."/" and "CON" (case-insensitive) are specified for the console. 
+echo.Using them allows reading data from the standard input. 
 echo.
 echo.Extra options are used like /n or /p in the same way
 echo.    /begin       - A code will be executed at the very beginning
@@ -702,7 +705,7 @@ goto :EOF
 	var files = WScript.Arguments;
 	if ( files.length == 0 ) {
 		// Emulate empty list of arguments
-		files = ['-'];
+		files = ['/'];
 		files.item = function(i) { return this[i]; };
 	}
 
@@ -743,7 +746,7 @@ goto :EOF
 		}
 
 		isFile = true;
-		if ( file == '-' || uc.call(file) == 'CON' ) {
+		if ( file == '/' || uc.call(file) == 'CON' ) {
 			file = '<stdin>';
 			isFile = false;
 		}
@@ -925,6 +928,15 @@ eval.save = function(format)
 	f.Write(eval.history);
 	f.Close();
 };
+
+/**
+ *
+ * The references to the command line arguments
+ *
+ */
+var cArgs = WScript.Arguments;
+var nArgs = WScript.Arguments.Named;
+var uArgs = WScript.Arguments.Unnamed;
 
 while ( true ) {
 
