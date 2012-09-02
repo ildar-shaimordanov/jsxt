@@ -1,5 +1,7 @@
 #labels Featured
-_This page tells about wscmd, Windows Scripting Command Interpreter._
+_
+This page tells about wscmd, Windows Scripting Command Interpreter. The very fresh version of the script can be downloaded from [http://code.google.com/p/jsxt/source/browse/trunk/wscmd.bat this page]. 
+_
 
 <wiki:toc max_depth="5" />
 
@@ -342,4 +344,4 @@ It is possible to prevent including of any files. Just use the following configu
 
 In spite of these bugs `wscmd` is very useful and flexible, allows to develop new scripts and both the console mode and the inline mode aloows quickly estimate any expressions. 
 
-Just download the actual version of the tool from [http://code.google.com/p/jsxt/source/browse/trunk/wscmd.bat this page] and try its features as described here. 
+Due to the script is under persistent modification, download the very actual version from [http://code.google.com/p/jsxt/source/browse/trunk/wscmd.bat this page] and try its features as described here. 
