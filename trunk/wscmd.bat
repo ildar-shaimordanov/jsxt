@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.23.5 Beta
+set wscmd.version=0.23.6 Beta
 
 
 :: Prevent re-parsing of command line arguments
@@ -558,7 +558,12 @@ goto :EOF
 
 
 :wscmd.include
-echo.^<script language="%wscmd.engine%" src="%~f1"^>^</script^>
+::echo.^<script language="%wscmd.engine%" src="%~f1"^>^</script^>
+setlocal
+set "tempfile=%~f1"
+set "tempfile=%tempfile:&=&amp;%"
+echo.^<script language="%wscmd.engine%" src="%tempfile%"^>^</script^>
+endlocal
 goto :EOF
 
 
