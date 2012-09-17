@@ -96,6 +96,34 @@ c.draw();
 */
 
 
+if ( ! Object.create ) {
+
+/**
+ * Creates a new object with the specified prototype object and properties. 
+ * 
+ * This polyfill covers the main use case which is creating a new object 
+ * for which the prototype has been chosen but doesn't take the second 
+ * argument into account.
+ *
+ * @param	The object which should be the prototype of the newly-created object.
+ * @return	A new object
+ * @access	public
+ * @link	https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object/create
+ */
+Object.create = function(proto)
+{
+	if ( arguments.length > 1 ) {
+		throw new Error('Object.create implementation only accepts the first parameter.');
+	}
+
+	function F() {};
+	F.prototype = proto;
+
+	return new F();
+};
+
+}
+
 Object.mixin = function(dst, src)
 {
 	for (var prop in src) {
@@ -113,10 +141,11 @@ Function.prototype.inherit = function(proto)
 	proto = proto || {};
 
 	var constructor = proto.hasOwnProperty('constructor') ? proto.constructor : function() { that.apply(this, arguments); };
-	var F = function() {};
-	F.prototype = this.prototype;
 
-	constructor.prototype = Object.mixin(new F(), proto);
+//	var F = function() {};
+//	F.prototype = this.prototype;
+//	constructor.prototype = Object.mixin(new F(), proto);
+	constructor.prototype = Object.mixin(Object.create(this.prototype), proto);
 
 	constructor.superclass = this.prototype;
 	constructor.prototype.constructor = constructor;
