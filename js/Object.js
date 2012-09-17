@@ -203,6 +203,34 @@ Object.forIn = function(object, fun, func, thisp)
 	}
 };
 
+if ( ! Object.create ) {
+
+/**
+ * Creates a new object with the specified prototype object and properties. 
+ * 
+ * This polyfill covers the main use case which is creating a new object 
+ * for which the prototype has been chosen but doesn't take the second 
+ * argument into account.
+ *
+ * @param	The object which should be the prototype of the newly-created object.
+ * @return	A new object
+ * @access	public
+ * @link	https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object/create
+ */
+Object.create = function(proto)
+{
+	if ( arguments.length > 1 ) {
+		throw new Error('Object.create implementation only accepts the first parameter.');
+	}
+
+	function F() {};
+	F.prototype = proto;
+
+	return new F();
+};
+
+}
+
 if ( ! Object.keys ) {
 
 /**
@@ -219,9 +247,12 @@ if ( ! Object.keys ) {
  * Boolean value controls the visibility properties from the prototype of the oject. 
  * The default value is false. (0 - no properties from prototype, 1 - walk through prototype properties) 
  *
+ * @note	This implementation differs on the MDN version. Se the link below.
+ *
  * @param	Boolean
  * @return	Array
  * @access	public
+ * @link	https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object/keys
  */
 Object.keys = function(object)
 {
