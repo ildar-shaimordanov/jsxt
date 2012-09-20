@@ -46,6 +46,10 @@ Takes an object and converts it to a bencoded string.
 Bencode.parse(value)
 Takes a string and converts it to an object. 
 
+Bencode.PATH_DELIMITER = '\\';
+A path delimier equals '\\'. It is used to concatenate parts of paths. 
+It can be changed before calling Bencode.torrentInfo(). 
+
 Bencode.torrentInfo(value, key)
 Considers an input object as a torrent and returns parts specified by the key 
 value. If the input value is a string it will be previously converted to the 
@@ -250,7 +254,7 @@ var torrentInfo = function(value, key)
 		}
 		var result = [];
 		for (var i = 0; i < input.length; i++) {
-			result.push(input[i].path.join('\\'));
+			result.push(input[i].path.join(Bencode.PATH_DELIMITER));
 		}
 		return result;
 	case 'file-sizes': 
@@ -269,6 +273,7 @@ var torrentInfo = function(value, key)
 	}
 };
 
+Bencode.PATH_DELIMITER = '\\';
 
 Bencode.stringify = stringify;
 
