@@ -2,7 +2,7 @@
 // Ajax.js
 // Cross-browser JScript / Javascript extension for XMLHttpRequest
 //
-// Copyright (c) 2009 by Ildar Shaimordanov
+// Copyright (c) 2009, 2012 by Ildar Shaimordanov
 //
 
 if ( ! this.Ajax ) {
@@ -202,7 +202,7 @@ Ajax.query = function(url)
 	var xmlhttp = Ajax.create();
 	var result;
 
-	xmlhttp.open((options.method || 'GET'), url, options.async, options.username, options.password);
+	xmlhttp.open((options.method || 'GET'), url, !! options.async, options.username, options.password);
 
 	if ( typeof options.onload == 'function' ) {
 		xmlhttp.onreadystatechange = function()
