@@ -50,11 +50,53 @@ Bencode.torrentInfo(value, key)
 Considers an input object as a torrent and returns parts specified by the key 
 value. If the input value is a string it will be previously converted to the 
 object. There are several special keys to gather definite values:
--- 'name' - the name of the torrent
--- 'announce-list' - a list of announces
--- 'file-names' - a list of filenames in the torrent
--- 'file-sizes' - a list of file sizes in the torrent
--- 'pieces' - an untrusted field because of differences of used encodings
+
+'name'
+the name of the torrent (string)
+
+'piece length'
+number of bytes in each piece (integer)
+
+'pieces'
+string consisting of the concatenation of all 20-byte SHA1 hash values, 
+one per piece (byte string, i.e. not urlencoded). This is untrusted field 
+due to differences of used encodings in JScript
+
+'creation date'
+the creation time of the torrent converted to the 
+standard presentaion of Date in JavaScript
+
+'announce-list'
+always a list of announces (instead of a list of lists of strings)
+
+'file-names'
+always a list of filenames in the torrent
+
+'file-sizes'
+always a list of file sizes in the torrent
+
+
+Example:
+
+var flename = 'foo.torrent';
+
+var readOnly = 1;
+var dontCreate = false;
+var defaultEncoding = 0;
+
+var fso = new ActiveXObject('Scripting.FileSystemObject');
+var f = fso.OpenTextFile(filename, readOnly, dontCreate, defaultEncoding);
+
+var torrentText = f.ReadAll();
+
+f.Close();
+
+var torrent1 = Bencode.parse(torrentText);
+WScript.Echo(torrent1.info.name);
+
+var torrentName = Bencode.torrentInfo(torrentText, 'name');
+WScript.Echo(torrentName);
+
 
 */
 
@@ -63,29 +105,31 @@ var Bencode = Bencode || {};
 (function()
 {
 
+var toString = Object.prototype.toString;
+
 var stringify = function(value)
 {
-	var constructor = Object.prototype.toString.call(value);
+	var typeOf = toString.call(value);
 
-	if ( constructor == '[object Number]' ) {
+	if ( typeOf == '[object Number]' ) {
 		return 'i' + parseInt(value) + 'e';
 	}
-	if ( constructor == '[object String]' ) {
+	if ( typeOf == '[object String]' ) {
 		return value.length + ':' + value.toString();
 	}
-	if ( constructor == '[object Date]' ) {
+	if ( typeOf == '[object Date]' ) {
 		return 'i' + Math.floor(value.getTime() / 1000) + 'e';
 	}
 
-	if ( constructor == '[object Array]' ) {
-		var result = [];
+	var result = [];
+
+	if ( typeOf == '[object Array]' ) {
 		for (var i = 0; i < value.length; i++) {
 			result.push(stringify(value[i]));
 		}
 		return 'l' + result.join('') + 'e';
 	}
 
-	var result = [];
 	for (var p in value) {
 		if ( ! value.hasOwnProperty(p) ) {
 			continue;
@@ -174,7 +218,7 @@ var parser = function()
 		return result;
 	}
 
-	// Here is abnormal end
+	// Here is abnormal ending
 	throw new RangeError('Bencode.parse: Illegal ' + err + ' at ' + i + ' (0x' + i.toString(16).toUpperCase() + ')');
 };
 
@@ -186,10 +230,15 @@ var torrentInfo = function(value, key)
 	case 'piece length': 
 	case 'pieces': 
 		return value.info[key];
+	case 'creation date': 
+		// convert date to the standard Date object
+		return new Date(value[key] * 1000);
 	case 'announce-list': 
 		var input = value['announce-list'];
 		var result = [];
 		for (var i = 0; i < input.length; i++) {
+			// convert a list of lists of strings to 
+			// the simple list of strings
 			result.push.apply(result, input[i]);
 		}
 		return result;
@@ -232,7 +281,7 @@ Bencode.parse = function(value)
 
 Bencode.torrentInfo = function(value, key)
 {
-	if ( Object.prototype.toString.call(value) == '[object String]' ) {
+	if ( toString.call(value) == '[object String]' ) {
 		value = Bencode.parse(value);
 	}
 
