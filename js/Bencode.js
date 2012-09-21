@@ -80,26 +80,30 @@ always a list of filenames in the torrent
 always a list of file sizes in the torrent
 
 
-Example:
-
-var flename = 'foo.torrent';
-
-var readOnly = 1;
-var dontCreate = false;
-var defaultEncoding = 0;
-
-var fso = new ActiveXObject('Scripting.FileSystemObject');
-var f = fso.OpenTextFile(filename, readOnly, dontCreate, defaultEncoding);
-
-var torrentText = f.ReadAll();
-
-f.Close();
-
-var torrent1 = Bencode.parse(torrentText);
-WScript.Echo(torrent1.info.name);
-
-var torrentName = Bencode.torrentInfo(torrentText, 'name');
-WScript.Echo(torrentName);
+Example using a part of the external code (see the comment below):
+// http://demon.tw/my-work/javascript-bencode.html
+function read(path) {
+    var cp1252Chars = [/\u20AC/g,/\u201A/g,/\u0192/g,/\u201E/g,/\u2026/g,/\u2020/g,/\u2021/g,/\u02C6/g,/\u2030/g,/\u0160/g,/\u2039/g,/\u0152/g,/\u017D/g,/\u2018/g,/\u2019/g,/\u201C/g,/\u201D/g,/\u2022/g,/\u2013/g,/\u2014/g,/\u02DC/g,/\u2122/g,/\u0161/g,/\u203A/g,/\u0153/g,/\u017E/g,/\u0178/g];
+    var latin1Chars = ["\u0080","\u0082","\u0083","\u0084","\u0085","\u0086","\u0087","\u0088","\u0089","\u008A","\u008B","\u008C","\u008E","\u0091","\u0092","\u0093","\u0094","\u0095","\u0096","\u0097","\u0098","\u0099","\u009A","\u009B","\u009C","\u009E","\u009F"];
+    var binstream = new ActiveXObject("ADODB.Stream");
+    binstream.Type = 2;
+    binstream.Charset = "iso-8859-1";
+    binstream.Open();
+    binstream.LoadFromFile(path);
+    var s = binstream.ReadText();
+    for (var i = 0; i < 27; i++)
+        s = s.replace(cp1252Chars[i], latin1Chars[i]);
+    return s;
+}
+ 
+var filename = 'foo.torrent';
+ 
+var text = read(filename);
+var torrent = Bencode.parse(text);
+ 
+WScript.Echo( Bencode.torrentInfo(torrent, 'name') );
+WScript.Echo( Bencode.torrentInfo(torrent, 'creation date') );
+WScript.Echo( Bencode.torrentInfo(torrent, 'file-names') );
 
 
 */
