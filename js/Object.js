@@ -308,7 +308,7 @@ var entities = {
 	'>': '&gt;'
 };
 
-var escaped = /["\r\n\t\b\f\\\\]/g;
+var escaped = /[\x00-\x1F\"\\]/g;
 var special = {
 	'"': '\\"', 
 	'\r': '\\r', 
@@ -331,7 +331,7 @@ function _quote(value)
 {
 	var result = value.replace(escaped, function($0)
 	{
-		return special[$0];
+		return special[$0] || $0;
 	});
 	return '"' + result + '"';
 };
