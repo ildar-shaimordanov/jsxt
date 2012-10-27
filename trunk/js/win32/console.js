@@ -74,7 +74,8 @@ The string to glue the set of arguments when output them
 	// Checks that the object is a formatting string
 	var isFormat = function(object)
 	{
-		return typeof object == 'string' && object.match(reFormat);
+		return reFormat.test(object);
+		//return typeof object == 'string' && object.match(reFormat);
 	};
 
 	// The simplest formatting function immitating java-like format
