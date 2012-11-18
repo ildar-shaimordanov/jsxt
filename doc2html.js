@@ -34,6 +34,8 @@ function help()
 'formats such as plain text TXT (both DOS, Win, etc), or reach text RTF, or ', 
 'hyper-text HTML (default), MHT (web archive), XML, or PDF, or XPS. ', 
 '', 
+'Using doc2fb.xsl file it is possible to convert to FictionBook format (FB2). ', 
+'', 
 'There are options:', 
 '', 
 '/H', 
@@ -41,6 +43,7 @@ function help()
 '', 
 '/F:format', 
 '    Specifies output format as TXT, RTF, HTML, MHT, XML, PDF or XPS. ', 
+'    Additionally FB2 stands for transformations to FictionBook format. ', 
 '', 
 '/E:encoding', 
 '    A numeric value of the encoding to be used when saving as a plain text ', 
@@ -59,6 +62,9 @@ function help()
 '    The option specifies characters to be used as line ending. There are ', 
 '    four available values - CRLF, CR, LF, or LFCR. The default value is ', 
 '    CRLF. This option is significant with /F:TXT only. ', 
+'', 
+'/XSL:filename', 
+'    The option specifies a name of a XSLT file for transformations to FictionBook format. ', 
 '', 
 '/V', 
 '    Turn on verbosity.', 
@@ -104,6 +110,7 @@ var formats = {
 	'html':	8,
 	'mht':	9,
 	'xml':	11,
+	'fb2':	11,
 	'pdf':	17,
 	'xps':	18};
 
@@ -112,6 +119,9 @@ var lineEndings = {
 	'cr':	1, 
 	'lf':	2, 
 	'lfcr':	3};
+
+var xslName = WScript.ScriptFullName.replace(/[^\\]+$/, '') + 'doc2fb.xsl';
+var xslFile;
 
 var fileFormat = 'html';
 var fileEncoding = 0;
@@ -123,6 +133,8 @@ try {
 
 	// Creating of 'Send To' context menu
 	if ( WScript.Arguments.Named.Exists('help') && WScript.Arguments.Named.item('help').toLowerCase() == 'sendto' ) {
+
+		var wshShell = new ActiveXObject('WScript.Shell');
 
 		var sendTo = wshShell.SpecialFolders('SendTo');
 		var folder = sendTo + '\\doc2xxx';
@@ -140,8 +152,8 @@ try {
 
 			var lnk;
 			lnk = wshShell.CreateShortcut(folder + '\\doc2' + key + '.lnk');
-			lnk.TargetPath = 'wscript';
-			lnk.Arguments = WScript.ScriptFullName + ' /f:' + key;
+			lnk.TargetPath = WScript.ScriptFullName;
+			lnk.Arguments = '/f:' + key;
 			lnk.Description = 'Convert .DOC to .' + key.toUpperCase();
 			lnk.Save();
 		}, true);
@@ -154,6 +166,7 @@ try {
 	warn('Validate formatting parameters');
 	var arg;
 
+	// /F:format
 	if ( WScript.Arguments.Named.Exists('F') ) {
 		arg = WScript.Arguments.Named.item('F');
 		fileFormat = (arg || '').toLowerCase();
@@ -162,6 +175,7 @@ try {
 		}
 	}
 
+	// /F:TXT /E:Encoding
 	if ( fileFormat == 'txt' && WScript.Arguments.Named.Exists('E') ) {
 		arg = WScript.Arguments.Named.item('E');
 		fileEncoding = Number(arg);
@@ -170,11 +184,27 @@ try {
 		}
 	}
 
+	// /F:TXT /L:lineending
 	if ( fileFormat == 'txt' && WScript.Arguments.Named.Exists('L') ) {
 		arg = WScript.Arguments.Named.item('L');
 		fileLineEnding = Number(lineEndings[(arg || '').toLowerCase()]);
 		if ( isNaN(fileLineEnding) ) {
 			throw new Error('Illegal line ending: "' + arg + '"');
+		}
+	}
+
+	// /F:FB2 /XSL:filename
+	if ( fileFormat == 'fb2' ) {
+		if ( WScript.Arguments.Named.Exists('XSL') ) {
+			xslName = WScript.Arguments.Named.item('XSL');
+		}
+
+		var fso = new ActiveXObject("Scripting.FileSystemObject");
+		try {
+			var xslFile = fso.GetFile(xslName);
+		} catch (e) {
+			fileFormat = 'xml';
+			alert(xslName + ' not found.');
 		}
 	}
 
@@ -207,10 +237,23 @@ try {
 		var newfile = docfile.replace(/\.[^\.]+$/, '.' + fileFormat);
 
 		warn('Open "' + docfile + '"');
-		word.Documents.Open(docfile);
+		var doc = word.Documents.Open(docfile);
+
+		if ( fileFormat == 'fb2' ) {
+			doc.XMLSaveDataOnly = false;
+			doc.XMLUseXSLTWhenSaving = true;
+			doc.XMLSaveThroughXSLT = '' + xslFile;
+			doc.XMLHideNamespaces = true;
+			doc.XMLShowAdvancedErrors = true;
+			doc.XMLSchemaReferences.HideValidationErrors = false;
+			doc.XMLSchemaReferences.AutomaticValidation = true;
+			doc.XMLSchemaReferences.IgnoreMixedContent = false;
+			doc.XMLSchemaReferences.AllowSaveAsXMLWithoutValidation = true;
+			doc.XMLSchemaReferences.ShowPlaceholderText = false;
+		}
 
 		warn('Save as "' + newfile + '"');
-		word.activeDocument.SaveAs(
+		doc.SaveAs(
 			// FileName
 			newfile, 
 			// FileFormat
@@ -243,7 +286,7 @@ try {
 			fileLineEnding);
 
 		warn('Close this document');
-		word.ActiveDocument.Close();
+		doc.Close();
 	});
 
 } catch (e) {
