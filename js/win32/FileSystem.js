@@ -503,7 +503,7 @@ FileSystem.glob = function(pattern, foldersOnly)
 		.replace(/\?/g, '.')
 		.replace(/\*/g, '.*?');
 
-	regexp.compile('\\\\' + regsrc + '$');
+	regexp.compile('\\\\' + regsrc + '$', 'i');
 
 	var folderspec = matches[1];
 	var collection = foldersOnly ? 'SubFolders' : 'Files';
