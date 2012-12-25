@@ -72,14 +72,14 @@ The string to glue the set of arguments when output them
 	var reFormat = /\{(\d+)\}/g;
 
 	// Checks that the object is a formatting string
-	var isFormat = function(object)
+	var $isFormat = function(object)
 	{
 		return reFormat.test(object);
 		//return typeof object == 'string' && object.match(reFormat);
 	};
 
 	// The simplest formatting function immitating java-like format
-	var format = function(pattern, objects)
+	var $format = function(pattern, objects)
 	{
 		return pattern.replace(reFormat, function($0, $1)
 		{
@@ -88,13 +88,13 @@ The string to glue the set of arguments when output them
 	};
 
 	// Details for the complex object
-	var inspect = function(object)
+	var $inspect = function(object)
 	{
 		return object;
 	};
 
 	// The printing function
-	var print = function(msgType, msg)
+	var $print = function(msgType, msg)
 	{
 		WScript.Echo(msg);
 	};
@@ -221,10 +221,10 @@ The string to glue the set of arguments when output them
 
 		// Customizing of the console
 		$: {
-			isFormat: isFormat, 
-			format: format, 
-			inspect: inspect, 
-			print: print, 
+			isFormat: $isFormat, 
+			format: $format, 
+			inspect: $inspect, 
+			print: $print, 
 			separator: ' '
 		}
 	};
