@@ -1,4 +1,4 @@
-#labels Featured
+#labels Deprecated
 _
 This page tells about wscmd, Windows Scripting Command Interpreter. The very fresh version of the script can be downloaded from [http://code.google.com/p/jsxt/source/browse/trunk/wscmd.bat this page]. 
 _
