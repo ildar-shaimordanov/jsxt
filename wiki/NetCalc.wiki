@@ -41,6 +41,3 @@ The tool is open and free for use.
 The working test version is available by the link - [http://jsxt.googlecode.com/svn/trunk/NetCalc.hta NetCalc.hta]. The standalone version can be downloaded from the [http://code.google.com/p/jsxt/downloads/list Downloads].
 
 Comments and requests for fixing of bugs and making it better are welcome. 
-
-<wiki:gadget url="http://www.ru" height="200" border="0" /> 
-<iframe src="http://spreadsheets.google.com/embeddedform?key=pcei2KUN61t4vbuSjTGjzNw" width="310" height="566" frameborder="0" marginheight="0" marginwidth="0">Loading...</iframe>
