@@ -1,6 +1,6 @@
 #labels Featured
 _
-Network Calculator is a tool for calculating of IP addresses of the subnet with subnet masks, bitmasks, a broadcast IP address, a network IP address, an amount of IP addresses in a subnet. It shows an amount of IP adresses within a subnet, a direct and inverse mask of a subnet. 
+Network Calculator is a tool for calculating of IP addresses of subnets.
 _
 
 <wiki:toc max_depth="5" />
