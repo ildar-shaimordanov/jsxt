@@ -28,7 +28,7 @@ The main window consists of three logical parts.
 
 == Address ==
 
-`Address` is the area establishing details of the entered IP address: the address itself, subnet mask (in the direct and inverse form), the bitmask. 
+`Address` is the area displaying details of the entered IP address: the address itself, subnet mask (in the direct and inverse form), the bitmask. 
 
 == Network ==
 
