@@ -1,6 +1,6 @@
 //
 // console.js
-// Imitation of the Firebug console in Windows Scripting Host
+// Imitation of the Firebug console in the Windows Scripting Host console
 //
 // Copyright (c) 2012 by Ildar Shaimordanov
 //
