@@ -20,7 +20,9 @@ Even though it was developed as a simple hyper-text application for Windows (HTA
 
 Simply change the extension from `.hta` to `.htm` or `.html` and try to open it in a borwser. 
 
-The main window consists of three logical parts.
+The main window consists of three logical parts. Let's consider them further. 
+
+http://jsxt.googlecode.com/svn/wiki/NetCalc.jpg
 
 == Request == 
 
