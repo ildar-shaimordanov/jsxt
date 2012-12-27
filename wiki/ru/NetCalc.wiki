@@ -1,44 +1,44 @@
-_
-Network Calculator is a tool for calculating of IP addresses of subnets.
+﻿_
+Network Calculator утилита для расчета IP адресов подсетей.
 _
 
 <wiki:toc max_depth="5" />
 
-= Introduction =
+= Введение =
 
-This tool was designed to calculate different parts of networks. Entering an IP address and a possible subnet mask you will see immediately all parameters for the defined subnet:
-  * the network address
-  * the broadcast address
-  * the first and the last addresses of the subnet
-  * the number of available addresses
-  * the same values in different radices
+Эта программа была разработана чтобы расчитывать различные элементы сети. Введя IP адрес и допустимую маску подсети, вы можете сразу получить все параметры для определенной подсети: 
+  * сетевой адрес
+  * широковещательный адрес
+  * первый и последний адреса подсети
+  * количество доступных адресов
+  * теже самые значения в других системах счисления
 
-= Details =
+= Детали =
 
-Even though it was developed as a simple hyper-text application for Windows (HTA) there are no limits to open it as a simple HTML page under Firefox within another opersting system because the tool was successfully tested under Firefox within Windows. 
+Хотя программа была разработана как простое гипертекстовое приложение для Windows (HTA), это не является ограничением, чтобы открыть его как обычную HTML страницу в Firefox под любой другой операционной системой, потому что приложение было успешно протестировано под Firefox/Windows. 
 
-Simply change the extension from `.hta` to `.htm` or `.html` and try to open it in a borwser. 
+Просто измените расширение `.hta` на `.htm` или `.html` и попробуйте открыть в своем браузере. 
 
-The main window consists of three logical parts. Let's consider all parts separately. 
+Главно окно программы состоит из трех логических частей. Рассмотрим из каждую. 
 
 http://jsxt.googlecode.com/svn/wiki/NetCalc.jpg
 
 == Request == 
 
-`Request` is the area where a user can enter information. 
+`Request` область ввода информации. 
 
 == Address ==
 
-`Address` is the area displaying details of the entered IP address: the address itself, subnet mask (in the direct and inverse form), the bitmask. 
+`Address` область вывода деталей введенной информации: сам адрес, маска подсети (инверсная в том числе), битовая маска. 
 
 == Network ==
 
-`Network` is the area displaying the network address, the broadcast address, the first and the last available addresses, the number of available addresses (each available address from the interval, where the first and the last are shown here)
+`Network` область отображения сетевого, широковещательного, первого и последнего адресов, количество доступных адресов (каждый доступный адрес подсети из интервала, первый и последний адреса которого показаны здесь же)
 
-= Summary =
+= Заключение =
 
-The tool is open and free for use. 
+Приложение распространяется с открытым кодом и свободно для использования. 
 
-The working test version is available by the link - [http://jsxt.googlecode.com/svn/trunk/NetCalc.hta NetCalc.hta]. The standalone version can be downloaded from the [http://code.google.com/p/jsxt/downloads/list Downloads].
+Рабочая тестовая версия доступна по адресу - [http://jsxt.googlecode.com/svn/trunk/NetCalc.hta NetCalc.hta]. Самостоятельная версия доступна на странице [http://code.google.com/p/jsxt/downloads/list Downloads].
 
-Comments and requests for fixing of bugs and making it better are welcome. 
+Комментарии и преложения по исправлению или улучшению приветствуются. 

@@ -1,3 +1,2 @@
 
-In progress. 
 See http://code.google.com/p/jsxt/wiki/wscmd?wl=en
