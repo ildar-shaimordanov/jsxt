@@ -22,7 +22,7 @@ Let's consider this tool closer. Its name is Windows Scripting Command Interpret
 
 = Help =
 
-First of all it has the displayable help:
+First of all it has the detailed help:
 
 {{{
 wscmd /h
