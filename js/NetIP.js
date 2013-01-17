@@ -67,6 +67,20 @@ function NetIP()
  * @var
  * @access	private
  */
+/*
+NetIP.netmaskMap = (function()
+{
+	var j = 0x80000000;
+	var m = [0, j];
+
+	while ( j != -1 ) {
+		j |= (j >> 1);
+		m.push(0x100000000 + j);
+	}
+
+	return m;
+})();
+*/
 NetIP.netmaskMap = [
 	0x00000000,
 
