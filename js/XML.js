@@ -23,10 +23,11 @@ XML.create = function(root, namespace)
 	}
 
 	var IDs = [
-		'Msxml2.DOMDocument.6.0', 
-		'Msxml2.DOMDocument.5.0', 
-		'Msxml2.DOMDocument.4.0', 
+//		'Msxml2.DOMDocument.6.0', 
+//		'Msxml2.DOMDocument.5.0', 
+//		'Msxml2.DOMDocument.4.0', 
 		'Msxml2.DOMDocument.3.0', 
+		'Msxml2.DOMDocument', 
 		'Microsoft.XMLDOM'];
 
 	var xmldoc;
@@ -123,6 +124,50 @@ XML.loadXML = function(text)
 	return request.responseXML;
 };
 
+XML.transform = function(xml, xslt)
+{
+	return xml.transformNode(xslt);
+};
+
+if ( 'undefined' != typeof ActiveXObject ) {
+// IE, WSH
+
+XML.selectionW3CCompat = false;
+
+XML.selectNodes = function(xml, path)
+{
+	// IE5+ has implemented that [0] should be the first node, 
+	// but according to the W3C standard it should have been [1]!!
+	// See "Select the title of the first book" at
+	// http://www.w3schools.com/xpath/xpath_examples.asp
+	XML.selectionW3CCompat && xml.setProperty('SelectionLanguage', 'XPath');
+	return xml.selectNodes(path);
+};
+
+XML.selectSingleNode = function(xml, path)
+{
+	return xml.selectSingleNode(path);
+};
+
+} else if ( 'undefined' != typeof document && document.implementation && document.implementation.createDocument ) {
+// Gecko
+
+XML.selectNodes = function(xml, path)
+{
+	return xml.evaluate(path, xml, null, XPathResult.ANY_TYPE, null);
+};
+
+XML.selectSingleNode = function(xml, path)
+{
+	return xml.evaluate(path, xml, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+};
+
+} else {
+
+// Extremely impossible case
+
+}
+
 if ( 'undefined' != typeof Node && Node.prototype ) {
 
 Node.prototype.loadXML = function(text)
@@ -175,4 +220,3 @@ Node.prototype.transformNode = function (oXslDom)
 };
 
 }
-
