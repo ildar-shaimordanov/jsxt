@@ -2,7 +2,7 @@
 // JavaScript unit
 // Add-on for the object manipulation
 //
-// Copyright (c) 2009-2012 by Ildar Shaimordanov
+// Copyright (c) 2009-2013 by Ildar Shaimordanov
 //
 
 /**
@@ -44,7 +44,7 @@ Object.isBoolean = function(value)
 
 /**
  * Evaluates the value as Empty
- * The empty value is as follow:
+ * The empty value is following:
  * - Undefined
  * - Null
  * - Boolean == false
@@ -203,6 +203,91 @@ Object.forIn = function(object, fun, func, thisp)
 	}
 };
 
+if ( typeof Object.getPrototypeOf != 'function' ) {
+
+/**
+ * Returns the prototype (i.e. the internal [[Prototype]]) of 
+ * the specified object.
+ *
+ * @param	The object whose prototype is to be returned.
+ * @return	A prototype of the specified object
+ * @access	public
+ * @link	http://ejohn.org/blog/objectgetprototypeof/
+ */
+if ( typeof 'test'.__proto__ == 'object' ) {
+
+Object.getPrototypeOf = function(object)
+{
+	return object.__proto__;
+};
+
+} else {
+
+Object.getPrototypeOf = function(object)
+{
+	return object.constructor.prototype;
+};
+
+}
+
+}
+
+if ( ! Object.keys ) {
+
+/**
+ * Returns an array whose elements are strings corresponding 
+ * to the enumerable properties found directly upon object. 
+ *
+ * @param	Boolean
+ * @access	public
+ * @link	https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object/keys
+ */
+
+(function ()
+{
+	var hasOwnProperty = Object.prototype.hasOwnProperty;
+	var hasDontEnumBug = ! ({toString: null}).propertyIsEnumerable('toString');
+	var dontEnums = [
+		'toString',
+		'toLocaleString',
+		'valueOf',
+		'hasOwnProperty',
+		'isPrototypeOf',
+		'propertyIsEnumerable',
+		'constructor'
+	];
+	var dontEnumsLength = dontEnums.length;
+
+	Object.keys = function(obj)
+	{
+		if ( typeof obj !== 'object' && typeof obj !== 'function' || obj === null ) {
+			throw new TypeError('Object.keys called on non-object');
+		}
+
+		var result = [];
+
+		for (var prop in obj) {
+			if ( ! hasOwnProperty.call(obj, prop) ) {
+				continue;
+			}
+			result.push(prop);
+		}
+
+		if ( hasDontEnumBug ) {
+			for (var i = 0; i < dontEnumsLength; i++) {
+				if ( ! hasOwnProperty.call(obj, dontEnums[i]) ) {
+					continue;
+				}
+				result.push(dontEnums[i]);
+			}
+		}
+
+		return result;
+	};
+})();
+
+}
+
 if ( ! Object.create ) {
 
 /**
@@ -231,49 +316,124 @@ Object.create = function(proto)
 
 }
 
-if ( ! Object.keys ) {
-
-/**
- * Populates and returns array of the object's keys
- * skipFunction=true tells to exclude methods from the result.
- * By default, all properties are iterated (including methods too). 
- *
- * The second arguments provides options affecting on the result. 
- * Options are:
- * -- func
- * Boolean value controls the visibility of functions. The default value is 0. 
- * (0 - no functions, 1 - walk through functions)
- * -- proto
- * Boolean value controls the visibility properties from the prototype of the oject. 
- * The default value is false. (0 - no properties from prototype, 1 - walk through prototype properties) 
- *
- * @note	This implementation differs on the MDN version. Se the link below.
- *
- * @param	Boolean
- * @return	Array
- * @access	public
- * @link	https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object/keys
- */
-Object.keys = function(object)
+Object.mixin = function(dst, src)
 {
-	var options = arguments[1] || {};
-
-	var result = [];
-
-	for (var p in object) {
-		if ( ! object.hasOwnProperty(p) && ! options.proto ) {
+	var props = Object.keys(src);
+	for (var i = 0; i < props.length; i++) {
+		var prop = props[i];
+		if ( ! src.hasOwnProperty(prop) ) {
 			continue;
 		}
-		if ( ! options.func && 'function' == typeof object[p] ) {
-			continue;
-		}
-		result.push(p);
+		dst[prop] = src[prop];
 	}
-
-	return result;
+	return dst;
 };
 
-}
+/*
+
+// Point is a base class, a parent of all other classes
+var Point = Object.extend(Object, {
+	constructor: function(x, y)
+	{
+		this.x = x;
+		this.y = y;
+	}, 
+	iam: function()
+	{
+		return 'point';
+	}, 
+	at: function()
+	{
+		return '[x,y]=' + [this.x, this.y];
+	}, 
+	draw: function()
+	{
+		alert(this);
+	}, 
+	toString: function()
+	{
+		return this.iam() + ':\t' + this.at();
+	}
+});
+
+// Circle is a new class inherited from the Point class
+var Circle = Object.extend(Point, {
+	constructor: function(x, y, r)
+	{
+		Circle.superclass.constructor.call(this, x, y);
+		this.r = r;
+	}, 
+	iam: function()
+	{
+		return 'circle';
+	}, 
+	at: function()
+	{
+		return Circle.superclass.at.apply(this) + ', r=' + this.r;
+	}
+});
+
+// Rectangle is another class inherited from the Point class
+var Rectangle = Object.extend(Point, {
+	constructor: function(x, y, w, h)
+	{
+		Rectangle.superclass.constructor.call(this, x, y);
+		this.w = w;
+		this.h = h;
+	}, 
+	iam: function()
+	{
+		return 'rect';
+	}, 
+	at: function()
+	{
+		return Rectangle.superclass.at.apply(this) + ', [w,h]=' + [this.w, this.h];
+	}
+});
+
+// Square is the class inherited from the Rectangle class
+var Square = Object.extend(Rectangle, {
+	constructor: function(x, y, s)
+	{
+		Square.superclass.constructor.call(this, x, y, s, s);
+	}, 
+	iam: function()
+	{
+		return 'square';
+	}
+});
+
+// Instances of the each class
+var c = new Point(1, 1);
+c.draw();
+
+var c = new Circle(0, 0, 1);
+c.draw();
+
+var c = new Rectangle(0, 0, 1, 2);
+c.draw();
+
+var c = new Square(0, 0, 1);
+c.draw();
+
+*/
+Object.extend = function(parent, proto)
+{
+	proto = proto || {};
+
+	var child = proto.hasOwnProperty('constructor') 
+		? proto.constructor 
+		: function() { parent.apply(this, arguments); };
+
+//	var F = function() {};
+//	F.prototype = parent.prototype;
+//	child.prototype = Object.mixin(new F(), proto);
+	child.prototype = Object.mixin(Object.create(parent.prototype), proto);
+
+	child.superclass = parent.prototype;
+	child.prototype.constructor = child;
+	return child;
+};
 
 /**
  * Creating a copy of an object with fully replicated properties. 
@@ -467,16 +627,15 @@ Object.dump = function(object, options)
 
 	options = options || {};
 
-	var t = Object.prototype.toString.call(options.space);
-	if ( t == '[object Number]' && options.space >= 0 ) {
-		space = new Array(options.space + 1).join(' ');
-	} else if ( t == '[object String]' ) {
-		space = options.space;
-	} else {
-		space = $.space || '    ';
+	space = options.space || $.space;
+	var t = Object.prototype.toString.call(space);
+	if ( t == '[object Number]' && space >= 0 ) {
+		space = new Array(space + 1).join(' ');
+	} else if ( t != '[object String]' ) {
+		space = '    ';
 	}
 
-	deep = Number(options.deep) > 0 ? options.deep : $.deep > 0 ? $.deep : 5;
+	deep = Number(options.deep) > 0 ? options.deep : Number($.deep) > 0 ? $.deep : 5;
 
 	proto = options.proto || $.proto || 0;
 	func = options.func || $.func || 0;
