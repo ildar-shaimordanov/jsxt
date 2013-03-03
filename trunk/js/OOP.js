@@ -1,6 +1,9 @@
 //
 // JScript and JavaScript unit
+//
 // This module provides methods for the classical OOP
+// This module is experimental
+// This module requires Object.js module
 //
 // Classical OOP implementation
 // http://javascript.ru/forum/66098-post2.html
@@ -9,260 +12,102 @@
 // http://javascript.ru/forum/90496-post55.html
 //
 
-
 /*
 
-// Point is the base class, the parent of all other classes
-var Point = Object.inherit({
-	constructor: function(x, y)
-	{
-		this.x = x;
-		this.y = y;
-	}, 
-	isa: function()
-	{
-		return 'point';
-	}, 
-	draw: function()
-	{
-		alert(this.isa());
-		alert('[x,y]=' + [this.x, this.y]);
-	}
+// Allow extended OOP
+Object.extend.more();
+
+// Implement IDrawable interface
+var IDrawable = Object.extend(Interface, {
+	draw: Abstract
 });
 
-// Circle is the new class inherited from the Point class
-var Circle = Point.inherit({
-	constructor: function(x, y, r)
-	{
-		Circle.superclass.constructor.call(this, x, y);
-		this.r = r;
-	}, 
-	isa: function()
-	{
-		return 'circle';
-	}, 
-	draw: function()
-	{
-		Circle.superclass.draw.apply(this, arguments);
-		alert('r=' + this.r);
-	}
+// Implement IMovable interface
+var IMovable = Object.extend(Interface, {
+	move: Abstract
 });
 
-// Rectangle is another class inherited from the Point class
-var Rectangle = Point.inherit({
-	constructor: function(x, y, w, h)
-	{
-		Rectangle.superclass.constructor.call(this, x, y);
-		this.w = w;
-		this.h = h;
-	}, 
-	isa: function()
-	{
-		return 'rectangle';
-	}, 
-	draw: function()
-	{
-		Rectangle.superclass.draw.apply(this, arguments);
-		alert('w=' + this.w);
-		alert('h=' + this.h);
-	}
+// Implement IResizable interface
+var IResizable = Object.extend(Interface, {
+	resize: Abstract
 });
 
-// Square is the class inherited from the Rectangle class
-var Square = Rectangle.inherit({
-	constructor: function(x, y, s)
-	{
-		Square.superclass.constructor.call(this, x, y, s, s);
-	}, 
-	isa: function()
-	{
-		return 'square';
-	}
+// Implement Window abstract with 
+// the interfaces IDrawable, IMovable, IResizable
+var Window = Object.extend(Abstract, {
+}, 
+IDrawable, IMovable, IResizable);
+
+// Implement IModal interface
+var IModal = Object.extend(Interface, {
+	validate: Abstract
 });
 
-// Instances of the each class
-var c = new Point(1, 1);
-c.draw();
-
-var c = new Circle(0, 0, 1);
-c.draw();
-
-var c = new Rectangle(0, 0, 1, 2);
-c.draw();
-
-var c = new Square(0, 0, 1);
-c.draw();
+// Inherit Dialog abstract class from Window with 
+// the additional interface IModal
+var Dialog = Object.extend(Window, {
+}, 
+IModal);
 
 */
 
-
-if ( ! Object.create ) {
-
-/**
- * Creates a new object with the specified prototype object and properties. 
- * 
- * This polyfill covers the main use case which is creating a new object 
- * for which the prototype has been chosen but doesn't take the second 
- * argument into account.
- *
- * @param	The object which should be the prototype of the newly-created object.
- * @return	A new object
- * @access	public
- * @link	https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object/create
- */
-Object.create = function(proto)
+(function(Object_extend, that)
 {
-	if ( arguments.length > 1 ) {
-		throw new Error('Object.create implementation only accepts the first parameter.');
-	}
 
-	function F() {};
-	F.prototype = proto;
+var _more = function()
+{
+	Interface = Object.extend(Function, {
+		constructor: function()
+		{
+			throw new Error('Object cannot be instantiated from an interface');
+		}
+	});
 
-	return new F();
+	Abstract = Object.extend(Object, {
+		constructor: function()
+		{
+			// new Abstract()
+			if ( this instanceof Abstract && this.constructor == Abstract ) {
+				throw new Error('Object cannot be instantiated from an abstract class');
+			}
+
+			// var Child = Object.extend(Parent, { method: Abstract })
+			// Child.method();
+			if ( this instanceof Abstract ) {
+				Abstract.abstractMethod();
+			}
+
+			// var Child = Object.extend(Parent, { method: Abstract() })
+			return Abstract.abstractMethod;
+		}
+	});
+
+	Abstract.abstractMethod = function()
+	{
+		throw new Error('Abstract method should be overridden');
+	};
 };
 
-}
-
-Object.mixin = function(dst, src)
+var _mixin = function(dst, src)
 {
-	for (var prop in src) {
-		if ( ! src.hasOwnProperty(prop) ) {
+	var props = Object.keys(src);
+	for (var i = 0; i < props.length; i++) {
+		var p = props[i];
+		if ( ! src.hasOwnProperty(p) ) {
 			continue;
 		}
-		dst[prop] = src[prop];
+		if ( typeof src[p] == 'function' && typeof dst[p] != 'function' ) {
+			dst[p] = src[p];
+		}
 	}
 	return dst;
 };
 
-Function.prototype.inherit = function(proto)
+var _check = function(dst, src)
 {
-	var that = this;
-	proto = proto || {};
-
-	var constructor = proto.hasOwnProperty('constructor') ? proto.constructor : function() { that.apply(this, arguments); };
-
-//	var F = function() {};
-//	F.prototype = this.prototype;
-//	constructor.prototype = Object.mixin(new F(), proto);
-	constructor.prototype = Object.mixin(Object.create(this.prototype), proto);
-
-	constructor.superclass = this.prototype;
-	constructor.prototype.constructor = constructor;
-	return constructor;
-};
-
-
-/*
-
-// Interfaces
-var IMovable = Interface.extend({
-	move: Abstract()
-});
-
-var IDrawable = Interface.extend({
-	draw: Abstract()
-});
-
-var IResizable = Interface.extend({
-	resize: Abstract()
-});
-
-// Abstract class for all plain figures
-var Figure = Abstract.extend({
-	constructor: function(name, x, y)
-	{
-		this.name = name;
-		this.move(x, y);
-	}, 
-	iam: function()
-	{
-		return this.name;
-	}, 
-	position: function()
-	{
-		return '[' + this.x + ',' + this.y + ']';
-	}, 
-	move: function(x, y)
-	{
-		this.x = x || 0;
-		this.y = y || 0;
-	}, 
-	draw: function()
-	{
-		alert(this.iam() + ': ' + this.position());
-	}, 
-	resize: function()
-	{
-	}
-}, IMovable, IDrawable, IResizable);
-
-var Point = Figure.extend({
-	constructor: function(x, y)
-	{
-		Point.superclass.constructor.call(this, 'point', x, y);
-	}
-});
-
-var Circle = Figure.extend({
-	constructor: function(x, y, r)
-	{
-		Circle.superclass.constructor.call(this, 'circle', x, y);
-		this.resize(r);
-	}, 
-	position: function()
-	{
-		return Circle.superclass.position.call(this) + ', r=' + this.r;
-	}, 
-	resize: function(r)
-	{
-		this.r = r || 1;
-	}
-});
-
-var Rectangle = Figure.extend({
-	constructor: function(x, y, w, h)
-	{
-		Point.superclass.constructor.call(this, 'rectangle', x, y);
-		this.resize(w, h);
-	}, 
-	position: function()
-	{
-		return Circle.superclass.position.call(this) + ', [w,h]=' + this.w + ', ' + this.h + ']';;
-	}, 
-	resize: function(w, h)
-	{
-		this.w = w || 1;
-		this.h = h || 1;
-	}
-});
-
-var Square = Rectangle.extend({
-	constructor: function(x, y, s)
-	{
-		Square.superclass.constructor.call(this, x, y, s, s);
-	}
-});
-
-// Instances of the each class
-var c = new Point(1, 1);
-c.draw();
-
-var c = new Circle(0, 0, 1);
-c.draw();
-
-var c = new Rectangle(0, 0, 1, 2);
-c.draw();
-
-var c = new Square(0, 0, 1);
-c.draw();
-
-*/
-
-
-Object.checkMethods = function(dst, src)
-{
-	for (var p in src) {
+	var props = Object.keys(src);
+	for (var i = 0; i < props.length; i++) {
+		var p = props[i];
 		if ( ! src.hasOwnProperty(p) ) {
 			continue;
 		}
@@ -274,73 +119,53 @@ Object.checkMethods = function(dst, src)
 	return dst;
 };
 
-Function.prototype.extend = function(proto)
+var _extend = function(parent, proto)
 {
-	var that = this;
-	proto = proto || {};
-
 	// Forbid a constructor for inherited interfaces
-	var isInterface = typeof Interface == 'function' && ( this.prototype instanceof Interface || this == Interface );
+	var isInterface = parent.prototype instanceof Interface || parent === Interface;
 	if ( isInterface && proto.hasOwnProperty('constructor') ) {
 		throw new Error('Interface can not implement the constructor');
 	}
+
 	// Override the constructor inherited from abstract classes
-	var isAbstract = typeof Abstract == 'function' && ( this.prototype instanceof Abstract || this == Abstract );
-	if ( isAbstract && ! proto.hasOwnProperty('constructor') ) {
+	var isAbstract = parent.prototype instanceof Abstract || parent === Abstract;
+//	var isAbstract = parent === Abstract;
+	if ( isAbstract && ! proto.hasOwnProperty('constructor' ) ) {
 		proto.constructor = function() {};
 	}
 
-	var constructor = proto.hasOwnProperty('constructor') ? proto.constructor : function() { that.apply(this, arguments); };
-	var F = function() {};
-	F.prototype = this.prototype;
+	// Inherit proeprties of the parent into the child
+	var child = Object_extend(parent, proto);
 
-	//constructor.prototype = Object.mixin(new F(), proto);
+	// In the case of inherited from Abstract -- append non-existent properties into child
+	// In the case of inherited from Interface -- append all properties from interfaces
+	// Otherwise check for missing methods inherited from interfaces
+	var what = isInterface 
+		? Object.mixin 
+		: isAbstract 
+		? _mixin 
+		: _check;
 
-	var dst = Object.mixin(new F(), proto);
-	var what = isInterface ? 'mixin' : 'checkMethods';
-	for (var i = 1; i < arguments.length; i++) {
-		if ( ! arguments[i] ) {
+	for (var i = 2; i < arguments.length; i++) {
+		var iface = arguments[i];
+		if ( ! iface ) {
 			continue;
 		}
-		var src = arguments[i].prototype;
-		dst = Object[what](dst, src);
-		if ( ! dst ) {
-			throw new Error('Method is not implemented');
+		child.prototype = what(child.prototype, iface.prototype);
+		if ( ! child.prototype ) {
+			throw new Error('Method is not implemented: ' + what.missing);
 		}
 	}
-	constructor.prototype = dst;
 
-	constructor.superclass = this.prototype;
-	constructor.prototype.constructor = constructor;
-	return constructor;
+	return child;
 };
 
-var Interface = Object.extend({
-	constructor: function()
-	{
-		throw new Error('Object can not be instantiated from an interface');
-	}
-});
 
-var Abstract = Object.extend({
-	constructor: function()
-	{
-		// new Abstract()
-		if ( this instanceof Abstract && this.constructor == Abstract ) {
-			throw new Error('Object can not be instantiated from an abstract class');
-		}
+Object.extend.more = function()
+{
+	_more();
+	Object.extend = _extend;
+};
 
-		var abstractMethod = 'Abstract method should be overridden';
-
-		// Abstract.inherit({ method: Abstract })
-		if ( this instanceof Abstract ) {
-			throw new Error(abstractMethod);
-		}
-		// Abstract.inherit({ method: Abstract() })
-		return function()
-		{
-			throw new Error(abstractMethod);
-		};
-	}
-});
+})(Object.extend, this);
 
