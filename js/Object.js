@@ -456,6 +456,11 @@ Object.clone = function(object)
 		return object.clone();
 	}
 
+	// Handle Date object
+	if ( object instanceof Date ) {
+		return new Date(object.getDate());
+	}
+
 	// Try cloning safely as much possible
 	var clone = new object.constructor();
 	for (var p in object) {
