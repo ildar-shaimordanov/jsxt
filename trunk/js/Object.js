@@ -446,16 +446,24 @@ Object.extend = function(parent, proto)
  */
 Object.clone = function(object)
 {
-	if ( ! object || typeof(object) != "object" ) {
+	// Simple properties and NULL are copied as is
+	if ( ! object || typeof object != 'object' ) {
 		return object;
 	}
-	var newObject = new object.constructor();
-	for (var p in object) {
-		newObject[p] = object[p] === object 
-			? newObject 
-			: arguments.callee(object[p], 1);
+
+	// Check if the object is self-clonable
+	if ( typeof object.clone == 'function' ) {
+		return object.clone();
 	}
-	return newObject;
+
+	// Try cloning safely as much possible
+	var clone = new object.constructor();
+	for (var p in object) {
+		clone[p] = object[p] === object 
+			? clone 
+			: arguments.callee(object[p]);
+	}
+	return clone;
 };
 
 (function()
