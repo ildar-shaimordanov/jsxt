@@ -51,7 +51,7 @@ IModal);
 
 */
 
-(function(Object_extend, that)
+(function(Object_extend, Object_mixin, that)
 {
 
 var _more = function()
@@ -63,7 +63,7 @@ var _more = function()
 		}
 	});
 
-	Abstract = Object.extend(Object, {
+	Abstract = Object.extend(Function, {
 		constructor: function()
 		{
 			// new Abstract()
@@ -88,22 +88,26 @@ var _more = function()
 	};
 };
 
-var _mixin = function(dst, src)
+var _copyAll = function(dst, src, p)
 {
-	var props = Object.keys(src);
-	for (var i = 0; i < props.length; i++) {
-		var p = props[i];
-		if ( ! src.hasOwnProperty(p) ) {
-			continue;
-		}
-		if ( typeof src[p] == 'function' && typeof dst[p] != 'function' ) {
-			dst[p] = src[p];
-		}
-	}
-	return dst;
+	dst[p] = src[p];
 };
 
-var _check = function(dst, src)
+var _copyFunc = function(dst, src, p)
+{
+	if ( typeof src[p] == 'function' && typeof dst[p] != 'function' ) {
+		dst[p] = src[p];
+	}
+};
+
+var _check = function(dst, src, p)
+{
+	if ( typeof src[p] == 'function' && typeof dst[p] != 'function' ) {
+		throw new Error('Method is not implemented: ' + p);
+	}
+};
+
+var _mixin = function(dst, src, copy)
 {
 	var props = Object.keys(src);
 	for (var i = 0; i < props.length; i++) {
@@ -111,10 +115,7 @@ var _check = function(dst, src)
 		if ( ! src.hasOwnProperty(p) ) {
 			continue;
 		}
-		if ( typeof src[p] == 'function' && typeof dst[p] != 'function' ) {
-			arguments.callee.missing = p;
-			return false;
-		}
+		copy(dst, src, p);
 	}
 	return dst;
 };
@@ -123,6 +124,7 @@ var _extend = function(parent, proto)
 {
 	// Forbid a constructor for inherited interfaces
 	var isInterface = parent.prototype instanceof Interface || parent === Interface;
+//	var isInterface = parent === Interface;
 	if ( isInterface && proto.hasOwnProperty('constructor') ) {
 		throw new Error('Interface can not implement the constructor');
 	}
@@ -137,13 +139,13 @@ var _extend = function(parent, proto)
 	// Inherit proeprties of the parent into the child
 	var child = Object_extend(parent, proto);
 
-	// In the case of inherited from Abstract -- append non-existent properties into child
 	// In the case of inherited from Interface -- append all properties from interfaces
+	// In the case of inherited from Abstract -- append non-existent properties into child
 	// Otherwise check for missing methods inherited from interfaces
 	var what = isInterface 
-		? Object.mixin 
+		? _copyAll 
 		: isAbstract 
-		? _mixin 
+		? _copyFunc 
 		: _check;
 
 	for (var i = 2; i < arguments.length; i++) {
@@ -151,10 +153,7 @@ var _extend = function(parent, proto)
 		if ( ! iface ) {
 			continue;
 		}
-		child.prototype = what(child.prototype, iface.prototype);
-		if ( ! child.prototype ) {
-			throw new Error('Method is not implemented: ' + what.missing);
-		}
+		child.prototype = _mixin(child.prototype, iface.prototype, what);
 	}
 
 	return child;
@@ -167,5 +166,4 @@ Object.extend.more = function()
 	Object.extend = _extend;
 };
 
-})(Object.extend, this);
-
+})(Object.extend, Object.mixin, this);
