@@ -461,6 +461,11 @@ Object.clone = function(object)
 		return new Date(object.getDate());
 	}
 
+	// Handle RegExp object
+	if ( object instanceof RegExp ) {
+		return eval('' + object);
+	}
+
 	// Try cloning safely as much possible
 	var clone = new object.constructor();
 	for (var p in object) {
