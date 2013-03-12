@@ -442,7 +442,7 @@ Object.extend = function(parent, proto)
  * @param	Mixed
  * @result	Mixed
  *
- * @author	Ildar Shaimordanov (the common idea of 'clonning')
+ * @author	Ildar Shaimordanov (the common idea of 'object cloning')
  */
 Object.clone = function(object)
 {
@@ -451,19 +451,32 @@ Object.clone = function(object)
 		return object;
 	}
 
-	// Check if the object is self-clonable
+	// Try as a DOM object
+	if ( object.nodeType && typeof object.cloneNode == 'function' ) {
+		return object.cloneNode(true);
+	}
+
+	// Check if the object is self-cloneable
 	if ( typeof object.clone == 'function' ) {
 		return object.clone();
 	}
 
-	// Handle Date object
-	if ( object instanceof Date ) {
-		return new Date(object.getDate());
-	}
-
-	// Handle RegExp object
+	// RegExp object?
 	if ( object instanceof RegExp ) {
 		return eval('' + object);
+	}
+
+	// Date, Boolean, Number, String?
+	var innerObjects = [Date, Boolean, Number, String];
+	for (var i = 0; i < innerObjects.length; i++) {
+		if ( object.constructor == innerObjects[i] ) {
+			return new innerObjects[i](object.valueOf())
+		}
+	}
+
+	// COM object? It isn't cloneable
+	if ( ! object.constructor || typeof ActiveXObject == 'function' && object instanceof ActiveXObject ) {
+		throw new ReferenceError();
 	}
 
 	// Try cloning safely as much possible
