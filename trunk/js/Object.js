@@ -316,20 +316,55 @@ Object.create = function(proto)
 
 }
 
-Object.mixin = function(dst, src)
+/**
+ * Combines properties of one object to a another one. 
+ * By default it implements copying of properties of the source object 
+ * to the destionation object. A function provided as the third argument 
+ * allows to implement another algorithm of combination. 
+ *
+ * @param	The destination object
+ * @param	The source object
+ * @param	The combinating function (optional)
+ * @access	public
+ * @require	Object.keys
+ */
+Object.mixin = function(dst, src, func)
 {
+	func = func || function(dst, src, prop)
+	{
+		dst[prop] = src[prop];
+	};
+
 	var props = Object.keys(src);
 	for (var i = 0; i < props.length; i++) {
 		var prop = props[i];
 		if ( ! src.hasOwnProperty(prop) ) {
 			continue;
 		}
-		dst[prop] = src[prop];
+		func(dst, src, prop);
 	}
 	return dst;
 };
 
-/*
+/**
+ * Emulates inheritance in terms of the classical OOP.
+ * The first argument refers to the parent object which is inherited. 
+ * The second argument provides properties and methods that are copied 
+ * to a derived object. 
+ *
+ * There is the simplest example:
+ * var Child = Object.extend(Parent, {});
+ *
+ * To keep access to the parent object the following things were implemented:
+ * Child.superclass
+ * The reference to the proptotype of the parent object. Literally it equals to
+ * Parent.prototype. It is accessible anywhere. 
+ *
+ * this._super
+ * The reference to the parent method. It simplifies access to the same 
+ * method from within overridden method of the derived object. It is visible 
+ * within the actual method only. 
+ *
 
 // Point is a base class, a parent of all other classes
 var Point = Object.extend(Object, {
@@ -360,7 +395,7 @@ var Point = Object.extend(Object, {
 var Circle = Object.extend(Point, {
 	constructor: function(x, y, r)
 	{
-		Circle.superclass.constructor.call(this, x, y);
+		this._super(x, y);
 		this.r = r;
 	}, 
 	iam: function()
@@ -369,7 +404,7 @@ var Circle = Object.extend(Point, {
 	}, 
 	at: function()
 	{
-		return Circle.superclass.at.apply(this) + ', r=' + this.r;
+		return this._super() + ', r=' + this.r;
 	}
 });
 
@@ -377,7 +412,7 @@ var Circle = Object.extend(Point, {
 var Rectangle = Object.extend(Point, {
 	constructor: function(x, y, w, h)
 	{
-		Rectangle.superclass.constructor.call(this, x, y);
+		this._super(x, y);
 		this.w = w;
 		this.h = h;
 	}, 
@@ -387,7 +422,7 @@ var Rectangle = Object.extend(Point, {
 	}, 
 	at: function()
 	{
-		return Rectangle.superclass.at.apply(this) + ', [w,h]=' + [this.w, this.h];
+		return this._super() + ', [w,h]=' + [this.w, this.h];
 	}
 });
 
@@ -395,7 +430,7 @@ var Rectangle = Object.extend(Point, {
 var Square = Object.extend(Rectangle, {
 	constructor: function(x, y, s)
 	{
-		Square.superclass.constructor.call(this, x, y, s, s);
+		this._super(x, y, s, s);
 	}, 
 	iam: function()
 	{
@@ -416,22 +451,53 @@ c.draw();
 var c = new Square(0, 0, 1);
 c.draw();
 
-*/
+ * @param	A parent object
+ * @param	An object providing properties and methods for the derived object
+ * @return	A new function
+ * @access	public
+ */
 Object.extend = function(parent, proto)
 {
 	proto = proto || {};
 
-	var child = proto.hasOwnProperty('constructor') 
-		? proto.constructor 
-		: function() { parent.apply(this, arguments); };
+	// Check a method for calling a parent's method as this._super()
+	// See: http://learn.javascript.ru/files/tutorial/js/class-extend.js
+	var superCall = /XXX/.test(function() { XXX }) ? /\b_super\b/ : /.*/;
 
-//	var F = function() {};
-//	F.prototype = parent.prototype;
-//	child.prototype = Object.mixin(new F(), proto);
-	child.prototype = Object.mixin(Object.create(parent.prototype), proto);
+	// Create new prototype from the parent prototype and copy methods
+	// Wrap methods that sets this._super as reference to the parent's method
+	var child_prototype = Object.create(parent.prototype);
+	Object.mixin(child_prototype, proto, function(dst, src, prop)
+	{
+		if ( typeof dst[prop] != 'function' || typeof src[prop] != 'function' || ! superCall.test(src[prop]) ) {
+			dst[prop] = src[prop];
+			return;
+		}
+		dst[prop] = function(parentMethod, method)
+		{
+			return function()
+			{
+				var _super = this._super;
+				this._super = parentMethod;
+				var result = method.apply(this, arguments);
+				this._super = _super;
+				return result;
+			};
+		}(dst[prop], src[prop]);
+	});
 
+	// if a constructor is not specified set it to the parent's one
+	child_prototype.constructor = child_prototype.constructor || function()
+	{
+		parent.apply(this, arguments);
+	};
+
+	// Make self reference to the constructor
+	var child = child_prototype.constructor;
+	child.prototype = child_prototype;
+
+	// Add the reference to the Parent's prototype
 	child.superclass = parent.prototype;
-	child.prototype.constructor = child;
 	return child;
 };
 
