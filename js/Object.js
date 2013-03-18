@@ -238,7 +238,7 @@ if ( ! Object.keys ) {
  * Returns an array whose elements are strings corresponding 
  * to the enumerable properties found directly upon object. 
  *
- * @param	Boolean
+ * @param	An object
  * @access	public
  * @link	https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object/keys
  */
@@ -455,6 +455,7 @@ c.draw();
  * @param	An object providing properties and methods for the derived object
  * @return	A new function
  * @access	public
+ * @require	Object.create, Object.mixin
  */
 Object.extend = function(parent, proto)
 {
@@ -505,8 +506,8 @@ Object.extend = function(parent, proto)
  * Creating a copy of an object with fully replicated properties. 
  * Each property of an object will be copied recursively
  *
- * @param	Mixed
- * @result	Mixed
+ * @param	An object
+ * @result	A copy of the object
  *
  * @author	Ildar Shaimordanov (the common idea of 'object cloning')
  */
