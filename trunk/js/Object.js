@@ -354,13 +354,18 @@ Object.mixin = function(dst, src, func)
  *
  * There is the simplest example:
  * var Child = Object.extend(Parent, {});
+ * var child = new Child();
  *
  * To keep access to the parent object the following things were implemented:
- * Child.superclass
- * The reference to the proptotype of the parent object. Literally it equals to
- * Parent.prototype. It is accessible anywhere. 
  *
- * this._super
+ * Child.superclass
+ * child.constructor.superclass
+ *
+ * The reference to the prototype of the parent object accessible anywhere. 
+ * Literally it equals to Parent.prototype. 
+ *
+ * this._super([arguments])
+ *
  * The reference to the parent method. It simplifies access to the same 
  * method from within overridden method of the derived object. It is visible 
  * within the actual method only. 
@@ -456,6 +461,8 @@ c.draw();
  * @return	A new function
  * @access	public
  * @require	Object.create, Object.mixin
+ * @link	http://javascript.ru/forum/66098-post2.html
+ * @link	http://javascript.ru/forum/90496-post55.html
  */
 Object.extend = function(parent, proto)
 {
