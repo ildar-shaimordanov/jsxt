@@ -304,13 +304,8 @@ if ( ! Object.create ) {
  */
 Object.create = function(proto)
 {
-	if ( arguments.length > 1 ) {
-		throw new Error('Object.create implementation only accepts the first parameter.');
-	}
-
-	function F() {};
+	var F = function() {};
 	F.prototype = proto;
-
 	return new F();
 };
 
@@ -364,12 +359,6 @@ Object.mixin = function(dst, src, func)
  * The reference to the prototype of the parent object accessible anywhere. 
  * Literally it equals to Parent.prototype. 
  *
- * this._super([arguments])
- *
- * The reference to the parent method. It simplifies access to the same 
- * method from within overridden method of the derived object. It is visible 
- * within the actual method only. 
- *
 
 // Point is a base class, a parent of all other classes
 var Point = Object.extend(Object, {
@@ -400,7 +389,7 @@ var Point = Object.extend(Object, {
 var Circle = Object.extend(Point, {
 	constructor: function(x, y, r)
 	{
-		this._super(x, y);
+		Circle.superclass.constructor.call(this, x, y);
 		this.r = r;
 	}, 
 	iam: function()
@@ -409,7 +398,7 @@ var Circle = Object.extend(Point, {
 	}, 
 	at: function()
 	{
-		return this._super() + ', r=' + this.r;
+		return Rectangle.superclass.at.call(this) + ', r=' + this.r;
 	}
 });
 
@@ -417,7 +406,7 @@ var Circle = Object.extend(Point, {
 var Rectangle = Object.extend(Point, {
 	constructor: function(x, y, w, h)
 	{
-		this._super(x, y);
+		Rectangle.superclass.constructor.call(this, x, y);
 		this.w = w;
 		this.h = h;
 	}, 
@@ -427,7 +416,7 @@ var Rectangle = Object.extend(Point, {
 	}, 
 	at: function()
 	{
-		return this._super() + ', [w,h]=' + [this.w, this.h];
+		return Rectangle.superclass.at.call(this) + ', [w,h]=' + [this.w, this.h];
 	}
 });
 
@@ -435,7 +424,7 @@ var Rectangle = Object.extend(Point, {
 var Square = Object.extend(Rectangle, {
 	constructor: function(x, y, s)
 	{
-		this._super(x, y, s, s);
+		Square.superclass.constructor.call(this, x, y, s, s);
 	}, 
 	iam: function()
 	{
@@ -463,49 +452,25 @@ c.draw();
  * @require	Object.create, Object.mixin
  * @link	http://javascript.ru/forum/66098-post2.html
  * @link	http://javascript.ru/forum/90496-post55.html
+ * @link	http://learn.javascript.ru/files/tutorial/js/class-extend.js
  */
 Object.extend = function(parent, proto)
 {
 	proto = proto || {};
 
-	// Check a method for calling a parent's method as this._super()
-	// See: http://learn.javascript.ru/files/tutorial/js/class-extend.js
-	var superCall = /XXX/.test(function() { XXX }) ? /\b_super\b/ : /.*/;
+	// Specify a constructor
+	var child = proto.hasOwnProperty('constructor') 
+		? proto.constructor 
+		: function() { parent.apply(this, arguments); };
 
-	// Create new prototype from the parent prototype and copy methods
-	// Wrap methods that sets this._super as reference to the parent's method
-	var child_prototype = Object.create(parent.prototype);
-	Object.mixin(child_prototype, proto, function(dst, src, prop)
-	{
-		if ( typeof dst[prop] != 'function' || typeof src[prop] != 'function' || ! superCall.test(src[prop]) ) {
-			dst[prop] = src[prop];
-			return;
-		}
-		dst[prop] = function(parentMethod, method)
-		{
-			return function()
-			{
-				var _super = this._super;
-				this._super = parentMethod;
-				var result = method.apply(this, arguments);
-				this._super = _super;
-				return result;
-			};
-		}(dst[prop], src[prop]);
-	});
+	// Create new prototype from the parent prototype and copy its methods
+	child.prototype = Object.mixin(Object.create(parent.prototype), proto);
 
-	// if a constructor is not specified set it to the parent's one
-	child_prototype.constructor = child_prototype.constructor || function()
-	{
-		parent.apply(this, arguments);
-	};
+	// Add a reference to the Parent's prototype
+	child.superclass = parent.prototype;
 
 	// Make self reference to the constructor
-	var child = child_prototype.constructor;
-	child.prototype = child_prototype;
-
-	// Add the reference to the Parent's prototype
-	child.superclass = parent.prototype;
+	child.prototype.constructor = child;
 	return child;
 };
 
