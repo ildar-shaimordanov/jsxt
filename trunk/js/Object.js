@@ -425,7 +425,7 @@ var Rectangle = Object.extend(Point, {
 	at: function()
 	{
 		return this._super() + ', [w,h]=' + [this.w, this.h];
-//		return Rectangle.superclass.at.call(this) + ', [w,h]=' + [this.w, this.h];
+		//return Rectangle.superclass.at.call(this) + ', [w,h]=' + [this.w, this.h];
 	}
 });
 
@@ -434,7 +434,7 @@ var Square = Object.extend(Rectangle, {
 	constructor: function(x, y, s)
 	{
 		this._super(x, y, s, s);
-//		Square.superclass.constructor.call(this, x, y, s, s);
+		//Square.superclass.constructor.call(this, x, y, s, s);
 	}, 
 	iam: function()
 	{
@@ -506,6 +506,108 @@ Object.extend = function(parent, proto)
 	child.superclass = parent.prototype;
 
 	return child;
+};
+
+/**
+ * Returns a function giving access to private data 
+ * within from members of object instances
+ *
+
+ // Closure to illuslrate maintainance with private data
+var Person = (function()
+{
+	// Getter for individual private data
+	var privates = Object.privates();
+
+	// Some prototypal function
+	function Person()
+	{
+		privates.create(this);
+	};
+
+	Person.prototype = {
+		// Setters
+		setFirstName: function(name)
+		{
+			privates(this).firstName = name;
+		}, 
+		setLastName: function(name)
+		{
+			privates(this).lastName = name;
+		}, 
+		// Getters
+		getFirstName: function()
+		{
+			return privates(this).firstName;
+		}, 
+		getLastName: function(name)
+		{
+			return privates(this).lastName;
+		}, 
+		// Stringifier
+		toString: function()
+		{
+			return this.getFirstName() + ' ' + this.getLastName();
+		}
+	};
+
+	return Person;
+})();
+
+var p = new Person();
+p.setFirstName('Joseph');
+p.setLastName('Stalin');
+
+alert(p);
+
+ *
+ * @param	string
+ * @return	function
+ * @access	public
+ * @link	http://www.crockford.com/javascript/private.html
+ * @link	http://gotochriswest.com/blog/2013/04/03/javascript-prototypes-private-data-safe-factories/
+ * @link	http://www.codeproject.com/Articles/133118/Safe-Factory-Pattern-Private-instance-state-in-Jav
+ * @link	http://www.adequatelygood.com/JavaScript-Module-Pattern-In-Depth.html
+ */
+Object.privates = function(getter)
+{
+	var getter = getter || 'privates';
+
+	// Storage for private data
+	var buffer = null;
+
+	// Calls the getter method of the specified object
+	// Returns the reference to the private container
+	function privates(object, m)
+	{
+		// Prevent unauthorized access to private data
+		if ( buffer != null ) {
+			throw new Error('Access denied');
+		}
+
+		// Get private data to a local variable
+		object[getter]();
+
+		// Get a copy, cleanup the storage and return the copy
+		var value = buffer;
+		buffer = null;
+		return value;
+	};
+
+	// Creates a container for private properties
+	// Assigns a method for the provided object 
+	// to get access to the private container
+	privates.create = function(object, value)
+	{
+		value = Object(value);
+
+		object[getter] = function()
+		{
+			buffer = value;
+		};
+	};
+
+	return privates;
 };
 
 /**
