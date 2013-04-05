@@ -578,7 +578,7 @@ Object.privates = function(getter)
 
 	// Calls the getter method of the specified object
 	// Returns the reference to the private container
-	function privates(object, m)
+	function privates(object)
 	{
 		// Prevent unauthorized access to private data
 		if ( buffer != null ) {
