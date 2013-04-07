@@ -468,6 +468,10 @@ Object.extend = function(parent, proto)
 {
 	proto = proto || {};
 
+	if ( typeof proto == 'function' ) {
+		proto = proto();
+	}
+
 	// Create new prototype from the parent prototype and copy its methods
 	// Make parental methods available via the reference "this._super"
 	var child_proto = Object.create(parent.prototype);
@@ -513,52 +517,55 @@ Object.extend = function(parent, proto)
  * within from members of object instances
  *
 
- // Closure to illuslrate maintainance with private data
-var Person = (function()
+// The "X" constructor should be declared in its scope
+(function(that)
 {
-	// Getter for individual private data
+	// Create a scope for private data
 	var privates = Object.privates();
 
-	// Some prototypal function
-	function Person()
+	// Make in visible in the global scope
+	that.X = function(x)
 	{
-		privates.create(this);
+		// Declare privates for this instance
+		privates.create(this, {
+			value: x || 'X'
+		});
 	};
 
-	Person.prototype = {
-		// Setters
-		setFirstName: function(name)
-		{
-			privates(this).firstName = name;
-		}, 
-		setLastName: function(name)
-		{
-			privates(this).lastName = name;
-		}, 
-		// Getters
-		getFirstName: function()
-		{
-			return privates(this).firstName;
-		}, 
-		getLastName: function(name)
-		{
-			return privates(this).lastName;
-		}, 
-		// Stringifier
-		toString: function()
-		{
-			return this.getFirstName() + ' ' + this.getLastName();
-		}
+	X.prototype.alert = function()
+	{
+		var p = privates(this);
+		alert(p.value);
+	};
+})(this);
+
+// The "Y" constructor should be declared in its scope
+(function(that)
+{
+	// Create a scope for private data
+	var privates = Object.privates();
+
+	// Make in visible in the global scope
+	that.Y = function(x, y)
+	{
+		// Declare privates for this instance
+		privates.create(this, {
+			value: y || 'Y'
+		});
+
+		// Emulate Y inherits X
+		X.call(this, x);
 	};
 
-	return Person;
-})();
+	Y.prototype.alert = function()
+	{
+		// Call inherited parental method
+		X.prototype.alert.apply(this);
 
-var p = new Person();
-p.setFirstName('Joseph');
-p.setLastName('Stalin');
-
-alert(p);
+		var p = privates(this);
+		alert(p.value);
+	};
+})(this);
 
  *
  * @param	string
@@ -571,39 +578,44 @@ alert(p);
  */
 Object.privates = function(getter)
 {
-	var getter = getter || 'privates';
+	getter = getter || '_private';
 
 	// Storage for private data
-	var buffer = null;
+	var buffer;
+
+	// An identifier to make a getter unique
+	var id = 0;
 
 	// Calls the getter method of the specified object
 	// Returns the reference to the private container
-	function privates(object)
+	var privates = function(object)
 	{
-		// Prevent unauthorized access to private data
-		if ( buffer != null ) {
-			throw new Error('Access denied');
-		}
-
 		// Get private data to a local variable
-		object[getter]();
+		object[getter][id]();
 
 		// Get a copy, cleanup the storage and return the copy
-		var value = buffer;
+		var data = buffer;
 		buffer = null;
-		return value;
+		return data;
 	};
 
 	// Creates a container for private properties
 	// Assigns a method for the provided object 
 	// to get access to the private container
-	privates.create = function(object, value)
+	privates.create = function(object, data)
 	{
-		value = Object(value);
+		data = Object(data);
 
-		object[getter] = function()
+		// Find a unique identifier for the instance
+		object[getter] = object[getter] || {};
+		while ( object[getter].hasOwnProperty(id) ) {
+			id = Math.random();
+		}
+
+		// Assign the private data getter
+		object[getter][id] = function()
 		{
-			buffer = value;
+			buffer = data;
 		};
 	};
 
