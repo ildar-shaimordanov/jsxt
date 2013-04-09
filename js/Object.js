@@ -183,7 +183,7 @@ Object.isUndefined = function(value)
  * @param	Callback
  * @param	Boolean
  * @return	void
- * @access	public
+ * @access	static
  * @see		http://developer.mozilla.org/en/docs/Core_JavaScript_1.5_Reference:Global_Objects:Array:forEach
  */
 Object.forIn = function(object, fun, func, thisp)
@@ -211,7 +211,7 @@ if ( typeof Object.getPrototypeOf != 'function' ) {
  *
  * @param	The object whose prototype is to be returned.
  * @return	A prototype of the specified object
- * @access	public
+ * @access	static
  * @link	http://ejohn.org/blog/objectgetprototypeof/
  */
 if ( typeof 'test'.__proto__ == 'object' ) {
@@ -239,7 +239,7 @@ if ( ! Object.keys ) {
  * to the enumerable properties found directly upon object. 
  *
  * @param	An object
- * @access	public
+ * @access	static
  * @link	https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object/keys
  */
 
@@ -299,7 +299,7 @@ if ( ! Object.create ) {
  *
  * @param	The object which should be the prototype of the newly-created object.
  * @return	A new object
- * @access	public
+ * @access	static
  * @link	https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object/create
  */
 Object.create = function(proto)
@@ -320,7 +320,7 @@ Object.create = function(proto)
  * @param	The destination object
  * @param	The source object
  * @param	The combinating function (optional)
- * @access	public
+ * @access	static
  * @require	Object.keys
  */
 Object.mixin = function(dst, src, func)
@@ -458,7 +458,7 @@ c.draw();
  * @param	A parent object
  * @param	An object providing properties and methods for the derived object
  * @return	A new function
- * @access	public
+ * @access	static
  * @require	Object.create, Object.mixin
  * @link	http://javascript.ru/forum/66098-post2.html
  * @link	http://javascript.ru/forum/90496-post55.html
@@ -570,7 +570,7 @@ Object.extend = function(parent, proto)
  *
  * @param	string
  * @return	function
- * @access	public
+ * @access	static
  * @link	http://www.crockford.com/javascript/private.html
  * @link	http://gotochriswest.com/blog/2013/04/03/javascript-prototypes-private-data-safe-factories/
  * @link	http://www.codeproject.com/Articles/133118/Safe-Factory-Pattern-Private-instance-state-in-Jav
@@ -623,11 +623,60 @@ Object.privates = function(getter)
 };
 
 /**
+ * Creates a specified namespace and sets a value to the latest item. 
+ *
+ * See example below.
+
+Object.ns('a.b.c.d', Math.PI);
+Object.ns('a.x.y.z', Math.PI);
+
+// The code above creates this structure
+var a = {
+	b: {
+		c: {
+			d: Math.PI
+		}
+	}, 
+	x: {
+		y: {
+			z: Math.PI
+		}
+	}
+};
+
+ *
+ * @param	String	A namespace in the dot notaion
+ * @param	Object	A value to be added
+ * @return	Object
+ * @access	static
+ */
+Object.ns = (function(that)
+{
+	return function(namespace, value)
+	{
+		var parts = namespace.split('.');
+		var name = parts.pop();
+		var len = parts.length;
+
+		var root = that;
+
+		for (var i = 0; i < len; i++) {
+			var p = parts[i];
+			root = root[p] = root[p] || {};
+		}
+
+		return root[name] = value;
+	};
+
+})(this);
+
+/**
  * Creating a copy of an object with fully replicated properties. 
  * Each property of an object will be copied recursively
  *
  * @param	An object
  * @result	A copy of the object
+ * @access	static
  *
  * @author	Ildar Shaimordanov (the common idea of 'object cloning')
  */
