@@ -74,18 +74,16 @@ var _more = function()
 			// var Child = Object.extend(Parent, { method: Abstract })
 			// Child.method();
 			if ( this instanceof Abstract ) {
-				Abstract.abstractMethod();
+				Abstract();
 			}
 
 			// var Child = Object.extend(Parent, { method: Abstract() })
-			return Abstract.abstractMethod;
+			return function()
+			{
+				throw new Error('Abstract method should be overridden');
+			}
 		}
 	});
-
-	Abstract.abstractMethod = function()
-	{
-		throw new Error('Abstract method should be overridden');
-	};
 };
 
 var _copyAll = function(dst, src, p)
