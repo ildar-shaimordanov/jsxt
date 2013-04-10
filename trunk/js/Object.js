@@ -623,6 +623,139 @@ Object.privates = function(getter)
 };
 
 /**
+ * Another way to implement classical OOP inheritance
+ *
+ * Class( [Parent,] {...} )
+ * Class( [Parent,] Function )
+ *
+
+// The base class "X"
+var X = Class(function()
+{
+	// The private variable for instances of "X"
+	var p;
+	return {
+		constructor: function(x)
+		{
+			p = x;
+		}, 
+		hello: function()
+		{
+			alert('Hello, world!');
+		}, 
+		alert: function()
+		{
+			alert(p);
+		}
+	};
+});
+
+// The class "Y" inherited from "X"
+var Y = Class(X, function()
+{
+	// The private variable for instances of "Y"
+	var p;
+	return {
+		constructor: function(x, y)
+		{
+			// Call the inherited constructor
+			this.parent.constructor(x)
+			p = y;
+		}, 
+		alert: function()
+		{
+			this.hello();
+			this.parent.alert();
+			alert(p);
+		}
+	};
+});
+
+ *
+ * @param	Function	A parental class
+ * @param	Object, Function	A class structure
+ * @return	Function	A constructor of a new class
+ * @access	static
+ * @require	Object.mixin
+ * @link	http://javascript.ru/forum/168029-post1.html
+ * @link	https://github.com/devote/jsClasses
+ */
+function Class()
+{
+	var Parent;
+	var proto;
+
+	/*
+	Class( [Parent,] {...} )
+	Class( [Parent,] Function )
+	*/
+	if ( arguments.length == 2 ) {
+		Parent = arguments[0];
+		proto = arguments[1];
+	} else if ( arguments.length == 1 ) {
+		proto = arguments[0];
+	}
+
+	Parent = Parent || Object;
+	proto = proto || {};
+
+	// Redefine the class structire to be a function
+	if ( typeof proto != 'function' ) {
+		proto = (function(proto)
+		{
+			return function()
+			{
+				return proto;
+			};
+		})(proto);
+	}
+
+	// Common constructor of all classes
+	var Child = function()
+	{
+		// Prepare properties for instantiating
+		var object = proto();
+
+		// Prepare the structure of the parental class
+		var parent = Parent.call(new Boolean());
+
+		// Fill in the instance with parental properties
+		// It should be the first action to provide inherited properties
+		Object.mixin(this, parent);
+
+		// Fill in the instance with the actual properties
+		// It may have overwrite parental properties
+		Object.mixin(this, object);
+
+		// Make references to the parent and the constructor
+		this.parent = parent;
+		this.Class = Child;
+
+		// Return the parental structure
+		if ( this instanceof Boolean ) {
+			return this;
+		}
+
+		object.constructor.apply(this, arguments);
+	};
+
+	return Child;
+};
+
+Class.instanceOf = function(object, Class)
+{
+	var p = object;
+	while ( p ) {
+		if ( p.Class === Class ) {
+			return true;
+		}
+		p = p.parent;
+	}
+	
+	return false;
+};
+
+/**
  * Creates a specified namespace and sets a value to the latest item. 
  *
  * See example below.
@@ -650,9 +783,9 @@ var a = {
  * @return	Object
  * @access	static
  */
-Object.ns = (function(that)
+(function(that)
 {
-	return function(namespace, value)
+	Object.ns = function(namespace, value)
 	{
 		var parts = namespace.split('.');
 		var name = parts.pop();
