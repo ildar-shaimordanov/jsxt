@@ -232,8 +232,6 @@ Object.getPrototypeOf = function(object)
 
 }
 
-if ( ! Object.keys ) {
-
 /**
  * Returns an array whose elements are strings corresponding 
  * to the enumerable properties found directly upon object. 
@@ -242,9 +240,12 @@ if ( ! Object.keys ) {
  * @access	static
  * @link	https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object/keys
  */
-
 (function ()
 {
+	if ( Object.keys ) {
+		return;
+	}
+
 	var hasOwnProperty = Object.prototype.hasOwnProperty;
 	var hasDontEnumBug = ! ({toString: null}).propertyIsEnumerable('toString');
 	var dontEnums = [
@@ -285,8 +286,6 @@ if ( ! Object.keys ) {
 		return result;
 	};
 })();
-
-}
 
 if ( ! Object.create ) {
 
@@ -699,7 +698,7 @@ function Class()
 	Parent = Parent || Object;
 	proto = proto || {};
 
-	// Redefine the class structire to be a function
+	// Redefine the class structure to be a function returning it
 	if ( typeof proto != 'function' ) {
 		proto = (function(proto)
 		{
@@ -744,6 +743,10 @@ function Class()
 
 Class.instanceOf = function(object, Class)
 {
+	if ( object instanceof Class ) {
+		return true;
+	}
+
 	var p = object;
 	while ( p ) {
 		if ( p.Class === Class ) {
