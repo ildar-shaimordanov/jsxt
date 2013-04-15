@@ -658,13 +658,15 @@ var Y = Class(X, function()
 		constructor: function(x, y)
 		{
 			// Call the inherited constructor
-			this.parent.constructor(x)
+			this.parent(x)
 			p = y;
 		}, 
 		alert: function()
 		{
+			// Call the inherited method
 			this.hello();
-			this.parent.alert();
+			// Call the overwritten method
+			this.parent();
 			alert(p);
 		}
 	};
@@ -679,84 +681,119 @@ var Y = Class(X, function()
  * @link	http://javascript.ru/forum/168029-post1.html
  * @link	https://github.com/devote/jsClasses
  */
-function Class()
+var Class = (function()
 {
-	var Parent;
-	var proto;
-
-	/*
-	Class( [Parent,] {...} )
-	Class( [Parent,] Function )
-	*/
-	if ( arguments.length == 2 ) {
-		Parent = arguments[0];
-		proto = arguments[1];
-	} else if ( arguments.length == 1 ) {
-		proto = arguments[0];
-	}
-
-	Parent = Parent || Object;
-	proto = proto || {};
-
-	// Redefine the class structure to be a function returning it
-	if ( typeof proto != 'function' ) {
-		proto = (function(proto)
+	// Make wrapper for overwritten methods to allow calling of inherited, 
+	// parental methods within from child methods in the form "this.parent()"
+	var _wrapParent = function(dst, src, prop)
+	{
+		if ( typeof dst[prop] != 'function' || typeof src[prop] != 'function' ) {
+			dst[prop] = src[prop];
+			return;
+		}
+		dst[prop] = 
+		src[prop] = 
+		(function(parentMethod, method)
 		{
 			return function()
 			{
-				return proto;
+				var parent = this.parent;
+				this.parent = parentMethod;
+				var result = method.apply(this, arguments);
+				this.parent = parent;
+				return result;
 			};
-		})(proto);
-	}
-
-	// Common constructor of all classes
-	var Child = function()
-	{
-		// Prepare properties for instantiating
-		var object = proto();
-
-		// Prepare the structure of the parental class
-		var parent = Parent.call(new Boolean());
-
-		// Fill in the instance with parental properties
-		// It should be the first action to provide inherited properties
-		Object.mixin(this, parent);
-
-		// Fill in the instance with the actual properties
-		// It may have overwrite parental properties
-		Object.mixin(this, object);
-
-		// Make references to the parent and the constructor
-		this.parent = parent;
-		this.Class = Child;
-
-		// Return the parental structure
-		if ( this instanceof Boolean ) {
-			return this;
-		}
-
-		object.constructor.apply(this, arguments);
+		})(dst[prop], src[prop]);
 	};
 
-	return Child;
-};
+	// The stub to provide parental properties to a child class
+	var F = function() {};
 
-Class.instanceOf = function(object, Class)
-{
-	if ( object instanceof Class ) {
-		return true;
-	}
-
-	var p = object;
-	while ( p ) {
-		if ( p.Class === Class ) {
-			return true;
+	var Class = function(Parent, proto)
+	{
+		/*
+		Class( [Parent,] {...} )
+		Class( [Parent,] Function )
+		*/
+		if ( arguments.length < 2 ) {
+			proto = arguments[0];
+			Parent = null;
 		}
-		p = p.parent;
-	}
-	
-	return false;
-};
+		Parent = Parent || Object;
+		proto = proto || {};
+
+		// Redefine the class structure to be a function returning it
+		if ( typeof proto != 'function' ) {
+			proto = (function(proto)
+			{
+				return function()
+				{
+					return proto;
+				};
+			})(proto);
+		}
+
+		// Implementation of the "this.instanceOf()" method
+		var _instanceOf = function(Class)
+		{
+			var p = Child;
+			while ( p ) {
+				if ( p === Class ) {
+					return true;
+				}
+				p = p.Parent;
+			}
+			return false;
+		};
+
+		// Common constructor of all classes
+		var Child = function()
+		{
+			// Prepare properties for instantiating
+			var object = proto();
+
+			// Remove definitions of service methods
+			delete object.parent;
+			delete object.instanceOf
+
+			// Define a constructor if it isn't defined
+			object.constructor = object.constructor || function()
+			{
+				Parent.apply(this, arguments);
+			};
+
+			// Prepare the structure of the parental class
+			// Be sure that it is object anyway
+			var parent = Object(Parent.call(new F()));
+
+			// Fill in the instance with parental properties
+			// It should be the first action to provide inherited properties
+			Object.mixin(this, parent);
+
+			// Fill in the instance with the actual properties
+			// It may have overwrite parental properties
+			// Inherited methods will be redefined with the purpose to have 
+			// possibility to call the overwritten parental method
+			Object.mixin(this, object, _wrapParent);
+
+			// Assign the "this.instanceOf" method
+			this.instanceOf = _instanceOf;
+
+			// Return the parental structure
+			if ( this instanceof F ) {
+				return this;
+			}
+
+			object.constructor.apply(this, arguments);
+		};
+
+		// Create a link to the parental constructor
+		Child.Parent = Parent;
+		return Child;
+	};
+
+	return Class;
+})();
 
 /**
  * Creates a specified namespace and sets a value to the latest item. 
