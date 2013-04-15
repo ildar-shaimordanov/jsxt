@@ -762,6 +762,11 @@ var Class = (function()
 				Parent.apply(this, arguments);
 			};
 
+			// Call as "Child()"
+			if ( ! ( this instanceof Child ) ) {
+				return object.constructor.apply(null, arguments);
+			}
+
 			// Prepare the structure of the parental class
 			// Be sure that it is object anyway
 			var parent = Object(Parent.call(new F()));
