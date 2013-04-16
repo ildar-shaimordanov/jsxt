@@ -756,14 +756,6 @@ var Class = (function()
 			delete object.parent;
 			delete object.instanceOf
 
-			// Define a constructor if it isn't defined
-			if ( ! object.hasOwnProperty('constructor') ) { 
-				object.constructor = function()
-				{
-					Parent.apply(this, arguments);
-				};
-			}
-
 			// Call as "Child()"
 			if ( ! ( this instanceof Child ) ) {
 				return object.constructor.apply(null, arguments);
