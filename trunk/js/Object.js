@@ -358,7 +358,7 @@ Object.mixin = function(dst, src, func)
  * The reference to the prototype of the parent object accessible anywhere. 
  * Literally it equals to Parent.prototype. 
  *
- * this._super([arguments])
+ * this.parent([arguments])
  *
  * The reference to the parent method. It simplifies access to the same
  * method from within overridden method of the derived object. It is visible
@@ -393,7 +393,7 @@ var Point = Object.extend(Object, {
 var Circle = Object.extend(Point, {
 	constructor: function(x, y, r)
 	{
-		this._super(x, y);
+		this.parent(x, y);
 		//Circle.superclass.constructor.call(this, x, y);
 		this.r = r;
 	}, 
@@ -403,7 +403,7 @@ var Circle = Object.extend(Point, {
 	}, 
 	at: function()
 	{
-		return this._super() + ', r=' + this.r;
+		return this.parent() + ', r=' + this.r;
 		//return Rectangle.superclass.at.call(this) + ', r=' + this.r;
 	}
 });
@@ -412,7 +412,7 @@ var Circle = Object.extend(Point, {
 var Rectangle = Object.extend(Point, {
 	constructor: function(x, y, w, h)
 	{
-		this._super(x, y);
+		this.parent(x, y);
 		//Rectangle.superclass.constructor.call(this, x, y);
 		this.w = w;
 		this.h = h;
@@ -423,7 +423,7 @@ var Rectangle = Object.extend(Point, {
 	}, 
 	at: function()
 	{
-		return this._super() + ', [w,h]=' + [this.w, this.h];
+		return this.parent() + ', [w,h]=' + [this.w, this.h];
 		//return Rectangle.superclass.at.call(this) + ', [w,h]=' + [this.w, this.h];
 	}
 });
@@ -432,7 +432,7 @@ var Rectangle = Object.extend(Point, {
 var Square = Object.extend(Rectangle, {
 	constructor: function(x, y, s)
 	{
-		this._super(x, y, s, s);
+		this.parent(x, y, s, s);
 		//Square.superclass.constructor.call(this, x, y, s, s);
 	}, 
 	iam: function()
@@ -472,7 +472,7 @@ Object.extend = function(parent, proto)
 	}
 
 	// Create new prototype from the parent prototype and copy its methods
-	// Make parental methods available via the reference "this._super"
+	// Make parental methods available via the reference "this.parent()"
 	var child_proto = Object.create(parent.prototype);
 	Object.mixin(child_proto, proto, function(dst, src, prop)
 	{
@@ -484,10 +484,10 @@ Object.extend = function(parent, proto)
 		{
 			return function()
 			{
-				var _super = this._super;
-				this._super = parentMethod;
+				var parent = this.parent;
+				this.parent = parentMethod;
 				var result = method.apply(this, arguments);
-				this._super = _super;
+				this.parent = parent;
 				return result;
 			};
 		})(dst[prop], src[prop]);
