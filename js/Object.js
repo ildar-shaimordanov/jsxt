@@ -463,24 +463,18 @@ c.draw();
  * @link	http://javascript.ru/forum/90496-post55.html
  * @link	http://learn.javascript.ru/files/tutorial/js/class-extend.js
  */
-Object.extend = function(parent, proto)
+(function()
 {
-	proto = proto || {};
-
-	if ( typeof proto == 'function' ) {
-		proto = proto(Object.privatize);
-	}
-
-	// Create new prototype from the parent prototype and copy its methods
-	// Make parental methods available via the reference "this.parent()"
-	var child_proto = Object.create(parent.prototype);
-	Object.mixin(child_proto, proto, function(dst, src, prop)
+	// Make wrapper for overwritten methods to allow calling of inherited, 
+	// parental methods within from child methods in the form "this.parent()"
+	var _wrapParentProto = function(dst, src, prop)
 	{
 		if ( typeof dst[prop] != 'function' || typeof src[prop] != 'function' ) {
 			dst[prop] = src[prop];
 			return;
 		}
-		dst[prop] = (function(parentMethod, method)
+		dst[prop] = 
+		(function(parentMethod, method)
 		{
 			return function()
 			{
@@ -491,25 +485,48 @@ Object.extend = function(parent, proto)
 				return result;
 			};
 		})(dst[prop], src[prop]);
-	});
+	};
 
-	// Specify a constructor
-	if ( ! proto.hasOwnProperty('constructor') ) {
-		child_proto.constructor = function()
-		{
-			parent.apply(this, arguments);
-		};
-	}
+	Object.extend = function(Parent, proto)
+	{
+		/*
+		Object.extend( [Parent,] {...} )
+		Object.extend( [Parent,] Function )
+		*/
+		if ( arguments.length < 2 ) {
+			proto = arguments[0];
+			Parent = null;
+		}
+		Parent = Parent || Object;
+		proto = proto || {};
 
-	// Make self reference to the constructor
-	var child = child_proto.constructor;
-	child.prototype = child_proto;
+		if ( typeof proto == 'function' ) {
+			proto = proto(Object.privatize);
+		}
 
-	// Add a reference to the Parent's prototype
-	child.superclass = parent.prototype;
+		// Create new prototype from the parent prototype and copy its methods
+		// Make parental methods available via the reference "this.parent()"
+		var child_proto = Object.create(Parent.prototype);
+		Object.mixin(child_proto, proto, _wrapParentProto);
 
-	return child;
-};
+		// Specify a constructor
+		if ( ! proto.hasOwnProperty('constructor') ) {
+			child_proto.constructor = function()
+			{
+				Parent.apply(this, arguments);
+			};
+		}
+
+		// Make self reference to the constructor
+		var child = child_proto.constructor;
+		child.prototype = child_proto;
+
+		// Add a reference to the Parent's prototype
+		child.superclass = Parent.prototype;
+
+		return child;
+	};
+})();
 
 /**
  * Returns a function giving access to private data 
