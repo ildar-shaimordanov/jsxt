@@ -458,7 +458,7 @@ c.draw();
  * @param	An object providing properties and methods for the derived object
  * @return	A new function
  * @access	static
- * @require	Object.create, Object.mixin
+ * @require	Object.create, Object.mixin, Object.privatize
  * @link	http://javascript.ru/forum/66098-post2.html
  * @link	http://javascript.ru/forum/90496-post55.html
  * @link	http://learn.javascript.ru/files/tutorial/js/class-extend.js
@@ -468,7 +468,7 @@ Object.extend = function(parent, proto)
 	proto = proto || {};
 
 	if ( typeof proto == 'function' ) {
-		proto = proto();
+		proto = proto(Object.privatize);
 	}
 
 	// Create new prototype from the parent prototype and copy its methods
@@ -520,20 +520,20 @@ Object.extend = function(parent, proto)
 (function(that)
 {
 	// Create a scope for private data
-	var privates = Object.privates();
+	var privatize = Object.privatize();
 
 	// Make in visible in the global scope
 	that.X = function(x)
 	{
-		// Declare privates for this instance
-		privates.create(this, {
+		// Declare privatize for this instance
+		privatize.create(this, {
 			value: x || 'X'
 		});
 	};
 
 	X.prototype.alert = function()
 	{
-		var p = privates(this);
+		var p = privatize(this);
 		alert(p.value);
 	};
 })(this);
@@ -542,13 +542,13 @@ Object.extend = function(parent, proto)
 (function(that)
 {
 	// Create a scope for private data
-	var privates = Object.privates();
+	var privatize = Object.privatize();
 
 	// Make in visible in the global scope
 	that.Y = function(x, y)
 	{
-		// Declare privates for this instance
-		privates.create(this, {
+		// Declare privatize for this instance
+		privatize.create(this, {
 			value: y || 'Y'
 		});
 
@@ -561,7 +561,7 @@ Object.extend = function(parent, proto)
 		// Call inherited parental method
 		X.prototype.alert.apply(this);
 
-		var p = privates(this);
+		var p = privatize(this);
 		alert(p.value);
 	};
 })(this);
@@ -575,7 +575,7 @@ Object.extend = function(parent, proto)
  * @link	http://www.codeproject.com/Articles/133118/Safe-Factory-Pattern-Private-instance-state-in-Jav
  * @link	http://www.adequatelygood.com/JavaScript-Module-Pattern-In-Depth.html
  */
-Object.privates = function(getter)
+Object.privatize = function(getter)
 {
 	getter = getter || '_private';
 
@@ -587,7 +587,7 @@ Object.privates = function(getter)
 
 	// Calls the getter method of the specified object
 	// Returns the reference to the private container
-	var privates = function(object)
+	var privatize = function(object)
 	{
 		// Get private data to a local variable
 		object[getter][id]();
@@ -601,14 +601,15 @@ Object.privates = function(getter)
 	// Creates a container for private properties
 	// Assigns a method for the provided object 
 	// to get access to the private container
-	privates.create = function(object, data)
+	privatize.create = function(object, data)
 	{
 		data = Object(data);
 
 		// Find a unique identifier for the instance
 		object[getter] = object[getter] || {};
 		while ( object[getter].hasOwnProperty(id) ) {
-			id = Math.random();
+			//id = Math.random();
+			id++;
 		}
 
 		// Assign the private data getter
@@ -618,7 +619,7 @@ Object.privates = function(getter)
 		};
 	};
 
-	return privates;
+	return privatize;
 };
 
 /**
