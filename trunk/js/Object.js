@@ -363,6 +363,11 @@ Object.mixin = function(dst, src, func)
  * The reference to the parent method. It simplifies access to the same
  * method from within overridden method of the derived object. It is visible
  * within the actual method only.
+ *
+ * object.instanceOf(Class)
+ *
+ * Simply the wrapper over the operator "object instanceof Class". 
+ *
 
 // Point is a base class, a parent of all other classes
 var Point = Object.extend(Object, {
@@ -467,24 +472,32 @@ c.draw();
 {
 	// Make wrapper for overwritten methods to allow calling of inherited, 
 	// parental methods within from child methods in the form "this.parent()"
+	var _wrapParent = function(parentMethod, method)
+	{
+		return function()
+		{
+			var parent = this.parent;
+			this.parent = parentMethod;
+			var result = method.apply(this, arguments);
+			this.parent = parent;
+			return result;
+		};
+	};
 	var _wrapParentProto = function(dst, src, prop)
 	{
 		if ( typeof dst[prop] != 'function' || typeof src[prop] != 'function' ) {
 			dst[prop] = src[prop];
 			return;
 		}
+
 		dst[prop] = 
-		(function(parentMethod, method)
-		{
-			return function()
-			{
-				var parent = this.parent;
-				this.parent = parentMethod;
-				var result = method.apply(this, arguments);
-				this.parent = parent;
-				return result;
-			};
-		})(dst[prop], src[prop]);
+		_wrapParent(dst[prop], src[prop]);
+	};
+
+	// Implementation of the "this.instanceOf()" method
+	var _instanceOf = function(Class)
+	{
+		return this instanceof Class;
 	};
 
 	Object.extend = function(Parent, proto)
@@ -504,6 +517,10 @@ c.draw();
 			proto = proto(Object.privatize);
 		}
 
+		// Remove definitions of service methods
+		delete proto.parent;
+		delete proto.instanceOf
+
 		// Create new prototype from the parent prototype and copy its methods
 		// Make parental methods available via the reference "this.parent()"
 		var child_proto = Object.create(Parent.prototype);
@@ -516,6 +533,9 @@ c.draw();
 				Parent.apply(this, arguments);
 			};
 		}
+
+		// Assign the "this.instanceOf" method
+		child_proto.instanceOf = _instanceOf;
 
 		// Make self reference to the constructor
 		var child = child_proto.constructor;
@@ -703,25 +723,26 @@ var Class = (function()
 {
 	// Make wrapper for overwritten methods to allow calling of inherited, 
 	// parental methods within from child methods in the form "this.parent()"
-	var _wrapParent = function(dst, src, prop)
+	var _wrapParent = function(parentMethod, method)
+	{
+		return function()
+		{
+			var parent = this.parent;
+			this.parent = parentMethod;
+			var result = method.apply(this, arguments);
+			this.parent = parent;
+			return result;
+		};
+	};
+	var _wrapParentClass = function(dst, src, prop)
 	{
 		if ( typeof dst[prop] != 'function' || typeof src[prop] != 'function' ) {
 			dst[prop] = src[prop];
 			return;
 		}
-		dst[prop] = 
 		src[prop] = 
-		(function(parentMethod, method)
-		{
-			return function()
-			{
-				var parent = this.parent;
-				this.parent = parentMethod;
-				var result = method.apply(this, arguments);
-				this.parent = parent;
-				return result;
-			};
-		})(dst[prop], src[prop]);
+		dst[prop] = 
+		_wrapParent(dst[prop], src[prop]);
 	};
 
 	// The stub to provide parental properties to a child class
@@ -774,11 +795,6 @@ var Class = (function()
 			delete object.parent;
 			delete object.instanceOf
 
-			// Call as "Child()"
-			if ( ! ( this instanceof Child ) ) {
-				return object.constructor.apply(null, arguments);
-			}
-
 			// Prepare the structure of the parental class
 			// Be sure that it is object anyway
 			var parent = Object(Parent.call(new F()));
@@ -791,7 +807,7 @@ var Class = (function()
 			// It may have overwrite parental properties
 			// Inherited methods will be redefined with the purpose to have 
 			// possibility to call the overwritten parental method
-			Object.mixin(this, object, _wrapParent);
+			Object.mixin(this, object, _wrapParentClass);
 
 			// Assign the "this.instanceOf" method
 			this.instanceOf = _instanceOf;
