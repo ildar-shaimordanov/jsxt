@@ -463,7 +463,7 @@ c.draw();
  * @param	An object providing properties and methods for the derived object
  * @return	A new function
  * @access	static
- * @require	Object.create, Object.mixin, Object.privatize
+ * @require	Object.create, Object.mixin
  * @link	http://javascript.ru/forum/66098-post2.html
  * @link	http://javascript.ru/forum/90496-post55.html
  * @link	http://learn.javascript.ru/files/tutorial/js/class-extend.js
@@ -514,7 +514,7 @@ c.draw();
 		proto = proto || {};
 
 		if ( typeof proto == 'function' ) {
-			proto = proto(Object.privatize);
+			proto = proto();
 		}
 
 		// Remove definitions of service methods
