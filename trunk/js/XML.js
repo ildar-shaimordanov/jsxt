@@ -2,7 +2,7 @@
 // XML.js
 // Cross-browser JScript / Javascript extension for XML processing
 //
-// Copyright (c) 2010, 2011 by Ildar Shaimordanov
+// Copyright (c) 2010, 2011, 2013 by Ildar Shaimordanov
 //
 
 if ( ! this.XML ) {
@@ -11,7 +11,7 @@ if ( ! this.XML ) {
 
 /**
  * Creates new XML document
- *
+ * @link	http://www.webreference.com/programming/javascript/definitive2/index.html
  */
 XML.create = function(root, namespace)
 {
