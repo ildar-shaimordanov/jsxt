@@ -74,10 +74,10 @@ Date.diff = function(date1, date2, detail)
 	var diff = date1.getTime() - date2.getTime();
 
 	if ( ! detail ) {
-		return dif;
+		return diff;
 	}
 
-	diff = Math.abs(result);
+	diff = Math.abs(diff);
 
 	var ms = diff % 1000;
 	diff /= 1000;
