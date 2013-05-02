@@ -71,37 +71,38 @@ Date.now = function()
  */
 Date.diff = function(date1, date2, detail)
 {
-	var result = date1.getTime() - date2.getTime();
+	var diff = date1.getTime() - date2.getTime();
 
 	if ( ! detail ) {
-		return result;
+		return dif;
 	}
 
-	var d = Math.abs(result);
+	diff = Math.abs(result);
 
-	var f, h, m, s, ms;
+	var ms = diff % 1000;
+	diff /= 1000;
 
-	ms = d % 1000;
-	d /= 1000;
+	var s = Math.floor(diff % 60);
+	diff /= 60;
 
-	s = Math.floor(d % 60);
-	d /= 60;
+	var m = Math.floor(diff % 60);
+	diff /= 60;
 
-	m = Math.floor(d % 60);
-	d /= 60;
+	var h = Math.floor(diff % 24);
+	diff /= 24;
 
-	h = Math.floor(d % 24);
-	d /= 24;
+	var d = Math.floor(diff);
 
-	f = Math.floor(d);
+	var w = Math.floor(diff / 7);
 
 	return {
 		milliseconds: ms,
 		seconds: s,
 		minutes: m,
 		hours: h,
-		days: f,
-		rdays: d
+		days: d,
+		weeks: w,
+		rdays: diff
 	};
 };
 
