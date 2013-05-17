@@ -2,7 +2,7 @@
 // console.js
 // Imitation of the Firebug console in the Windows Scripting Host console
 //
-// Copyright (c) 2012 by Ildar Shaimordanov
+// Copyright (c) 2012, 2013 by Ildar Shaimordanov
 //
 
 /*
@@ -74,8 +74,8 @@ The string to glue the set of arguments when output them
 	// Checks that the object is a formatting string
 	var $isFormat = function(object)
 	{
-		return reFormat.test(object);
-		//return typeof object == 'string' && object.match(reFormat);
+		//return reFormat.test(object);
+		return typeof object == 'string' && object.match(reFormat);
 	};
 
 	// The simplest formatting function immitating java-like format
@@ -110,7 +110,8 @@ The string to glue the set of arguments when output them
 		var result;
 
 		if ( $.isFormat(objects[0]) ) {
-			result = $.format(objects[0], Array.prototype.slice.call(objects, 1));
+			//result = $.format(objects[0], Array.prototype.slice.call(objects, 1));
+			result = $.format(objects[0], objects);
 		} else {
 			result = [];
 			for (var i = 0; i < objects.length; i++) {
