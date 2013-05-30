@@ -926,7 +926,7 @@ Object.clone = function(object)
 	for (var p in object) {
 		clone[p] = object[p] === object 
 			? clone 
-			: arguments.callee(object[p]);
+			: Object.clone(object[p]);
 	}
 	return clone;
 };
@@ -1034,7 +1034,7 @@ function _dump(object)
 			if ( object[k] === object ) {
 				v = '[Recursive]';
 			} else {
-				v = arguments.callee(object[k]);
+				v = _dump(object[k]);
 				if ( v === '' ) {
 					// Sure that any property will return non-empty string
 					// Only functions can return an empty string when func == 0
