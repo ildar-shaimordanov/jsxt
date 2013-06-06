@@ -131,33 +131,44 @@ Wmi.getSinkPrefix = function()
 	return 'SINK' + (new Date()).getTime() + '_';
 };
 
-Wmi.defaultSinkEventNames = 'completed objectPut objectReady progress'.split(' ');
-
-Wmi.setSinkEvents = function(sinkPrefix, events)
+Wmi.getSink = (function()
 {
-	var global = (function() { return this; })();
+	var defaultSinkEventNames = 'onCompleted onObjectPut onObjectReady onProgress'.split(' ');
 
-	if ( typeof events == 'function' ) {
-		events = { 'objectReady': events };
-	}
+	var setSinkEvents = function(sinkPrefix, events)
+	{
+		var global = (function() { return this; })();
 
-	var names = Wmi.defaultSinkEventNames;
-	for (var i = 0; i < names.length; i++) {
-		// n - nameOfEvent
-		// p - NameOfEvent
-		var n = names[i].replace(/^./, function($0) { return $0.toLowerCase(); });
-		var p = names[i].replace(/^./, function($0) { return $0.toUpperCase(); });
-		if ( typeof events[n] == 'function' ) {
-			global[sinkPrefix + 'On' + p] = events[n];
+		if ( typeof events == 'function' ) {
+			events = { 'onObjectReady': events };
 		}
-	}
-};
 
-Wmi.getSink = function(sinkPrefix, events)
-{
-	Wmi.setSinkEvents(sinkPrefix, events);
-	return WScript.CreateObject('WbemScripting.SWbemSink', sinkPrefix);
-};
+		var names = defaultSinkEventNames;
+		for (var i = 0; i < names.length; i++) {
+			var n = names[i];
+			if ( typeof events[n] == 'function' ) {
+				global[sinkPrefix + n] = events[n];
+			}
+		}
+/*
+		for (var i = 0; i < names.length; i++) {
+			// n - nameOfEvent
+			// p - NameOfEvent
+			var n = names[i].replace(/^./, function($0) { return $0.toLowerCase(); });
+			var p = names[i].replace(/^./, function($0) { return $0.toUpperCase(); });
+			if ( typeof events[n] == 'function' ) {
+				global[sinkPrefix + 'On' + p] = events[n];
+			}
+		}
+*/
+	};
+
+	return function(sinkPrefix, events)
+	{
+		setSinkEvents(sinkPrefix, events);
+		return WScript.CreateObject('WbemScripting.SWbemSink', sinkPrefix);
+	};
+})();
 
 Wmi.getNamedValueSet = function(namedValueSet)
 {
@@ -324,11 +335,11 @@ Wmi.Common = Wmi.inherit(null, {
 		if ( ! options.async ) {
 			var wbemResult = wrapMethod(wbemObject, wbemNamedValueSet);
 
-			if ( options.objectReady ) {
+			if ( options.onObjectReady ) {
 				if ( useForEach ) {
-					Wmi.forEach(wbemResult, options.objectReady);
+					Wmi.forEach(wbemResult, options.onObjectReady);
 				} else {
-					options.objectReady(wbemResult);
+					options.onObjectReady(wbemResult);
 				}
 			}
 
@@ -677,7 +688,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 	{
 		var that = this;
 		this.subclassesOf('', {
-			objectReady: function(p)
+			onObjectReady: function(p)
 			{
 				var className = p.Path_.Class;
 				if ( that[className] ) {
