@@ -9,16 +9,8 @@
 
 The module adds the useful Firebug console features to WSH
 
-You can use "console.log(), console.debug(), ..." the same way you used it 
+You can use "console.log(), console.debug(), ..." the same way you use it 
 with Firebug. 
-
-The following functions are not implemented:
-	console.clear, 
-	console.dir, console.dirxml, 
-	console.group, console.groupEnd, 
-	console.profile, console.profileEnd, 
-	console.trace, 
-	console.timeStamp
 
 Log messages with custom icon depending on the function used.
 	console.log(object[, object, ...])
@@ -27,7 +19,7 @@ Log messages with custom icon depending on the function used.
 	console.warn(object[, object, ...])
 	console.error(object[, object, ...])
 
-Test if the expression is true. If so, the info is logged in the console
+Test if the expression. If it is false, the info will be logged in the console
 	console.assert(expression[, object, ...])
 
 Starts and stops a timer and writes the time elapsed
@@ -35,22 +27,35 @@ Starts and stops a timer and writes the time elapsed
 	console.timeEnd(name)
 
 Customizing of the console
-	console.$
+	console.fn
 
 Checks that the object is a formatting string
-	console.$.isFormat(object)
+	console.fn.isFormat(object)
 
-The simplest formatting function immitating java-like format
-	console.$.format(pattern, objects)
+The simplest formatting function immitating C-like format
+	console.fn.format(pattern, objects)
 
 Details for the complex object
-	console.$.inspect(object)
+	console.fn.inspect(object)
 
 The user-defined printing function
-	console.$.print(msgType, msg)
+	console.fn.print(msgType, msg)
 
 The string to glue the set of arguments when output them
-	console.$.separator = ' '
+	console.fn.separator = ' '
+
+The following functions are not implemented:
+	console.clear
+	console.count
+	console.dir
+	console.dirxml
+	console.group
+	console.groupCollapsed
+	console.groupEnd
+	console.profile
+	console.profileEnd
+	console.table
+	console.trace
 
 */
 
@@ -58,7 +63,7 @@ The string to glue the set of arguments when output them
 {
 
 	// Be sure to prevent defining it twice
-	if ( this.console && console.$ ) {
+	if ( this.console && console.fn ) {
 		return;
 	}
 
@@ -67,34 +72,57 @@ The string to glue the set of arguments when output them
 	this.console = {};
 
 
-	// This regular expression is used to recongnize a formatting 
-	// string and prints in the java-like format "{n}"
-	var reFormat = /\{(\d+)\}/g;
+	// Details for the complex object
+	// If JSON object is defined JSON.stringify will be used
+	var _inspect = typeof JSON != 'undefined' && typeof JSON.stringify == 'function' 
+		? 
+		function(object)
+		{
+			return object && typeof object == 'object' ? JSON.stringify(object) : object;
+		} 
+		: 
+		function(object)
+		{
+			return object;
+		};
+
+	// This regular expression is used to recongnize a formatting string 
+	var reFormat = /%%|%(\d+)?([idfxso])/g;
 
 	// Checks that the object is a formatting string
-	var $isFormat = function(object)
+	var _isFormat = function(object)
 	{
-		//return reFormat.test(object);
-		return typeof object == 'string' && object.match(reFormat);
+		return String(object).match(reFormat);
 	};
 
-	// The simplest formatting function immitating java-like format
-	var $format = function(pattern, objects)
+	var _formatters = {};
+	_formatters.i = function(v) { return Number(v).toFixed(0); };
+	_formatters.d = 
+	_formatters.f = function(v) { return Number(v).toString(10); };
+	_formatters.x = function(v) { return Number(v).toString(16); }, 
+	_formatters.o = _inspect;
+	_formatters.s = function(v) { return String(v); };
+
+	// The formatting function immitating C-like "printf"
+	var _format = function(pattern, objects)
 	{
-		return pattern.replace(reFormat, function($0, $1)
+		var i = 0;
+		return pattern.replace(reFormat, function(format, width, id)
 		{
-			return objects[$1];
+			if ( format == '%%' ) {
+				return '%';
+			}
+
+			i++;
+
+			var r = _formatters[id](objects[i]);
+
+			return r;
 		});
 	};
 
-	// Details for the complex object
-	var $inspect = function(object)
-	{
-		return object;
-	};
-
 	// The printing function
-	var $print = function(msgType, msg)
+	var _print = function(msgType, msg)
 	{
 		WScript.Echo(msg);
 	};
@@ -104,23 +132,23 @@ The string to glue the set of arguments when output them
 	var printMsg = function(msgType, objects)
 	{
 		// Get the actual configuration of the console
-		var $ = console.$;
-		var sep = $.separator || ' ';
+		var fn = console.fn;
+		var sep = fn.separator || ' ';
 
 		var result;
 
-		if ( $.isFormat(objects[0]) ) {
-			//result = $.format(objects[0], Array.prototype.slice.call(objects, 1));
-			result = $.format(objects[0], objects);
+		if ( fn.isFormat(objects[0]) ) {
+			//result = fn.format(objects[0], Array.prototype.slice.call(objects, 1));
+			result = fn.format(objects[0], objects);
 		} else {
 			result = [];
 			for (var i = 0; i < objects.length; i++) {
-				result.push($.inspect(objects[i]));
+				result.push(fn.inspect(objects[i]));
 			}
 			result = result.join(sep);
 		}
 
-		$.print(msgType, result);
+		fn.print(msgType, result);
 	};
 
 
@@ -147,14 +175,14 @@ The string to glue the set of arguments when output them
 	};
 
 
-	// If the expression is true, the rest of arguments will be logged in 
+	// If the expression is false, the rest of arguments will be logged in 
 	// the console
 	var assert = function(expr)
 	{
-		if ( ! expr ) {
+		if ( expr ) {
 			return;
 		}
-		log.apply(null, Array.prototype.slice.call(arguments, 1));
+		error.apply(console, arguments.length < 2 ? ['Assertion error'] : Array.prototype.slice.call(arguments, 1));
 	};
 
 
@@ -216,16 +244,16 @@ The string to glue the set of arguments when output them
 		profile: noop, 
 		profileEnd: noop, 
 
+		table: noop, 
+
 		trace: noop, 
 
-		timeStamp: noop, 
-
 		// Customizing of the console
-		$: {
-			isFormat: $isFormat, 
-			format: $format, 
-			inspect: $inspect, 
-			print: $print, 
+		fn: {
+			isFormat: _isFormat, 
+			format: _format, 
+			inspect: _inspect, 
+			print: _print, 
 			separator: ' '
 		}
 	};
