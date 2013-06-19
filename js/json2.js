@@ -1,6 +1,6 @@
 /*
-    http://www.JSON.org/json2.js
-    2011-01-18
+    json2.js
+    2013-05-26
 
     Public Domain.
 
@@ -146,7 +146,7 @@
     redistribute.
 */
 
-/*jslint evil: true, strict: false, regexp: false */
+/*jslint evil: true, regexp: true */
 
 /*members "", "\b", "\t", "\n", "\f", "\r", "\"", JSON, "\\", apply,
     call, charCodeAt, getUTCDate, getUTCFullYear, getUTCHours,
@@ -159,13 +159,12 @@
 // Create a JSON object only if one does not already exist. We create the
 // methods in a closure to avoid creating global variables.
 
-var JSON;
-if (!JSON) {
+if (typeof JSON !== 'object') {
     JSON = {};
 }
 
 (function () {
-    "use strict";
+    'use strict';
 
     function f(n) {
         // Format integers to have at least two digits.
@@ -174,20 +173,21 @@ if (!JSON) {
 
     if (typeof Date.prototype.toJSON !== 'function') {
 
-        Date.prototype.toJSON = function (key) {
+        Date.prototype.toJSON = function () {
 
-            return isFinite(this.valueOf()) ?
-                this.getUTCFullYear()     + '-' +
-                f(this.getUTCMonth() + 1) + '-' +
-                f(this.getUTCDate())      + 'T' +
-                f(this.getUTCHours())     + ':' +
-                f(this.getUTCMinutes())   + ':' +
-                f(this.getUTCSeconds())   + 'Z' : null;
+            return isFinite(this.valueOf())
+                ? this.getUTCFullYear()     + '-' +
+                    f(this.getUTCMonth() + 1) + '-' +
+                    f(this.getUTCDate())      + 'T' +
+                    f(this.getUTCHours())     + ':' +
+                    f(this.getUTCMinutes())   + ':' +
+                    f(this.getUTCSeconds())   + 'Z'
+                : null;
         };
 
         String.prototype.toJSON      =
             Number.prototype.toJSON  =
-            Boolean.prototype.toJSON = function (key) {
+            Boolean.prototype.toJSON = function () {
                 return this.valueOf();
             };
     }
@@ -218,8 +218,9 @@ if (!JSON) {
         escapable.lastIndex = 0;
         return escapable.test(string) ? '"' + string.replace(escapable, function (a) {
             var c = meta[a];
-            return typeof c === 'string' ? c :
-                '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+            return typeof c === 'string'
+                ? c
+                : '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
         }) + '"' : '"' + string + '"';
     }
 
@@ -303,9 +304,11 @@ if (!JSON) {
 // Join all of the elements together, separated with commas, and wrap them in
 // brackets.
 
-                v = partial.length === 0 ? '[]' : gap ?
-                    '[\n' + gap + partial.join(',\n' + gap) + '\n' + mind + ']' :
-                    '[' + partial.join(',') + ']';
+                v = partial.length === 0
+                    ? '[]'
+                    : gap
+                    ? '[\n' + gap + partial.join(',\n' + gap) + '\n' + mind + ']'
+                    : '[' + partial.join(',') + ']';
                 gap = mind;
                 return v;
             }
@@ -315,8 +318,8 @@ if (!JSON) {
             if (rep && typeof rep === 'object') {
                 length = rep.length;
                 for (i = 0; i < length; i += 1) {
-                    k = rep[i];
-                    if (typeof k === 'string') {
+                    if (typeof rep[i] === 'string') {
+                        k = rep[i];
                         v = str(k, value);
                         if (v) {
                             partial.push(quote(k) + (gap ? ': ' : ':') + v);
@@ -328,7 +331,7 @@ if (!JSON) {
 // Otherwise, iterate through all of the keys in the object.
 
                 for (k in value) {
-                    if (Object.hasOwnProperty.call(value, k)) {
+                    if (Object.prototype.hasOwnProperty.call(value, k)) {
                         v = str(k, value);
                         if (v) {
                             partial.push(quote(k) + (gap ? ': ' : ':') + v);
@@ -340,9 +343,11 @@ if (!JSON) {
 // Join all of the member texts together, separated with commas,
 // and wrap them in braces.
 
-            v = partial.length === 0 ? '{}' : gap ?
-                '{\n' + gap + partial.join(',\n' + gap) + '\n' + mind + '}' :
-                '{' + partial.join(',') + '}';
+            v = partial.length === 0
+                ? '{}'
+                : gap
+                ? '{\n' + gap + partial.join(',\n' + gap) + '\n' + mind + '}'
+                : '{' + partial.join(',') + '}';
             gap = mind;
             return v;
         }
@@ -413,7 +418,7 @@ if (!JSON) {
                 var k, v, value = holder[key];
                 if (value && typeof value === 'object') {
                     for (k in value) {
-                        if (Object.hasOwnProperty.call(value, k)) {
+                        if (Object.prototype.hasOwnProperty.call(value, k)) {
                             v = walk(value, k);
                             if (v !== undefined) {
                                 value[k] = v;
@@ -468,8 +473,9 @@ if (!JSON) {
 // In the optional fourth stage, we recursively walk the new structure, passing
 // each name/value pair to a reviver function for possible transformation.
 
-                return typeof reviver === 'function' ?
-                    walk({'': j}, '') : j;
+                return typeof reviver === 'function'
+                    ? walk({'': j}, '')
+                    : j;
             }
 
 // If the text is not JSON parseable, then a SyntaxError is thrown.
