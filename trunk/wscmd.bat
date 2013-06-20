@@ -14,7 +14,8 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.23.6 Beta
+set wscmd.version=0.23.7 Beta
+set wscmd.copyright=Copyright ^(C^) 2009-2013 Ildar Shaimordanov
 
 
 :: Prevent re-parsing of command line arguments
@@ -215,21 +216,13 @@ if defined wscmd.debug echo.Running:>&2
 if !errorlevel! == !wscmd.ini.session-reload! goto wscmd.start
 
 if !errorlevel! == !wscmd.ini.session-renew! (
-	call :wscmd.delete
 	set wscmd.execute=
 	goto wscmd.start
 )
 
-call :wscmd.delete
-
 
 :wscmd.stop
 endlocal
-goto :EOF
-
-
-:wscmd.delete
-del "%wscmd.execute%"
 goto :EOF
 
 
@@ -466,9 +459,18 @@ echo.^<?job error="%wscmd.ini.enable-error%" debug="%wscmd.ini.enable-debug%" ?^
 echo.
 echo.^<runtime^>
 echo.^<description^>^<^^^![CDATA[Created by %wscmd.name% Version %wscmd.version%
-echo.Copyright ^(C^) 2009-2012 Ildar Shaimordanov
+echo.%wscmd.copyright%
 echo.]]^>^</description^>
 echo.^</runtime^>
+
+if not defined wscmd.compile (
+echo.^<script language="javascript"^>^<^^^![CDATA[
+echo.
+echo.new ActiveXObject^('Scripting.FileSystemObject'^).DeleteFile^('!wscmd.execute:\=\\!'^);
+echo.
+echo.]]^>^</script^>
+)
+
 echo.^<script language="javascript"^>^<^^^![CDATA[
 echo.
 echo.var help = usage = function^(^)
