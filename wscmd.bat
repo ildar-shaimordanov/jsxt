@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.23.7 Beta
+set wscmd.version=0.23.8 Beta
 set wscmd.copyright=Copyright ^(C^) 2009-2013 Ildar Shaimordanov
 
 
@@ -212,9 +212,13 @@ if defined wscmd.compile goto wscmd.stop
 if defined wscmd.debug echo.Running:>&2
 %wscmd.ini.command% "%wscmd.execute%" %wscmd.args%
 
-:: Reread the ini-file and reload the script
+:: Reread the ini-file and reload the script in the current session
 if !errorlevel! == !wscmd.ini.session-reload! goto wscmd.start
 
+:: Remove the script
+if exist "%wscmd.execute%" del "%wscmd.execute%"
+
+:: Rereead the ini-file and reload the script in new session
 if !errorlevel! == !wscmd.ini.session-renew! (
 	set wscmd.execute=
 	goto wscmd.start
