@@ -334,7 +334,7 @@ FileSystem.wildcard2regex.std = function(wildcard)
  * @return	String
  * @access	static
  */
-FileSystem.readFile = function(input, iomode, format)
+FileSystem.readFile = function(input, format)
 {
 	var h, wasFilename;
 
@@ -344,7 +344,7 @@ FileSystem.readFile = function(input, iomode, format)
 		wasFilename = true;
 		var fso = new ActiveXObject('Scripting.FileSystemObject');
 		var f = fso.GetFile(input);
-		h = f.OpenAsTextStream(Number(iomode) || 1, Number(format) || 0);
+		h = f.OpenAsTextStream(1, Number(format) || 0);
 	}
 
 	var result = h.ReadAll();
