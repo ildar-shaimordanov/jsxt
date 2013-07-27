@@ -46,6 +46,70 @@ Math.PI_4 = Math.PI / 4;
 Math.PI_6 = Math.PI / 6;
 
 /**
+ * Returns random integer value in the interval [a, b]
+ *
+ * @param	Number
+ * @param	Number
+ * @return	Number
+ * @access	static
+ */
+Math.randomInt = function(a, b)
+{
+	var x = Math.min(a, b);
+	var y = Math.max(a, b);
+	return Math.floor(Math.random() * y) + x;
+};
+
+/**
+ * Returns a function generating weighted random integer values. 
+ *
+ * The first argument is array where each item means a weight of the value 
+ * for its index. The bigger value means the more possibility of the the 
+ * number appearance. 
+ * The second integer argument defines the initial value for the interval 
+ * of random values. 
+ *
+ * See the example below:
+
+// A list of prizes
+var prizes = ['PS4', 'DVD Player', 'Kit-Kat Bar', 'Nothing'];
+
+// A list of weights
+var weights = [1, 2, 3, 94];
+
+// Generating function
+var rnd = Math.randomWeight(weights);
+
+// Gathering a value
+var prize = prizes[ rnd() ];
+
+ * @param	Array
+ * @param	Number
+ * @return	Function
+ * @access	static
+ */
+Math.randomWeight = function(weights, start)
+{
+	var len = weights.length;
+	var marks = [];
+	var total = 0;
+	for (var i = 0; i < len; i++) {
+		marks[i] = total;
+		total += weights[i];
+	}
+
+	start = Number(start) || 0;
+
+	return function()
+	{
+		var rnd = Math.floor(Math.random() * total);
+		for (var i = len - 1; i >= 0 && rnd < marks[i]; i--) {
+		}
+		return start + i;
+	};
+};
+
+/**
  * Makes sure that the passed number is within both a minimum value and a maximum value
  *
  * @param	Number
