@@ -830,11 +830,16 @@ var Class = (function()
 
 /**
  * Creates a specified namespace and sets a value to the latest item. 
+ * If the value is not specified the method checks existence of the property. 
  *
  * See example below.
 
 Object.ns('a.b.c.d', Math.PI);
 Object.ns('a.x.y.z', Math.PI);
+
+if ( Object.ns('a.b.c.d') ) {
+    // Do something if the property is defined
+}
 
 // The code above creates this structure
 var a = {
@@ -864,11 +869,15 @@ var a = {
 		var name = parts.pop();
 		var len = parts.length;
 
-		var root = that;
+		var root = this === Object ? that:  this;
 
 		for (var i = 0; i < len; i++) {
 			var p = parts[i];
 			root = root[p] = root[p] || {};
+		}
+
+		if ( arguments.length < 2 ) {
+			return root.hasOwnProperty(name);
 		}
 
 		return root[name] = value;
