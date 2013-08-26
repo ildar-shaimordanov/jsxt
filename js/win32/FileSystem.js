@@ -261,11 +261,12 @@ FileSystem.dirName = FileSystem.fullName.replace(/\\[^\\]+$/, '');
 		_makeFind();
 
 		// Store commands, errors, exit codes and duration for debugging reason
-		arguments.callee.cmd = cmd;
-		arguments.callee.error = error;
-		arguments.callee.exitCode = exitCode;
-
-		arguments.callee.duration = (new Date()).getTime() - start;
+		arguments.callee.debug = {
+			cmd: cmd, 
+			error: error, 
+			exitCode: exitCode, 
+			duration: (new Date()).getTime() - start
+		};
 
 		return result;
 	};
