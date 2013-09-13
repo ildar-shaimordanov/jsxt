@@ -443,6 +443,50 @@ Date.prototype.getIsoWeek = function()
 	return w;
 };
 
+if ( ! Date.prototype.toISOString ) {
+
+/**
+ * Return a Date object as a String, using the ISO standard
+ *
+ * @syntax
+ * object.toISOString()
+ *
+ * @param	Date
+ * @return	Date
+ * @access	public
+ *
+ * @link	http://en.wikipedia.org/wiki/ISO_8601
+ */
+Date.prototype.toISOString = (function()
+{
+	var pad = function(n)
+	{
+		return ('00' + n).slice(-2);
+	};
+
+	return function()
+	{
+		return [
+			this.getUTCFullYear(), 
+			'-', 
+			pad(1 + this.getUTCMonth()), 
+			'-', 
+			pad(this.getUTCDate()), 
+			'T', 
+			pad(this.getUTCHours()), 
+			':', 
+			pad(this.getUTCMinutes()), 
+			':', 
+			pad(this.getUTCSeconds()), 
+			'.', 
+			(this.getUTCMilliseconds() / 1000).toFixed(3).slice(2, 5), 
+			'Z'
+		].join('');
+	};
+})();
+
+}
+
 /**
  * Sets the day of the week value of the Date object using local time. 
  * 
