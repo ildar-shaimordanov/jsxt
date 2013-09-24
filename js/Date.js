@@ -703,53 +703,53 @@ Date.moveTo = function(date, to, exactly)
 {
 	var part;
 	if ( exactly ) {
-		if ( part = Number(to.milliseconds) ) {
+		if ( ! isNaN(part = Number(to.milliseconds)) ) {
 			date.setMilliseconds(part);
 		}
-		if ( part = Number(to.seconds) ) {
+		if ( ! isNaN(part = Number(to.seconds)) ) {
 			date.setSeconds(part);
 		}
-		if ( part = Number(to.minutes) ) {
+		if ( ! isNaN(part = Number(to.minutes)) ) {
 			date.setMinutes(part);
 		}
-		if ( part = Number(to.hours) ) {
+		if ( ! isNaN(part = Number(to.hours)) ) {
 			date.setHours(part);
 		}
-		if ( part = Number(to.date) ) {
+		if ( ! isNaN(part = Number(to.date)) ) {
 			date.setDate(part);
 		}
-		if ( part = Number(to.week) ) {
+		if ( ! isNaN(part = Number(to.week)) ) {
 			date.setDate(part * 7);
 		}
-		if ( part = Number(to.month) ) {
+		if ( ! isNaN(part = Number(to.month)) ) {
 			date.setMonth(part);
 		}
-		if ( part = Number(to.year) ) {
+		if ( ! isNaN(part = Number(to.year)) ) {
 			date.setFullYear(part);
 		}
 	} else {
-		if ( part = Number(to.milliseconds) ) {
+		if ( ! isNaN(part = Number(to.milliseconds)) ) {
 			date.setMilliseconds(date.getMilliseconds() + part);
 		}
-		if ( part = Number(to.seconds) ) {
+		if ( ! isNaN(part = Number(to.seconds)) ) {
 			date.setSeconds(date.getSeconds() + part);
 		}
-		if ( part = Number(to.minutes) ) {
+		if ( ! isNaN(part = Number(to.minutes)) ) {
 			date.setMinutes(date.getMinutes() + part);
 		}
-		if ( part = Number(to.hours) ) {
+		if ( ! isNaN(part = Number(to.hours)) ) {
 			date.setHours(date.getHours() + part);
 		}
-		if ( part = Number(to.date) ) {
+		if ( ! isNaN(part = Number(to.date)) ) {
 			date.setDate(date.getDate() + part);
 		}
-		if ( part = Number(to.week) ) {
+		if ( ! isNaN(part = Number(to.week)) ) {
 			date.setDate(date.getDate() + part * 7);
 		}
-		if ( part = Number(to.month) ) {
+		if ( ! isNaN(part = Number(to.month)) ) {
 			date.setMonth(date.getMonth() + part);
 		}
-		if ( part = Number(to.year) ) {
+		if ( ! isNaN(part = Number(to.year)) ) {
 			date.setFullYear(date.getFullYear() + part);
 		}
 	}
