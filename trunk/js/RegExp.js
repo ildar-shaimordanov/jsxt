@@ -97,7 +97,7 @@ RegExp.prototype.match = function(string, index)
 	var re_source = [];
 	var specs = {};
 
-	var chars = '[](){}\\/+-^$?*.';
+	var chars = '[](){}\\/|+-^$?*.';
 	for (var i = 0; i < chars.length; i++) {
 		var c = chars.charAt(i);
 		var m = '\\' + c;
