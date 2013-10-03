@@ -297,7 +297,7 @@ if ( ! Object.create ) {
  * argument into account.
  *
  * @param	The object which should be the prototype of the newly-created object.
- * @return	A new object
+ * @return	The new object
  * @access	static
  * @link	https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/Object/create
  */
