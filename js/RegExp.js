@@ -2,7 +2,7 @@
 // JavaScript unit
 // Add-on for the RegExp manipulation
 //
-// Copyright (c) 2011 by Ildar Shaimordanov aka Rumata
+// Copyright (c) 2011, 2013 by Ildar Shaimordanov
 //
 
 /*
@@ -92,3 +92,26 @@ RegExp.prototype.match = function(string, index)
 	return m;
 };
 
+(function()
+{
+	var re_source = [];
+	var specs = {};
+
+	var chars = '[](){}\\/+-^$?*.';
+	for (var i = 0; i < chars.length; i++) {
+		var c = chars.charAt(i);
+		var m = '\\' + c;
+		specs[c] = m;
+		re_source.push(m);
+	}
+
+	var re = new RegExp('[' + re_source.join('') + ']', 'g');
+
+	String.prototype.quotemeta = function()
+	{
+		return this.replace(re, function($0)
+		{
+			return specs[$0];
+		});
+	};
+})();
