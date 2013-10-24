@@ -831,6 +831,7 @@ var Class = (function()
 /**
  * Creates a specified namespace and sets a value to the latest item. 
  * If the value is not specified the method checks existence of the property. 
+ * The resulting object will be created in the global scope.
  *
  * See example below.
 
