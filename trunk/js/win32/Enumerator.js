@@ -2,7 +2,7 @@
 // JavaScript unit
 // Add-on for the Enumerator manipulations
 //
-// Copyright (c) 2009, 2010, 2012 by Ildar Shaimordanov
+// Copyright (c) 2009, 2010, 2012, 2013 by Ildar Shaimordanov
 //
 
 /**
@@ -80,6 +80,29 @@ Enumerator.map = function(collection, fun, thisp)
 		var i = fc.item();
 		var j = fun.call(thisp, i, collection, fc);
 		result.push(j);
+	}
+	return result;
+};
+
+/**
+ * Enumerator.toArray()
+ *
+ * @description
+ * The static method converts the collection to an array.
+ *
+ * Note: This feature is available from Win32 only.
+ *
+ * @param	Collection
+ * @return	Array
+ * @access	static
+ */
+Enumerator.toArray = function(collection)
+{
+	var result = [];
+	var fc = new Enumerator(collection);
+	for ( ; ! fc.atEnd(); fc.moveNext()) {
+		var i = fc.item();
+		result.push(i);
 	}
 	return result;
 };
