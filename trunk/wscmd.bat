@@ -14,7 +14,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.23.8 Beta
+set wscmd.version=0.23.9 Beta
 set wscmd.copyright=Copyright ^(C^) 2009-2013 Ildar Shaimordanov
 
 
@@ -417,6 +417,8 @@ set wscmd.execute=%wscmd.ini.execute%
 
 setlocal
 
+set POSH=
+call :wscmd.execute.find.powershell powershell.exe
 set WMIC=%windir%\System32\Wbem\wmic.exe
 set GREP=%windir%\System32\findstr.exe
 set FIND=%windir%\System32\find.exe
@@ -428,7 +430,19 @@ endlocal && set wscmd.execute=%wscmd.execute%
 goto :EOF
 
 
+:wscmd.execute.find.powershell
+set "POSH=%~$PATH:1"
+goto :EOF
+
+
 :wscmd.execute.time
+if defined POSH (
+	for /f %%d in ( '%POSH% -Command "Get-Date -UFormat '%%H%%M%%S'" ^<nul' ) do (
+		set "wscmd.execute=!wscmd.execute:$TIME=%%d!"
+	)
+	goto :EOF
+)
+
 for /f "tokens=1,2 delims==" %%i in (
 	'%WMIC% path win32_localtime get Hour^,Minute^,Second /value ^| %GREP% /v "^$"'
 ) do (
@@ -441,6 +455,16 @@ goto :EOF
 
 
 :wscmd.execute.uid
+if defined POSH (
+	for /f %%p in ( '
+		%POSH% -Command "$p = (Get-WmiObject Win32_Process -Filter ProcessId=$pid).ParentProcessId; (Get-WmiObject Win32_Process -Filter ProcessId=$p).ParentProcessId" ^<nul
+	' ) do (
+		set "wscmd.execute=!wscmd.execute:$UID=%%p!"
+	)
+	goto :EOF
+)
+
+:wscmd.execute.uid.loop
 	for /f "tokens=1,2 delims==; " %%a in ( 
 		'%WMIC% Process call create "%windir%\System32\wscript.exe //b" 2^>nul ^| %FIND% "ProcessId"' 
 	) do (
@@ -448,7 +472,7 @@ goto :EOF
 	)
 
 	set wscmd.tmpfile=!wscmd.execute:$UID=%wscmd.uid%!
-if exist "!wscmd.tmpfile!" goto wscmd.execute.uid
+if exist "!wscmd.tmpfile!" goto wscmd.execute.uid.loop
 
 set wscmd.execute=%wscmd.tmpfile%
 goto :EOF
