@@ -1,5 +1,4 @@
-@set @wscmd=0 /*!
-@set @wscmd=
+@if (true == false) @end /*!
 @echo off
 
 
@@ -14,8 +13,8 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.23.9 Beta
-set wscmd.copyright=Copyright ^(C^) 2009-2013 Ildar Shaimordanov
+set wscmd.version=0.23.10 Beta
+set wscmd.copyright=Copyright ^(C^) 2009-2014 Ildar Shaimordanov
 
 
 :: Prevent re-parsing of command line arguments
