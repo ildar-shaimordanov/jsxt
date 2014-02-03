@@ -13,31 +13,25 @@ jsxt.tools.js2bat = function(text, options)
 {
 	options = options || {};
 
-	var host = options.host || '%windir%\\System32\\cscript.exe';
+	var host = options.useWScript ? 'wscript.exe' : 'cscript.exe';
 	var args = options.args || '//nologo';
 
-	var prolog = [
-		'@set @x=0/*!', 
-		'@set @x=', 
-		['@', host, args, '//e:javascript "%~dpnx0" %*'].join(' '), 
-		'@goto :eof */', 
+	var prolog4 = [
+		'@if (true == false) @end /*!', 
+		'@"%windir%\\System32\\' + host + '" ' + args + ' //e:javascript "%~dpnx0" %*', 
+		'@goto :EOF */', 
 		'', 
-		''].join('\n');
+		''];
 
-	var prolog2 = [
-		'@set @x=0/*!&&@set @x=', 
-		['@', host, args, '//e:javascript "%~dpnx0" %*'].join(' '), 
-		'@goto :eof */', 
+	var prolog5 = [
+		'@if (true == false) @end /*!', 
+		'@set "SYSDIR=SysWOW64"', 
+		'@if "%PROCESSOR_ARCHITECTURE%" == "x86" if not defined PROCESSOR_ARCHITEW6432 set "SYSDIR=System32"', 
+		'@"%windir%\\%SYSDIR%\\' + host + '" ' + args + ' //e:javascript "%~dpnx0" %*', 
+		'@goto :EOF */', 
 		'', 
-		''].join('\n');
+		''];
 
-	var prolog3 = [
-		'@if (!@_jscript) == (!@_jscript) (@echo off)', 
-		[host, args, '//e:javascript "%~dpnx0" %*'].join(' '), 
-		'goto :eof', 
-		'@end', 
-		'', 
-		''].join('\n');
-
-	return prolog2 + this.jsCode(text, options);
+	return ( options.useSysWOW64 ? prolog5 : prolog4 ).join('\n') + text;
+//	return ( options.useSysWOW64 ? prolog5 : prolog4 ).join('\n') + this.jsCode(text, options);
 };
