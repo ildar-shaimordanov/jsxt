@@ -49,6 +49,14 @@ eval.beautify = function(input, options)
 };
 
 /*! 
+jsmin.js - 2014-02-04
+Author: Ildar Shaimordanov
+This version was patched to keep important comments (denoted with /*!)
+unchanged. The previous version of jsmin.js ate asterisk symbols and
+modified some characters as well (for example TAB was replaced by SPACE).
+Sometimes, comments should stay unchanged (for example, a function could
+keep its resources within comments). So this version does it.
+
 jsmin.js - 2010-01-15
 Author: NanaLich (http://www.cnblogs.com/NanaLich)
 Another patched version for jsmin.js patched by Billy Hoffman, 
@@ -175,10 +183,7 @@ function jsmin(comment, input, level) {
       c = input.charAt(iChar);
       ++iChar;
     }
-    if(c >= ' ' || c == '\n' || c == '\r') {
-      return c;
-    }
-    return ' ';
+    return c;
   }
 
 
@@ -224,6 +229,7 @@ function jsmin(comment, input, level) {
                     getc();
                     return d + '*/';
                   }
+                  d += c;
                   break;
                 case EOF:
                   throw 'Error: Unterminated comment.';

@@ -9,6 +9,7 @@
 //[requires[ tools/jsxt.tools.jsCode.js ]]
 //[requires[ tools/jsxt.tools.js2xml.js ]]
 //[requires[ tools/jsxt.tools.js2js.js ]]
+//[requires[ tools/jsxt.tools.vbs2js.js ]]
 //[requires[ tools/jsxt.tools.js2bat.js ]]
 
 (function()
@@ -24,6 +25,11 @@ Usage: jsxt FILES [/D:targetPath] [/O]
 
 /D - defines the target path where processed files will be stored
 /O - use this option to overwrite an original file
+
+The following options affect on js-in-bat launch only:
+
+/W   - force usage of WSCRIPT as a scripting host', 
+/WOW - force usage in SysWOW64 environment',
 
 This is not mandatory action. You can use all these tools "as is". 
 You do not need run this untility. Download archive and place it's 
@@ -57,6 +63,7 @@ var iniOptions = {
 		'*.php', 
 
 		'*.js', 
+		'*.vbs', 
 		'*.wsf', 
 		'*.hta', 
 		'*.bat'], 
@@ -70,6 +77,9 @@ var iniOptions = {
 
 	// target directory
 	targetPath: WScript.Arguments.Named.item('D') || '',
+
+	useWScript: WScript.Arguments.Named.Exists('W'), 
+	useSysWOW64: WScript.Arguments.Named.Exists('WOW'), 
 
 	// overwrite an original file
 	overwrite: WScript.Arguments.Named.Exists('O'), 
@@ -128,6 +138,7 @@ var fso = new ActiveXObject('Scripting.FileSystemObject');
 
 processFiles.forEach(function(iname)
 {
+	iniOptions.vbsFile = !! iname.match(/\.vbs$/i);
 	iniOptions.jsFile  = !! iname.match(/\.js$/i);
 	iniOptions.escaped = !! iname.match(/\.(pl|perl|pm|php)$/i);
 	iniOptions.wsfFile = !! iname.match(/\.wsf$/i);
@@ -142,11 +153,21 @@ processFiles.forEach(function(iname)
 		oname = oname.replace(/.+\\/, iniOptions.targetPath + '\\');
 	}
 
-	if ( iniOptions.jsFile ) {
+	if ( iniOptions.vbsFile ) {
+
+		jsxt.tools.alert('vbs-2-bat converting...');
+		text = jsxt.tools.vbs2js(text, iniOptions);
+		text = jsxt.tools.js2bat(text, {
+			useWScript: WScript.Arguments.Named.Exists('W'), 
+			useSysWOW64: true
+		});
+		oname = oname.replace(/\.vbs$/i, '.bat');
+
+	} else if ( iniOptions.jsFile ) {
 
 		jsxt.tools.alert('js-2-bat converting...');
 		text = jsxt.tools.js2js(text, iniOptions);
-		text = jsxt.tools.js2bat(text);
+		text = jsxt.tools.js2bat(text, iniOptions);
 		oname = oname.replace(/\.js$/i, '.bat');
 
 	} else if ( iniOptions.batFile ) {

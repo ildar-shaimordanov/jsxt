@@ -21,15 +21,17 @@ if ( ! WScript.FullName.match(/cscript/i) || WScript.Arguments.Named.Exists('H')
 		'', 
 		'H        - this help', 
 		'W        - force usage of WSCRIPT as a scripting host', 
+		'WOW      - force usage in SysWOW64 environment',
 		'A:string - additional arguments for s scripting host');
 	jsxt.tools.quit();
 }
 
 var options = {
 	// Define the script host to be launched (WSCRIPT or CSCRIPT)
-	host: WScript.Arguments.Named.Exists('W') 
-		? '%windir%\\System32\\wscript.exe'
-		: '%windir%\\System32\\cscript.exe', 
+	useWScript: WScript.Arguments.Named.Exists('W') , 
+
+	//Define whether we generate a script to be working in SysWOW64 environment
+	useSysWOW64: WScript.Arguments.Named.Exists('WOW'), 
 
 	// Additional arguments for the script host
 	args: WScript.Arguments.Named('A') 

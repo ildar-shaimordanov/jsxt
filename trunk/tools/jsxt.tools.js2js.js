@@ -19,6 +19,6 @@ jsxt.tools.js2js = function(text, options)
 			s = that.readFromFile($1);
 			s = that.jsCode(s, options);
 
-			return '\n//' + $1 + '\n' + s;
+			return '\n//' + $1 + '\n' + s + '\n';
 		});
 };

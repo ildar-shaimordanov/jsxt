@@ -519,7 +519,7 @@ c.draw();
 
 		// Remove definitions of service methods
 		delete proto.parent;
-		delete proto.instanceOf
+		delete proto.instanceOf;
 
 		// Create new prototype from the parent prototype and copy its methods
 		// Make parental methods available via the reference "this.parent()"
@@ -793,7 +793,7 @@ var Class = (function()
 
 			// Remove definitions of service methods
 			delete object.parent;
-			delete object.instanceOf
+			delete object.instanceOf;
 
 			// Prepare the structure of the parental class
 			// Be sure that it is object anyway
@@ -922,7 +922,7 @@ Object.clone = function(object)
 	var innerObjects = [Date, Boolean, Number, String];
 	for (var i = 0; i < innerObjects.length; i++) {
 		if ( object.constructor == innerObjects[i] ) {
-			return new innerObjects[i](object.valueOf())
+			return new innerObjects[i](object.valueOf());
 		}
 	}
 
