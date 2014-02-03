@@ -43,7 +43,7 @@ execute=.\$$$%~n0_$UID.wsf
 
 ; This option specifies a binary executable file that will be invoked to
 ; launch a script.
-command=%windir%\system32\cscript.exe //nologo
+command=%windir%\SysWOW64\cscript.exe //nologo
 
 
 ; A string that describes the character set encoding used by the resulting

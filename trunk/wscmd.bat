@@ -13,7 +13,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.23.10 Beta
+set wscmd.version=0.23.11 Beta
 set wscmd.copyright=Copyright ^(C^) 2009-2014 Ildar Shaimordanov
 
 
