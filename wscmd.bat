@@ -13,7 +13,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.23.12 Beta
+set wscmd.version=0.23.13 Beta
 set wscmd.copyright=Copyright ^(C^) 2009-2014 Ildar Shaimordanov
 
 
@@ -986,7 +986,15 @@ var uArgs = WScript.Arguments.Unnamed;
 
 while ( true ) {
 
-	var e;
+	/*
+	This is internally used variable for catching run-time errors. We 
+	do not try to hide it completely from the user but we do an attempt to 
+	complicate its name as much as possible to prevent intersection with 
+	user-defined objects. Also we understand that the user can give the 
+	same name for its variable. Anyway, it doesn't affect on the script 
+	performance. 
+	*/
+	var __3rr0r__;
 	try {
 
 		/*
@@ -1010,13 +1018,16 @@ while ( true ) {
 			}
 			WScript.Echo(result);
 		})
-		(eval, eval((function(PS1, PS2)
+		(eval, eval((function()
 		{
 
 			var env = WScript.CreateObject('WScript.Shell').Environment('PROCESS');
 			if ( env('wscmd.quiet') ) {
 				PS1 = '';
 				PS2 = '';
+			} else {
+				PS1 = 'wscmd > ';
+				PS2 = 'wscmd :: ';
 			}
 
 			/*
@@ -1143,11 +1154,11 @@ while ( true ) {
 			eval.history += history;
 			return history;
 
-		})('wscmd > ', 'wscmd :: ')));
+		})()));
 
-	} catch (e) {
+	} catch (__3rr0r__) {
 
-		WScript.Echo(WScript.ScriptName + ': "<stdin>", line ' + eval.number + ': ' + e.name + ': ' + e.message);
+		WScript.Echo(WScript.ScriptName + ': "<stdin>", line ' + eval.number + ': ' + __3rr0r__.name + ': ' + __3rr0r__.message);
 
 	}
 
