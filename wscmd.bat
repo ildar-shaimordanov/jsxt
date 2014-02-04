@@ -13,7 +13,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.23.11 Beta
+set wscmd.version=0.23.12 Beta
 set wscmd.copyright=Copyright ^(C^) 2009-2014 Ildar Shaimordanov
 
 
@@ -1020,6 +1020,23 @@ while ( true ) {
 			}
 
 			/*
+			The eval.history can be changed by the user as he can. 
+			We should prevent a concatenation with the one of 
+			the empty values such as undefined, null, etc. 
+			*/
+			if ( ! eval.history || typeof eval.history != 'string' ) {
+				eval.history = '';
+			}
+
+			/*
+			The eval.number can be changed by the user as he can. 
+			We should prevent an incrementing of non-numeric values. 
+			*/
+			if ( ! eval.number || typeof eval.number != 'number' ) {
+				eval.number = 0;
+			}
+
+			/*
 			Validate that a user started multiple lines ending 
 			with the backslash character '\\'. 
 
@@ -1042,7 +1059,7 @@ while ( true ) {
 			Store all characters entered from STDIN. 
 
 			Array is used to prevent usage of String.charAt that can be 
-			overriden. This makes the code the safer. 
+			overridden. This makes the code the safer. 
 			*/
 			var result = [];
 
@@ -1122,13 +1139,6 @@ while ( true ) {
 
 			if ( eval.history ) {
 				eval.history += '\n';
-			} else {
-				/*
-				The eval.history can be changed by the user as he can. 
-				We should prevent a concatenation with the one of 
-				the empty values such as undefined, null, etc. 
-				*/
-				eval.history = '';
 			}
 			eval.history += history;
 			return history;
