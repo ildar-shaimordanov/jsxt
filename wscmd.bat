@@ -13,7 +13,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.23.13 Beta
+set wscmd.version=0.23.14 Beta
 set wscmd.copyright=Copyright ^(C^) 2009-2014 Ildar Shaimordanov
 
 
@@ -587,7 +587,9 @@ goto :EOF
 
 
 :wscmd.include
-echo.^<script language="%wscmd.engine%" src="%~f1"^>^</script^>
+set "wscmd.filename=%~f1"
+set "wscmd.filename=%wscmd.filename:&=&amp;%"
+echo.^<script language="%wscmd.engine%" src="%wscmd.filename%"^>^</script^>
 goto :EOF
 
 
