@@ -48,8 +48,8 @@ command=%windir%\SysWOW64\cscript.exe //nologo
 
 ; A string that describes the character set encoding used by the resulting
 ; XML document. The string may include any of the character sets supported
-; by Microsoft Internet Explorer. The default value is utf-8.
-xml-encoding=utf-8
+; by Microsoft Internet Explorer. The default value is cp866.
+xml-encoding=cp866
 
 
 ; A Boolean value. False is the default value. Set to true to allow error
