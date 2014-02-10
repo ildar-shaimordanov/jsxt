@@ -46,6 +46,47 @@ Math.PI_4 = Math.PI / 4;
 Math.PI_6 = Math.PI / 6;
 
 /**
+ * Returns the largest value that is not greater than value and divisible 
+ * by modulo
+ *
+ * @param	Number
+ * @param	Number
+ * @return	Number
+ * @access	static
+ */
+Math.floorModulo = function(value, modulo)
+{
+	return Math.floor(value / modulo) * modulo;
+};
+
+/**
+ * Returns the smallest value that is not less than value and divisible 
+ * by modulo
+ *
+ * @param	Number
+ * @param	Number
+ * @return	Number
+ * @access	static
+ */
+Math.ceilModulo = function(value, modulo)
+{
+	return Math.ceil(value / modulo) * modulo;
+};
+
+/**
+ * Returns the nearest value that is divisible by modulo
+ *
+ * @param	Number
+ * @param	Number
+ * @return	Number
+ * @access	static
+ */
+Math.roundModulo = function(value, modulo)
+{
+	return Math.round(value / modulo) * modulo;
+};
+
+/**
  * Returns random integer value in the interval [a, b]
  *
  * @param	Number
