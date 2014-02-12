@@ -3,7 +3,7 @@
 // ScriptControl.js
 // Extension for ScriptControl
 //
-// Copyright (c) 2011 by Ildar Shaimordanov
+// Copyright (c) 2011,2014 by Ildar Shaimordanov
 //
 
 /**
@@ -12,18 +12,39 @@
  * It duplicates functionality of some methods of the original 
  * COM object but gives benefits in usage. 
  *
+ * @example
+ * function alert(msg)
+ * {
+ *     WScript.Echo(msg);
+ * };
+ * 
+ * var sc = new ScriptControl('VBScript', function(e)
+ * {
+ *     alert(e.Source + ': ' + e.Description);
+ * });
+ * 
+ * sc.addWScript();
+ * sc.addObject('alert', alert);
+ * 
+ * sc.addCode([
+ *     'greeting = "Hello, world!"', 
+ *     'alert greeting', 
+ *     'x = 1 / 0', 
+ * ].join('\n'));
+ *
  * @param	string	Optional, a language of a executed script. 
  * 			The default value is 'VBScript'
- * @param	object	Optional, an object available for the script. 
+ * @param	function	Optional, a function used to catch run-time errors
+ * 			while executing a code. 
  * @return	object
  * @see	http://msdn.microsoft.com/en-us/library/aa227430%28v=VS.60%29.aspx
  * @see	http://msdn.microsoft.com/en-us/library/aa227637%28v=VS.60%29.aspx
  */
-function ScriptControl(language, options)
+function ScriptControl(language, catcher)
 {
 	this.sc = new ActiveXObject('MSScriptControl.ScriptControl');
 	this.sc.Language = language || ScriptControl.defaultLanguage || 'VBScript';
-	this.addObject(options);
+	this.catcher = typeof catcher == 'function' ? catcher : null;
 };
 
 /**
@@ -31,58 +52,9 @@ function ScriptControl(language, options)
  */
 ScriptControl.defaultLanguage = 'VBScript';
 
-/**
- * The collection of items that will be available for the script internally. 
- */
-ScriptControl.WScript = {
-	Name: WScript.Name,
-	FullName: WScript.FullName, 
-	Version: WScript.Version,
-	BuildVersion: WScript.BuildVersion,
-	ScriptName: WScript.ScriptName, 
-	ScriptFullName: WScript.ScriptFullName, 
-	Interactive: WScript.Interactive,
-
-	Arguments: WScript.Arguments, 
-
-	StdIn: WScript.StdIn, 
-	StdOut: WScript.StdOut, 
-	StdErr: WScript.StdErr, 
-
-	CreateObject: function(progId, pref)
-	{
-		return WScript.CreateObject(progId, pref);
-	},
-	GetObject: function(moniker)
-	{
-		return WScript.GetObject(moniker);
-	}, 
-
-	ConnectObject: function(moniker)
-	{
-		return WScript.ConnectObject(moniker);
-	}, 
-	DisconnectObject: function(object)
-	{
-		return WScript.DisconnectObject(object);
-	}, 
-
-	Echo: function()
-	{
-		if ( arguments.length == 0 ) {
-			WScript.Echo();
-			return;
-		}
-		var msg = arguments[0];
-		for (var i = 1; i < arguments.length; i++) {
-			msg += ' ' + arguments[i];
-		}
-		WScript.Echo(msg);
-	}
-};
-
-(function(ScriptControl_prototype)
+(function(proto)
 {
+	var that = this;
 
 	/**
 	 * Makes an object available for the script programs
@@ -92,34 +64,32 @@ ScriptControl.WScript = {
 	 * @param	boolean	A boolean flag defining how to add an object 
 	 * @return	void
 	 */
-	ScriptControl_prototype.addObject = function(options, addMembers)
+	proto.addObject = function(name)
 	{
-		addMembers = addMembers || false;
-
 		var sc = this.sc;
 
-		if ( typeof options == 'string' ) {
-			sc.addObject(options, arguments[1], arguments[2]);
+		if ( typeof name == 'string' ) {
+			sc.addObject(name, arguments[1], arguments[2] || false);
 			return;
 		}
 
-		for (var p in options) {
-			if ( ! options.hasOwnProperty(p) ) {
-				continue;
+		for (var i = 0; i < name.length; i++) {
+			var p = name[i];
+			if ( p in that ) {
+				sc.AddObject(p, that[p], arguments[1] || false);
 			}
-			sc.AddObject(p, options[p], addMembers);
 		}
 	};
 
 	/**
 	 * Makes the WScript object available for the script programs
 	 *
-	 * @param	void
+	 * @param	boolean	A boolean flag defining how to add the object 
 	 * @return	void
 	 */
-	ScriptControl_prototype.addWScript = function()
+	proto.addWScript = function(addMembers)
 	{
-		this.sc.AddObject('WScript', ScriptControl.WScript);
+		this.sc.AddObject('WScript', WScript, addMembers);
 	};
 
 	/**
@@ -128,13 +98,18 @@ ScriptControl.WScript = {
 	 * @param	void
 	 * @return	void
 	 */
-	ScriptControl_prototype.reset = function()
+	proto.reset = function()
 	{
 		this.sc.reset();
 	};
 
 	/**
+	 * ScriptControl.run(code[, args[, catcher]])
 	 * Executes a subroutine.
+	 * You can use this method to call Subroutines, in which case the 
+	 * Result returned is empty and you can use the alternate calling 
+	 * convention to ignore the return result. 
+	 *
 	 * The last argument is function that will be launched to 
 	 * catch an exception and handle it. 
 	 *
@@ -143,9 +118,12 @@ ScriptControl.WScript = {
 	 * @param	function	An error handler
 	 * @return	void
 	 */
-	ScriptControl_prototype.run = function(name, args, catcher)
+	proto.run = function(name, args, catcher)
 	{
+		catcher = catcher || this.catcher;
+
 		var sc = this.sc;
+
 		if ( typeof catcher != 'function' ) {
 			return sc.Run(name, args);
 		}
@@ -165,10 +143,19 @@ ScriptControl.WScript = {
 	};
 
 	/**
-	 * here are created three methods that are
-	 * -- addCode - Adds a subroutine to the ScriptControl
-	 * -- eval    - Evaluates an expression
-	 * -- exec    - Executes a single statement
+	 * ScriptControl.addCode(code[, catcher])
+	 * Adds a block of code of code to the ScriptControl. During this 
+	 * process, the syntax of the code is checked, and the first error 
+	 * found will trigger the Error event.
+	 *
+	 * ScriptControl.eval(expression[, catcher])
+	 * Evaluates an expression. You can use this method to call both 
+	 * intrinsic script functions, as well as user functions. 
+	 *
+	 * ScriptControl.exec(statement[, catcher])
+	 * Executes a single statement. This method allows you to call any 
+	 * intrinsic statement or Sub routine. You can also use it to call 
+	 * functions, but the return result is dropped. 
 	 *
 	 * The last argument is function that will be launched to 
 	 * catch an exception and handle it. 
@@ -184,11 +171,14 @@ ScriptControl.WScript = {
 
 		var m = methods[p];
 
-		ScriptControl_prototype[m] = (function(p)
+		proto[m] = (function(p)
 		{
 			return function(code, catcher)
 			{
+				catcher = catcher || this.catcher;
+
 				var sc = this.sc;
+
 				if ( typeof catcher != 'function' ) {
 					return sc[p](code);
 				}
