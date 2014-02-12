@@ -6,6 +6,62 @@
 // Copyright (c) 2011,2014 by Ildar Shaimordanov
 //
 
+/*
+
+var vbs = (function()
+{
+	var main = function(code)
+	{
+		return main.addCode(code);
+	};
+
+	var that = this;
+
+	main.addObject = function(names, addMembers)
+	{
+		names = names.split(/\s+/);
+		for (var i = 0; i < names.length; i++) {
+			var b = names[i];
+			if ( b in that ) {
+				vb.AddObject(b, that[b], addMembers || false);
+			}
+		}
+	};
+
+	main.reset = function()
+	{
+		return vb.Reset();
+	};
+
+	main.run = function(code, args)
+	{
+		return vb.Run(code, args);
+	};
+
+	main.addCode = function(code)
+	{
+		return vb.AddCode(code);
+	};
+
+	main.eval = function(code)
+	{
+		return vb.Eval(code);
+	};
+
+	main.exec = function(code)
+	{
+		return vb.ExecuteStatement(code);
+	};
+
+	var vb = new ActiveXObject('MSScriptControl.ScriptControl');
+	vb.Language = 'VBScript';
+	main.addObject('WScript');
+
+	return main;
+})();
+
+*/
+
 /**
  * The ScriptControl class provides an OOP interface over 
  * the standard COM object MSScriptControl.ScriptControl. 
@@ -136,10 +192,22 @@ ScriptControl.defaultLanguage = 'VBScript';
 		}
 	};
 
-	var methods = {
-		'AddCode': 'addCode', 
-		'Eval': 'eval', 
-		'ExecuteStatement': 'exec'
+	var perform = function(action, code, catcher)
+	{
+		catcher = catcher || this.catcher;
+
+		var sc = this.sc;
+
+		if ( typeof catcher != 'function' ) {
+			return sc[action](code);
+		}
+
+		var e;
+		try {
+			return sc[action](code);
+		} catch (e) {
+			catcher(sc.Error);
+		}
 	};
 
 	/**
@@ -148,10 +216,36 @@ ScriptControl.defaultLanguage = 'VBScript';
 	 * process, the syntax of the code is checked, and the first error 
 	 * found will trigger the Error event.
 	 *
+	 * The last argument is function that will be launched to 
+	 * catch an exception and handle it. 
+	 *
+	 * @param	string	A subroutine, expression or statement
+	 * @param	function	An error handler
+	 * @return	mixed
+	 */
+	proto.addCode = function(code, catcher)
+	{
+		return perform.call(this, 'AddCode', code, catcher);
+	};
+
+	/**
 	 * ScriptControl.eval(expression[, catcher])
 	 * Evaluates an expression. You can use this method to call both 
 	 * intrinsic script functions, as well as user functions. 
 	 *
+	 * The last argument is function that will be launched to 
+	 * catch an exception and handle it. 
+	 *
+	 * @param	string	A subroutine, expression or statement
+	 * @param	function	An error handler
+	 * @return	mixed
+	 */
+	proto.eval = function(code, catcher)
+	{
+		return perform.call(this, 'Eval', code, catcher);
+	};
+
+	/**
 	 * ScriptControl.exec(statement[, catcher])
 	 * Executes a single statement. This method allows you to call any 
 	 * intrinsic statement or Sub routine. You can also use it to call 
@@ -164,34 +258,10 @@ ScriptControl.defaultLanguage = 'VBScript';
 	 * @param	function	An error handler
 	 * @return	mixed
 	 */
-	for (var p in methods) {
-		if ( ! methods.hasOwnProperty(p) ) {
-			continue;
-		}
-
-		var m = methods[p];
-
-		proto[m] = (function(p)
-		{
-			return function(code, catcher)
-			{
-				catcher = catcher || this.catcher;
-
-				var sc = this.sc;
-
-				if ( typeof catcher != 'function' ) {
-					return sc[p](code);
-				}
-
-				var e;
-				try {
-					return sc[p](code);
-				} catch (e) {
-					catcher(sc.Error);
-				}
-			};
-		})(p);
-	}
+	proto.exec = function(code, catcher)
+	{
+		return perform.call(this, 'ExecuteStatement', code, catcher);
+	};
 
 })(ScriptControl.prototype);
 
