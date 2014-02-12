@@ -89,7 +89,7 @@ ScriptControl.defaultLanguage = 'VBScript';
 	 */
 	proto.addWScript = function(addMembers)
 	{
-		this.sc.AddObject('WScript', WScript, addMembers);
+		this.addObject('WScript', WScript, addMembers);
 	};
 
 	/**
