@@ -2,7 +2,7 @@
 // Math.js
 // Extension for Math object
 //
-// Copyright (c) 2011 by Ildar Shaimordanov
+// Copyright (c) 2011, 2013, 2014 by Ildar Shaimordanov
 //
 
 /**
