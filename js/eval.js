@@ -2,7 +2,7 @@
 // JScript add-on
 // Wrappers over jsmin and js_beautify
 //
-// @copyright	Copyright (c) 2009, 2011 by Ildar Shaimordanov
+// @copyright	Copyright (c) 2009, 2011, 2014 by Ildar Shaimordanov
 //
 
 /*
@@ -51,11 +51,11 @@ eval.beautify = function(input, options)
 /*! 
 jsmin.js - 2014-02-04
 Author: Ildar Shaimordanov
-This version was patched to keep important comments (denoted with /*!)
-unchanged. The previous version of jsmin.js ate asterisk symbols and
-modified some characters as well (for example TAB was replaced by SPACE).
-Sometimes, comments should stay unchanged (for example, a function could
-keep its resources within comments). So this version does it.
+This version was patched to keep important comments (denoted with /*!) 
+unchanged. The previous version of jsmin.js ate asterisk symbols and 
+modified some characters as well (for example TAB was replaced by SPACE). 
+Sometimes, comments should stay unchanged (for example, a function could 
+keep its resources within comments). So this version does it. 
 
 jsmin.js - 2010-01-15
 Author: NanaLich (http://www.cnblogs.com/NanaLich)
@@ -194,6 +194,10 @@ function jsmin(comment, input, level) {
     theLookahead = getc();
     return theLookahead;
   }
+  function peekIC() {
+    theLookahead = getcIC();
+    return theLookahead;
+  }
 
 
   /* next -- get the next character, excluding comments. peek() is used to see
@@ -225,8 +229,8 @@ function jsmin(comment, input, level) {
               c = getcIC(); // let it know it's inside an important comment
               switch(c) {
                 case '*':
-                  if(peek() == '/') {
-                    getc();
+                  if(peekIC() == '/') {
+                    getcIC();
                     return d + '*/';
                   }
                   d += c;
