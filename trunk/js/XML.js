@@ -129,6 +129,33 @@ XML.transform = function(xml, xslt)
 	return xml.transformNode(xslt);
 };
 
+XML.selectPath = function(xml)
+{
+	if ( ! xml ) {
+		return '';
+	}
+
+	var t = typeof xml.selectNodes;
+	if ( t != 'function' && t != 'unknown' ) {
+		return '';
+	}
+
+	var result = [];
+	var ancestors = xml.selectNodes('ancestor-or-self::*')
+	for (var i = 0; i < ancestors.length; i++) {
+		var node = ancestors[i];
+		var name = node.nodeName;
+
+		var L = node.selectNodes('preceding-sibling::' + name).length;
+		var R = node.selectNodes('following-sibling::' + name).length;
+		if (L != 0 || R != 0) {
+			name += '[' + ( L + 1 ) + ']';
+		}
+		result.push(name);
+	}
+	return  result.join('/')
+};
+
 if ( 'undefined' != typeof ActiveXObject ) {
 // IE, WSH
 
