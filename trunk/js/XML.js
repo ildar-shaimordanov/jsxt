@@ -129,6 +129,14 @@ XML.transform = function(xml, xslt)
 	return xml.transformNode(xslt);
 };
 
+/*
+// http://forum.script-coding.com/viewtopic.php?id=9277
+var xml = new ActiveXObject('MSXML2.DOMDocument');
+xml.setProperty('SelectionLanguage', 'XPath');
+xml.loadXML('<a><b/><b><c/><c id="1"/></b></a>');
+var node = xml.selectSingleNode('//c[@id="1"]');
+var path = XML.selectPath(node); // 'a/b[2]/c[2]'
+*/
 XML.selectPath = function(xml)
 {
 	if ( ! xml ) {
