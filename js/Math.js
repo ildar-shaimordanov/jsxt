@@ -200,7 +200,14 @@ if ( ! Math.hypot ) {
  */
 Math.hypot = function(x, y)
 {
-	return Math.sqrt(x * x + y * y);
+//	return Math.sqrt(x * x + y * y);
+	var args = arguments;
+	var result = 0;
+	for (var i = 0; i < args.length; i++) {
+		var v = args[i];
+		result += v * v;
+	}
+	return Math.sqrt(result);
 };
 
 }
