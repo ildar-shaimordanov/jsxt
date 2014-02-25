@@ -13,7 +13,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.23.14 Beta
+set wscmd.version=0.23.15 Beta
 set wscmd.copyright=Copyright ^(C^) 2009-2014 Ildar Shaimordanov
 
 
@@ -1020,7 +1020,7 @@ while ( true ) {
 			}
 			WScript.Echo(result);
 		})
-		(eval, eval((function()
+		(eval, eval((function(PS1, PS2)
 		{
 
 			var env = WScript.CreateObject('WScript.Shell').Environment('PROCESS');
