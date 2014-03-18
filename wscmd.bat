@@ -13,7 +13,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.23.15 Beta
+set wscmd.version=0.23.16 Beta
 set wscmd.copyright=Copyright ^(C^) 2009-2014 Ildar Shaimordanov
 
 
@@ -505,10 +505,14 @@ echo.{
 echo.	WScript.Arguments.ShowUsage^(^);
 echo.};
 echo.
-echo.var alert = echo = print = function^(^)
+echo.var alert = echo = print = ^(function^(^)
 echo.{
-echo.	WScript.Echo(Array.prototype.slice.call(arguments));
-echo.};
+echo.	var slice = Array.prototype.slice;
+echo.	return function^(^)
+echo.	{
+echo.		WScript.Echo^(slice.call^(arguments^)^);
+echo.	};
+echo.}^)^(^);
 echo.
 echo.var quit = exit = function^(exitCode^)
 echo.{
@@ -517,8 +521,8 @@ echo.};
 echo.
 echo.var cmd = shell = function^(^)
 echo.{
-echo.	var shell = WScript.CreateObject^('WSCript.Shell'^);
-echo.	shell.run^('%%COMSPEC%%'^);
+echo.	var shell = new ActiveXObject^('WSCript.Shell'^);
+echo.	shell.Run^('%%COMSPEC%%'^);
 echo.};
 echo.
 echo.var sleep = function^(time^)
@@ -901,14 +905,14 @@ var help = usage = (function()
 	};
 })();
 
-var alert = echo = print = function()
+var alert = echo = print = (function()
 {
-	var result = arguments[0];
-	for (var i = 1; i < arguments.length; i++) {
-		result += ',' + arguments[i];
-	}
-	WScript.Echo(result);
-};
+	var slice = Array.prototype.slice;
+	return function()
+	{
+		WScript.Echo(slice.call(arguments));
+	};
+})();
 
 var quit = exit = function(exitCode)
 {
@@ -917,8 +921,8 @@ var quit = exit = function(exitCode)
 
 var cmd = shell = function()
 {
-	var shell = WScript.CreateObject('WSCript.Shell');
-	shell.run('%COMSPEC%');
+	var shell = new ActiveXObject('WSCript.Shell');
+	shell.Run('%COMSPEC%');
 };
 
 var sleep = function(time)
@@ -1023,7 +1027,7 @@ while ( true ) {
 		(eval, eval((function(PS1, PS2)
 		{
 
-			var env = WScript.CreateObject('WScript.Shell').Environment('PROCESS');
+			var env = new ActiveXObject('WScript.Shell').Environment('PROCESS');
 			if ( env('wscmd.quiet') ) {
 				PS1 = '';
 				PS2 = '';
