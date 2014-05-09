@@ -1,6 +1,6 @@
 #labels Featured
 _
-На этой странице говорится о wscmd, командном интерпретаторе Windows Scripting Command Interpreter. Самая свежая версия скрипта может быть загружена с [http://code.google.com/p/jsxt/source/browse/trunk/wscmd.bat этой страницы]. 
+На этой странице говорится о wscmd, командном интерпретаторе Windows Scripting Command Interpreter. Самая свежая версия скрипта может быть загружена с [http://code.fosshub.com/jsxt/downloads сайта FossHub] или из [http://code.google.com/p/jsxt/source/browse/trunk/wscmd.bat репозитория]. 
 _
 
 <wiki:toc max_depth="5" />
