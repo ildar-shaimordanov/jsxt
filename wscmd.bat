@@ -13,7 +13,7 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.23.16 Beta
+set wscmd.version=0.23.17 Beta
 set wscmd.copyright=Copyright ^(C^) 2009-2014 Ildar Shaimordanov
 
 
@@ -1019,7 +1019,7 @@ while ( true ) {
 			if ( result === void 0 ) {
 				return;
 			}
-			if ( typeof eval.inspect == 'function' ) {
+			if ( typeof eval.inspect == 'function' && typeof result == 'object' ) {
 				result = eval.inspect(result);
 			}
 			WScript.Echo(result);
