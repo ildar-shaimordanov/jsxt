@@ -368,19 +368,22 @@ Date.prototype.getLastDay = function()
  * @author
  * Ilya Lebedev
  *
- *  return year according to Iso notation
+ * Another implementation
+ * http://weeknumber.net/how-to/javascript
+ *
+ *  return year according to ISO notation
  *
  *  @return int year number
  *  @access public
  */
-Date.prototype.getIsoYear = function()
+Date.prototype.getISOYear = function()
 {
 	var d = this.getDayOfYear();
-	var j1 = (new Date(this.getFullYear(), 0, 1)).getIsoDay();
+	var j1 = (new Date(this.getFullYear(), 0, 1)).getISODay();
 	var y = this.getFullYear();
 	if ( d <= (8 - j1) && j1 > 4 ) {
 		return y - 1;
-	} else if ( ( this.getDaysInYear() - d ) < ( 4 - this.getIsoDay() ) ) {
+	} else if ( ( this.getDaysInYear() - d ) < ( 4 - this.getISODay() ) ) {
 		return y + 1;
 	} else {
 		return y;
@@ -394,12 +397,15 @@ Date.prototype.getIsoYear = function()
  * @author
  * Ilya Lebedev
  *
+ * Another implementation
+ * http://weeknumber.net/how-to/javascript
+ *
  *  find day number in ISO notation (Mon = 1, Sun=7)
  *
  *  @return day number
  *  @access public
  */
-Date.prototype.getIsoDay = function()
+Date.prototype.getISODay = function()
 {
 	var y = this.getFullYear();
 	var yy = (y - 1) % 100;
@@ -416,16 +422,19 @@ Date.prototype.getIsoDay = function()
  * @author
  * Ilya Lebedev
  *
+ * Another implementation
+ * http://weeknumber.net/how-to/javascript
+ *
  *  return week number in ISO notation
  *
  *  @return int week number
  *  @access public
  */
-Date.prototype.getIsoWeek = function()
+Date.prototype.getISOWeek = function()
 {
 	var y = this.getFullYear();
-	var yi = this.getIsoYear();
-	var j1 = (new Date(y, 0, 1)).getIsoDay();
+	var yi = this.getISOYear();
+	var j1 = (new Date(y, 0, 1)).getISODay();
 	if ( yi < y ) {
 		if ( j1 == 5 || ( j1 == 6 && (new Date(yi, 0, 1)).isLeapYear() ) ) {
 			w = 53;
@@ -435,7 +444,7 @@ Date.prototype.getIsoWeek = function()
 	} else if (yi > y) {
 		w = 1;
 	} else {
-		var w = Math.floor((this.getDayOfYear() + (7 - this.getIsoDay()) + (j1 - 1)) / 7);
+		var w = Math.floor((this.getDayOfYear() + (7 - this.getISODay()) + (j1 - 1)) / 7);
 		if ( j1 > 4 ) {
 			w -= 1;
 		}
@@ -833,6 +842,9 @@ Date.movePreviousWeekday = function(date, to)
  * @author
  * Ilya Lebedev
  *
+ * Another implementation
+ * http://weeknumber.net/how-to/javascript
+ *
  *  Converts Date object to formatted string
  *
  *  @description
@@ -914,8 +926,8 @@ Date.format = function (format, date, spacer)
 		case 'd': return Date.format.pad(date.getDate(), 2, spacer);
 		case 'D': return Date.format("%m/%d/%y", date, spacer);
 		case 'e': return Date.format.pad(date.getDate(), 2, ' ');
-		case 'g': return String(date.getIsoYear()).slice(-2);
-		case 'G': return date.getIsoYear();
+		case 'g': return String(date.getISOYear()).slice(-2);
+		case 'G': return date.getISOYear();
 		case 'H': return Date.format.pad(date.getHours(), 2, spacer);
 		case 'I': return Date.format.pad(date.getHours() > 12 ? date.getHours() - 12 : date.getHours(), 2, spacer);
 		case 'j': return Date.format.pad(date.getDayOfYear(), 3, spacer);
@@ -928,9 +940,9 @@ Date.format = function (format, date, spacer)
 		case 'S': return Date.format.pad(date.getSeconds(), 2, spacer);
 		case 't': return "\t";
 		case 'T': return Date.format("%H:%M:%S", date, spacer);
-		case 'u': return date.getIsoDay();
-		case 'U': return Date.format.pad(parseInt((date.getDayOfYear() - 1 - date.getIsoDay() + 13) / 7 - 1), 2, "0");
-		case 'V': return Date.format.pad(date.getIsoWeek(), 2, spacer);
+		case 'u': return date.getISODay();
+		case 'U': return Date.format.pad(parseInt((date.getDayOfYear() - 1 - date.getISODay() + 13) / 7 - 1), 2, "0");
+		case 'V': return Date.format.pad(date.getISOWeek(), 2, spacer);
 		case 'w': return date.getDay();
 		case 'W': return Date.format.pad(parseInt((date.getDayOfYear() - 1 - date.getDay() + 13) / 7 - 1), 2, "0");
 		case 'x': return Date.locale.DATE(date, spacer);
