@@ -368,7 +368,8 @@ Date.prototype.getLastDay = function()
  * @author
  * Ilya Lebedev
  *
- * Another implementation
+ * Another implementations
+ * http://planetcalc.ru/1252/
  * http://weeknumber.net/how-to/javascript
  *
  *  return year according to ISO notation
@@ -397,7 +398,8 @@ Date.prototype.getISOYear = function()
  * @author
  * Ilya Lebedev
  *
- * Another implementation
+ * Another implementations
+ * http://planetcalc.ru/1252/
  * http://weeknumber.net/how-to/javascript
  *
  *  find day number in ISO notation (Mon = 1, Sun=7)
@@ -422,7 +424,8 @@ Date.prototype.getISODay = function()
  * @author
  * Ilya Lebedev
  *
- * Another implementation
+ * Another implementations
+ * http://planetcalc.ru/1252/
  * http://weeknumber.net/how-to/javascript
  *
  *  return week number in ISO notation
@@ -842,7 +845,8 @@ Date.movePreviousWeekday = function(date, to)
  * @author
  * Ilya Lebedev
  *
- * Another implementation
+ * Another implementations
+ * http://planetcalc.ru/1252/
  * http://weeknumber.net/how-to/javascript
  *
  *  Converts Date object to formatted string
