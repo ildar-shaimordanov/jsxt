@@ -94,6 +94,7 @@ Ajax.STATE_LOADED	= 4;
  * Creates the XMLHttpRequest object platform-independently. 
  * Returned object has the following methods and properties.
  *
+ * Methods:
  * -- abort()
  * -- getAllResponseHeaders()
  * -- getResponseHeader()
