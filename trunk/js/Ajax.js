@@ -94,7 +94,6 @@ Ajax.STATE_LOADED	= 4;
  * Creates the XMLHttpRequest object platform-independently. 
  * Returned object has the following methods and properties.
  *
- * Methods:
  * -- abort()
  * -- getAllResponseHeaders()
  * -- getResponseHeader()
@@ -121,11 +120,20 @@ Ajax.STATE_LOADED	= 4;
  * -- statusText		String		Retrieves the friendly HTTP status of the request ("OK", "Not Found", etc).
  * -- timeout			Integer		Gets or sets the time-out value in (milliseconds).
  *
- * @param	void
+ * The optional string argument comObject allows to use another 
+ * COM object when get the error "msxml3.dll: Access is denied". 
+ * In this case the better way is to use "MSXML2.ServerXMLHTTP". 
+ *
+ * https://social.msdn.microsoft.com/Forums/en-US/1abda1ce-e23c-4d0e-bccd-a323aa7f2ea5/access-is-denied-while-using-microsoftxmlhttp-to-get-a-url-link-in-vbscript-help?forum=xmlandnetfx
+ * https://support.webafrica.co.za/index.php?/Knowledgebase/Article/View/615/41/msxml3dll-error-80070005-access-is-denied---loading-xml-file
+ * http://www.experts-exchange.com/Programming/Languages/Scripting/ASP/Q_27305017.html
+ * Methods:
+ *
+ * @param	string
  * @return	XMLHttpRequest
  * @access	static
  */
-Ajax.create = function()
+Ajax.create = function(comObject)
 {
 	if ( 'undefined' != typeof XMLHttpRequest ) {
 		return new XMLHttpRequest()
@@ -133,6 +141,10 @@ Ajax.create = function()
 
 	if ( 'undefined' == typeof ActiveXObject ) {
 		return null;
+	}
+
+	if ( comObject ) {
+		return new ActiveXObject(comObject);
 	}
 
 	var e;
@@ -195,11 +207,11 @@ Ajax.encode = function(content)
  * @return	Boolean
  * @access	static
  */
-Ajax.query = function(url)
+Ajax.query = function(url, options)
 {
-	var options = arguments[1] || {};
+	var options = options || {};
 
-	var xmlhttp = Ajax.create();
+	var xmlhttp = Ajax.create(options.comObject);
 	var result;
 
 	xmlhttp.open((options.method || 'GET'), url, !! options.async, options.username, options.password);
