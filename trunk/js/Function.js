@@ -3,9 +3,10 @@
 // Add-on for the function's manipulation
 //
 // Copyright (c) 2010 by Ildar Shaimordanov
-// Copyright (c) 2010 by Albert Bazaleev aka JSMan
+// Copyright (c) 2010 by JSMan
 //
 // http://forum.script-coding.info/viewtopic.php?pid=33393
+// http://forum.script-coding.com/viewtopic.php?id=4328
 //
 
 // PARTIAL WORKAROUND for Function.prototype.bind
