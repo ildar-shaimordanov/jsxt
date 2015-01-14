@@ -434,18 +434,29 @@ var prepareSmtpOptions = function(options, host, port)
 
 Mail.MailRu = function(options)
 {
+	if ( options.hasOwnProperty('sendusername') && ! options.sendusername.match(/@mail\.ru$/) ) {
+		options.sendusername += '@mail.ru';
+	}
+
 	return new Mail(prepareSmtpOptions(options, 'smtp.mail.ru', 25));
 };
 
 Mail.Yandex = function(options)
 {
+	if ( options.hasOwnProperty('sendusername') ) {
+		options.sendusername = options.sendusername.replace(/@yandex\.ru$/, '');
+	}
+
 	return new Mail(prepareSmtpOptions(options, 'smtp.yandex.ru', 465));
 };
 
 Mail.GMail = function(options)
 {
+	if ( options.hasOwnProperty('sendusername') && ! options.sendusername.match(/@gmail\.com$/) ) {
+		options.sendusername += '@gmail.com';
+	}
+
 	return new Mail(prepareSmtpOptions(options, 'smtp.gmail.com', 465));
 };
 
 })();
-
