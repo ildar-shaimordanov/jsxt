@@ -228,7 +228,7 @@ Using the `/e /n` (or `/e /p`) option the rest of arguments is considered as a l
 This is good feature because you do not need to implement a code like below:
 
 ```
-var fso = new ActiveXObject(�Scripting.FileSystemObject�);
+var fso = new ActiveXObject('Scripting.FileSystemObject');
 
 var args = WScript.Arguments;
 for (var i = 0; i < args.length; i++) {
