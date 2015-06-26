@@ -22,7 +22,7 @@ Element.classExists = function(element, className)
 
 Element.classExists.RE = function(className)
 {
-	return new RegExp('(?:^|\\s+)' + className + '(?:\\s+|$)', 'g');
+	return new RegExp('(?:^|\\s+)' + className + '(?=\\s+|$)', 'g');
 };
 
 Element.addClass = function(element, className)
