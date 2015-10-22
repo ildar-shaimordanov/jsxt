@@ -13,8 +13,8 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.23.17 Beta
-set wscmd.copyright=Copyright ^(C^) 2009-2014 Ildar Shaimordanov
+set wscmd.version=0.23.18 Beta
+set wscmd.copyright=Copyright ^(C^) 2009-2015 Ildar Shaimordanov
 
 
 :: Prevent re-parsing of command line arguments
@@ -31,8 +31,8 @@ set wscmd.script.n=
 set wscmd.script.p=
 set wscmd.script.begin=
 set wscmd.script.end=
-set wscmd.script.before=
-set wscmd.script.after=
+set wscmd.script.beginfile=
+set wscmd.script.endfile=
 set wscmd.engine=javascript
 set wscmd.var=
 set wscmd.compile=
@@ -141,7 +141,7 @@ goto wscmd.opt.e.2
 
 :wscmd.opt.e.again
 
-	for %%k in ( p n begin end before after ) do (
+	for %%k in ( p n begin end beginfile endfile ) do (
 		if /i "%~2" == "/%%~k" (
 			set wscmd.inproc=1
 			set wscmd.script.%%~k=%3
@@ -284,8 +284,8 @@ echo.
 echo.Extra options are used like /n or /p in the same way
 echo.    /begin       - A code will be executed at the very beginning
 echo.    /end         - A code will be executed at the very end
-echo.    /before      - A code will be executed before a file
-echo.    /after       - A code will be executed after a file
+echo.    /beginfile   - A code will be executed before a file
+echo.    /endfile     - A code will be executed after a file
 
 goto wscmd.stop
 
@@ -625,13 +625,13 @@ if defined wscmd.debug (
 	echo.Inline:
 	if defined wscmd.script.begin  echo.    !wscmd.script.begin!
 	echo.    for each file
-	if defined wscmd.script.before echo.      !wscmd.script.before!
+	if defined wscmd.script.beginfile echo.      !wscmd.script.beginfile!
 	echo.      while not EOF
 	if defined wscmd.script.n      echo.        !wscmd.script.n!
 	if defined wscmd.script.p      echo.        !wscmd.script.p!
 	if defined wscmd.script.p      echo.        print line
 	echo.      end while
-	if defined wscmd.script.after  echo.      !wscmd.script.after!
+	if defined wscmd.script.endfile  echo.      !wscmd.script.endfile!
 	echo.    end for
 	if defined wscmd.script.end    echo.    !wscmd.script.end!
 )>&2
@@ -672,14 +672,14 @@ echo.{
 echo.	!wscmd.script.end!;
 echo.};
 echo.
-echo.var userFuncBefore = function^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
+echo.var userFuncBeginfile = function^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
 echo.{
-echo.	!wscmd.script.before!;
+echo.	!wscmd.script.beginfile!;
 echo.};
 echo.
-echo.var userFuncAfter = function^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
+echo.var userFuncEndfile = function^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
 echo.{
-echo.	!wscmd.script.after!;
+echo.	!wscmd.script.endfile!;
 echo.};
 echo.
 echo.]]^>^</script^>
@@ -720,12 +720,12 @@ echo.Sub userFuncEnd^(lineNumber, fso, stdin, stdout, stderr^)
 echo.	!wscmd.script.end!
 echo.End Sub
 echo.
-echo.Sub userFuncBefore^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
-echo.	!wscmd.script.before!
+echo.Sub userFuncBeginfile^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
+echo.	!wscmd.script.beginfile!
 echo.End Sub
 echo.
-echo.Sub userFuncAfter^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
-echo.	!wscmd.script.after!
+echo.Sub userFuncEndfile^(currentNumber, filename, lineNumber, fso, stdin, stdout, stderr^)
+echo.	!wscmd.script.endfile!
 echo.End Sub
 echo.
 echo.]]^>^</script^>
@@ -746,8 +746,8 @@ goto :EOF
 	var userFunc = this.userFunc;
 	var userFuncBegin = this.userFuncBegin;
 	var userFuncEnd = this.userFuncEnd;
-	var userFuncBefore = this.userFuncBefore;
-	var userFuncAfter = this.userFuncAfter;
+	var userFuncBeginfile = this.userFuncBeginfile;
+	var userFuncEndfile = this.userFuncEndfile;
 //@end
 
 	var uc = String.prototype.toUpperCase;
@@ -808,7 +808,7 @@ goto :EOF
 
 		// The function is called before opening of the file. 
 		// The file name is known, the number of line of the file is 0. 
-		userFuncBefore(
+		userFuncBeginfile(
 			currentNumber, file, lineNumber, 
 			fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
 
@@ -862,7 +862,7 @@ goto :EOF
 		// A file processing is completed, and a file is closed already. 
 		// The filename and the total number of lines are known. 
 		// The currentNumber is the number of lines of the last file. 
-		userFuncAfter(
+		userFuncEndfile(
 			currentNumber, file, lineNumber, 
 			fso, WScript.StdIn, WScript.StdOut, WScript.StdErr);
 
