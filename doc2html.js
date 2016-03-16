@@ -1,7 +1,7 @@
 //
 // doc2html and more
 //
-// Copyright (c) 2004, 2009, 2010, 2012 Ildar Shaimordanov
+// Copyright (c) 2004, 2009, 2010, 2012, 2016 Ildar Shaimordanov
 //
 
 ///////////////////////////////////////////////////////////////////////////
@@ -125,7 +125,7 @@ var xslFile;
 
 var fileFormat = 'html';
 var fileEncoding = 0;
-var fileLineEnding = 0;
+var fileLineEnding = -1;
 var word;
 
 var e;
@@ -279,7 +279,7 @@ try {
 			// Encoding
 			fileEncoding, 
 			// InsertLineBreaks
-			true, 
+			fileLineEnding > -1, 
 			// AllowSubstitutions
 			false, 
 			// LineEnding
