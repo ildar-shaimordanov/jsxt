@@ -1,5 +1,9 @@
-_This page tells about wscmd, Windows Scripting Command Interpreter. The very fresh version of the script can be downloaded from [FossHub](http://code.fosshub.com/jsxt/downloads) or the [repository](http://code.google.com/p/jsxt/source/browse/trunk/wscmd.bat)._
+_This page tells about wscmd, Windows Scripting Command Interpreter. 
 
+The very fresh version of the script can be downloaded from 
+
+* [GitHub](https://github.com/ildar-shaimordanov/jsxt/releases)
+* [FossHub](http://code.fosshub.com/jsxt/downloads)
 
 
 # Introduction #
@@ -29,7 +33,7 @@ wscmd /help
 Both these commands show the help looking like below:
 
 ```
-Windows Scripting Command Version 0.22.7 Beta
+Windows Scripting Command Version 0.23.18 Beta
 
 wscmd [/h | /help | /man]
 wscmd [/compile | /embed] [/v var "val"] [/i | /q]
@@ -59,11 +63,14 @@ Extra options are available with /e /n or /e /p:
     /u file      - Opens the file as Unicode
     /a file      - Opens the file as ASCII
 
+"/" and "CON" (case-insensitive) are specified for the console. 
+Using them allows reading data from the standard input. 
+
 Extra options are used like /n or /p in the same way
     /begin       - A code will be executed at the very beginning
     /end         - A code will be executed at the very end
-    /before      - A code will be executed before a file
-    /after       - A code will be executed after a file
+    /beginfile   - A code will be executed before a file
+    /endfile     - A code will be executed after a file
 ```
 
 Looking on this help we can say that the tool has a lot of arguments but all of them are optional.
@@ -109,8 +116,8 @@ eval.save([format])      Save the history to the file
 eval.inspect()           The stub to transform output additionally
 cmd(), shell()           Run new DOS-session
 sleep(n)                 Sleep n milliseconds
-clip()                   Gets from the clipboard data formatted as text
-reload()                 Stop this session and run new
+clip()                   Get from the clipboard data formatted as text
+reload([true])           Reload this session or open new one
 gc()                     Run the garbage collector
 ```
 
@@ -127,6 +134,8 @@ The `reload()`function reloads the tool and the current session.
 The `eval.inspect()` is the stub function. It can be useful in the case when you want customize of displaying results. For example, complex objects are displayed as the `[object Object]` string. If you have some function allowing display structures of objects so you want to apply it. Just assign this function to the `eval.transform`.
 
 The `clip()` function is used to get text data from the clipboard.
+
+The `reload()` function is used for reloading the session.
 
 ## Multiple lines ##
 

@@ -37,6 +37,6 @@ The main window consists of three logical parts. Let's consider all parts separa
 
 The tool is open and free for use.
 
-The working test version is available by the link - [NetCalc.hta](http://htmlpreview.github.io/?https://github.com/ildar-shaimordanov/jsxt/blob/master/NetCalc.hta). The standalone version can be downloaded from the [Downloads](http://code.google.com/p/jsxt/downloads/list).
+The working test version is available by the link - [NetCalc.hta](http://htmlpreview.github.io/?https://github.com/ildar-shaimordanov/jsxt/blob/master/NetCalc.hta). The standalone version can be downloaded from the [Downloads](https://github.com/ildar-shaimordanov/jsxt/releases).
 
 Comments and requests for fixing of bugs and making it better are welcome.
