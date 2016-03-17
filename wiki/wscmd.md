@@ -1,4 +1,4 @@
-_This page tells about wscmd, Windows Scripting Command Interpreter. 
+_This page tells about wscmd, Windows Scripting Command Interpreter._
 
 The very fresh version of the script can be downloaded from 
 
