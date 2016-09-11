@@ -28,7 +28,7 @@ function help()
 {
 	var msg = [
 'doc2html and more', 
-'Copyright (C) 2004, 2009, 2010, 2012 Ildar Shaimordanov', 
+'Copyright (C) 2004, 2009, 2010, 2012, 2016 Ildar Shaimordanov', 
 '', 
 'This tool allows to convert any DOC or DOCX file to several different ', 
 'formats such as plain text TXT (both DOS, Win, etc), or reach text RTF, or ', 
@@ -240,15 +240,15 @@ try {
 		var doc = word.Documents.Open(docfile);
 
 		if ( fileFormat == 'fb2' ) {
-			doc.XMLSaveDataOnly = false;
+//?			doc.XMLSaveDataOnly = false;
 			doc.XMLUseXSLTWhenSaving = true;
 			doc.XMLSaveThroughXSLT = '' + xslFile;
-			doc.XMLHideNamespaces = true;
+//?			doc.XMLHideNamespaces = true;
 			doc.XMLShowAdvancedErrors = true;
 			doc.XMLSchemaReferences.HideValidationErrors = false;
-			doc.XMLSchemaReferences.AutomaticValidation = true;
+//?			doc.XMLSchemaReferences.AutomaticValidation = true;
 			doc.XMLSchemaReferences.IgnoreMixedContent = false;
-			doc.XMLSchemaReferences.AllowSaveAsXMLWithoutValidation = true;
+//?			doc.XMLSchemaReferences.AllowSaveAsXMLWithoutValidation = true;
 			doc.XMLSchemaReferences.ShowPlaceholderText = false;
 		}
 
