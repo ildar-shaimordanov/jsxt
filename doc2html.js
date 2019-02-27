@@ -28,7 +28,7 @@ function help()
 {
 	var msg = [
 'doc2html and more', 
-'Copyright (C) 2004, 2009, 2010, 2012, 2016 Ildar Shaimordanov', 
+'Copyright (C) 2004, 2009, 2010, 2012, 2016, 2019 Ildar Shaimordanov', 
 '', 
 'This tool allows to convert any DOC or DOCX file to several different ', 
 'formats such as plain text TXT (both DOS, Win, etc), or reach text RTF, or ', 
