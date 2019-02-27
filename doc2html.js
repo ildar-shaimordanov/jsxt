@@ -1,7 +1,7 @@
 //
 // doc2html and more
 //
-// Copyright (c) 2004, 2009, 2010, 2012, 2016 Ildar Shaimordanov
+// Copyright (c) 2004, 2009, 2010, 2012, 2016, 2019 Ildar Shaimordanov
 //
 
 ///////////////////////////////////////////////////////////////////////////
@@ -225,6 +225,9 @@ try {
 	warn('WINWORD is starting');
 	var word = new ActiveXObject("Word.Application");
 
+	word.DisplayAlerts = 0;
+	word.Options.WarnBeforeSavingPrintingSendingMarkup = false;
+
 	if ( WScript.Arguments.Named.Exists('fg') ) {
 		warn('Activating and displaying of the WINWORD in foreground');
 		word.Visible = true;
@@ -253,7 +256,7 @@ try {
 		}
 
 		warn('Save as "' + newfile + '"');
-		doc.SaveAs(
+		doc.SaveAs2(
 			// FileName
 			newfile, 
 			// FileFormat
@@ -283,7 +286,11 @@ try {
 			// AllowSubstitutions
 			false, 
 			// LineEnding
-			fileLineEnding);
+			fileLineEnding,
+			// AddBiDiMarks
+			true,
+			// CompatibilityMode
+			0);
 
 		warn('Close this document');
 		doc.Close();
