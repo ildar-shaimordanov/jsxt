@@ -13,8 +13,8 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.23.18 Beta
-set wscmd.copyright=Copyright ^(C^) 2009-2015 Ildar Shaimordanov
+set wscmd.version=0.23.19 Beta
+set wscmd.copyright=Copyright ^(C^) 2009-2015, 2019 Ildar Shaimordanov
 
 
 :: Prevent re-parsing of command line arguments
@@ -464,9 +464,10 @@ if defined POSH (
 )
 
 :wscmd.execute.uid.loop
-	for /f "tokens=1,2 delims==; " %%a in ( 
-		'%WMIC% Process call create "%windir%\System32\wscript.exe //b" 2^>nul ^| %FIND% "ProcessId"' 
-	) do (
+	rem delims is "=", ";", TAB, WS
+	for /f "skip=5 tokens=1,2 delims==;	 " %%a in (
+		'%WMIC% Process call create "%windir%\System32\wscript.exe //b" 2^>nul'
+	) do if "%%~a" == "ProcessId" (
 		set wscmd.uid=%%b
 	)
 
