@@ -13,8 +13,8 @@ set wscmd.started=1
 
 :: Set the name and version
 set wscmd.name=Windows Scripting Command
-set wscmd.version=0.23.19 Beta
-set wscmd.copyright=Copyright ^(C^) 2009-2015, 2019 Ildar Shaimordanov
+set wscmd.version=0.23.20 Beta
+set wscmd.copyright=Copyright ^(C^) 2009-2015, 2019, 2020 Ildar Shaimordanov
 
 
 :: Prevent re-parsing of command line arguments
@@ -187,7 +187,7 @@ call :wscmd.ini
 if not defined wscmd.ini.session-reload set wscmd.ini.session-reload=65535
 if not defined wscmd.ini.session-renew set wscmd.ini.session-renew=65534
 if not defined wscmd.ini.include set wscmd.ini.include="%~dp0js\*.js" "%~dp0js\win32\*.js" "%~dp0vbs\win32\*.vbs"
-if not defined wscmd.ini.execute set wscmd.ini.execute=.\$$$%~n0_$UID.wsf
+if not defined wscmd.ini.execute set "wscmd.ini.execute=%TEMP%\$$$%~n0_$UID.wsf"
 if not defined wscmd.ini.command set wscmd.ini.command=%WINDIR%\system32\cscript.exe //NoLogo
 if not defined wscmd.ini.xml-encoding set wscmd.ini.xml-encoding=utf-8
 if not defined wscmd.ini.enable-error set wscmd.ini.enable-error=false
