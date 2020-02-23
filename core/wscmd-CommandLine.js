@@ -1,0 +1,100 @@
+//
+// Command Line processor
+// This script is the part of the wscmd
+//
+// Copyright (c) 2019, 2020 by Ildar Shaimordanov
+//
+
+(function(Compiler, Runner, REPL) {
+
+	var argv = WScript.Arguments;
+	var nargv = argv.Named;
+	var uargv = argv.Unnamed;
+
+	function ShowVersion() {
+		var me = WScript.ScriptName.replace(/(\.[^.]+\?)?\.[^.]+$/, '');
+		var name = typeof NAME == 'string' ? NAME : me;
+		var version = typeof VERSION == 'string' ? VERSION : '0.0.1';
+		WScript.Echo(name + ' (' + me + '): Version ' + version
+			+ '; ' + WScript.Name
+			+ ': Version ' + WScript.Version
+			+ ', Build ' + WScript.BuildVersion);
+	}
+
+	// Walk through all named and unnamed arguments because
+	// we have to handle each of them even if they duplicate
+	for (var i = 0; i < argv.length; i++) {
+
+		var arg = argv.Item(i);
+
+		if ( arg.charAt(0) != '/' ) {
+			Compiler.addFile(arg);
+			continue;
+		}
+
+		var m;
+
+		m = arg.match(/^\/f:(ascii|unicode|default)$/i);
+		if ( m ) {
+			Compiler.addFileFormat(m[1]);
+			continue;
+		}
+
+		m = arg.match(/^\/h(?:elp)?$/i);
+		if ( m ) {
+			argv.ShowUsage();
+			WScript.Quit();
+		}
+
+		m = arg.match(/^\/version$/i);
+		if ( m ) {
+			ShowVersion();
+			WScript.Quit();
+		}
+
+		m = arg.match(/^\/dry-run/i);
+		if ( m ) {
+			Compiler.dryRun = true;
+			continue;
+		}
+
+		m = arg.match(/^\/q(?:uiet)?$/i);
+		if ( m ) {
+			Compiler.quiet = true;
+			continue;
+		}
+
+		m = arg.match(/^\/use:(js|vbs)$/i);
+		if ( m ) {
+			Compiler.engine = m[1];
+			continue;
+		}
+
+		m = arg.match(/^\/m(?::(js|vbs))?:(.+)$/i);
+		if ( m ) {
+			Compiler.addModule(m[1], m[2]);
+			continue;
+		}
+
+		m = arg.match(/^\/(let|set|get)(?::(js|vbs))?:(\w+)=(.*)$/i);
+		if ( m ) {
+			Compiler.addVar(m[2], m[3], m[4], m[1]);
+			continue;
+		}
+
+		m = arg.match(/^\/(?:e|((?:begin|end)(?:file)?))(?::(js|vbs))?(?::(.*))?$/i);
+		if ( m ) {
+			Compiler.addCode(m[2], m[3], m[1]);
+		}
+
+		m = arg.match(/^\/([np])$/i);
+		if ( m ) {
+			Compiler.setMode(m[1]);
+			continue;
+		}
+
+	}
+
+	Compiler.compile(Runner, REPL);
+
+})(Compiler, Runner, REPL);
