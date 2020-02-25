@@ -199,7 +199,7 @@ Examples:
 <script language="javascript" src="./core/require.js"></script>
 <script language="vbscript" src="./core/importer.vbs"></script>
 
-<script language="javascript" src="./core/wscmd-Compiler.js"></script>
+<script language="javascript" src="./core/wscmd-Program.js"></script>
 <script language="javascript" src="./core/wscmd-Runner.js"></script>
 <script language="javascript" src="./core/wscmd-REPL.js"></script>
 <script language="javascript" src="./core/wscmd-CommandLine.js"></script>
