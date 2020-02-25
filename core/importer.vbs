@@ -111,31 +111,6 @@ Class Importer
 	' @param	<String|Array>	Path or array of paths
 	Public Sub PathInsert(apath)
 		PathIncrement 1, apath
-'		Dim gain
-'		If IsArray(apath) Then
-'			gain = UBound(apath) + 1
-'		Else
-'			gain = 1
-'		End If
-'
-'		Dim count
-'		count = UBound(paths)
-'
-'		Redim Preserve paths(count + gain)
-'
-'		Dim i
-'
-'		For i = count To 0 Step -1
-'			paths(i + gain) = paths(i)
-'		Next
-'
-'		If IsArray(apath) Then
-'			For i = 0 To gain - 1
-'				paths(i) = apath(i)
-'			Next
-'		Else
-'			paths(0) = apath
-'		End If
 	End Sub
 
 	' Add a path or array of paths to the end of the list of paths
@@ -143,27 +118,6 @@ Class Importer
 	' @param	<String|Array>	Path or array of paths
 	Public Sub PathAppend(apath)
 		PathIncrement 0, apath
-'		Dim gain
-'		If IsArray(apath) Then
-'			gain = UBound(apath) + 1
-'		Else
-'			gain = 1
-'		End If
-'
-'		Dim count
-'		count = UBound(paths)
-'
-'		Redim Preserve paths(count + gain)
-'
-'		Dim i
-'
-'		If IsArray(apath) Then
-'			For i = 0 To gain - 1
-'				paths(count + i) = apath(i)
-'			Next
-'		Else
-'			paths(UBound(paths)) = apath
-'		End If
 	End Sub
 
 	' Load a text
