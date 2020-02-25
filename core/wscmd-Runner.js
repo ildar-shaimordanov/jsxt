@@ -59,14 +59,9 @@ var Runner = function(modules, vars, begin, beginfile, main, endfile, end, files
 
 	if ( ! inLoop ) {
 		/*
-		Initialize
-		Run the script
-		Finalize
+		Load the main script and do nothing more.
 		*/
-		eval(begin);
 		eval(main);
-		eval(end);
-
 		return;
 	}
 
