@@ -5,32 +5,11 @@
 // Copyright (c) 2019, 2020 by Ildar Shaimordanov
 //
 
-var REPL = function(modules, vars, begin, beginfile, main, endfile, end, files, inLoop, quiet, dryRun) {
+var REPL = function(quiet) {
 	if ( ! WScript.FullName.match(/cscript/i) ) {
 		WScript.Echo('REPL works with cscript only');
 		WScript.Quit();
 	}
-
-	/*
-	The following variables are declared without the keyword "var". So
-	they become global and available for all codes in JScript and VBScript.
-	*/
-
-	// Helper to simplify VBS importing
-	USE = CreateImporter();
-
-	// Keep a last exception
-	ERROR = null;
-
-	// Useful variables
-	FSO = new ActiveXObject('Scripting.FileSystemObject');
-
-	STDIN = WScript.StdIn;
-	STDOUT = WScript.StdOut;
-	STDERR = WScript.StdErr;
-
-	eval(modules);
-	eval(vars);
 
 	while ( true ) {
 
@@ -153,22 +132,4 @@ var REPL = function(modules, vars, begin, beginfile, main, endfile, end, files, 
 		}
 
 	} // while ( true )
-};
-
-REPL.dump = function(modules, vars, begin, beginfile, main, endfile, end, files, inLoop, quiet, dryRun) {
-	var s = [];
-
-	if ( modules ) {
-		s.push(modules);
-	}
-	if ( vars ) {
-		s.push(vars);
-	}
-
-	s.push('::while read');
-	s.push('::eval');
-	s.push('::print');
-	s.push('::loop while');
-
-	WScript.Echo(s.join('\n'));
 };

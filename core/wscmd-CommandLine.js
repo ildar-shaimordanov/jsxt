@@ -5,7 +5,9 @@
 // Copyright (c) 2019, 2020 by Ildar Shaimordanov
 //
 
-(function(Compiler, Runner, REPL) {
+(function(Program, Runner, REPL) {
+
+	var args = [];
 
 	var argv = WScript.Arguments;
 	var nargv = argv.Named;
@@ -27,18 +29,7 @@
 
 		var arg = argv.Item(i);
 
-		if ( arg.charAt(0) != '/' ) {
-			Compiler.addFile(arg);
-			continue;
-		}
-
 		var m;
-
-		m = arg.match(/^\/f:(ascii|unicode|default)$/i);
-		if ( m ) {
-			Compiler.addFileFormat(m[1]);
-			continue;
-		}
 
 		m = arg.match(/^\/h(?:elp)?$/i);
 		if ( m ) {
@@ -52,49 +43,54 @@
 			WScript.Quit();
 		}
 
-		m = arg.match(/^\/dry-run/i);
+		m = arg.match(/^\/dry-run$/i);
 		if ( m ) {
-			Compiler.dryRun = true;
+			Program.dryRun = true;
 			continue;
 		}
 
 		m = arg.match(/^\/q(?:uiet)?$/i);
 		if ( m ) {
-			Compiler.quiet = true;
+			Program.setQuiet();
 			continue;
 		}
 
 		m = arg.match(/^\/use:(js|vbs)$/i);
 		if ( m ) {
-			Compiler.engine = m[1];
+			Program.setEngine(m[1]);
 			continue;
 		}
 
 		m = arg.match(/^\/m(?::(js|vbs))?:(.+)$/i);
 		if ( m ) {
-			Compiler.addModule(m[1], m[2]);
+			Program.addModule(m[1], m[2]);
 			continue;
 		}
 
 		m = arg.match(/^\/(let|set|get)(?::(js|vbs))?:(\w+)=(.*)$/i);
 		if ( m ) {
-			Compiler.addVar(m[2], m[3], m[4], m[1]);
+			Program.addVar(m[2], m[3], m[4], m[1]);
 			continue;
 		}
 
 		m = arg.match(/^\/(?:e|((?:begin|end)(?:file)?))(?::(js|vbs))?(?::(.*))?$/i);
 		if ( m ) {
-			Compiler.addCode(m[2], m[3], m[1]);
+			Program.addCode(m[2], m[3], m[1]);
+			continue;
 		}
 
 		m = arg.match(/^\/([np])$/i);
 		if ( m ) {
-			Compiler.setMode(m[1]);
+			Program.setMode(m[1]);
 			continue;
 		}
 
+		args.push(arg);
+
 	}
 
-	Compiler.compile(Runner, REPL);
+	Program.detectScriptFile(args);
 
-})(Compiler, Runner, REPL);
+	Runner(Program, args);
+
+})(Program, Runner, REPL);

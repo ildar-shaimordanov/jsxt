@@ -101,7 +101,7 @@ var require = require || (function() {
 	require.resolve = function(id, options) {
 		options = options || {};
 
-		var file = /[\\\/]/.test(id)
+		var file = /[\\\/]|\.js$/i.test(id)
 
 			// module looks like a path
 			? absolutePath(/\.[^.\\\/]+$/.test(id) ? id : id + ".js")
@@ -127,11 +127,15 @@ var require = require || (function() {
 	var myDir = fso.GetParentFolderName(WScript.ScriptFullName);
 	var me = WScript.ScriptName.replace(/(\.[^.]+\?)?\.[^.]+$/, '');
 
+	var shell = WScript.CreateObject ("WScript.Shell");
+	var cwd = shell.CurrentDirectory;
+
 	require.paths = [
 		  myDir + "\\js"
 		, myDir + "\\" + me
 		, myDir + "\\" + me + "\\js"
 		, myDir + "\\lib"
+		, cwd
 	];
 
 	if ( fso.GetBaseName(myDir) == "bin" ) {

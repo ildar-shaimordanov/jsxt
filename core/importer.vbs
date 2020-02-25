@@ -50,11 +50,17 @@ Class Importer
 		mydir = fso.GetParentFolderName(WScript.ScriptFullName)
 		myself = re.Replace(WScript.ScriptName, "")
 
+		Dim shell, cwd
+
+		Set shell = WScript.CreateObject("WScript.Shell")
+		cwd = shell.CurrentDirectory
+
 		paths = Array( _
 			  mydir & "\vbs" _
 			, mydir & "\" & myself _
 			, mydir & "\" & myself & "\vbs" _
 			, mydir & "\lib" _
+			, cwd _
 		)
 		If fso.GetBaseName(mydir) = "bin" Then
 			ReDim Preserve paths(UBound(paths) + 1)
@@ -228,7 +234,8 @@ Class Importer
 		Dim re
 		Set re = New RegExp
 
-		re.Pattern = "[\\\/]"
+		re.Pattern = "[\\\/]|\.vbs$"
+		re.IgnoreCase = True
 		If re.Test(id) Then
 			' module looks like a path
 			re.Pattern = "\.[^.\\\/]+$"

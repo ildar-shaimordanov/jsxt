@@ -5,7 +5,20 @@
 // Copyright (c) 2019, 2020 by Ildar Shaimordanov
 //
 
-var Runner = function(modules, vars, begin, beginfile, main, endfile, end, files, inLoop, quiet, dryRun) {
+var Runner = function(Program, args) {
+	if ( Program.dryRun ) {
+		Runner.dump(Program);
+		return;
+	}
+
+	var modules = Program.modules.join(';\n');
+	var vars = Program.vars.join(';\n');
+	var begin = Program.begin.join(';\n');
+	var beginfile = Program.beginfile.join(';\n');
+	var main = Program.main.join(';\n');
+	var endfile = Program.endfile.join(';\n');
+	var end = Program.end.join(';\n');
+
 	/*
 	The following variables are declared without the keyword "var". So
 	they become global and available for all codes in JScript and VBScript.
@@ -23,6 +36,29 @@ var Runner = function(modules, vars, begin, beginfile, main, endfile, end, files
 	STDIN = WScript.StdIn;
 	STDOUT = WScript.StdOut;
 	STDERR = WScript.StdErr;
+
+	/*
+	Load provided modules
+	Set user-defined variables
+	*/
+	eval(modules);
+	eval(vars);
+
+	if ( Program.main.length == 0 && Program.inLoop == false ) {
+		/*
+		Run REPL
+		*/
+		REPL(Program.quiet);
+		return;
+	}
+
+	if ( ! Program.inLoop ) {
+		/*
+		Load the main script and do nothing more.
+		*/
+		eval(main);
+		return;
+	}
 
 	// The currently open stream
 	STREAM = null;
@@ -51,35 +87,22 @@ var Runner = function(modules, vars, begin, beginfile, main, endfile, end, files
 	};
 
 	/*
-	Load provided modules
-	Set user-defined variables
-	*/
-	eval(modules);
-	eval(vars);
-
-	if ( ! inLoop ) {
-		/*
-		Load the main script and do nothing more.
-		*/
-		eval(main);
-		return;
-	}
-
-	/*
 	Execute the code before starting to process any file.
 	This is good place to initialize.
 	*/
 	eval(begin);
 
-	if ( ! files.length ) {
-		files.push(STDIN);
+	if ( ! args.length ) {
+		args.push(STDIN);
 	}
 
-	while ( files.length ) {
-		FILE = files.shift();
+	while ( args.length ) {
+		FILE = args.shift();
 
-		if ( typeof FILE == 'object' && ! ( FILE instanceof ActiveXObject ) ) {
-			FILEFMT = FILE.format;
+		var m = FILE.match(/^\/f:(ascii|unicode|default)$/i);
+		if ( m ) {
+			var fileFormats = { ascii: 0, unicode: -1, 'default': -2 };
+			FILEFMT = fileFormats[ m[1] ];
 			continue;
 		}
 
@@ -137,7 +160,7 @@ var Runner = function(modules, vars, begin, beginfile, main, endfile, end, files
 				throw ERROR;
 			}
 
-			if ( inLoop == 2 ) {
+			if ( Program.inLoop == 2 ) {
 				WScript.Echo(LINE);
 			}
 		}
@@ -160,44 +183,45 @@ var Runner = function(modules, vars, begin, beginfile, main, endfile, end, files
 	eval(end);
 };
 
-Runner.dump = function(modules, vars, begin, beginfile, main, endfile, end, files, inLoop, quiet, dryRun) {
+Runner.dump = function(Program) {
 	var s = [];
 
-	if ( modules ) {
-		s.push(modules);
-	}
-	if ( vars ) {
-		s.push(vars);
+	function dumpCode(code) {
+		if ( code.length ) {
+			s.push(code.join(';\n'));
+		}
 	}
 
-	if ( inLoop ) {
-		if ( begin ) {
-			s.push(begin);
-		}
+	dumpCode(Program.modules);
+	dumpCode(Program.vars);
+
+	if ( Program.inLoop ) {
+		dumpCode(Program.begin);
 		s.push('::foreach FILE do');
-		if ( beginfile ) {
-			s.push(beginfile);
-		}
+		dumpCode(Program.beginfile);
 		s.push('::while read LINE do');
 	}
 
-	if ( main ) {
-		s.push(main);
+	if ( Program.main.length == 0 && Program.inLoop == false ) {
+		s = s.concat([
+			'::while read',
+			'::eval',
+			'::print',
+			'::loop while'
+		]);
 	}
 
-	if ( inLoop == 2 ) {
+	dumpCode(Program.main);
+
+	if ( Program.inLoop == 2 ) {
 		s.push('::print LINE');
 	}
 
-	if ( inLoop ) {
+	if ( Program.inLoop ) {
 		s.push('::loop while');
-		if ( endfile ) {
-			s.push(endfile);
-		}
+		dumpCode(Program.endfile);
 		s.push('::loop foreach');
-		if ( end ) {
-			s.push(end);
-		}
+		dumpCode(Program.end);
 	}
 
 	WScript.Echo(s.join('\n'));
