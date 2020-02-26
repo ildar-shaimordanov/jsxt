@@ -201,17 +201,17 @@ Examples:
 	/>
 </runtime>
 
-<script language="javascript" src="./core/wscmd-Helpers.js"></script>
+<script language="javascript" src="./wscmd/Helpers.js"></script>
 
 <script language="javascript" src="./core/console.js"></script>
 
 <script language="javascript" src="./core/require.js"></script>
 <script language="vbscript" src="./core/importer.vbs"></script>
 
-<script language="javascript" src="./core/wscmd-Program.js"></script>
-<script language="javascript" src="./core/wscmd-Runner.js"></script>
-<script language="javascript" src="./core/wscmd-REPL.js"></script>
-<script language="javascript" src="./core/wscmd-CommandLine.js"></script>
+<script language="javascript" src="./wscmd/Program.js"></script>
+<script language="javascript" src="./wscmd/Runner.js"></script>
+<script language="javascript" src="./wscmd/REPL.js"></script>
+<script language="javascript" src="./wscmd/CommandLine.js"></script>
 
 </job>
 </package>
