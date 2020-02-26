@@ -1,6 +1,6 @@
 # jsxt2
 
-The collection of Javascript / JScript extensions, tools and more
+The collection of Javascript / JScript / VBScript extensions, tools and more
 
 # Preamble
 
