@@ -7,11 +7,7 @@
 
 (function(Program, Runner, REPL) {
 
-	var args = [];
-
-	var argv = WScript.Arguments;
-	var nargv = argv.Named;
-	var uargv = argv.Unnamed;
+	var argv = [];
 
 	function ShowVersion() {
 		var me = WScript.ScriptName.replace(/(\.[^.]+\?)?\.[^.]+$/, '');
@@ -25,9 +21,9 @@
 
 	// Walk through all named and unnamed arguments because
 	// we have to handle each of them even if they duplicate
-	for (var i = 0; i < argv.length; i++) {
+	for (var i = 0; i < WScript.Arguments.length; i++) {
 
-		var arg = argv.Item(i);
+		var arg = WScript.Arguments.Item(i);
 
 		var m;
 
@@ -85,12 +81,12 @@
 			continue;
 		}
 
-		args.push(arg);
+		argv.push(arg);
 
 	}
 
-	Program.detectScriptFile(args);
+	Program.detectScriptFile(argv);
 
-	Runner(Program, args);
+	Runner(Program, argv);
 
 })(Program, Runner, REPL);

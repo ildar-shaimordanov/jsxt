@@ -31,6 +31,7 @@ STDIN   - "WScript.StdIn"
 STDOUT  - "WScript.StdOut"
 STDERR  - "WScript.StdErr"
 USE     - The instance of "Importer" class to import VBS easier
+ARGV    - The reference to the CLI arguments
 
 Used in the loop mode:
 
@@ -179,6 +180,14 @@ Examples:
 	helpstring="The script file"
 	required="false"
 	/>
+<!--
+<named
+	name="@"
+	helpstring="Read arguments from the specified file"
+	type="string"
+	required="false"
+	/>
+-->
 <named
 	name="f"
 	helpstring="Open a file as &#34;ascii&#34;, &#34;unicode&#34; or using system &#34;default&#34;"

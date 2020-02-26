@@ -5,7 +5,7 @@
 // Copyright (c) 2019, 2020 by Ildar Shaimordanov
 //
 
-var Runner = function(Program, args) {
+var Runner = function(Program, argv) {
 	if ( Program.dryRun ) {
 		Runner.dump(Program);
 		return;
@@ -36,6 +36,9 @@ var Runner = function(Program, args) {
 	STDIN = WScript.StdIn;
 	STDOUT = WScript.StdOut;
 	STDERR = WScript.StdErr;
+
+	// Reference to CLI arguments
+	ARGV = argv;
 
 	/*
 	Load provided modules
@@ -92,14 +95,15 @@ var Runner = function(Program, args) {
 	*/
 	eval(begin);
 
-	if ( ! args.length ) {
-		args.push(STDIN);
+	if ( ! ARGV.length ) {
+		ARGV.push('con');
 	}
 
-	while ( args.length ) {
-		FILE = args.shift();
+	while ( ARGV.length ) {
+		FILE = ARGV.shift();
 
 		var m = FILE.match(/^\/f:(ascii|unicode|default)$/i);
+
 		if ( m ) {
 			var fileFormats = { ascii: 0, unicode: -1, 'default': -2 };
 			FILEFMT = fileFormats[ m[1] ];
@@ -115,12 +119,9 @@ var Runner = function(Program, args) {
 		eval(beginfile);
 
 		try {
-			if ( FILE instanceof ActiveXObject ) {
-				STREAM = FILE;
-				FILE = '<stdin>';
-			} else {
-				STREAM = FSO.OpenTextFile(FILE, 1, false, FILEFMT);
-			}
+			STREAM = FILE.toLowerCase() == 'con'
+				? STDIN
+				: FSO.OpenTextFile(FILE, 1, false, FILEFMT);
 		} catch (ERROR) {
 			WScript.Echo(ERROR.message + ': ' + FILE);
 			continue;
