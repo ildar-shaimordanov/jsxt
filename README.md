@@ -19,6 +19,7 @@ To close this lack I tried to implement REPL with JavaScript itself only, simple
 # Other implementations (in the order of publication)
 
 * __JSXT__, my previous implementation, at https://github.com/ildar-shaimordanov/jsxt/
+  - the historically first release in March 23, 2009 [jsxt/5dac276](https://github.com/ildar-shaimordanov/jsxt/commit/5dac2764f8883fe84b085f33cf9aa8c94100c005)
   - announce and discussions (in Russian) http://forum.script-coding.com/viewtopic.php?id=7766
 * __JavaScript REPL for Windows__ at https://github.com/rcrossrd/JSREPL.
   There is three part story about the project:
