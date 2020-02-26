@@ -40,6 +40,21 @@ Details for the complex object
 The user-defined printing function
 	console.fn.print(msgType, msg)
 
+The deep of nestion for complex structures (default is 5)
+	console.fn.deep
+
+The initial value of indentation (4 whitespaces, by default).
+A numeric value defines indentaion size, the number of space chars.
+	console.fn.space
+
+Numeric values controls the visibility of functions. Defaults to 0.
+(0 - do not show function, 1 - show [Function] string, 2 - show a details)
+	console.fn.func
+
+The visibility properties from the prototype of the oject. Defaults to 0.
+(0 - do not show properties from prototype, 1 - show then)
+	console.fn.proto
+
 The string to glue the set of arguments when output them
 	console.fn.separator = ' '
 
@@ -93,6 +108,7 @@ var console = console || (function() {
 		return '"' + result + '"';
 	};
 
+	// The inner method for printing objects
 	function _inspect(object) {
 		switch (typeof object) {
 		case 'string':
@@ -193,36 +209,7 @@ var console = console || (function() {
 		}
 	};
 
-	/**
-	 * inspect(object)
-	 *
-	 * @Description
-	 * Creates a dump of any object.
-	 *
-	 * Available ptions are:
-	 *
-	 * deep
-	 * defines the deep of nestion for complex structures (default is 5)
-	 *
-	 * space
-	 * defines initial value of indentation (4 whitespaces, by default).
-	 * the numeric value defines indentaion size, the number of space chars
-	 *
-	 * func
-	 * Numeric values controls the visibility of functions. The default
-	 * value is 0. (0 - do not show function, 1 - show [Function] string,
-	 * 2 - show a details)
-	 *
-	 * proto
-	 * Boolean value controls the visibility properties from the
-	 * prototype of the oject. The default value is false. (0 - do not
-	 * show properties from prototype, 1 - show then)
-	 *
-	 * @param	Mixed
-	 * @param	Mixed
-	 * @return	String
-	 * @access	Static
-	 */
+	// The main method for printing objects
 	var inspect = function(object) {
 		var fn = console.fn;
 
@@ -393,6 +380,10 @@ var console = console || (function() {
 			format: format, 
 			inspect: inspect, 
 			print: print, 
+			space: 4,
+			deep: 5,
+			proto: 0,
+			func: 0,
 			separator: ' '
 		}
 	};
