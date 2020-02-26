@@ -74,17 +74,20 @@ var REPL = function(quiet) {
 				var multiline = false;
 
 				/*
-				Store all input lines.
+				Storages for:
+				-- one input line
+				-- one or more input lines as array
+				   (more than one are entered in multiline mode)
+				-- the resulting string of all entered lines
+				   (leading and trailing whitespaces are trimmed)
 				*/
+				var input;
 				var inputs = [];
 				var result = '';
 
 				WScript.StdOut.Write(PS1);
 
 				while ( true ) {
-
-					// One entered line as an array of characters
-					var input;
 
 					try {
 						eval.number++;
