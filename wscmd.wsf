@@ -7,7 +7,7 @@
 <script language="javascript"><![CDATA[
 
 var NAME    = 'Windows Scripting Command';
-var VERSION = '1.0.0 Beta';
+var VERSION = '1.0.0 Alpha';
 
 ]]></script>
 
@@ -21,17 +21,17 @@ Run itself in the interactive mode. Type in the prompt any JS or VBS commands an
 
 Run one line program from CLI and apply it on inputstream and other files. One line programs allow to estimate some code on the fly, without creating a temporary file. Writing one line programs you focus on the most important parts of the program implementation. Some implementation stuff -- like objects initialization, I/O operations etc -- are hidden on your eyes, however executed yet implicitly.
 
-For better convenience there are few predefined global variables:
+For more convenience there are few predefined global variables:
 
 Common:
 
-FSO     - "FileSystemObject"
+FSO     - The object "Scripting.FileSystemObject"
 ERROR   - The variable keeping the last error
-STDIN   - "WScript.StdIn"
-STDOUT  - "WScript.StdOut"
-STDERR  - "WScript.StdErr"
+STDIN   - The reference to "WScript.StdIn"
+STDOUT  - The reference to "WScript.StdOut"
+STDERR  - The reference to "WScript.StdErr"
 USE     - The instance of "Importer" class to import VBS easier
-ARGV    - The reference to the CLI arguments
+ARGV    - The CLI arguments
 
 Used in the loop mode:
 
@@ -47,15 +47,21 @@ These special functions can be used on the loop mode only to cover the issue whe
 next    - The "continue" operator
 last    - The "break" operator
 
-The interactive mode provides its own help page with the list of supplied functions.
+The interactive mode provides two useful properties for referencing to the history of the commands:
 
-The options below that supply the program parts for execution could be prepended with the prefix identifying the engine ("js" or "vbs") supposed to be used for processing these options. See examples below.
+eval.number  - the current line number
+eval.history - the list of all commands entered in the current session
+
+The CLI options supplying the program parts for execution could be infixed with the engine identifier ("js" or "vbs") supposed to be used for processing these options. See examples below.
 
 ]]></description>
 <example><![CDATA[
 Examples:
 
-- Count the number of lines:
+- Run interactively:
+  wscmd
+
+- Count the number of lines (similar to "wc -l", the unix tool):
   wscmd /n /endfile:"echo(FLN, FILE)" /end:"echo(LN)"
   wscmd /n /endfile:vbs:"echo FLN, FILE" /end:vbs:"echo LN"
   wscmd /use:vbs /n /endfile:"echo FLN, FILE" /end:"echo LN"
@@ -65,11 +71,11 @@ Examples:
   wscmd /let:delim=":" /p /e:vbs:"LINE = LN & delim & LINE"
 
 - Print first 10 lines (similar to "head", the unix tool):
-  wscmd /let:head=10 /p /e:"LN > head && quit()"
-  wscmd /use:vbs /let:head=10 /p /e:"if LN > head then exit : end if"
+  wscmd /let:limit=10 /p /e:"LN > limit && quit()"
+  wscmd /use:vbs /let:limit=10 /p /e:"if LN > limit then exit : end if"
 
-- Run VBScript in the interactive mode:
-  wscmd /use:vbs /i
+- Print last 10 lines (similar to "tail", the unix tool):
+  wscmd /let:limit=10 /n /beginfile:"lines=[]" /e:"lines.push(LINE); lines.length > limit && lines.shift()" /endfile:"echo(lines.join('\n'))"
 ]]></example>
 <named
 	name="help"
@@ -111,7 +117,7 @@ Examples:
 	/>
 <named
 	name="m"
-	helpstring="Load the module (the same as &#34;require(...)&#34; in NodeJS)"
+	helpstring="Load the module (similar to &#34;require(...)&#34; in NodeJS)"
 	type="string"
 	required="false"
 	/>
@@ -195,8 +201,8 @@ Examples:
 	required="false"
 	/>
 <unnamed
-	name="files"
-	helpstring="Files for processing"
+	name="arguments"
+	helpstring="Other arguments for processing"
 	required="false"
 	/>
 </runtime>

@@ -14,7 +14,7 @@
 		var name = typeof NAME == 'string' ? NAME : me;
 		var version = typeof VERSION == 'string' ? VERSION : '0.0.1';
 		WScript.Echo(name + ' (' + me + '): Version ' + version
-			+ '; ' + WScript.Name
+			+ '\n' + WScript.Name
 			+ ': Version ' + WScript.Version
 			+ ', Build ' + WScript.BuildVersion);
 	}

@@ -40,7 +40,7 @@ var quit = exit = function(exitCode) {
 };
 
 var cmd = shell = function() {
-	var shell = new ActiveXObject('WSCript.Shell');
+	var shell = new ActiveXObject('WScript.Shell');
 	shell.Run('%COMSPEC%');
 };
 
