@@ -29,7 +29,7 @@
 
 		m = arg.match(/^\/h(?:elp)?$/i);
 		if ( m ) {
-			argv.ShowUsage();
+			WScript.Arguments.ShowUsage();
 			WScript.Quit();
 		}
 
