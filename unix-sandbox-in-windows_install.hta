@@ -978,7 +978,7 @@ goto :EOF
 
 :del_registry
 set uninstall_reg="HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session Manager\DOS Devices"
-for /f "skip=4 tokens=1,2,*" %%a in ( 'reg query %uninstall_reg% /v "%SANDBOX_DISK%"' ) do (
+for /f "skip=2 tokens=1,2,*" %%a in ( 'reg query %uninstall_reg% /v "%SANDBOX_DISK%"' ) do (
 	if /i "%%a" == "%SANDBOX_DISK%" if /i "%%c" == "\??\%SANDBOX_PATH%" (
 		reg delete %uninstall_reg% /v %SANDBOX_DISK% /f >nul
 		if errorlevel 1 goto :EOF
