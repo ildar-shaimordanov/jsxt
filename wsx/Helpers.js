@@ -1,6 +1,6 @@
 //
 // Set of useful and convenient definitions
-// This script is the part of the wscmd
+// This script is the part of the wsx
 //
 // Copyright (c) 2019, 2020 by Ildar Shaimordanov
 //

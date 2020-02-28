@@ -1,6 +1,6 @@
 //
 // wsf2bat compiler
-// This script is the part of the wscmd
+// This script is the part of the wsx
 //
 // Copyright (c) 2020 by Ildar Shaimordanov
 //

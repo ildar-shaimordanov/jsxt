@@ -6,7 +6,7 @@ The collection of Javascript / JScript / VBScript extensions, tools and more
 
 This project is assumed to supersede the earlier one having the stuff with the same funtionality. These days both projects are still supported. However in the future the useful components will migrate here. Finally when all the good things will have came here, the predecessor will be deprecated, archived and kept just in historical reasons.
 
-The key tool of this repository is `wscmd`. Initially it was invented as `JSCmd.wsf` in far March 2009 in the attempts to close the existing hole and implement REPL in Windows JScript. During these years it was transformed to the current `bat` + `js` hybrid producing a temporary `wsf` file which acts further.
+The key tool of this repository is `wsx`. Initially it was invented as `JSCmd.wsf` in far March 2009 in the attempts to close the existing hole and implement REPL in Windows JScript. During these years it was transformed to `wscmd`, the `bat` + `js` hybrid producing a temporary `wsf` file which acts further. The current tool named as `wsx` is their successor. Following the old good tradition to explain acronyms recursively __WSX__ means __WSX Simulates eXecutable__.
 
 ## What do we have and not have?
 

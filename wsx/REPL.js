@@ -1,6 +1,6 @@
 //
 // Code processor: REPL
-// This script is the part of the wscmd
+// This script is the part of the wsx
 //
 // Copyright (c) 2019, 2020 by Ildar Shaimordanov
 //
@@ -43,8 +43,9 @@ var REPL = function(quiet) {
 					PS1 = '';
 					PS2 = '';
 				} else {
-					PS1 = 'wscmd/js > ';
-					PS2 = 'wscmd/js :: ';
+					var me = WScript.ScriptName.replace(/(\.[^.]+\?)?\.[^.]+$/, '');
+					PS1 = me + '/js > ';
+					PS2 = me + '/js :: ';
 				}
 
 				/*
