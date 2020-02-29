@@ -57,9 +57,10 @@ var clip = function() {
 var gc = CollectGarbage;
 
 if ( typeof exports != "undefined" ) {
-	exports.stdin = stdin;
-	exports.stdout = stdout;
-	exports.stderr = stderr;
+	exports.FSO = FSO;
+	exports.STDIN = STDIN;
+	exports.STDOUT = STDOUT;
+	exports.STDERR = STDERR;
 
 	exports.usage = usage;
 	exports.help = help;
