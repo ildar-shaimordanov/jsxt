@@ -70,7 +70,7 @@ var Program = {
 			result = name;
 			switch( setter.toLowerCase() ) {
 			case 'let': result += ' = "' + value + '"'; break;
-			case 'set': result += ' = CreateObject("' + value + '")'; break;
+			case 'set': result += ' = new ActiveXObject("' + value + '")'; break;
 			case 'get': result += ' = GetObject("' + value + '")'; break;
 			}
 		}
