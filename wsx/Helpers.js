@@ -5,6 +5,8 @@
 // Copyright (c) 2019, 2020 by Ildar Shaimordanov
 //
 
+var FSO = new ActiveXObject('Scripting.FileSystemObject');
+
 var STDIN = WScript.StdIn;
 var STDOUT = WScript.StdOut;
 var STDERR = WScript.StdErr;

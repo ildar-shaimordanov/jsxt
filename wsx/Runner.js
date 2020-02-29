@@ -30,13 +30,6 @@ var Runner = function(Program, argv) {
 	// Keep a last exception
 	ERROR = null;
 
-	// Useful variables
-	FSO = new ActiveXObject('Scripting.FileSystemObject');
-
-	STDIN = WScript.StdIn;
-	STDOUT = WScript.StdOut;
-	STDERR = WScript.StdErr;
-
 	// Reference to CLI arguments
 	ARGV = argv;
 
