@@ -18,7 +18,7 @@ Copyright (C) 2009-2015, 2019, 2020 Ildar Shaimordanov
 
 Run an external script file in the same way as it can be done traditionally via "cscript" or "wscript" with additional benefits making its usage closer to NodeJS, Perl, Python etc.
 
-Run itself in the interactive mode. Type in the prompt any JS or VBS commands and execute them immediately.
+Run itself in the interactive mode. Type in the prompt any JS or VBS commands and execute them immediately. In this mode each entered line is evaluated immediately. To enable many lines executed as one you need to surround them with the double colons "::". The first double colon turns on the multiline mode, the second one turns it off. After that everything entered will be executed.
 
 Run one line program from CLI and apply it on inputstream and other files. One line programs allow to estimate some code on the fly, without creating a temporary file. Writing one line programs you focus on the most important parts of the program implementation. Some implementation stuff -- like objects initialization, I/O operations etc -- are hidden on your eyes, however executed yet implicitly.
 
