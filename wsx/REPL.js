@@ -5,7 +5,7 @@
 // Copyright (c) 2019, 2020 by Ildar Shaimordanov
 //
 
-var REPL = function(quiet) {
+var REPL = function() {
 	if ( ! WScript.FullName.match(/cscript/i) ) {
 		WScript.Echo('REPL works with cscript only');
 		WScript.Quit();
@@ -39,7 +39,7 @@ var REPL = function(quiet) {
 			Array.prototype.join,
 			eval((function(PS1, PS2) {
 
-				if ( quiet ) {
+				if ( REPL.quiet ) {
 					PS1 = '';
 					PS2 = '';
 				} else {

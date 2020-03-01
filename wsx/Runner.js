@@ -44,7 +44,8 @@ var Runner = function(Program, argv) {
 		/*
 		Run REPL
 		*/
-		REPL(Program.quiet);
+		REPL.quiet = Program.quiet;
+		REPL();
 		return;
 	}
 
