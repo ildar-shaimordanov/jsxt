@@ -22,7 +22,7 @@ Run itself in the interactive mode. Type in the prompt any JS or VBS commands an
 
 Run one line program from CLI and apply it on inputstream and other files. One line programs allow to estimate some code on the fly, without creating a temporary file. Writing one line programs you focus on the most important parts of the program implementation. Some implementation stuff -- like objects initialization, I/O operations etc -- are hidden on your eyes, however executed yet implicitly.
 
-If the tool is launched with an one line program, everything after is assumed as a file for progessing. Each argument is opened as a file and processed line by line until end of file. Otherwise, if no any one line program is entered, the first item of the argument list is the script file and the rest of arguments are arguments for the script file. They could be everything and the script can use them accordingly its functionality.
+If the tool is launched with an one line program, everything after is assumed as a file for processing. Each argument is opened as a file and processed line by line until the end of file. Otherwise, if no any one line program is entered, the first item of the argument list is the script file and the rest of arguments are arguments for the script file. They could be everything and the script can use them accordingly its functionality.
 
 For more convenience there are few predefined global variables:
 
