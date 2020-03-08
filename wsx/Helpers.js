@@ -20,7 +20,7 @@ var usage = help = (function() {
 		, 'quit(), exit()           Quit this shell'
 		, 'cmd(), shell()           Run a DOS-session'
 		, 'sleep(n)                 Sleep n milliseconds'
-		, 'clip()                   Get from the clipboard data formatted as text'
+		, 'clip()                   Read from or write to clipboard'
 		, 'gc()                     Run the JScript garbage collector'
 	].join('\n');
 
@@ -50,8 +50,51 @@ var sleep = function(time) {
 	return WScript.Sleep(time);
 };
 
-var clip = function() {
-	return new ActiveXObject('htmlfile').parentWindow.clipboardData.getData('Text');
+var clip = function(text) {
+	if ( typeof text == 'undefined' ) {
+		return new ActiveXObject('htmlfile').parentWindow.clipboardData.getData('Text');
+	}
+
+	// Validate a value is integer in the range 1..100
+	// Otherwise, defaults to 20
+	var clamp = function(x) {
+		x = Number(x);
+		if ( isNaN(x) || x < 1 || x > 100 ) {
+			x = 20;
+		}
+		return x;
+	};
+
+	var WAIT1 = clamp(clip.WAIT_READY);
+	var WAIT2 = clamp(clip.WAIT_LOADED);
+
+	// Borrowed from https://stackoverflow.com/a/16216602/3627676
+	var msie = new ActiveXObject('InternetExplorer.Application');
+	msie.silent = true;
+	msie.Visible = false;
+	msie.Navigate('about:blank');
+
+	// Wait until MSIE ready
+	while ( msie.ReadyState != 4 ) {
+		WScript.Sleep(WAIT1);
+	}
+
+	// Wait until document loaded
+	while ( msie.document.readyState != 'complete' ) {
+		WScript.Sleep(WAIT2);
+	}
+
+	msie.document.body.innerHTML = '<textarea id="area" wrap="off" />';
+	var area = msie.document.getElementById('area');
+	area.value = text;
+	area.select();
+	area = null;
+
+	// 12 - "Edit" menu, "Copy" command
+	//  0 - the default behavior
+	msie.ExecWB(12, 0);
+	msie.Quit();
+	msie = null;
 };
 
 var gc = CollectGarbage;
