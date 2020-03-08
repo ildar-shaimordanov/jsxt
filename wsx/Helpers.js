@@ -18,7 +18,7 @@ var usage = help = (function() {
 		, 'usage(), help()          Display this help'
 		, 'echo(), print(), alert() Print expressions'
 		, 'quit(), exit()           Quit this shell'
-		, 'cmd(), shell()           Run a DOS-session'
+		, 'cmd(), shell()           Run a command or DOS-session'
 		, 'sleep(n)                 Sleep n milliseconds'
 		, 'clip()                   Read from or write to clipboard'
 		, 'gc()                     Run the JScript garbage collector'
@@ -41,9 +41,9 @@ var quit = exit = function(exitCode) {
 	WScript.Quit(exitCode);
 };
 
-var cmd = shell = function() {
+var cmd = shell = function(command) {
 	var shell = new ActiveXObject('WScript.Shell');
-	shell.Run('%COMSPEC%');
+	shell.Run(command || '%COMSPEC%');
 };
 
 var sleep = function(time) {
