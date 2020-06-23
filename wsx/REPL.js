@@ -103,14 +103,15 @@ var REPL = function() {
 					}
 
 					if ( input == '::' ) {
+						input = '';
 						multiline = ! multiline;
 					}
+
+					inputs[inputs.length] = input;
 
 					if ( ! multiline ) {
 						break;
 					}
-
-					inputs[inputs.length] = input;
 
 					WScript.StdOut.Write(PS2);
 
