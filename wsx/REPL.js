@@ -15,15 +15,17 @@ var REPL = function() {
 
 		try {
 
-			(function(e, r, j, result) {
+			(function(storage, result) {
 				/*
 				A user can modify the codes of these methods so
 				to prevent the script malfunctioning we have
 				to keep their original codes and restore them later
 				*/
-				eval = e;
-				String.prototype.replace = r;
-				Array.prototype.join = j;
+				eval = storage.e;
+				String = storage.s;
+				String.prototype.replace = storage.r;
+				Array = storage.a;
+				Array.prototype.join = storage.j;
 
 				if ( result === void 0 ) {
 					return;
@@ -31,12 +33,15 @@ var REPL = function() {
 				if ( typeof result == 'object' && typeof console != 'undefined' && typeof console.log == 'function' ) {
 					console.log(result);
 				} else {
-					WScript.Echo(result);
+					WScript.StdOut.WriteLine(result);
 				}
-			})(
-			eval,
-			String.prototype.replace,
-			Array.prototype.join,
+			})({
+				e: eval,
+				s: String,
+				r: String.prototype.replace,
+				a: Array,
+				j: Array.prototype.join
+			},
 			eval((function(PS1, PS2) {
 
 				if ( REPL.quiet ) {
