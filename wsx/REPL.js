@@ -48,9 +48,9 @@ var REPL = function() {
 					PS1 = '';
 					PS2 = '';
 				} else {
-					var me = WScript.ScriptName.replace(/(\.[^.]+\?)?\.[^.]+$/, '');
-					PS1 = me + '/js > ';
-					PS2 = me + '/js :: ';
+					var me = WScript.ScriptName;
+					PS1 = me + ' js > ';
+					PS2 = me + ' js :: ';
 				}
 
 				/*
