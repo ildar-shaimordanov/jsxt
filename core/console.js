@@ -37,7 +37,7 @@ The simplest formatting function immitating C-like format
 Details for the complex object
 	console.fn.inspect(object)
 
-The user-defined printing function
+The low-level printing function
 	console.fn.print(msgType, msg)
 
 The deep of nestion for complex structures (default is 5)
@@ -108,8 +108,8 @@ var console = console || (function() {
 		return '"' + result + '"';
 	};
 
-	// The inner method for printing objects
-	function _inspect(object) {
+	// The main method for printing objects
+	var inspect = function(object) {
 		switch (typeof object) {
 		case 'string':
 			return _quote(object);
@@ -173,7 +173,7 @@ var console = console || (function() {
 				if ( object[k] === object ) {
 					v = '[Recursive]';
 				} else {
-					v = _inspect(object[k]);
+					v = inspect(object[k]);
 					if ( v === '' ) {
 						// Sure that any property will return non-empty string
 						// Only functions can return an empty string when func == 0
@@ -209,27 +209,6 @@ var console = console || (function() {
 		}
 	};
 
-	// The main method for printing objects
-	var inspect = function(object) {
-		var fn = console.fn;
-
-		space = fn.space;
-		deep = Number(fn.deep) > 0 ? fn.deep : 5;
-		proto = fn.proto || 0;
-		func = fn.func || 0;
-
-		var t = Object.prototype.toString.call(space);
-		if ( t == '[object Number]' && space >= 0 ) {
-			space = new Array(space + 1).join(' ');
-		} else if ( t != '[object String]' ) {
-			space = '    ';
-		}
-
-		var result = _inspect(object);
-
-		return result;
-	};
-
 	// This regular expression is used to recongnize a formatting string 
 	var reFormat = /%%|%(\d+)?([idfxso])/g;
 
@@ -262,7 +241,7 @@ var console = console || (function() {
 		});
 	};
 
-	// The printing function
+	// The low-level printing function
 	var print = function(msgType, msg) {
 		WScript.Echo(msg);
 	};
@@ -271,23 +250,49 @@ var console = console || (function() {
 	// The core function
 	var printMsg = function(msgType, objects) {
 		// Get the actual configuration of the console
-		var fn = console.fn;
+		var fn = console.fn || {};
+
 		var sep = fn.separator || ' ';
+
+		space = fn.space;
+		deep = Number(fn.deep) > 0 ? fn.deep : 5;
+		proto = fn.proto || 0;
+		func = fn.func || 0;
+
+		var t = Object.prototype.toString.call(space);
+		if ( t == '[object Number]' && space >= 0 ) {
+			space = new Array(space + 1).join(' ');
+		} else if ( t != '[object String]' ) {
+			space = '    ';
+		}
+
+		if ( typeof fn.isFormat == 'function' ) {
+			isFormat = fn.isFormat;
+		}
+		if ( typeof fn.format == 'function' ) {
+			format = fn.format;
+		}
+		if ( typeof fn.inspect == 'function' ) {
+			inspect = fn.inspect;
+		}
+		if ( typeof fn.print == 'function' ) {
+			print = fn.print;
+		}
 
 		var result;
 
-		if ( fn.isFormat(objects[0]) ) {
-			//result = fn.format(objects[0], Array.prototype.slice.call(objects, 1));
-			result = fn.format(objects[0], objects);
+		if ( isFormat(objects[0]) ) {
+			//result = format(objects[0], Array.prototype.slice.call(objects, 1));
+			result = format(objects[0], objects);
 		} else {
 			result = [];
 			for (var i = 0; i < objects.length; i++) {
-				result.push(fn.inspect(objects[i]));
+				result.push(inspect(objects[i]));
 			}
 			result = result.join(sep);
 		}
 
-		fn.print(msgType, result);
+		print(msgType, result);
 	};
 
 
@@ -376,10 +381,6 @@ var console = console || (function() {
 
 		// Customizing the console
 		fn: {
-			isFormat: isFormat, 
-			format: format, 
-			inspect: inspect, 
-			print: print, 
 			space: 4,
 			deep: 5,
 			proto: 0,
