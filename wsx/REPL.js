@@ -21,26 +21,22 @@ var REPL = function() {
 				to prevent the script malfunctioning we have
 				to keep their original codes and restore them later
 				*/
-				eval = storage.e;
-				String = storage.s;
-				String.prototype.replace = storage.r;
-				Array = storage.a;
-				Array.prototype.join = storage.j;
+				eval = storage.eval;
 
 				if ( result === void 0 ) {
 					return;
 				}
-				if ( typeof result == 'object' && typeof console != 'undefined' && typeof console.log == 'function' ) {
+
+				if ( result && typeof result == 'object'
+				&& console && typeof console == 'object'
+				&& typeof console.log == 'function'
+				) {
 					console.log(result);
 				} else {
-					WScript.StdOut.WriteLine(result);
+					WScript.StdOut.WriteLine('' + result);
 				}
 			})({
-				e: eval,
-				s: String,
-				r: String.prototype.replace,
-				a: Array,
-				j: Array.prototype.join
+				eval: eval
 			},
 			eval((function(PS1, PS2) {
 
@@ -58,7 +54,7 @@ var REPL = function() {
 				can. We should prevent a concatenation with the one
 				of the empty values such as undefined, null, etc.
 				*/
-				if ( ! eval.history || ! ( eval.history instanceof Array ) ) {
+				if ( ! eval.history || ! ( eval.history instanceof [].constructor ) ) {
 					eval.history = [];
 				}
 
@@ -87,7 +83,7 @@ var REPL = function() {
 				-- the resulting string of all entered lines
 				   (leading and trailing whitespaces are trimmed)
 				*/
-				var input;
+				var input = [];
 				var inputs = [];
 				var result = '';
 
@@ -97,17 +93,26 @@ var REPL = function() {
 
 					try {
 						eval.number++;
-						input = WScript.StdIn.ReadLine();
+						input = [];
+						while ( ! WScript.StdIn.AtEndOfLine ) {
+							input[input.length] = WScript.StdIn.Read(1);
+						}
+						WScript.StdIn.ReadLine();
 					} catch (ERROR) {
-						input = 'WScript.Quit()';
+						input = [ 'WScript.Quit()' ];
 					}
 
-					if ( input == '::' ) {
-						input = '';
+					if ( input.length == 2 && input[0] + input[1] == '::' ) {
+						input = [];
 						multiline = ! multiline;
 					}
 
-					inputs[inputs.length] = input;
+					if ( inputs.length ) {
+						inputs[inputs.length] = '\n';
+					}
+					for (var i = 0; i < input.length; i++) {
+						inputs[inputs.length] = input[i];
+					}
 
 					if ( ! multiline ) {
 						break;
@@ -117,9 +122,21 @@ var REPL = function() {
 
 				} // while ( true )
 
-				result = inputs.join('\n');
-				result = result.replace(/^[\x00-\x20]+/, '');
-				result = result.replace(/[\x00-\x20]+$/, '');
+				// Trim left
+				var k = 0;
+				while ( inputs[k] <= ' ' ) {
+					k++;
+				}
+				// Trim right
+				var m = inputs.length - 1;
+				while ( inputs[m] <= ' ' ) {
+					m--;
+				}
+
+				var result = '';
+				for (var i = k; i <= m; i++) {
+					result += inputs[i];
+				}
 
 				if ( result == '' ) {
 					return '';
@@ -133,7 +150,7 @@ var REPL = function() {
 
 		} catch (ERROR) {
 
-			WScript.Echo(WScript.ScriptName 
+			WScript.StdErr.WriteLine(WScript.ScriptName
 				+ ': "<stdin>", line ' + eval.number
 				+ ': ' + ERROR.name
 				+ ': ' + ERROR.message);
