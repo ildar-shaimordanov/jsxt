@@ -6,7 +6,7 @@
 //
 
 var REPL = function() {
-	if ( ! WScript.FullName.match(/cscript/i) ) {
+	if ( ! WScript.FullName.match(/cscript.exe$/i) ) {
 		WScript.Echo('REPL works with cscript only');
 		WScript.Quit();
 	}
