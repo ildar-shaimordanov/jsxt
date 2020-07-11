@@ -22,6 +22,7 @@ var REPL = function() {
 				to keep their original codes and restore them later
 				*/
 				eval = storage.eval;
+				REPL = storage.REPL;
 
 				if ( result === void 0 ) {
 					return;
@@ -36,7 +37,8 @@ var REPL = function() {
 					WScript.StdOut.WriteLine('' + result);
 				}
 			})({
-				eval: eval
+				eval: eval,
+				REPL: REPL
 			},
 			eval((function(PS1, PS2) {
 
