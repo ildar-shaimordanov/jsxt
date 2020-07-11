@@ -30,8 +30,7 @@ var REPL = function() {
 
 				if ( result && typeof result == 'object'
 				&& console && typeof console == 'object'
-				&& typeof console.log == 'function'
-				) {
+				&& typeof console.log == 'function' ) {
 					console.log(result);
 				} else {
 					WScript.StdOut.WriteLine('' + result);
