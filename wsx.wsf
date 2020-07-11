@@ -38,9 +38,9 @@ Common helper functions:
 usage(), help()          - Display this help
 echo(), print(), alert() - Print expressions
 quit(), exit()           - Quit this shell
-cmd(), shell()           - Run a DOS-session
+cmd(), shell()           - Run a command or DOS-session
 sleep(n)                 - Sleep n milliseconds
-clip()                   - Get from the clipboard data formatted as text
+clip()                   - Read from or write to clipboard
 gc()                     - Run the JScript garbage collector
 
 ERROR   - The variable keeping the last error
@@ -222,7 +222,7 @@ Examples:
 	/>
 <unnamed
 	name="arguments"
-	helpstring="Other arguments for processing"
+	helpstring="Other arguments to be passed to the program"
 	required="false"
 	/>
 </runtime>
