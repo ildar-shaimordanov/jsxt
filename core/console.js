@@ -391,6 +391,6 @@ var console = console || (function() {
 
 })();
 
-if ( typeof exports != "undefined" ) {
-	exports.console = console;
+if ( typeof module != "undefined" ) {
+	module.exports = console;
 }
