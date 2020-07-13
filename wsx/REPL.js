@@ -51,20 +51,20 @@ var REPL = function() {
 				}
 
 				/*
-				The eval.history can be changed by the user as he
+				The REPL.history can be changed by the user as he
 				can. We should prevent a concatenation with the one
 				of the empty values such as undefined, null, etc.
 				*/
-				if ( ! eval.history || ! ( eval.history instanceof [].constructor ) ) {
-					eval.history = [];
+				if ( ! REPL.history || ! ( REPL.history instanceof [].constructor ) ) {
+					REPL.history = [];
 				}
 
 				/*
-				The eval.number can be changed by the user as he can.
+				The REPL.number can be changed by the user as he can.
 				We should prevent an incrementing of non-numeric values.
 				*/
-				if ( ! eval.number || typeof eval.number != 'number' ) {
-					eval.number = 0;
+				if ( ! REPL.number || typeof REPL.number != 'number' ) {
+					REPL.number = 0;
 				}
 
 				/*
@@ -93,7 +93,7 @@ var REPL = function() {
 				while ( true ) {
 
 					try {
-						eval.number++;
+						REPL.number++;
 						input = [];
 						while ( ! WScript.StdIn.AtEndOfLine ) {
 							input[input.length] = WScript.StdIn.Read(1);
@@ -143,7 +143,7 @@ var REPL = function() {
 					return '';
 				}
 
-				eval.history[eval.history.length] = result;
+				REPL.history[REPL.history.length] = result;
 
 				return result;
 
@@ -152,7 +152,7 @@ var REPL = function() {
 		} catch (ERROR) {
 
 			WScript.StdErr.WriteLine(WScript.ScriptName
-				+ ': "<stdin>", line ' + eval.number
+				+ ': "<stdin>", line ' + REPL.number
 				+ ': ' + ERROR.name
 				+ ': ' + ERROR.message);
 

@@ -63,10 +63,11 @@ last()  - The "break" operator
 
 Used in REPL:
 
-The interactive mode provides two useful properties for referencing to the history of the commands:
+The interactive mode provides the following useful properties for referencing to the history of the commands and REPL mode:
 
-eval.number  - the current line number
-eval.history - the list of all commands entered in the current session
+REPL.number  - the current line number
+REPL.history - the list of all commands entered in the current session
+REPL.quiet   - the current session mode
 
 The CLI options supplying the program parts for execution could be infixed with the engine identifier ("js" or "vbs") supposed to be used for processing these options. See examples below.
 
