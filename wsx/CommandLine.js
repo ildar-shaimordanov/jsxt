@@ -81,8 +81,19 @@
 			continue;
 		}
 
-		argv.push(arg);
+		/*
+		This looks like ugly, but it works and reliable enough to
+		stop looping over the rest of the CLI options. From this
+		point we allow end users to specify their own options even,
+		if their names intersect with names of our options.
+		*/
+		break;
 
+	}
+
+	for ( ; i < WScript.Arguments.length; i++) {
+		var arg = WScript.Arguments.Item(i);
+		argv.push(arg);
 	}
 
 	Program.detectScriptFile(argv);
