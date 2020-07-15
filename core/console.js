@@ -135,8 +135,8 @@ var console = console || (function() {
 			}
 
 			// Assume win32 COM objects
-			if ( ! object.constructor ) {
-				return '[Object]';
+			if ( object instanceof ActiveXObject ) {
+				return '[ActiveXObject]';
 			}
 
 			var t = Object.prototype.toString.call(object);
@@ -214,7 +214,7 @@ var console = console || (function() {
 
 	// Checks that the object is a formatting string
 	var isFormat = function(object) {
-		return String(object).match(reFormat);
+		return Object.prototype.toString.call(object) == '[object String]' && object.match(reFormat);
 	};
 
 	var formatters = {};
