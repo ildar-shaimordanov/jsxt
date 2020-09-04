@@ -5,12 +5,12 @@
 //[requires[ js/eval.js ]]
 //[requires[ js/win32/FileSystem.js ]]
 //[requires[ js/win32/Enumerator.js ]]
-//[requires[ tools/jsxt.tools.js ]]
-//[requires[ tools/jsxt.tools.jsCode.js ]]
-//[requires[ tools/jsxt.tools.js2xml.js ]]
-//[requires[ tools/jsxt.tools.js2js.js ]]
-//[requires[ tools/jsxt.tools.vbs2js.js ]]
-//[requires[ tools/jsxt.tools.js2bat.js ]]
+//[requires[ jsxt/jsxt.tools.js ]]
+//[requires[ jsxt/jsxt.tools.jsCode.js ]]
+//[requires[ jsxt/jsxt.tools.js2xml.js ]]
+//[requires[ jsxt/jsxt.tools.js2js.js ]]
+//[requires[ jsxt/jsxt.tools.vbs2js.js ]]
+//[requires[ jsxt/jsxt.tools.js2bat.js ]]
 
 (function()
 {
@@ -19,7 +19,7 @@
 		jsxt.tools.quit();
 	}
 /*![[JSXT Tools Installer
-Copyright (C) 2009, 2010, 2011, Ildar Shaimordanov
+Copyright (C) 2009, 2010, 2011, 2020 Ildar Shaimordanov
 
 Usage: jsxt FILES [/D:targetPath] [/O]
 
