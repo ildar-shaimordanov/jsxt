@@ -1,0 +1,5 @@
+# this doesn't work properly
+# * text=input
+
+# ignore all differences in line endings
+* -crlf
