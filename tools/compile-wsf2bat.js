@@ -45,7 +45,7 @@ var scriptFile = readFile()
 	return '<?xml :\n:' + ( $1 || ' ' ) + $2 + chimeraProlog;
 })
 .replace(/<script\s*(.*?)\s*src="([^"]+)"\s*(.*?)\s*>\s*<\/script>/g, function($0, $1, $2, $3) {
-	return '<!-- ' + $2 + ' --><script' + ( $1 && ' ' + $1 ) + ( $3 && ' ' + $3 ) + '><![CDATA[\n' + readFile($2) + '\n]]></script>';
+	return '<!-- ' + $0 + ' -->\n<script' + ( $1 && ' ' + $1 ) + ( $3 && ' ' + $3 ) + '><![CDATA[\n' + readFile($2) + '\n]]></script>';
 });
 
 WScript.Echo(scriptFile);
