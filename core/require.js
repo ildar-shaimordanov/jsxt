@@ -68,7 +68,7 @@ var require = require || (function() {
 				= "(function(module) {\n"
 				+ "var exports = module.exports;\n"
 				+ text + ";\n"
-				+ "return module.exports || {};\n"
+				+ "return module.exports;\n"
 				+ "})({ exports: {} })";
 
 			var evaled = eval(code);
