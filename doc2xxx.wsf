@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<package>
+<job id="wsx">
+<?job error="false" debug="false" ?>
+
+<script language="javascript"><![CDATA[
+
+var NAME    = 'doc2html';
+var VERSION = '1.0.1 Alpha';
+
+]]></script>
+
+<runtime>
+<description><![CDATA[
+doc2html and more
+Copyright (C) 2004, 2009, 2010, 2012, 2016, 2019, 2020 Ildar Shaimordanov
+
+This tool allows to convert any DOC or DOCX file to several different formats such as plain text TXT (both DOS, Win, etc), or reach text RTF, or hyper-text HTML (default), MHT (web archive), XML, or PDF, or XPS.
+
+Using doc2fb.xsl file it is possible to convert to FictionBook format (FB2).
+
+
+FORMATS
+
+    TXT, RTF, HTML, MHT, XML, PDF or XPS
+
+Additionally FB2 stands for transformations to FictionBook format.
+
+
+ENCODINGS
+
+A numeric value of the encoding to be used when saving as a plain text file. This option is significant with /F:TXT only. Refer to your system locales to learn which encodings ar available there.
+
+The Russian or Ukrainian users can refer to the list below:
+
+    866   - DOS
+    28595 - ISO
+    20866 - KOI8-R
+    21866 - KOI8-U
+    10007 - Mac
+    1251  - Win
+
+
+LINE ENDING
+
+The option specifies characters to be used as line ending. There are four available values - CRLF, CR, LF, or LFCR. The default value is CRLF. This option is significant with /F:TXT only.
+
+]]></description>
+<example><![CDATA[
+EXAMPLES
+
+- Convert the WINWORD document "filename.doc" to the text file "filename.txt" encoded as KOI8-R with CRLF line ending:
+  doc2html /F:TXT /E:20866 /L:CRLF filename.doc
+
+]]></example>
+<named
+	name="H"
+	helpstring="Print this help and exit"
+	type="simple"
+	required="false"
+	/>
+<named
+	name="F"
+	helpstring="Output format"
+	type="string"
+	required="false"
+	/>
+<named
+	name="E"
+	helpstring="Encoding for plain text files"
+	type="string"
+	required="false"
+	/>
+<named
+	name="L"
+	helpstring="Line ending for plain text files (Integer expected)"
+	type="string"
+	required="false"
+	/>
+<named
+	name="XSL"
+	helpstring="An XSLT file for transformation to FictionBook2 format"
+	type="string"
+	required="false"
+	/>
+<named
+	name="V"
+	helpstring="Turn on verbosity"
+	type="simple"
+	required="false"
+	/>
+<named
+	name="FG"
+	helpstring="Specify this if you want to launch WINWORD in foreground"
+	type="simple"
+	required="false"
+	/>
+<unnamed
+	name="arguments"
+	helpstring="Files to be converted"
+	required="true"
+	/>
+</runtime>
+
+<script language="javascript" src="js/win32/FileSystem.js"></script>
+<script language="javascript" src="js/String.js"></script>
+<script language="javascript" src="js/Array.js"></script>
+<script language="javascript" src="js/Object.js"></script>
+<script language="javascript" src="js/win32/Enumerator.js"></script>
+<script language="javascript" src="doc2xxx.js"></script>
+
+</job>
+</package>
