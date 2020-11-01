@@ -13,6 +13,11 @@ both by the Command Interpreter and WScript Engine. All included codes
 implementing the tool's functionality are read and embedded into the
 final script. This file is standalone and portable version of the
 original one that is convenient for distribution.
+
+Possible invocations:
+
+cscript //nologo compile-wsf2bat.js < FILENAME.wsf > FILENAME.bat
+wsx /m:eval compile-wsf2bat.js < FILENAME.wsf > FILENAME.bat
 */
 
 var fso = new ActiveXObject('Scripting.FileSystemObject');
@@ -29,7 +34,11 @@ function readFile(file) {
 	if ( file && file.toLowerCase() != 'con' ) {
 		stream.Close();
 	}
-	return text.join('\n');
+	text = text.join('\n');
+	if ( (file || '').match(/\.js$/i) && typeof eval.minify == 'function' ) {
+		text = eval.minify(text, { level: 2 });
+	}
+	return text;
 }
 
 var chimeraProlog = [
