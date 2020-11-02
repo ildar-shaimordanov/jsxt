@@ -58,14 +58,11 @@ var Program = {
 			WScript.Echo('Bad regexp: ' + str);
 			WScript.Quit(1);
 		}
-		var result = {
-			valid: !! m
-		}
-		if ( m ) {
-			result.pattern = m[1] || m[3];
-			result.modifiers = m[2];
-		}
-		return result;
+		return {
+			pattern: m[1] || m[3],
+			modifiers: m[2],
+			origin: str
+		};
 	},
 	vbsVar: function(name, value, setter) {
 		var result = 'Dim ' + name;
