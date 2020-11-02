@@ -65,7 +65,7 @@ var Program = {
 	},
 	jsVar: function(name, value, setter) {
 		//var result = 'var ' + name;
-		var result = ''
+		var result = '';
 		if ( value ) {
 			result = name;
 			switch( setter.toLowerCase() ) {
