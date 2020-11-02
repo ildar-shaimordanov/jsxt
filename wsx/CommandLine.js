@@ -63,7 +63,7 @@
 			continue;
 		}
 
-		m = arg.match(/^\/(let|set|get)(?::(js|vbs))?:(\w+)=(.*)$/i);
+		m = arg.match(/^\/(let|set|get|re)(?::(js|vbs))?:(\w+)=(.*)$/i);
 		if ( m ) {
 			Program.addVar(m[2], m[3], m[4], m[1]);
 			continue;

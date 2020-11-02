@@ -52,6 +52,21 @@ var Program = {
 		this.modules.push(this.addScript(engine, name));
 	},
 
+	validateStringAsRegexp: function(str) {
+		var m = str.match(/^\/(.+)\/([igm]+)?$|^((?!\/).+(?!\/))$/);
+		if ( ! m ) {
+			WScript.Echo('Bad regexp: ' + str);
+			WScript.Quit(1);
+		}
+		var result = {
+			valid: !! m
+		}
+		if ( m ) {
+			result.pattern = m[1] || m[3];
+			result.modifiers = m[2];
+		}
+		return result;
+	},
 	vbsVar: function(name, value, setter) {
 		var result = 'Dim ' + name;
 		if ( value ) {
@@ -59,6 +74,20 @@ var Program = {
 			case 'let': result += ' : ' + name + ' = \\"' + value + '\\"'; break;
 			case 'set': result += ' : Set ' + name + ' = CreateObject(\\"' + value + '\\")'; break;
 			case 'get': result += ' : Set ' + name + ' = GetObject(\\"' + value + '\\")'; break;
+			case 're':
+				var v = this.validateStringAsRegexp(value);
+				result += ' : Set ' + name + ' = New RegExp';
+				result += ' : ' + name + '.Pattern = \\"' + v.pattern.replace(/\\/g, '\\\\')  + '\\"';
+				if ( v.modifiers.indexOf('i') >= 0 ) {
+					result += ' : ' + name + '.IgnoreCase = True';
+				}
+				if ( v.modifiers.indexOf('g') >= 0 ) {
+					result += ' : ' + name + '.Global = True';
+				}
+				if ( v.modifiers.indexOf('m') >= 0 ) {
+					result += ' : ' + name + '.Multiline = True';
+				}
+				break;
 			}
 		}
 		return 'USE.Execute("' + result + '")';
@@ -72,6 +101,10 @@ var Program = {
 			case 'let': result += ' = "' + value + '"'; break;
 			case 'set': result += ' = new ActiveXObject("' + value + '")'; break;
 			case 'get': result += ' = GetObject("' + value + '")'; break;
+			case 're':
+				var v = this.validateStringAsRegexp(value);
+				result += ' = /' + v.pattern + '/' + v.modifiers;
+				break;
 			}
 		}
 		return result;
