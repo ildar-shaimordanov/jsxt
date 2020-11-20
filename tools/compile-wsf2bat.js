@@ -42,7 +42,7 @@ function readFile(file) {
 }
 
 var chimeraProlog = [
-	'<!--'
+	'<!-- :'
 ,	'@echo off'
 ,	'cscript //nologo "%~f0?.wsf" %*'
 ,	'goto :EOF'
