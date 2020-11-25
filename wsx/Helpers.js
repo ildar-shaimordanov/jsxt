@@ -19,6 +19,8 @@ var usage = help = (function() {
 		, 'echo(), print(), alert() Print expressions'
 		, 'quit(), exit()           Quit this shell'
 		, 'cmd(), shell()           Run a command or DOS-session'
+		, 'exec()                   Run a command in a child shell'
+		, '                         (callback handles StdIn/StdOut/StdErr)'
 		, 'sleep(n)                 Sleep n milliseconds'
 		, 'clip()                   Read from or write to clipboard'
 		, 'gc()                     Run the JScript garbage collector'
@@ -44,6 +46,32 @@ var quit = exit = function(exitCode) {
 var cmd = shell = function(command) {
 	var shell = new ActiveXObject('WScript.Shell');
 	shell.Run(command || '%COMSPEC%');
+};
+
+var exec = function(command, cb) {
+	var shell = new ActiveXObject('WScript.Shell');
+	var proc = shell.Exec(command);
+
+	if ( cb === true ) {
+		cb = function(proc) {
+			WScript.Sleep(50);
+		}
+	}
+
+	if ( typeof cb == 'number' && cb > 0 ) {
+		var timeout = cb;
+		cb = function(proc) {
+			WScript.Sleep(timeout);
+		};
+	}
+
+	if ( typeof cb != 'function' ) {
+		return proc;
+	}
+
+	while ( proc.Status == 0 ) {
+		cb(proc);
+	}
 };
 
 var sleep = function(time) {
@@ -117,6 +145,7 @@ if ( typeof exports != "undefined" ) {
 
 	exports.cmd = cmd;
 	exports.shell = shell;
+	exports.exec = exec;
 
 	exports.sleep = sleep;
 	exports.clip = clip;
