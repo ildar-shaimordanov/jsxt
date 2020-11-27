@@ -103,7 +103,7 @@ var console = console || (function() {
 
 	function _quote(value) {
 		var result = value.replace(escaped, function($0) {
-			return special[$0] || $0;
+			return special[$0] || '\\x' + $0.charCodeAt(0).toString(16);
 		});
 		return '"' + result + '"';
 	};
