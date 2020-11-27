@@ -121,10 +121,10 @@ var console = console || (function() {
 			return String(object);
 
 		case 'function':
-			if ( func == 1 ) {
+			if ( func == 0 ) {
 				return '[Function]';
 			}
-			if ( func > 1 ) {
+			if ( func > 0 ) {
 				return object.toString();
 			}
 			return '';
