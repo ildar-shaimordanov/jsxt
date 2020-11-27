@@ -300,18 +300,20 @@ var console = console || (function() {
 		printMsg(0, arguments);
 	};
 
-	var debug = log;
+	var debug = function() {
+		printMsg(1, arguments);
+	};
 
 	var info = function() {
-		printMsg(64, arguments);
+		printMsg(2, arguments);
 	};
 
 	var warn = function() {
-		printMsg(48, arguments);
+		printMsg(3, arguments);
 	};
 
 	var error = function() {
-		printMsg(16, arguments);
+		printMsg(4, arguments);
 	};
 
 
