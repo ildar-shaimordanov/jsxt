@@ -241,10 +241,24 @@ var console = console || (function() {
 		});
 	};
 
-	// The low-level printing function
-	var print = function(msgType, msg) {
+	// The low-level printing function for CScript host
+	var printCScript = function(msgType, msg) {
+		if ( msgType <= 2 ) {
+			WScript.StdOut.WriteLine(msg);
+		} else {
+			WScript.StdErr.WriteLine(msg);
+		}
+	};
+
+	// The low-level printing function for WScript host
+	var printWScript = function(msgType, msg) {
 		WScript.Echo(msg);
 	};
+
+	// The low-level printing function
+	var print = WScript.FullName.match(/cscript.exe$/i)
+		? printCScript
+		: printWScript;
 
 
 	// The core function
@@ -290,6 +304,10 @@ var console = console || (function() {
 				result.push(inspect(objects[i]));
 			}
 			result = result.join(sep);
+		}
+
+		if ( typeof fn.preprint == 'function' ) {
+			result = fn.preprint(result);
 		}
 
 		print(msgType, result);
