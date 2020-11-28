@@ -176,7 +176,7 @@ var console = console || (function() {
 					v = inspect(object[k]);
 					if ( v === '' ) {
 						// Sure that any property will return non-empty string
-						// Only functions can return an empty string when func == 0
+						// Only functions can return an empty string when func == -1
 						continue;
 					}
 				}
