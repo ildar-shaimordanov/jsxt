@@ -88,7 +88,7 @@ High-level colorer methods
 		, ')'
 		, '|'
 		, '('	// regexp = "/" ... "/"
-			, '\\/.+\\/'
+			, '\\/.+\\/i?g?m?'
 		, ')'
 		, '|'
 		, '('	// func = "[Function]"
@@ -179,30 +179,25 @@ High-level colorer methods
 	};
 
 	var E = String.fromCharCode(27);
-	var colors = 'black red green yellow blue magenta cyan white'.split(' ');
+
+	var loColors = 'black red green yellow blue magenta cyan white';
+	var hiColors = loColors.replace(/(?=[ ]|$)/g, 'Bright');
+	var colors = ( loColors + ' ' + hiColors ).split(' ');
 
 	for (var i = 0; i < colors.length; i++) {
 		(function(
 			i,
-			normal,
-			bright
+			name
 		) {
-			C.fg[normal] = function(text) {
-				return E +  '[3' + i + 'm' + text + E + '[0m';
+			C.fg[name] = function(text) {
+				return E + '[38;5;' + i + 'm' + text + E + '[0m';
 			};
-			C.fg[bright] = function(text) {
-				return E +  '[9' + i + 'm' + text + E + '[0m';
-			};
-			C.bg[normal] = function(text) {
-				return E +  '[4' + i + 'm' + text + E + '[0m';
-			};
-			C.bg[bright] = function(text) {
-				return E + '[10' + i + 'm' + text + E + '[0m';
+			C.bg[name] = function(text) {
+				return E + '[48;5;' + i + 'm' + text + E + '[0m';
 			};
 		})(
 			i,
-			colors[i],
-			colors[i] + 'Bright'
+			colors[i]
 		);
 	}
 
@@ -213,12 +208,12 @@ High-level colorer methods
 	C.bg.grayBright = C.bg.white;
 
 	C._string = C.fg.green;
-	C._bool = C.fg.yellow;
+	C._bool = C.fg.yellowBright;
 	C._null = C.fg.whiteBright;
 	C._undef = C.fg.gray;
 	C._number = C.fg.yellow;
-	C._date = C.fg.magenta;
-	C._regexp = C.fg.red;
+	C._date = C.fg.magentaBright;
+	C._regexp = C.fg.redBright;
 	C._func = C.fg.cyan;
 	C._comobj = C.fg.cyan;
 	C._circular = C.fg.gray;
