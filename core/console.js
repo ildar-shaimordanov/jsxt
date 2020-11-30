@@ -176,7 +176,7 @@ var console = console || (function() {
 				var v;
 
 				if ( object[k] === object ) {
-					v = '[Recursive]';
+					v = '[Circular]';
 				} else {
 					v = inspect(object[k]);
 					if ( v === '' ) {
