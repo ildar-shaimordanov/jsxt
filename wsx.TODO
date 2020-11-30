@@ -12,3 +12,18 @@ CLI:
 EXAMPLE:
 
 wsx /vt
+
+===========================================================================
+
+modify "wsx/Runner.js" to enable execution of the "/begin" blocks before
+and the "/end" blocks after REPL and "main"
+
+eval(begin);
+REPL();
+eval(end);
+
+eval(begin);
+eval(main);
+eval(end);
+
+===========================================================================
