@@ -186,7 +186,7 @@ var console = console || (function() {
 					}
 				}
 
-				if ( k.match(/\W/) ) {
+				if ( k === '' || k.match(/\W/) ) {
 					k = _quote(k);
 				}
 
