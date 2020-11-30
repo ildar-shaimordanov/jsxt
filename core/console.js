@@ -63,6 +63,30 @@ The visibility of the prototype properties of the object. Defaults to 0.
 The string to glue the set of arguments when output them
 	console.fn.separator = ' '
 
+The default colorer object
+	console.fn.colorer
+
+Turn on colorer functionality
+-- execute the trick with powershell and
+-- initialize console.fn.preprint to console.fn.colorer.preprint
+	console.fn.colorer.enable()
+
+The default colorer method
+	console.fn.colorer.preprint(text)
+
+Low-level colorer methods (foreground and background colors)
+<color> stands for black, red, green, yellow, blue, magenta, cyan, white, gray
+gray synonym for blackBright
+grayBright synonym for white
+	console.fn.colorer.fg.<color>
+	console.fn.colorer.bg.<color>
+	console.fn.colorer.fg.<color>Bright
+	console.fn.colorer.bg.<color>Bright
+
+High-level colorer methods
+<part> stands for string, bool, null, undef, number, date, regexp, func, comobj, circular
+	console.fn.colorer._<part>
+
 The following functions are not implemented:
 	console.clear
 	console.count
