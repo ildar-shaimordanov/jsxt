@@ -246,8 +246,8 @@ var console = console || (function() {
 	};
 
 	// The low-level printing function for CScript host
-	var printCScript = function(msgType, msg) {
-		if ( msgType <= 2 ) {
+	var printCScript = function(streamId, msgType, msg) {
+		if ( streamId == 1 ) {
 			WScript.StdOut.WriteLine(msg);
 		} else {
 			WScript.StdErr.WriteLine(msg);
@@ -255,7 +255,7 @@ var console = console || (function() {
 	};
 
 	// The low-level printing function for WScript host
-	var printWScript = function(msgType, msg) {
+	var printWScript = function(streamId, msgType, msg) {
 		WScript.Echo(msg);
 	};
 
@@ -266,7 +266,7 @@ var console = console || (function() {
 
 
 	// The core function
-	var printMsg = function(msgType, objects) {
+	var printMsg = function(streamId, msgType, objects) {
 		// Get the actual configuration of the console
 		var fn = console.fn || {};
 
@@ -314,28 +314,28 @@ var console = console || (function() {
 			result = fn.preprint(result);
 		}
 
-		print(msgType, result);
+		print(streamId, msgType, result);
 	};
 
 
 	var log = function() {
-		printMsg(0, arguments);
+		printMsg(1, 0, arguments);
 	};
 
 	var debug = function() {
-		printMsg(1, arguments);
+		printMsg(1, 1, arguments);
 	};
 
 	var info = function() {
-		printMsg(2, arguments);
+		printMsg(1, 2, arguments);
 	};
 
 	var warn = function() {
-		printMsg(3, arguments);
+		printMsg(2, 3, arguments);
 	};
 
 	var error = function() {
-		printMsg(4, arguments);
+		printMsg(2, 4, arguments);
 	};
 
 
