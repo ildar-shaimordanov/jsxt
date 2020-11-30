@@ -181,6 +181,10 @@ var console = console || (function() {
 					}
 				}
 
+				if ( k.match(/\W/) ) {
+					k = _quote(k);
+				}
+
 				result.push(k + ': ' + v);
 			}
 
