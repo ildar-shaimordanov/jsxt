@@ -31,14 +31,19 @@ Customizing the console
 Checks that the object is a formatting string
 	console.fn.isFormat(object)
 
-The simplest formatting function immitating C-like format
+The simplest formatting function simulating C-like sprintf
 	console.fn.format(pattern, objects)
 
 Details for the complex object
 	console.fn.inspect(object)
 
+Post-parsed/pre-printed processing
+	console.fn.preprint(msg)
+
 The low-level printing function
-	console.fn.print(msgType, msg)
+streamId: 1 (STDOUT), 2 (STDERR)
+msgType: 0 (log), 1 (debug), 2 (info), 3 (warn), 4 (error)
+	console.fn.print(streamId, msgType, msg)
 
 The deep of nestion for complex structures (default is 5)
 	console.fn.deep
@@ -47,12 +52,12 @@ The initial value of indentation (4 whitespaces, by default).
 A numeric value defines indentaion size, the number of space chars.
 	console.fn.space
 
-Numeric values controls the visibility of functions. Defaults to 0.
-(0 - do not show function, 1 - show [Function] string, 2 - show a details)
+Numeric values controls the visibility of functions. Defaults to 1.
+(0 - do not show function, 1 - show [Function] string, 2 - show details)
 	console.fn.func
 
-The visibility properties from the prototype of the oject. Defaults to 0.
-(0 - do not show properties from prototype, 1 - show then)
+The visibility of the prototype properties of the object. Defaults to 0.
+(0 - do not show properties from prototype, 1 - show them)
 	console.fn.proto
 
 The string to glue the set of arguments when output them
@@ -121,10 +126,10 @@ var console = console || (function() {
 			return String(object);
 
 		case 'function':
-			if ( func == 0 ) {
+			if ( func == 1 ) {
 				return '[Function]';
 			}
-			if ( func > 0 ) {
+			if ( func > 1 ) {
 				return object.toString();
 			}
 			return '';
@@ -176,7 +181,7 @@ var console = console || (function() {
 					v = inspect(object[k]);
 					if ( v === '' ) {
 						// Sure that any property will return non-empty string
-						// Only functions can return an empty string when func == -1
+						// Only functions return an empty string when func == 0
 						continue;
 					}
 				}
@@ -408,7 +413,7 @@ var console = console || (function() {
 			space: 4,
 			deep: 5,
 			proto: 0,
-			func: 0,
+			func: 1,
 			separator: ' '
 		}
 	};
