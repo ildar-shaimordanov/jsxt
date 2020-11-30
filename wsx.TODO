@@ -1,28 +1,6 @@
 COLORIZE
 
 implement colorized output with the trick.
-add more code into print/echo/alert/console.log
-
-JS:
-
-function ansi_enable() {
-	var e;
-	try {
-		var sh = WScript.CreateObject("WScript.Shell");
-		var value = sh.RegRead("HKCU\\Console\\VirtualTerminalLevel");
-		if ( value == 1 ) {
-			return;
-		}
-	} catch(e) {
-	}
-
-	// The following trick was found in this thread:
-	// https://www.dostips.com/forum/viewtopic.php?p=63393#p63393
-	var trick = sh.Exec("powershell -nop -ep bypass -c exit");
-	while ( trick.Status == 0 ) {
-		WScript.Sleep(50);
-	}
-}
 
 CLI:
 

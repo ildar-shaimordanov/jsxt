@@ -239,6 +239,7 @@ Examples:
 <script language="javascript" src="./wsx/Helpers.js"></script>
 
 <script language="javascript" src="./core/console.js"></script>
+<script language="javascript" src="./core/console-colorer.js"></script>
 
 <script language="javascript" src="./core/require.js"></script>
 <script language="vbscript" src="./core/importer.vbs"></script>
