@@ -15,15 +15,11 @@ wsx /vt
 
 ===========================================================================
 
-modify "wsx/Runner.js" to enable execution of the "/begin" blocks before
-and the "/end" blocks after REPL and "main"
+Workaround to enable the colorized console:
 
-eval(begin);
-REPL();
-eval(end);
+wsx ...     /e:"console.fn.colorer.enable()" ...
+wsx ... /begin:"console.fn.colorer.enable()" ...
 
-eval(begin);
-eval(main);
-eval(end);
+wsx /e:"console.fn.colorer.enable()" /e:"REPL()"
 
 ===========================================================================
