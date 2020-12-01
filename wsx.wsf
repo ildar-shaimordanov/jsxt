@@ -77,6 +77,25 @@ The name explanation:
 
 Following the old good tradition to explain acronyms recursively "WSX" means "WSX Simulates eXecutable".
 
+
+Usage (short):
+
+- Run the script file
+  wsx [options] scriptfile [arguments]
+
+- Run in the interactive mode
+  wsx [options] [/quiet]
+  wsx [options] [/q]
+
+- Run the one line program
+  wsx [options] /e:... [arguments]
+
+- Run the program in a loop
+  wsx [options] [/begin:...] [/end:...] [/beginfile:...] [/endfile:...] /n [/e:...] [arguments]
+  wsx [options] [/begin:...] [/end:...] [/beginfile:...] [/endfile:...] /p [/e:...] [arguments]
+
+The [options] above refer to the other options not mentioned explicitly (see below).
+
 ]]></description>
 <example><![CDATA[
 Examples:
@@ -164,7 +183,7 @@ Examples:
 	/>
 <named
 	name="re"
-	helpstring="Assign the regular expression (experimental feature): &#34;name=regexp&#34; or &#34;name=/regexp/igm&#34;, where &#34;i&#34; for ignore case, &#34;g&#34; for global search, &#34;m&#34; for multi line, respectively"
+	helpstring="Assign the regular expression: &#34;name=regexp&#34; or &#34;name=/regexp/igm&#34;"
 	type="string"
 	required="false"
 	/>
