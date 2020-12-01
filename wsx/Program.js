@@ -16,6 +16,7 @@ var Program = {
 	vars: [],
 
 	main: [],
+	script: [],
 
 	begin: [],
 	end: [],
@@ -136,7 +137,7 @@ var Program = {
 		if ( args.length ) {
 			var scriptFile = args.shift();
 			var engine = /\.vbs$/.test(scriptFile) ? 'vbs' : 'js';
-			this.main.push(this.addScript(engine, scriptFile));
+			this.script.push(this.addScript(engine, scriptFile));
 		}
 	}
 };

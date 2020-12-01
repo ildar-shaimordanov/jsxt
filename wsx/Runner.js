@@ -13,6 +13,7 @@ var Runner = function(Program, argv) {
 
 	var modules = Program.modules.join(';\n');
 	var vars = Program.vars.join(';\n');
+	var script = Program.script.join(';\n');
 	var begin = Program.begin.join(';\n');
 	var beginfile = Program.beginfile.join(';\n');
 	var main = Program.main.join(';\n');
@@ -40,7 +41,15 @@ var Runner = function(Program, argv) {
 	eval(modules);
 	eval(vars);
 
-	if ( Program.main.length == 0 && Program.inLoop == false ) {
+	if ( Program.script.length ) {
+		/*
+		Load and run the external script and do nothing more.
+		*/
+		eval(script);
+		return;
+	}
+
+	if ( Program.main.length == 0 && ! Program.inLoop ) {
 		/*
 		Run REPL
 		*/
@@ -183,39 +192,50 @@ Runner.dump = function(Program) {
 
 	function dumpCode(code) {
 		if ( code.length ) {
-			s.push(code.join(';\n'));
+			s.push(code.join('\n'));
 		}
 	}
 
 	dumpCode(Program.modules);
 	dumpCode(Program.vars);
 
-	if ( Program.inLoop ) {
-		dumpCode(Program.begin);
-		s.push('::foreach FILE do');
-		dumpCode(Program.beginfile);
-		s.push('::while read LINE do');
-	}
-
-	if ( Program.main.length == 0 && Program.inLoop == false ) {
+	if ( Program.script.length ) {
+		// wsx scriptfile
+		dumpCode(Program.script);
+	} else if ( Program.main.length == 0 && Program.inLoop == false ) {
+		// wsx [/q[uiet]]
 		s = s.concat([
 			'::while read',
 			'::eval',
 			'::print',
 			'::loop while'
 		]);
-	}
+	} else if ( ! Program.inLoop ) {
+		// wsx /e:"..."
+		dumpCode(Program.main);
+	} else {
+		// wsx /n
+		// wsx /p
+		dumpCode(Program.begin);
 
-	dumpCode(Program.main);
+		if ( Program.inLoop ) {
+			s.push('::foreach FILE do');
+			dumpCode(Program.beginfile);
+			s.push('::while read LINE do');
+		}
 
-	if ( Program.inLoop == 2 ) {
-		s.push('::print LINE');
-	}
+		dumpCode(Program.main);
 
-	if ( Program.inLoop ) {
-		s.push('::loop while');
-		dumpCode(Program.endfile);
-		s.push('::loop foreach');
+		if ( Program.inLoop == 2 ) {
+			s.push('::print LINE');
+		}
+
+		if ( Program.inLoop ) {
+			s.push('::loop while');
+			dumpCode(Program.endfile);
+			s.push('::loop foreach');
+		}
+
 		dumpCode(Program.end);
 	}
 
