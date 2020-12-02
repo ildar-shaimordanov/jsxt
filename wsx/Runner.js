@@ -6,8 +6,8 @@
 //
 
 var Runner = function(Program, argv) {
-	if ( Program.dryRun ) {
-		Runner.dump(Program);
+	if ( Program.check ) {
+		Runner.showPseudoCode(Program);
 		return;
 	}
 
@@ -187,24 +187,18 @@ var Runner = function(Program, argv) {
 	eval(end);
 };
 
-Runner.dump = function(Program) {
+Runner.showPseudoCode = function(Program) {
 	var s = [];
 
-	function dumpCode(code) {
-		if ( code.length ) {
-			s.push(code.join('\n'));
-		}
-	}
-
-	dumpCode(Program.modules);
-	dumpCode(Program.vars);
+	s.push.apply(s, Program.modules);
+	s.push.apply(s, Program.vars);
 
 	if ( Program.script.length ) {
 		// wsx scriptfile
-		dumpCode(Program.script);
+		s.push.apply(s, Program.script);
 	} else if ( Program.main.length == 0 && Program.inLoop == false ) {
 		// wsx [/q[uiet]]
-		s = s.concat([
+		s.push.apply(s, [
 			'::while read',
 			'::eval',
 			'::print',
@@ -212,19 +206,19 @@ Runner.dump = function(Program) {
 		]);
 	} else if ( ! Program.inLoop ) {
 		// wsx /e:"..."
-		dumpCode(Program.main);
+		s.push.apply(s, Program.main);
 	} else {
 		// wsx /n
 		// wsx /p
-		dumpCode(Program.begin);
+		s.push.apply(s, Program.begin);
 
 		if ( Program.inLoop ) {
 			s.push('::foreach FILE do');
-			dumpCode(Program.beginfile);
+			s.push.apply(s, Program.beginfile);
 			s.push('::while read LINE do');
 		}
 
-		dumpCode(Program.main);
+		s.push.apply(s, Program.main);
 
 		if ( Program.inLoop == 2 ) {
 			s.push('::print LINE');
@@ -232,11 +226,11 @@ Runner.dump = function(Program) {
 
 		if ( Program.inLoop ) {
 			s.push('::loop while');
-			dumpCode(Program.endfile);
+			s.push.apply(s, Program.endfile);
 			s.push('::loop foreach');
 		}
 
-		dumpCode(Program.end);
+		s.push.apply(s, Program.end);
 	}
 
 	WScript.Echo(s.join('\n'));

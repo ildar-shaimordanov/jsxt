@@ -6,7 +6,7 @@
 //
 
 var Program = {
-	dryRun: false,
+	check: false,
 	quiet: false,
 	inLoop: 0,
 

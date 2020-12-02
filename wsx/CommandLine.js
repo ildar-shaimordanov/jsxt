@@ -39,9 +39,9 @@
 			WScript.Quit();
 		}
 
-		m = arg.match(/^\/dry-run$/i);
+		m = arg.match(/^\/check$/i);
 		if ( m ) {
-			Program.dryRun = true;
+			Program.check = true;
 			continue;
 		}
 

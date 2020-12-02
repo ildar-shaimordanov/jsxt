@@ -7,13 +7,13 @@
 <script language="javascript"><![CDATA[
 
 var NAME    = 'WSX';
-var VERSION = '1.0.3 Alpha';
+var VERSION = '1.0.4 Alpha';
 
 ]]></script>
 
 <runtime>
 <description><![CDATA[
-WSX: Version 1.0.2 Alpha
+WSX: Version 1.0.4 Alpha
 Copyright (C) 2009-2015, 2019, 2020 Ildar Shaimordanov
 
 Run an external script file in the same way as it can be done traditionally via "cscript" or "wscript" with additional benefits making its usage closer to NodeJS, Perl, Python etc.
@@ -23,6 +23,8 @@ Run itself in the interactive mode. Type in the prompt any JS or VBS commands an
 Run one line program from CLI and apply it on inputstream and other files. One line programs allow to estimate some code on the fly, without creating a temporary file. Writing one line programs you focus on the most important parts of the program implementation. Some implementation stuff -- like objects initialization, I/O operations etc -- are hidden on your eyes, however executed yet implicitly.
 
 If the tool is launched with the one line program, everything after is assumed as a file name. Each argument is opened as a file and processed line by line until the end of file. Otherwise, if no any one line program is entered, the first item of the argument list is the script file and the rest of arguments are arguments for the script file. They could be everything and the script can use them accordingly its functionality.
+
+The tool supplies methods "require()" and "console.log()" with their families to make its own functionality closer to NodeJS or Rhino, the modern and powerful JavaScript engines.
 
 For more convenience there are few predefined global definitions:
 
@@ -100,28 +102,31 @@ The [options] above refer to the other options not mentioned explicitly (see bel
 <example><![CDATA[
 Examples:
 
-- Run interactively:
-  wsx
+- Count the number of lines (similar to "wc -l" in Unix):
 
-- Count the number of lines (similar to "wc -l", the unix tool):
   wsx /n /endfile:"echo(FLN, FILE)" /end:"echo(LN)"
   wsx /n /endfile:vbs:"echo FLN, FILE" /end:vbs:"echo LN"
   wsx /use:vbs /n /endfile:"echo FLN, FILE" /end:"echo LN"
 
-- Numerate lines of each input file (VScript example shows how to bypass the trouble with quotes within quotes):
+- Numerate lines of each input file (similar to "cat -n" in Unix):
+
   wsx /p /e:"LINE = LN + ':' + LINE"
   wsx /let:delim=":" /p /e:vbs:"LINE = LN & delim & LINE"
 
-- Print first 10 lines (similar to "head", the unix tool):
-  wsx /let:limit=10 /p /e:"LN > limit && quit()"
-  wsx /use:vbs /let:limit=10 /p /e:"if LN > limit then exit : end if"
+- Print first 10 lines (similar to "head -n 10" in Unix):
 
-- Print last 10 lines (similar to "tail", the unix tool):
-  wsx /let:limit=10 /n /beginfile:"lines=[]" /e:"lines.push(LINE); lines.length > limit && lines.shift()" /endfile:"echo(lines.join('\n'))"
+  wsx /let:limit=10 /p /e:"LN > limit && quit()"
+  wsx /use:vbs /let:limit=10 /p /e:"if LN > limit then quit : end if"
+
+- Print last 10 lines (similar to "tail -n 10" in Unix;
+  the example is separated on two lines for better readability):
+
+  wsx /let:limit=10 /n /begin:"L=[]" /end:"echo(L.join('\n'))" ^
+      /e:"L.push(LINE); L.length > limit && L.shift()"
 ]]></example>
 <named
 	name="help"
-	helpstring="Print this help and exit (&#34;/h&#34; shortcut)"
+	helpstring="Print this help and exit (&#34;/?&#34; and &#34;/h&#34; shortcuts)"
 	type="simple"
 	required="false"
 	/>
@@ -132,8 +137,8 @@ Examples:
 	required="false"
 	/>
 <named
-	name="dry-run"
-	helpstring="Show in pseudocode what is going to be executed"
+	name="check"
+	helpstring="Show in pseudo-code what is assumed to be executed"
 	type="simple"
 	required="false"
 	/>
@@ -142,6 +147,30 @@ Examples:
 	name="compile"
 	helpstring="Compile and store to another file without execution"
 	type="simple"
+	required="false"
+	/>
+-->
+<!--
+<named
+	name="vt"
+	helpstring="Turn on colorized output with ANSI-escape codes"
+	type="simple"
+	required="false"
+	/>
+-->
+<!--
+<named
+	name="cwd"
+	helpstring="Change working directory (the last is used, if more than one opted)"
+	type="string"
+	required="false"
+	/>
+-->
+<!--
+<named
+	name="lib"
+	helpstring="Directories prefixed to the module search path"
+	type="string"
 	required="false"
 	/>
 -->
