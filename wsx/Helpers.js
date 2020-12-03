@@ -7,6 +7,8 @@
 
 var FSO = new ActiveXObject('Scripting.FileSystemObject');
 
+var SHELL = new ActiveXObject('WScript.Shell');
+
 var STDIN = WScript.StdIn;
 var STDOUT = WScript.StdOut;
 var STDERR = WScript.StdErr;
@@ -129,6 +131,7 @@ var gc = CollectGarbage;
 
 if ( typeof exports != "undefined" ) {
 	exports.FSO = FSO;
+	exports.SHELL = SHELL;
 	exports.STDIN = STDIN;
 	exports.STDOUT = STDOUT;
 	exports.STDERR = STDERR;

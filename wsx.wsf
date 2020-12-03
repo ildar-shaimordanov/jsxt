@@ -31,6 +31,7 @@ For more convenience there are few predefined global definitions:
 Common objects:
 
 FSO     - The object "Scripting.FileSystemObject"
+SHELL   - The object "WScript.Shell"
 STDIN   - The reference to "WScript.StdIn"
 STDOUT  - The reference to "WScript.StdOut"
 STDERR  - The reference to "WScript.StdErr"
