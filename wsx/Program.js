@@ -6,6 +6,8 @@
 //
 
 var Program = {
+	vt: false,
+
 	check: false,
 	quiet: false,
 	inLoop: 0,
@@ -150,6 +152,10 @@ var Program = {
 	showPseudoCode: function() {
 		var s = [];
 
+		if ( Program.vt ) {
+			s.push('::turn on vt');
+		}
+
 		s.push.apply(s, this.modules);
 		s.push.apply(s, this.vars);
 
@@ -196,6 +202,21 @@ var Program = {
 		WScript.Echo(s.join('\n'));
 	},
 
+	enableVT: function() {
+		// the idea is borrowed from this thread:
+		// https://www.dostips.com/forum/viewtopic.php?p=63393#p63393
+		var proc = SHELL.Exec('powershell -nop -ep bypass -c exit');
+		while ( proc.Status == 0 ) {
+			WScript.Sleep(50);
+		}
+
+		var e;
+		try {
+			console.fn.preprint = console.fn.colorer.preprint;
+		} catch(e) {
+		}
+	},
+
 	run: function(argv) {
 		if ( this.check ) {
 			this.showPseudoCode();
@@ -224,6 +245,11 @@ var Program = {
 
 		// Reference to CLI arguments
 		ARGV = argv;
+
+		// Turn on VT
+		if ( Program.vt ) {
+			this.enableVT();
+		}
 
 		/*
 		Load provided modules

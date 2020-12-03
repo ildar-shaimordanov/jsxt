@@ -151,14 +151,12 @@ Examples:
 	required="false"
 	/>
 -->
-<!--
 <named
 	name="vt"
-	helpstring="Turn on colorized output with ANSI-escape codes"
+	helpstring="Enable Virtual Terminal ANSI-escape sequences in this run"
 	type="simple"
 	required="false"
 	/>
--->
 <!--
 <named
 	name="cwd"

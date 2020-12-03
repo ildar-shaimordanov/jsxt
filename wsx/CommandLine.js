@@ -35,6 +35,12 @@
 			continue;
 		}
 
+		m = arg.match(/^\/vt$/i);
+		if ( m ) {
+			Program.vt = true;
+			continue;
+		}
+
 		m = arg.match(/^\/q(?:uiet)?$/i);
 		if ( m ) {
 			Program.quiet = true;
