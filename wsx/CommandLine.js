@@ -5,19 +5,9 @@
 // Copyright (c) 2019, 2020 by Ildar Shaimordanov
 //
 
-(function(Program, Runner, REPL) {
+(function(Program) {
 
 	var argv = [];
-
-	function ShowVersion() {
-		var me = WScript.ScriptName.replace(/(\.[^.]+\?)?\.[^.]+$/, '');
-		var name = typeof NAME == 'string' ? NAME : me;
-		var version = typeof VERSION == 'string' ? VERSION : '0.0.1';
-		WScript.Echo(name + ' (' + me + '): Version ' + version
-			+ '\n' + WScript.Name
-			+ ': Version ' + WScript.Version
-			+ ', Build ' + WScript.BuildVersion);
-	}
 
 	// Walk through all named and unnamed arguments because
 	// we have to handle each of them even if they duplicate
@@ -29,13 +19,13 @@
 
 		m = arg.match(/^\/h(?:elp)?$/i);
 		if ( m ) {
-			WScript.Arguments.ShowUsage();
+			Program.showHelp();
 			WScript.Quit();
 		}
 
 		m = arg.match(/^\/version$/i);
 		if ( m ) {
-			ShowVersion();
+			Program.showVersion();
 			WScript.Quit();
 		}
 
@@ -47,13 +37,13 @@
 
 		m = arg.match(/^\/q(?:uiet)?$/i);
 		if ( m ) {
-			Program.setQuiet();
+			Program.quiet = true;
 			continue;
 		}
 
 		m = arg.match(/^\/use:(js|vbs)$/i);
 		if ( m ) {
-			Program.setEngine(m[1]);
+			Program.engine = m[1];
 			continue;
 		}
 
@@ -77,7 +67,7 @@
 
 		m = arg.match(/^\/([np])$/i);
 		if ( m ) {
-			Program.setMode(m[1]);
+			Program.setInLoop(m[1]);
 			continue;
 		}
 
@@ -98,6 +88,6 @@
 
 	Program.detectScriptFile(argv);
 
-	Runner(Program, argv);
+	Program.run(argv);
 
-})(Program, Runner, REPL);
+})(Program);

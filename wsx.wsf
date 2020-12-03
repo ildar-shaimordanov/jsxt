@@ -293,9 +293,8 @@ Examples:
 <script language="javascript" src="./core/require.js"></script>
 <script language="vbscript" src="./core/importer.vbs"></script>
 
-<script language="javascript" src="./wsx/Program.js"></script>
-<script language="javascript" src="./wsx/Runner.js"></script>
 <script language="javascript" src="./wsx/REPL.js"></script>
+<script language="javascript" src="./wsx/Program.js"></script>
 <script language="javascript" src="./wsx/CommandLine.js"></script>
 
 </job>
