@@ -25,6 +25,7 @@ var usage = help = (function() {
 		, '                         (callback handles StdIn/StdOut/StdErr)'
 		, 'sleep(n)                 Sleep n milliseconds'
 		, 'clip()                   Read from or write to clipboard'
+		, 'enableVT()               Enable Virtual Terminal'
 		, 'gc()                     Run the JScript garbage collector'
 	].join('\n');
 
@@ -127,6 +128,23 @@ var clip = function(text) {
 	msie = null;
 };
 
+var enableVT = function() {
+	// the idea is borrowed from this thread:
+	// https://www.dostips.com/forum/viewtopic.php?p=63393#p63393
+	var proc = SHELL.Exec('powershell -nop -ep bypass -c exit');
+	while ( proc.Status == 0 ) {
+		WScript.Sleep(50);
+	}
+
+	// Ugly but reliable from user perspective, because we are sure
+	// that nothing fails and user's settings are not be overwritten
+	if ( console && console.fn && console.fn.colorer
+	&& typeof console.fn.colorer.preprint == 'function'
+	&& typeof console.fn.preprint != 'function' ) {
+		console.fn.preprint = console.fn.colorer.preprint;
+	}
+};
+
 var gc = CollectGarbage;
 
 if ( typeof exports != "undefined" ) {
@@ -152,5 +170,6 @@ if ( typeof exports != "undefined" ) {
 
 	exports.sleep = sleep;
 	exports.clip = clip;
+	exports.enableVT = enableVT;
 	exports.gc = gc;
 }

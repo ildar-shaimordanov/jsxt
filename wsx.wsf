@@ -14,13 +14,13 @@ goto :EOF
 <script language="javascript"><![CDATA[
 
 var NAME    = 'WSX';
-var VERSION = '1.0.5 Alpha';
+var VERSION = '1.0.6 Alpha';
 
 ]]></script>
 
 <runtime>
 <description><![CDATA[
-WSX: Version 1.0.5 Alpha
+WSX: Version 1.0.6 Alpha
 Copyright (C) 2009-2015, 2019, 2020 Ildar Shaimordanov
 
 Run an external script file in the same way as it can be done traditionally via "cscript" or "wscript" with additional benefits making its usage closer to NodeJS, Perl, Python etc.
@@ -53,6 +53,7 @@ exec()                   - Run a command in a child shell
                            (callback handles StdIn/StdOut/StdErr)
 sleep(n)                 - Sleep n milliseconds
 clip()                   - Read from or write to clipboard
+enableVT()               - Enable Virtual Terminal
 gc()                     - Run the JScript garbage collector
 
 ERROR   - The variable keeping the last error
