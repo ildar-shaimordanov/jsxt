@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8" ?>
-
+<!-- :
+@echo off
+setlocal
+set "wsx.quiet="
+timeout /t 0 >nul 2>&1 || set "wsx.quiet=/quiet"
+endlocal && cscript //nologo "%~f0?.wsf" %wsx.quiet% %*
+goto :EOF
+: -->
 <package>
 <job id="wsx">
 <?job error="false" debug="false" ?>
