@@ -84,7 +84,7 @@ High-level colorer methods
 			, ' (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)'
 			, ' \\d{4}'
 			, ' \\d\\d:\\d\\d:\\d\\d'
-			, ' UTC'
+			, ' (?:UTC|GMT)'
 		, ')'
 		, '|'
 		, '('	// regexp = "/" ... "/"
