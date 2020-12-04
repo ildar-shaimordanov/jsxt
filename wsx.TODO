@@ -4,22 +4,11 @@ implement colorized output with the trick.
 
 CLI:
 
-/ANSI
-
 /VT	Turn on colorizing mode
 /VTX	Turn on extended colorizing mode specially treating "\e" and so on
 
 EXAMPLE:
 
 wsx /vt
-
-===========================================================================
-
-Workaround to enable the colorized console:
-
-wsx ...     /e:"console.fn.colorer.enable()" ...
-wsx ... /begin:"console.fn.colorer.enable()" ...
-
-wsx /e:"console.fn.colorer.enable()" /e:"REPL()"
 
 ===========================================================================

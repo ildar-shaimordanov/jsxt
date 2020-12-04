@@ -163,14 +163,6 @@ Examples:
 	type="simple"
 	required="false"
 	/>
-<!--
-<named
-	name="cwd"
-	helpstring="Change working directory (the last is used, if more than one opted)"
-	type="string"
-	required="false"
-	/>
--->
 <named
 	name="quiet"
 	helpstring="Be quiet in the interactive mode (&#34;/q&#34; shortcut)"
