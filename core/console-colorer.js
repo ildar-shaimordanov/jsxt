@@ -79,8 +79,8 @@ High-level colorer methods
 		, ')'
 		, '|'
 		, '('	// date = UTC (compliant to RFC822, RFC1123)
-			, '(?:Mon|Tue|Wed|Thu|Fi|Sat|Sun)'
-			, ', \\d\\d'
+			, '(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)'
+			, ', \\d\\d?'
 			, ' (?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)'
 			, ' \\d{4}'
 			, ' \\d\\d:\\d\\d:\\d\\d'
