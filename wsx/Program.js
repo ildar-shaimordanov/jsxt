@@ -6,6 +6,8 @@
 //
 
 var Program = {
+	libs: [],
+
 	vt: false,
 
 	check: false,
@@ -245,6 +247,12 @@ var Program = {
 
 		// Reference to CLI arguments
 		ARGV = argv;
+
+		// Prepend directories to the search path for modules
+		if ( Program.libs.length ) {
+			require.paths.unshift.apply(require.paths, Program.libs);
+			USE.PathInsert(Program.libs)
+		}
 
 		// Turn on VT
 		if ( Program.vt ) {

@@ -41,6 +41,12 @@
 			continue;
 		}
 
+		m = arg.match(/^\/l(?:ib)?:(.+)$/i);
+		if ( m ) {
+			Program.libs.push(m[1]);
+			continue;
+		}
+
 		m = arg.match(/^\/q(?:uiet)?$/i);
 		if ( m ) {
 			Program.quiet = true;

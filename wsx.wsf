@@ -152,6 +152,12 @@ Examples:
 	/>
 -->
 <named
+	name="lib"
+	helpstring="Prepend directories to the search path for modules (&#34;/l&#34; shortcut)"
+	type="string"
+	required="false"
+	/>
+<named
 	name="vt"
 	helpstring="Enable Virtual Terminal ANSI-escape sequences in this run"
 	type="simple"
@@ -161,14 +167,6 @@ Examples:
 <named
 	name="cwd"
 	helpstring="Change working directory (the last is used, if more than one opted)"
-	type="string"
-	required="false"
-	/>
--->
-<!--
-<named
-	name="lib"
-	helpstring="Directories prefixed to the module search path"
 	type="string"
 	required="false"
 	/>
