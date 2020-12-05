@@ -12,3 +12,8 @@ EXAMPLE:
 wsx /vt
 
 ===========================================================================
+
+Make "require()" compliant to the NodeJS standard
+https://nodejs.org/api/modules.html#modules_all_together
+
+===========================================================================
