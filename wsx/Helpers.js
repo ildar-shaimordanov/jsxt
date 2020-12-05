@@ -131,7 +131,8 @@ var clip = function(text) {
 var enableVT = function() {
 	// the idea is borrowed from this thread:
 	// https://www.dostips.com/forum/viewtopic.php?p=63393#p63393
-	var proc = SHELL.Exec('powershell -nop -ep bypass -c exit');
+	var shell = new ActiveXObject('WScript.Shell');
+	var proc = shell.Exec('powershell -nop -ep bypass -c exit');
 	while ( proc.Status == 0 ) {
 		WScript.Sleep(50);
 	}
