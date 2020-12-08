@@ -14,13 +14,12 @@ goto :EOF
 <script language="javascript"><![CDATA[
 
 var NAME    = 'WSX';
-var VERSION = '1.0.6 Alpha';
+var VERSION = '1.0.7 Alpha';
 
 ]]></script>
 
 <runtime>
 <description><![CDATA[
-WSX: Version 1.0.6 Alpha
 Copyright (C) 2009-2015, 2019, 2020 Ildar Shaimordanov
 
 Run an external script file in the same way as it can be done traditionally via "cscript" or "wscript" with additional benefits making its usage closer to NodeJS, Perl, Python etc.
@@ -185,7 +184,7 @@ Examples:
 	/>
 <named
 	name="m"
-	helpstring="Load the module (similar to &#34;require(...)&#34; in NodeJS)"
+	helpstring="Load the module and import identifiers &#34;module[=[alias:]id,...]&#34;"
 	type="string"
 	required="false"
 	/>

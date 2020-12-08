@@ -59,8 +59,24 @@ var Program = {
 		}
 		return result;
 	},
-	addModule: function(engine, name) {
-		this.modules.push(this.addScript(engine, name));
+	addModule: function(engine, name, imports) {
+		var s = this.addScript(engine, name);
+
+		var r = [];
+
+		var re = /([^:,;]+)(?::([^:,;]+))?/g;
+		var m;
+		while ( m = re.exec(imports) ) {
+			r.push(m[1] + ' = exports.' + ( m[2] || m[1] ) + ';');
+		}
+
+		if ( r.length ) {
+			r.unshift('(function(exports) {');
+			r.push('})(' + s + ' || {})');
+			s = r.join(' ');
+		}
+
+		this.modules.push(s);
 	},
 
 	validateStringAsRegexp: function(str) {
