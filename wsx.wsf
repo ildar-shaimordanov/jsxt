@@ -131,6 +131,14 @@ Examples:
 
   wsx /let:limit=10 /n /begin:"L=[]" /end:"echo(L.join('\n'))" ^
       /e:"L.push(LINE); L.length > limit && L.shift()"
+
+- Load the module "ansi" and import the identifier "ansi" as "p"
+  (the example is separated on few lines for better readability):
+
+  ( echo \e[107m    \e[0m ^
+  & echo \e[104m    \e[0m ^
+  & echo \e[101m    \e[0m ^
+  ) | wsx /vt /m:ansi=p:ansi /e:"s=STDIN.ReadAll(); print(p(s))"
 ]]></example>
 <named
 	name="help"
