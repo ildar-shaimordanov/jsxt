@@ -95,11 +95,11 @@
 
 	for ( ; i < WScript.Arguments.length; i++) {
 		var arg = WScript.Arguments.Item(i);
-		argv.push(arg);
+		Program.argv.push(arg);
 	}
 
-	Program.detectScriptFile(argv);
+	Program.detectScriptFile();
 
-	Program.run(argv);
+	Program.run();
 
 })(Program);

@@ -6,6 +6,8 @@
 //
 
 var Program = {
+	argv: [],
+
 	libs: [],
 
 	vt: false,
@@ -153,15 +155,15 @@ var Program = {
 		this[region || 'main'].push(result);
 	},
 
-	detectScriptFile: function(args) {
+	detectScriptFile: function() {
 		if ( this.main.length ) {
 			return;
 		}
 		if ( this.inLoop ) {
 			return;
 		}
-		if ( args.length ) {
-			var scriptFile = args.shift();
+		if ( this.argv.length ) {
+			var scriptFile = this.argv.shift();
 			var engine = /\.vbs$/.test(scriptFile) ? 'vbs' : 'js';
 			this.script.push(this.addScript(engine, scriptFile));
 		}
@@ -220,7 +222,7 @@ var Program = {
 		WScript.Echo(s.join('\n'));
 	},
 
-	run: function(argv) {
+	run: function() {
 		if ( this.check ) {
 			this.showPseudoCode();
 			return;
@@ -247,7 +249,7 @@ var Program = {
 		ERROR = null;
 
 		// Reference to CLI arguments
-		ARGV = argv;
+		ARGV = this.argv;
 
 		// Prepend directories to the search path for modules
 		if ( Program.libs.length ) {
