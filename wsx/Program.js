@@ -95,7 +95,7 @@ var Program = {
 	},
 	vbsVar: function(name, value, setter) {
 		var result = 'Dim ' + name;
-		if ( value ) {
+//		if ( value ) {
 			switch( setter.toLowerCase() ) {
 			case 'let': result += ' : ' + name + ' = \\"' + value + '\\"'; break;
 			case 'set': result += ' : Set ' + name + ' = CreateObject(\\"' + value + '\\")'; break;
@@ -115,13 +115,13 @@ var Program = {
 				}
 				break;
 			}
-		}
+//		}
 		return 'USE.Execute("' + result + '")';
 	},
 	jsVar: function(name, value, setter) {
 		//var result = 'var ' + name;
 		var result = '';
-		if ( value ) {
+//		if ( value ) {
 			result = name;
 			switch( setter.toLowerCase() ) {
 			case 'let': result += ' = "' + value + '"'; break;
@@ -132,7 +132,7 @@ var Program = {
 				result += ' = /' + v.pattern + '/' + v.modifiers;
 				break;
 			}
-		}
+//		}
 		return result;
 	},
 	addVar: function(engine, name, value, setter) {
