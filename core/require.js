@@ -101,7 +101,7 @@ var require = require || (function() {
 	require.resolve = function(id, options) {
 		options = options || {};
 
-		var file = /[\\\/]|\.js$/i.test(id)
+		var file = /^\.\.?[\\\/]|^[A-Z]:|\.js$/i.test(id)
 
 			// module looks like a path
 			? absolutePath(/\.[^.\\\/]+$/.test(id) ? id : id + ".js")
