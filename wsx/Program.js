@@ -82,7 +82,7 @@ var Program = {
 	},
 
 	validateStringAsRegexp: function(str) {
-		var m = str.match(/^\/(.+)\/([igm]+)?$|^((?!\/).+(?!\/))$/);
+		var m = str.match(/^\/(.+)\/([igm]*)$|^((?!\/).+(?!\/))$/);
 		if ( ! m ) {
 			WScript.Echo('Bad regexp: ' + str);
 			WScript.Quit(1);
@@ -95,44 +95,42 @@ var Program = {
 	},
 	vbsVar: function(name, value, setter) {
 		var result = 'Dim ' + name;
-//		if ( value ) {
-			switch( setter.toLowerCase() ) {
-			case 'let': result += ' : ' + name + ' = \\"' + value + '\\"'; break;
-			case 'set': result += ' : Set ' + name + ' = CreateObject(\\"' + value + '\\")'; break;
-			case 'get': result += ' : Set ' + name + ' = GetObject(\\"' + value + '\\")'; break;
-			case 're':
-				var v = this.validateStringAsRegexp(value);
-				result += ' : Set ' + name + ' = New RegExp';
-				result += ' : ' + name + '.Pattern = \\"' + v.pattern.replace(/\\/g, '\\\\')  + '\\"';
-				if ( v.modifiers.indexOf('i') >= 0 ) {
-					result += ' : ' + name + '.IgnoreCase = True';
+		switch( setter.toLowerCase() ) {
+		case 'let': result += ' : ' + name + ' = \\"' + value + '\\"'; break;
+		case 'set': result += ' : Set ' + name + ' = CreateObject(\\"' + value + '\\")'; break;
+		case 'get': result += ' : Set ' + name + ' = GetObject(\\"' + value + '\\")'; break;
+		case 're':
+			var v = this.validateStringAsRegexp(value);
+			result += ' : Set ' + name + ' = New RegExp';
+			result += ' : ' + name + '.Pattern = \\"' + v.pattern.replace(/\\/g, '\\\\')  + '\\"';
+
+			var f = {
+				i: 'IgnoreCase',	// name.IgnoreCase = True
+				g: 'Global',		// name.Global = True
+				m: 'Multiline'		// name.Multiline = true
+			};
+			for (var p in f) {
+				if ( v.modifiers.indexOf(p) >= 0 ) {
+					result += ' : ' + name + '.' + f[p] + ' = True';
 				}
-				if ( v.modifiers.indexOf('g') >= 0 ) {
-					result += ' : ' + name + '.Global = True';
-				}
-				if ( v.modifiers.indexOf('m') >= 0 ) {
-					result += ' : ' + name + '.Multiline = True';
-				}
-				break;
 			}
-//		}
+
+			break;
+		}
 		return 'USE.Execute("' + result + '")';
 	},
 	jsVar: function(name, value, setter) {
 		//var result = 'var ' + name;
-		var result = '';
-//		if ( value ) {
-			result = name;
-			switch( setter.toLowerCase() ) {
-			case 'let': result += ' = "' + value + '"'; break;
-			case 'set': result += ' = new ActiveXObject("' + value + '")'; break;
-			case 'get': result += ' = GetObject("' + value + '")'; break;
-			case 're':
-				var v = this.validateStringAsRegexp(value);
-				result += ' = /' + v.pattern + '/' + v.modifiers;
-				break;
-			}
-//		}
+		var result = name;
+		switch( setter.toLowerCase() ) {
+		case 'let': result += ' = "' + value + '"'; break;
+		case 'set': result += ' = new ActiveXObject("' + value + '")'; break;
+		case 'get': result += ' = GetObject("' + value + '")'; break;
+		case 're':
+			var v = this.validateStringAsRegexp(value);
+			result += ' = /' + v.pattern + '/' + v.modifiers;
+			break;
+		}
 		return result;
 	},
 	addVar: function(engine, name, value, setter) {
