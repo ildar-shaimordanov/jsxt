@@ -14,7 +14,7 @@ goto :EOF
 <script language="javascript"><![CDATA[
 
 var NAME    = 'WSX';
-var VERSION = '1.0.8 Alpha';
+var VERSION = '1.0.9 Alpha';
 
 ]]></script>
 
