@@ -32,15 +32,17 @@ var Program = {
 	showHelp: function() {
 		WScript.Arguments.ShowUsage();
 	},
-	showVersion: function() {
+	showVersion: (function() {
 		var me = WScript.ScriptName.replace(/(\.[^.]+\?)?\.[^.]+$/, '');
 		var name = typeof NAME == 'string' ? NAME : me;
 		var version = typeof VERSION == 'string' ? VERSION : '0.0.1';
-		WScript.Echo(name + ' (' + me + '): Version ' + version
+		return function() {
+			WScript.Echo(name + ' (' + me + '): Version ' + version
 			+ '\n' + WScript.Name
 			+ ': Version ' + WScript.Version
 			+ ', Build ' + WScript.BuildVersion);
-	},
+		};
+	})(),
 
 	getEngine: function(engine) {
 		return (engine || this.engine).toLowerCase();
@@ -162,7 +164,7 @@ var Program = {
 		}
 		if ( this.argv.length ) {
 			var scriptFile = this.argv.shift();
-			var engine = /\.vbs$/.test(scriptFile) ? 'vbs' : 'js';
+			var engine = /\.vbs$/i.test(scriptFile) ? 'vbs' : 'js';
 			this.script.push(this.addScript(engine, scriptFile));
 		}
 	},
