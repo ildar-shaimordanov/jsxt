@@ -2,7 +2,7 @@
 // Program
 // This script is the part of the wsx
 //
-// Copyright (c) 2019, 2020 by Ildar Shaimordanov
+// Copyright (c) 2019-2021 by Ildar Shaimordanov
 //
 
 var Program = {
@@ -167,6 +167,102 @@ var Program = {
 			var engine = /\.vbs$/i.test(scriptFile) ? 'vbs' : 'js';
 			this.script.push(this.addScript(engine, scriptFile));
 		}
+	},
+
+	parseArguments: function() {
+		// Walk through all named and unnamed arguments because
+		// we have to handle each of them even if they duplicate
+		for (var i = 0; i < WScript.Arguments.length; i++) {
+
+			var arg = WScript.Arguments.Item(i);
+
+			var m;
+
+			m = arg.match(/^\/h(?:elp)?$/i);
+			if ( m ) {
+				this.showHelp();
+				WScript.Quit();
+			}
+
+			m = arg.match(/^\/version$/i);
+			if ( m ) {
+				this.showVersion();
+				WScript.Quit();
+			}
+
+			m = arg.match(/^\/check$/i);
+			if ( m ) {
+				this.check = true;
+				continue;
+			}
+
+			m = arg.match(/^\/vt$/i);
+			if ( m ) {
+				this.vt = true;
+				continue;
+			}
+
+			m = arg.match(/^\/l(?:ib)?:(.+)$/i);
+			if ( m ) {
+				this.libs.push(m[1]);
+				continue;
+			}
+
+			m = arg.match(/^\/q(?:uiet)?$/i);
+			if ( m ) {
+				this.quiet = true;
+				continue;
+			}
+
+			m = arg.match(/^\/use:(js|vbs)$/i);
+			if ( m ) {
+				this.engine = m[1];
+				continue;
+			}
+
+			m = arg.match(/^\/m(?::(js|vbs))?:([^=]+)(?:=(.*))?$/i);
+			if ( m ) {
+				this.addModule(m[1], m[2], m[3]);
+				continue;
+			}
+
+			m = arg.match(/^\/(let|set|get|re)(?::(js|vbs))?:(\w+)=(.*)$/i);
+			if ( m ) {
+				this.addVar(m[2], m[3], m[4], m[1]);
+				continue;
+			}
+
+			m = arg.match(/^\/(?:e|((?:begin|end)(?:file)?))(?::(js|vbs))?(?::(.*))?$/i);
+			if ( m ) {
+				this.addCode(m[2], m[3], m[1]);
+				continue;
+			}
+
+			m = arg.match(/^\/([np])$/i);
+			if ( m ) {
+				this.setInLoop(m[1]);
+				continue;
+			}
+
+			/*
+			This looks like ugly, but it works and reliable
+			enough to stop looping over the rest of the CLI
+			options. From this point we allow end users to
+			specify their own options even, if their names
+			intersect with names of our options.
+			*/
+			break;
+
+		}
+
+		// Now the rest of arguments goes to user scripts
+		for ( ; i < WScript.Arguments.length; i++) {
+			var arg = WScript.Arguments.Item(i);
+			this.argv.push(arg);
+		}
+
+		// Detect invocation and setup the main script
+		this.detectScriptFile();
 	},
 
 	showPseudoCode: function() {
