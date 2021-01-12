@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
-
+<!-- :
+@echo off
+cscript //nologo "%~f0?.wsf" %*
+goto :EOF
+: -->
 <package>
 <job id="wsx">
 <?job error="false" debug="false" ?>
