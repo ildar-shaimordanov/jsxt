@@ -1,19 +1,12 @@
-COLORIZE
-
-implement colorized output with the trick.
-
-CLI:
-
-/VT	Turn on colorizing mode
-/VTX	Turn on extended colorizing mode specially treating "\e" and so on
-
-EXAMPLE:
-
-wsx /vt
+Make "require()" compliant to the NodeJS standard
+https://nodejs.org/api/modules.html#modules_all_together
 
 ===========================================================================
 
-Make "require()" compliant to the NodeJS standard
-https://nodejs.org/api/modules.html#modules_all_together
+add compiler with /COMPILE
+
+===========================================================================
+
+create and WSC as another way to embed both VBS and JS scripts
 
 ===========================================================================
