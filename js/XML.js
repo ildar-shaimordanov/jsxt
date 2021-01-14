@@ -2,7 +2,7 @@
 // XML.js
 // Cross-browser JScript / Javascript extension for XML processing
 //
-// Copyright (c) 2010, 2011, 2013 by Ildar Shaimordanov
+// Copyright (c) 2010, 2011, 2013, 2021 by Ildar Shaimordanov
 //
 
 if ( ! this.XML ) {
@@ -23,9 +23,9 @@ XML.create = function(root, namespace)
 	}
 
 	var IDs = [
-//		'Msxml2.DOMDocument.6.0', 
-//		'Msxml2.DOMDocument.5.0', 
-//		'Msxml2.DOMDocument.4.0', 
+		'Msxml2.DOMDocument.6.0', 
+		'Msxml2.DOMDocument.5.0', 
+		'Msxml2.DOMDocument.4.0', 
 		'Msxml2.DOMDocument.3.0', 
 		'Msxml2.DOMDocument', 
 		'Microsoft.XMLDOM'];
