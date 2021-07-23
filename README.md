@@ -1,13 +1,10 @@
-# jsxt
-
-The collection of Javascript / JScript / VBScript extensions, tools and more
+_The collection of Javascript / JScript / VBScript extensions, tools and more_
 
 <!-- md-toc-begin -->
 # Table of Content
-* [jsxt](#jsxt)
 * [List of standalone tools](#list-of-standalone-tools)
 * [History](#history)
-  * [Other REPL implementations](#other-repl-implementations)
+* [Other REPL implementations](#other-repl-implementations)
 <!-- md-toc-end -->
 
 # List of standalone tools
@@ -26,7 +23,7 @@ Years ago I invented a simple [REPL](https://en.wikipedia.org/wiki/REPL) script 
 
 Initially it was called as `JSCmd.wsf` in far March 2009 and it could execute any (or almost any) javascript code reading it from command line or STDIN. I did all my best to make it easy in use and flexible as much as possible. I polished it and transformed to `wscmd`, the `bat` + `js` hybrid. Once called, it generates a temporary `wsf` file which acts further and performs all the logic in JScript and VBScript.
 
-## Other REPL implementations
+# Other REPL implementations
 
 * __JSXT__, the current repository, at https://github.com/ildar-shaimordanov/jsxt/
   - the historically first release in March 23, 2009 [jsxt/5dac276](https://github.com/ildar-shaimordanov/jsxt/commit/5dac2764f8883fe84b085f33cf9aa8c94100c005)
