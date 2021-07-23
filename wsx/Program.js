@@ -268,7 +268,7 @@ var Program = {
 	showPseudoCode: function() {
 		var s = [];
 
-		if ( Program.vt ) {
+		if ( this.vt ) {
 			s.push('::turn on vt');
 		}
 
@@ -319,11 +319,6 @@ var Program = {
 	},
 
 	run: function() {
-		if ( this.check ) {
-			this.showPseudoCode();
-			return;
-		}
-
 		var modules = this.modules.join(';\n');
 		var vars = this.vars.join(';\n');
 		var script = this.script.join(';\n');
@@ -348,13 +343,13 @@ var Program = {
 		ARGV = this.argv;
 
 		// Prepend directories to the search path for modules
-		if ( Program.libs.length ) {
-			require.paths.unshift.apply(require.paths, Program.libs);
-			USE.PathInsert(Program.libs)
+		if ( this.libs.length ) {
+			require.paths.unshift.apply(require.paths, this.libs);
+			USE.PathInsert(this.libs)
 		}
 
 		// Turn on VT
-		if ( Program.vt ) {
+		if ( this.vt ) {
 			enableVT();
 		}
 
