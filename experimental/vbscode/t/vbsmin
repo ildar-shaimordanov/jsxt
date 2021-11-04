@@ -1,0 +1,13 @@
+#!/usr/bin/env ruby
+
+require './vbsmin'
+
+filename = ARGV[0]
+
+if ! filename
+	puts "usage: vbsmin FILE"
+	exit
+end
+
+vm = VBSMin.new
+vm.minify(filename)
