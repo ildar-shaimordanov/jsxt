@@ -25,8 +25,7 @@
 ' However, both VBScript and Ruby implementations don't manage with
 ' the single-line version of "If ... Then ... Else ..." and generate
 ' non-working code. The minified code doesn't start and throws the
-' compilation error "Microsoft VBScript compilation error: Expected
-' 'If'".
+' compilation error "Expected 'If'".
 '
 ' There is short example demonstrating a failure:
 '
@@ -41,6 +40,38 @@
 ' To resolve this issue a deeper analysis is needed to distinguish
 ' the single-line syntax and put the line break immediately after this
 ' construction.
+'
+' In addition to the limitation described above, the minified code stops
+' execution with the compilation errors "Must be first statement on the
+' line" and "Expected 'End'". Those appear when multiline "If ... Then
+' ... ElseIf ... Else ... End If" construction is placed in a single
+' line. ElseIf and Else require to be placed in the beginning of the
+' line.
+'
+' There is another example:
+'
+' Function sgn(a)
+' 	If a>0 Then
+' 		sgn=+1
+' 	ElseIf a<0 Then
+' 		sgn=-1
+' 	Else
+' 		sgn=0
+' 	End If
+' End Function
+'
+' The minified version doesn't work:
+'
+' Function sgn(a):If a>0 Then:sgn=+1:ElseIf a<0 Then:sgn=-1:Else:sgn=0:End If:End Function
+'
+' This example works (minified manually):
+'
+' Function sgn(a)
+' If a>0 Then
+' sgn=+1
+' ElseIf a<0 Then:sgn=-1
+' Else:sgn=0
+' End If:End Function
 '
 ' SEE ALSO
 '
