@@ -12,13 +12,15 @@
 ' This class implements the minification feature of VBScript codes
 ' written in VBScript.
 '
-' I found the only two implementations: one is written on Python and
-' has partial support of minification, second is Ruby-based library
-' having wide support. In my opinion, the better way is to implement
+' I found the only two implementations: one is written on Python [1]
+' and has partial support of minification, second is Ruby-based library
+' [2] having wide support. In my opinion, the better way is to implement
 ' this feature on VBScript itself.
 '
-' This class does all the best to minify the code. It uses RegExp actively
-' and produces a bit shorter output than the Ruby library.
+' This class does all the best to minify the code. Initially it was
+' translated from Ruby and implemented in a procedural style [3]. Now
+' it is OOP-styled and uses RegExp actively and produces a bit shorter
+' output than the Ruby library.
 '
 ' LIMITATIONS
 '
@@ -75,8 +77,16 @@
 '
 ' SEE ALSO
 '
+' [1] Python implementation
 ' https://github.com/freginold/thinIt
+'
+' [2] Ruby implementation
 ' https://github.com/noraj/vbsmin
+'
+' [3] VBScript implementation (my first public version)
+' https://forum.script-coding.com/viewtopic.php?pid=143579#p143579
+'
+' [4] If .. Then ... Else statement
 ' https://docs.microsoft.com/en-us/dotnet/visual-basic/language-reference/statements/if-then-else-statement
 '
 ' AUTHORS
