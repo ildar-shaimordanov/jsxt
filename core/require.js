@@ -23,7 +23,50 @@ Cache for the imported modules
 
 */
 
-var require = require || (function() {
+var require = require || (function(exporter) {
+
+	/**
+	 * require()
+	 *
+	 * Load a module by name or filename
+	 *
+	 * @param	<String>	module name or path
+	 * @param	<Object>	options
+	 * @return	<Object>	exported module content
+	 *
+	 * Available options:
+	 * - paths	<Array>		Paths to resolve the module location
+	 * - format	<Integer>	format of the opened file (-2 - system default, -1 - Unicode file, 0 - ASCII file)
+	 */
+	var require = function(id, options) {
+		if ( ! id ) {
+			throw new TypeError("Missing path");
+		}
+
+		if ( typeof id != "string" ) {
+			throw new TypeError("Path must be a string");
+		}
+
+		options = options || {};
+
+		var filename = require.resolve(id, options);
+		var dirname = filename.replace(/[\\\/][^\\\/]+$/, '')
+
+		require.cache = require.cache || {};
+
+		if ( ! require.cache[filename] || ! require.cache[filename].loaded ) {
+			exporter.text = require.loadFile(filename, options);
+
+			require.cache[filename] = {
+				filename: filename,
+				id: id,
+				loaded: true,
+				exports: exporter({ exports: {} }, filename, dirname)
+			};
+		}
+
+		return require.cache[filename].exports;
+	};
 
 	var fso = WScript.CreateObject("Scripting.FileSystemObject");
 
@@ -49,55 +92,6 @@ var require = require || (function() {
 		return text;
 	};
 
-	/**
-	 * require()
-	 *
-	 * Load a module by name of filename
-	 *
-	 * @param	<String>	module name or path
-	 * @param	<Object>	options
-	 * @return	<Object>	exported module content
-	 *
-	 * Available options:
-	 * - paths	<Array>		Paths to resolve the module location
-	 * - format	<Integer>	format of the opened file (-2 - system default, -1 - Unicode file, 0 - ASCII file)
-	 */
-	function require(id, options) {
-		if ( ! id ) {
-			throw new TypeError("Missing path");
-		}
-
-		if ( typeof id != "string" ) {
-			throw new TypeError("Path must be a string");
-		}
-
-		options = options || {};
-
-		var file = require.resolve(id, options);
-
-		require.cache = require.cache || {};
-
-		if ( ! require.cache[file] || ! require.cache[file].loaded ) {
-			var text = require.loadFile(file, options);
-
-			var code
-				= "(function(module) {\n"
-				+ "var exports = module.exports;\n"
-				+ text + ";\n"
-				+ "return module.exports;\n"
-				+ "})({ exports: {} })";
-
-			var evaled = eval(code);
-
-			require.cache[file] = {
-				exports: evaled,
-				loaded: true
-			};
-		}
-
-		return require.cache[file].exports;
-	};
-
 	function absolutePath(file) {
 		if ( fso.FileExists(file) ) {
 			return fso.GetAbsolutePathName(file);
@@ -119,7 +113,8 @@ var require = require || (function() {
 	require.resolve = function(id, options) {
 		options = options || {};
 
-		var file = /^\.\.?[\\\/]|^[A-Z]:|\.js$/i.test(id)
+		// ../path, ./path, /path, drive:/path, path.extension
+		var file = /^\.\.{,2}[\\\/]|^[A-Z]:|\.[^.\\\/]+$/i.test(id)
 
 			// module looks like a path
 			? absolutePath(/\.[^.\\\/]+$/.test(id) ? id : id + ".js")
@@ -161,4 +156,21 @@ var require = require || (function() {
 	}
 
 	return require;
-})();
+})(
+
+	/*
+	This function is used internally by the `require()` function to
+	import the items defined in the module. So to avoid a messy with
+	internal variables used by `require()` function and the most outer
+	anonymous function, this small function is moved out of the scope.
+
+	To this moment the module content is already loaded and stored
+	as the `text` property of this function.
+	*/
+	function(module, __filename, __dirname) {
+		var exports = module.exports;
+		eval(arguments.callee.text);
+		return module.exports;
+	}
+
+);
