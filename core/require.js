@@ -2,7 +2,7 @@
 // require.js
 // Imitation of the NodeJS function require in the Windows Scripting Host
 //
-// Copyright (c) 2019, 2020 by Ildar Shaimordanov
+// Copyright (c) 2019-2021 by Ildar Shaimordanov
 //
 
 /*
@@ -27,8 +27,22 @@ var require = require || (function() {
 
 	var fso = WScript.CreateObject("Scripting.FileSystemObject");
 
-	function loadFile(file, format) {
-		var stream = fso.OpenTextFile(file, 1, false, format || 0);
+	/**
+	 * require.loadFile()
+	 *
+	 * Loads and returns a file content
+	 *
+	 * @param	<String>	the file name
+	 * @param	<Object>	options
+	 * @return	<Object>	the file content
+	 *
+	 * Available options:
+	 * - format	<Integer>	format of the opened file (-2 - system default, -1 - Unicode file, 0 - ASCII file)
+	 */
+	require.loadFile = function(file, options) {
+		options = options || {};
+
+		var stream = fso.OpenTextFile(file, 1, false, options.format || 0);
 		var text = stream.ReadAll();
 		stream.Close();
 
@@ -36,6 +50,8 @@ var require = require || (function() {
 	};
 
 	/**
+	 * require()
+	 *
 	 * Load a module by name of filename
 	 *
 	 * @param	<String>	module name or path
@@ -62,7 +78,7 @@ var require = require || (function() {
 		require.cache = require.cache || {};
 
 		if ( ! require.cache[file] || ! require.cache[file].loaded ) {
-			var text = loadFile(file, options.format);
+			var text = require.loadFile(file, options);
 
 			var code
 				= "(function(module) {\n"
@@ -89,6 +105,8 @@ var require = require || (function() {
 	}
 
 	/**
+	 * require.resolve()
+	 *
 	 * Resolve a location of the module
 	 *
 	 * @param	<String>	module name or path
