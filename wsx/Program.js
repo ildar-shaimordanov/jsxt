@@ -55,6 +55,9 @@ var Program = {
 
 	addScript: function(engine, name) {
 		name = name.replace(/\\/g, '\\\\');
+		if ( ! /^\.?\.?[\\\/]|^[A-Z]:/.test(name) ) {
+			name = './' + name;
+		}
 		var result = '';
 		if ( this.getEngine(engine) == "vbs" ) {
 			result = 'USE.Import("' + name + '")';

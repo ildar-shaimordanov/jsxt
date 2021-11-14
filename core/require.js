@@ -113,22 +113,22 @@ var require = require || (function(exporter) {
 	require.resolve = function(id, options) {
 		options = options || {};
 
-		// ../path, ./path, /path, drive:/path, path.extension
-		var file = /^\.\.{,2}[\\\/]|^[A-Z]:|\.[^.\\\/]+$/i.test(id)
+		var file;
 
+		// ../path, ./path, /path, drive:/path
+		if ( /^\.?\.?[\\\/]|^[A-Z]:/i.test(id) ) {
 			// module looks like a path
-			? absolutePath(/\.[^.\\\/]+$/.test(id) ? id : id + ".js")
-
-			// attempt to find a librarian module
-			: (function() {
-				var paths = [].concat(options.paths || [], require.paths);
-				for (var i = 0; i < paths.length; i++) {
-					var file = absolutePath(paths[i] + "\\" + id + ".js");
-					if ( file ) {
-						return file;
-					}
+			file = absolutePath(/\.[^.\\\/]+$/.test(id) ? id : id + ".js")
+		} else {
+			// attempt to find a library module
+			var paths = [].concat(options.paths || [], require.paths);
+			for (var i = 0; i < paths.length; i++) {
+				var file = absolutePath(paths[i] + "\\" + id + ".js");
+				if ( file ) {
+					break;
 				}
-			})();
+			}
+		}
 
 		if ( ! file ) {
 			throw new Error("Cannot find module '" + id + "'");
