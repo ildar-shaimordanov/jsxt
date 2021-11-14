@@ -58,8 +58,9 @@ var require = require || (function(exporter) {
 			exporter.text = require.loadFile(filename, options);
 
 			require.cache[filename] = {
-				filename: filename,
 				id: id,
+				filename: filename,
+				path: dirname,
 				loaded: true,
 				exports: exporter({ exports: {} }, filename, dirname)
 			};
