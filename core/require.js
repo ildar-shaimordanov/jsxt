@@ -39,12 +39,12 @@ var require = require || (function(exporter) {
 	 * - format	<Integer>	format of the opened file (-2 - system default, -1 - Unicode file, 0 - ASCII file)
 	 */
 	var require = function(id, options) {
-		if ( ! id ) {
-			throw new TypeError("Missing path");
+		var type = typeof id;
+		if ( type != 'string' ) {
+			throw new Error("require(): The \"id\" argument must be of type string. Received type " + type);
 		}
-
-		if ( typeof id != "string" ) {
-			throw new TypeError("Path must be a string");
+		if ( id == '' ) {
+			throw new Error("require(): The \"id\" argument must be a non-empty string. Received ''");
 		}
 
 		options = options || {};
@@ -131,7 +131,7 @@ var require = require || (function(exporter) {
 		}
 
 		if ( ! file ) {
-			throw new Error("Cannot find module '" + id + "'");
+			throw new Error("require.resolve(): Cannot find module '" + id + "'");
 		}
 
 		return file;
