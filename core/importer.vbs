@@ -2,7 +2,7 @@
 ' importer.js
 ' Import modules by name or filename similar to the NodeJS "require"
 '
-' Copyright (c) 2019, 2020 by Ildar Shaimordanov
+' Copyright (c) 2019-2021 by Ildar Shaimordanov
 '
 ' @see
 ' https://blog.ctglobalservices.com/scripting-development/jgs/include-other-files-in-vbscript/
@@ -12,6 +12,7 @@
 ' https://stackoverflow.com/a/43957897/3627676
 ' https://riptutorial.com/vbscript/topic/8345/include-files
 
+Option Explicit
 
 ' Create and return an instance of the Importer class
 ' Can be useful to import VBScript modules from JScript
@@ -188,8 +189,7 @@ Class Importer
 		Dim re
 		Set re = New RegExp
 
-		re.Pattern = "[\\\/]|\.vbs$"
-		re.IgnoreCase = True
+		re.Pattern = "[\\\/]"
 		If re.Test(id) Then
 			' module looks like a path
 			re.Pattern = "\.[^.\\\/]+$"
