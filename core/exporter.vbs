@@ -1,6 +1,6 @@
 '
-' importer.js
-' Import modules by name or filename similar to the NodeJS "require"
+' exporter.vbs
+' Export modules by name or filename similar to the NodeJS "require"
 '
 ' Copyright (c) 2019-2021 by Ildar Shaimordanov
 '
@@ -14,16 +14,16 @@
 
 Option Explicit
 
-' Create and return an instance of the Importer class
-' Can be useful to import VBScript modules from JScript
+' Create and return an instance of the Exporter class
+' Can be useful to import VBScript modules to JScript
 '
 ' @return	<Importer>
-Function CreateImporter
-	Set CreateImporter = New Importer
+Function CreateExporter
+	Set CreateExporter = New Exporter
 End Function
 
 
-Class Importer
+Class Exporter
 	' For caching already loaded modules
 	Private cache
 
@@ -37,7 +37,7 @@ Class Importer
 	' (-2 - system default, -1 - Unicode file, 0 - ASCII file)
 	Public format
 
-	' Initialize importer
+	' Initialize exporter
 	Private Sub Class_Initialize
 		Set cache = CreateObject("Scripting.Dictionary")
 		Set fso = CreateObject("Scripting.FileSystemObject")
@@ -69,7 +69,7 @@ Class Importer
 		End If
 	End Sub
 
-	' Destroy importer
+	' Destroy exporter
 	Private Sub Class_Terminate
 		Set paths = Nothing
 		Set fso = Nothing
@@ -133,7 +133,7 @@ Class Importer
 	' Load a module by name of filename
 	'
 	' @param	<String>	module name or path
-	Public Sub Import(id)
+	Public Sub IncludeFile(id)
 		On Error GoTo 0
 
 		Dim Name

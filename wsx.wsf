@@ -14,7 +14,7 @@ goto :EOF
 <script language="javascript"><![CDATA[
 
 var NAME    = 'WSX';
-var VERSION = '1.0.11 Alpha';
+var VERSION = '1.0.12 Alpha';
 
 ]]></script>
 
@@ -34,7 +34,19 @@ The tool supplies methods "require()" and "console.log()" with their families to
 
 For more convenience there are few predefined global definitions:
 
-Common objects:
+NodeJS-like specialties and WSH extensions:
+
+console.log() and friends - display messages
+
+require()                 - load a JS module in RT
+require.vbs()             - ditto for VBS (extension)
+
+For details see these links:
+
+https://nodejs.org/api/console.html
+https://nodejs.org/api/modules.html
+
+Common WSH objects:
 
 FSO     - The object "Scripting.FileSystemObject"
 SHELL   - The object "WScript.Shell"
@@ -56,7 +68,6 @@ enableVT()               - Enable Virtual Terminal
 gc()                     - Run the JScript garbage collector
 
 ERROR   - The variable keeping the last error
-USE     - The instance of "Importer" class to import VBS easier
 ARGV    - The CLI arguments
 
 Used in the loop mode:
@@ -294,7 +305,7 @@ Examples:
 <script language="javascript" src="./core/console-colorer.js"></script>
 
 <script language="javascript" src="./core/require.js"></script>
-<script language="vbscript" src="./core/importer.vbs"></script>
+<script language="vbscript" src="./core/exporter.vbs"></script>
 
 <script language="javascript" src="./wsx/REPL.js"></script>
 <script language="javascript" src="./wsx/Program.js"></script>

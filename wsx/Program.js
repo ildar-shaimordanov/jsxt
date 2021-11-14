@@ -60,7 +60,7 @@ var Program = {
 		}
 		var result = '';
 		if ( this.getEngine(engine) == "vbs" ) {
-			result = 'USE.Import("' + name + '")';
+			result = 'require.vbs("' + name + '")';
 		} else {
 			result = 'require("' + name + '")';
 		}
@@ -151,7 +151,7 @@ var Program = {
 	addCode: function(engine, code, region) {
 		var result = '';
 		if ( this.getEngine(engine) == "vbs" ) {
-			result = 'USE.Execute("' + code + '")';
+			result = 'require.vbs.exporter.Execute("' + code + '")';
 		} else {
 			result = code;
 		}
@@ -337,7 +337,10 @@ var Program = {
 		*/
 
 		// Helper to simplify VBS importing
-		USE = CreateImporter();
+		require.vbs = function(id) {
+			require.vbs.exporter.IncludeFile(id);
+		}
+		require.vbs.exporter = CreateExporter();
 
 		// Keep a last exception
 		ERROR = null;
