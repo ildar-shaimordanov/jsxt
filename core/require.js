@@ -55,15 +55,23 @@ var require = require || (function(exporter) {
 		require.cache = require.cache || {};
 
 		if ( ! require.cache[filename] || ! require.cache[filename].loaded ) {
-			exporter.text = require.loadFile(filename, options);
+			// Keep the module content
+			require.text = require.loadFile(filename, options);
 
+			// Prepare the cache
 			require.cache[filename] = {
 				id: id,
 				filename: filename,
 				path: dirname,
-				loaded: true,
-				exports: exporter({ exports: {} }, filename, dirname)
+				loaded: false,
+				exports: {}
 			};
+
+			// Load the module and populate the module.exports
+			exporter(require.cache[filename], filename, dirname);
+
+			// Set the flag, when loading is finished
+			require.cache[filename].loaded = true;
 		}
 
 		return require.cache[filename].exports;
@@ -166,12 +174,16 @@ var require = require || (function(exporter) {
 	anonymous function, this small function is moved out of the scope.
 
 	To this moment the module content is already loaded and stored
-	as the `text` property of this function.
+	temporarily as the `require.text` property which will be deleted
+	immediately after its reading.
 	*/
 	function(module, __filename, __dirname) {
 		var exports = module.exports;
-		eval(arguments.callee.text);
-		return module.exports;
+		eval((function() {
+			var text = require.text;
+			delete require.text;
+			return text;
+		})());
 	}
 
 );
