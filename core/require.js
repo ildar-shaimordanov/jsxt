@@ -54,7 +54,9 @@ var require = require || (function(exporter) {
 
 		require.cache = require.cache || {};
 
-		if ( ! require.cache[filename] || ! require.cache[filename].loaded ) {
+		// https://nodejs.org/api/modules.html#cycles
+		// "In order to prevent an infinite loop..."
+		if ( ! require.cache[filename] /* || ! require.cache[filename].loaded */ ) {
 			// Keep the module content
 			require.text = require.loadFile(filename, options);
 
