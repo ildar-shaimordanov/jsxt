@@ -2,7 +2,7 @@
 // console.js
 // Imitation of the NodeJS console in the Windows Scripting Host
 //
-// Copyright (c) 2012, 2013, 2019, 2020 by Ildar Shaimordanov
+// Copyright (c) 2012, 2013, 2019-2021 by Ildar Shaimordanov
 //
 
 /*
@@ -35,7 +35,7 @@ The simplest formatting function simulating C-like sprintf
 	console.fn.format(pattern, objects)
 
 Details for the complex object
-	console.fn.inspect(object)
+	console.fn.inspect(object, asType)
 
 Post-parsed/pre-printed processing
 	console.fn.preprint(msg)
@@ -51,10 +51,6 @@ The deep of nestion for complex structures (default is 5)
 The initial value of indentation (4 whitespaces, by default).
 A numeric value defines indentaion size, the number of space chars.
 	console.fn.space
-
-Numeric values controls the visibility of functions. Defaults to 1.
-(0 - do not show function, 1 - show [Function] string, 2 - show details)
-	console.fn.func
 
 The visibility of the prototype properties of the object. Defaults to 0.
 (0 - do not show properties from prototype, 1 - show them)
@@ -104,7 +100,6 @@ var console = console || (function() {
 	var deep;
 
 	var proto;
-	var func;
 
 	function _quote(value) {
 		var result = value.replace(escaped, function($0) {
@@ -114,8 +109,8 @@ var console = console || (function() {
 	};
 
 	// The main method for printing objects
-	var inspect = function(object) {
-		switch (typeof object) {
+	var inspect = function(object, asType) {
+		switch (asType || typeof object) {
 		case 'string':
 			return _quote(object);
 
@@ -126,13 +121,15 @@ var console = console || (function() {
 			return String(object);
 
 		case 'function':
-			if ( func == 1 ) {
-				return '[Function]';
+			var m = String(object).match(/function\s*([^\s(]*)/);
+			var result = m[1]
+				? '[Function: ' + m[1] + ']'
+				: '[Function]';
+			for (var p in object) {
+				result += ' ' + inspect(object, 'object');
+				break;
 			}
-			if ( func > 1 ) {
-				return object.toString();
-			}
-			return '';
+			return result;
 
 		case 'object':
 			if ( object === null ) {
@@ -179,11 +176,6 @@ var console = console || (function() {
 					v = '[Circular]';
 				} else {
 					v = inspect(object[k]);
-					if ( v === '' ) {
-						// Sure that any property will return non-empty string
-						// Only functions return an empty string when func == 0
-						continue;
-					}
 				}
 
 				if ( k === '' || k.match(/\W/) ) {
@@ -196,7 +188,10 @@ var console = console || (function() {
 			var pred;
 			var post;
 
-			if ( t == '[object Array]' ) {
+			if ( asType ) {
+				pred = '{';
+				post = '}';
+			} else if ( t == '[object Array]' ) {
 				pred = 'Array(' + object.length + ') [';
 				post = ']';
 			} else {
@@ -280,7 +275,6 @@ var console = console || (function() {
 		space = fn.space;
 		deep = Number(fn.deep) > 0 ? fn.deep : 5;
 		proto = fn.proto || 0;
-		func = fn.func || 0;
 
 		var t = Object.prototype.toString.call(space);
 		if ( t == '[object Number]' && space >= 0 ) {
@@ -413,7 +407,6 @@ var console = console || (function() {
 			space: 4,
 			deep: 5,
 			proto: 0,
-			func: 1,
 			separator: ' '
 		}
 	};
