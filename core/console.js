@@ -170,13 +170,9 @@ var console = console || (function() {
 					continue;
 				}
 
-				var v;
-
-				if ( object[k] === object ) {
-					v = '[Circular]';
-				} else {
-					v = inspect(object[k]);
-				}
+				var v = object[k] === object
+					? '[Circular]'
+					: inspect(object[k]);
 
 				if ( k === '' || k.match(/\W/) ) {
 					k = _quote(k);
@@ -199,9 +195,10 @@ var console = console || (function() {
 				post = '}';
 			}
 
-			result = result.length == 0 
-				? '\n' + saveIndent 
-				: '\n' + indent + result.join('\n' + indent) + '\n' + saveIndent;
+			for (var i = 0; i < result.length; i++) {
+				result[i] = '\n' + indent + result[i];
+			}
+			result = result.join('') + '\n' + saveIndent;
 
 			indent = saveIndent;
 			deep = saveDeep;
@@ -344,7 +341,9 @@ var console = console || (function() {
 		if ( expr ) {
 			return;
 		}
-		error.apply(console, arguments.length < 2 ? ['Assertion error'] : Array.prototype.slice.call(arguments, 1));
+		error.apply(console, arguments.length < 2
+			? [ 'Assertion error' ]
+			: Array.prototype.slice.call(arguments, 1));
 	};
 
 
