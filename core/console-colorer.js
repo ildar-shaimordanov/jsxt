@@ -39,16 +39,18 @@ High-level colorer methods
 	[ '^'
 	, '(\\s*)'	// head = SPACE*
 	, '(?:'
+	, '('		// key
 		, '('	// quoteKey = QUOTE ... QUOTE
-			, '".*"'
+			, '".*?"'
 		, ')'
 		, '|'
-		, '('	// bareKey = ...
-			, '\\S+'
+		, '('	// bareKey = ... (except something like [...])
+			, '(?!\\[)\\S+'
 		, ')'
 	, ')'
 	, ': '
-	, '(?:'
+	, ')?'
+	, '('		// val
 		, '('	// string = QUOTE ... QUOTE
 			, '".*"'
 		, ')'
@@ -92,7 +94,7 @@ High-level colorer methods
 		, ')'
 		, '|'
 		, '('	// func = "[Function]"
-			, '\\[Function\\]'
+			, '\\[Function[^\\]]*\\]'
 		, ')'
 		, '|'
 		, '('	// comobj = "[ActiveXObject]"
@@ -109,6 +111,9 @@ High-level colorer methods
 			, '.*'
 		, ')'
 	, ')'
+	, '('		//rest
+		, '.*'
+	, ')'
 	, '$'
 	].join(''), 'gm');
 
@@ -116,9 +121,11 @@ High-level colorer methods
 		chunk
 	,	head
 
+	,	key
 	,	quoteKey
 	,	bareKey
 
+	,	val
 	,	string
 	,	bool
 	,	nulls
@@ -131,12 +138,14 @@ High-level colorer methods
 	,	circular
 
 	,	any
+
+	,	rest
 	) {
 		return head
 		+ (
-			quoteKey	? C._string(quoteKey) : bareKey
+			quoteKey	? C._string(quoteKey) + ': ' :
+			bareKey		? bareKey + ': ' : ''
 		)
-		+ ': '
 		+ (
 			string		? C._string(string) :
 			bool		? C._bool(bool) :
@@ -149,11 +158,10 @@ High-level colorer methods
 			comobj		? C._comobj(comobj) :
 			circular	? C._circular(circular) :
 			any
-		);
+		)
+		+ rest;
 	};
 
-	// In rare cases, when console.fn.func == 2, it can colorize parts
-	// of function bodies, corresponding objects initialization.
 	var colorPreprint = function(text) {
 		return text.replace(re, colorPreprinter);
 	};
