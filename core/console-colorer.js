@@ -31,6 +31,13 @@ High-level colorer methods
 <part> stands for string, bool, null, undef, number, date, regexp, func, comobj, circular
 	console.fn.colorer._<part>
 
+This extension partially combines features from console and util.inspect.
+
+See for details:
+
+https://nodejs.org/api/console.html
+https://nodejs.org/api/util.html#util_util_inspect_object_options
+
 */
 
 (function() {

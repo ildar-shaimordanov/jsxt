@@ -72,6 +72,13 @@ The following functions are not implemented:
 	console.table
 	console.trace
 
+This extension partially combines features from console and util.inspect.
+
+See for details:
+
+https://nodejs.org/api/console.html
+https://nodejs.org/api/util.html#utilformatformat-args
+
 */
 
 var console = console || (function() {
