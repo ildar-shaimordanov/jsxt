@@ -2,7 +2,7 @@
 // console-colorer.js
 // Colorizing feature; requires console
 //
-// Copyright (c) 2020 by Ildar Shaimordanov
+// Copyright (c) 2020-2021 by Ildar Shaimordanov
 //
 
 /*
@@ -113,24 +113,24 @@ High-level colorer methods
 	].join(''), 'gm');
 
 	var colorPreprinter = function(
-		chunk,
-		head,
+		chunk
+	,	head
 
-		quoteKey,
-		bareKey,
+	,	quoteKey
+	,	bareKey
 
-		string,
-		bool,
-		nulls,
-		undef,
-		number,
-		date,
-		regexp,
-		func,
-		comobj,
-		circular,
+	,	string
+	,	bool
+	,	nulls
+	,	undef
+	,	number
+	,	date
+	,	regexp
+	,	func
+	,	comobj
+	,	circular
 
-		any
+	,	any
 	) {
 		return head
 		+ (
