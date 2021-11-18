@@ -28,7 +28,7 @@ var REPL = function() {
 					return;
 				}
 
-				if ( result && typeof result == 'object'
+				if ( typeof result != 'string'
 				&& console && typeof console == 'object'
 				&& typeof console.log == 'function' ) {
 					console.log(result);
