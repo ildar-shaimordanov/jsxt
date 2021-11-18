@@ -21,6 +21,12 @@ The list of of paths used to resolve the module location
 Cache for the imported modules
 	require.cache
 
+This extension partially implements features from NodeJS modules.
+
+See for details:
+
+https://nodejs.org/api/modules.html
+
 */
 
 var require = require || (function(exporter) {
@@ -38,7 +44,7 @@ var require = require || (function(exporter) {
 	 * - paths	<Array>		Paths to resolve the module location
 	 * - format	<Integer>	format of the opened file (-2 - system default, -1 - Unicode file, 0 - ASCII file)
 	 */
-	var require = function(id, options) {
+	var require = function require(id, options) {
 		var type = typeof id;
 		if ( type != 'string' ) {
 			throw new Error("require(): The \"id\" argument must be of type string. Received type " + type);
@@ -93,7 +99,7 @@ var require = require || (function(exporter) {
 	 * Available options:
 	 * - format	<Integer>	format of the opened file (-2 - system default, -1 - Unicode file, 0 - ASCII file)
 	 */
-	require.loadFile = function(file, options) {
+	require.loadFile = function loadFile(file, options) {
 		options = options || {};
 
 		var stream = fso.OpenTextFile(file, 1, false, options.format || 0);
@@ -121,7 +127,7 @@ var require = require || (function(exporter) {
 	 * Available options:
 	 * - paths	<Array>		Paths to resolve the module location
 	 */
-	require.resolve = function(id, options) {
+	require.resolve = function resolve(id, options) {
 		options = options || {};
 
 		var file;

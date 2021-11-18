@@ -72,7 +72,7 @@ The following functions are not implemented:
 	console.table
 	console.trace
 
-This extension partially combines features from console and util.inspect.
+This extension partially implements features from console and util.inspect.
 
 See for details:
 
@@ -267,7 +267,6 @@ var console = console || (function() {
 	var print = WScript.FullName.match(/cscript.exe$/i)
 		? printCScript
 		: printWScript;
-
 
 	// The core function
 	var printMsg = function(streamId, msgType, objects) {
