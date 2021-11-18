@@ -78,7 +78,7 @@ https://nodejs.org/api/util.html#util_util_inspect_object_options
 		, '|'
 		, '('	// number
 			, '[+-]?'
-			, '(?:\\d*\.)?'
+			, '(?:\\d*\\.)?'
 			, '\\d+'
 			, '(?:[Ee][+-]\\d+)?'
 			, '|'
@@ -97,7 +97,7 @@ https://nodejs.org/api/util.html#util_util_inspect_object_options
 		, ')'
 		, '|'
 		, '('	// regexp = "/" ... "/"
-			, '\\/.+\\/i?g?m?'
+			, '\\/.+\\/[igm]*'
 		, ')'
 		, '|'
 		, '('	// func = "[Function]"
