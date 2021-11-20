@@ -109,7 +109,7 @@ Usage (short):
   wsx [options] [/q]
 
 - Run the one line program
-  wsx [options] /e:... [arguments]
+  wsx [options] [/begin:...] [/end:...] /e:... [arguments]
 
 - Run the program in a loop
   wsx [options] [/begin:...] [/end:...] [/beginfile:...] [/endfile:...] /n [/e:...] [arguments]
@@ -197,7 +197,7 @@ Examples:
 	/>
 <named
 	name="use"
-	helpstring="Use the engine (&#34;js&#34; or &#34;vbs&#34;)"
+	helpstring="Use (switch to) the engine (&#34;js&#34; or &#34;vbs&#34;)"
 	type="string"
 	required="false"
 	/>
@@ -239,37 +239,37 @@ Examples:
 	/>
 <named
 	name="n"
-	helpstring="Apply a program in a loop &#34;while read LINE { ... }&#34;"
+	helpstring="Apply a program in the loop like &#34;while read LINE { ... }&#34;"
 	type="simple"
 	required="false"
 	/>
 <named
 	name="p"
-	helpstring="Apply a program in a loop &#34;while read LINE { ... print }&#34;"
+	helpstring="Apply a program in the loop like &#34;while read LINE { ... print }&#34;"
 	type="simple"
 	required="false"
 	/>
 <named
 	name="begin"
-	helpstring="The code for executing before the loop"
+	helpstring="The code for executing before the loop or main program"
 	type="string"
 	required="false"
 	/>
 <named
 	name="end"
-	helpstring="The code for executing after the loop"
+	helpstring="The code for executing after the loop or main program"
 	type="string"
 	required="false"
 	/>
 <named
 	name="beginfile"
-	helpstring="The code for executing before each file"
+	helpstring="The code for executing before processing the input file"
 	type="string"
 	required="false"
 	/>
 <named
 	name="endfile"
-	helpstring="The code for executing after each file"
+	helpstring="The code for executing after processing the input file"
 	type="string"
 	required="false"
 	/>

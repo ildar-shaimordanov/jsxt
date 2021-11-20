@@ -50,14 +50,11 @@ var Program = {
 
 	setInLoop: function(mode) {
 		var loopTypes = { i: 0, n: 1, p: 2 };
-		this.inLoop = loopTypes[mode];
+		this.inLoop = loopTypes[ mode.toLowerCase() ];
 	},
 
 	addScript: function(engine, name) {
 		name = name.replace(/\\/g, '\\\\');
-		if ( ! /^\.?\.?[\\\/]|^[A-Z]:/.test(name) ) {
-			name = './' + name;
-		}
 		var result = '';
 		if ( this.getEngine(engine) == "vbs" ) {
 			result = 'require.vbs("' + name + '")';
@@ -122,7 +119,7 @@ var Program = {
 
 			break;
 		}
-		return 'USE.Execute("' + result + '")';
+		return 'require.vbs.exporter.Execute("' + result + '")';
 	},
 	jsVar: function(name, value, setter) {
 		//var result = 'var ' + name;
@@ -165,11 +162,17 @@ var Program = {
 		if ( this.inLoop ) {
 			return;
 		}
-		if ( this.argv.length ) {
-			var scriptFile = this.argv.shift();
-			var engine = /\.vbs$/i.test(scriptFile) ? 'vbs' : 'js';
-			this.script.push(this.addScript(engine, scriptFile));
+		if ( ! this.argv.length ) {
+			return;
 		}
+
+		var scriptFile = this.argv.shift();
+		if ( ! /^\.?\.?[\\\/]|^[A-Z]:/.test(scriptFile) ) {
+			scriptFile = './' + scriptFile;
+		}
+		var m = scriptFile.match(/\.(vbs|js)$/i);
+		var engine = m ? m[1].toLowerCase() : this.engine;
+		this.script.push(this.addScript(engine, scriptFile));
 	},
 
 	parseArguments: function() {
@@ -281,7 +284,7 @@ var Program = {
 		if ( this.script.length ) {
 			// wsx scriptfile
 			s.push.apply(s, this.script);
-		} else if ( this.main.length == 0 && this.inLoop == false ) {
+		} else if ( this.main.length == 0 && ! this.inLoop ) {
 			// wsx [/q[uiet]]
 			s.push.apply(s, [
 				'::while read',
@@ -291,7 +294,9 @@ var Program = {
 			]);
 		} else if ( ! this.inLoop ) {
 			// wsx /e:"..."
+			s.push.apply(s, this.begin);
 			s.push.apply(s, this.main);
+			s.push.apply(s, this.end);
 		} else {
 			// wsx /n
 			// wsx /p
@@ -339,7 +344,7 @@ var Program = {
 		// Helper to simplify VBS importing
 		require.vbs = function(id) {
 			require.vbs.exporter.IncludeFile(id);
-		}
+		};
 		require.vbs.exporter = CreateExporter();
 
 		// Keep a last exception
@@ -351,7 +356,7 @@ var Program = {
 		// Prepend directories to the search path for modules
 		if ( this.libs.length ) {
 			require.paths.unshift.apply(require.paths, this.libs);
-			USE.PathInsert(this.libs)
+			require.vbs.exporter.PathInsert(this.libs)
 		}
 
 		// Turn on VT
@@ -361,9 +366,12 @@ var Program = {
 
 		/*
 		Load provided modules
-		Set user-defined variables
 		*/
 		eval(modules);
+
+		/*
+		Set user-defined variables
+		*/
 		eval(vars);
 
 		if ( this.script.length ) {
@@ -387,7 +395,9 @@ var Program = {
 			/*
 			Load the main script and do nothing more.
 			*/
+			eval(begin);
 			eval(main);
+			eval(end);
 			return;
 		}
 
@@ -430,11 +440,15 @@ var Program = {
 		while ( ARGV.length ) {
 			FILE = ARGV.shift();
 
-			var m = FILE.match(/^\/f:(ascii|unicode|default)$/i);
+			if ( (function() {
+				var m = FILE.match(/^\/f:(ascii|unicode|default)$/i);
 
-			if ( m ) {
-				var fileFormats = { ascii: 0, unicode: -1, 'default': -2 };
-				FILEFMT = fileFormats[ m[1] ];
+				if ( m ) {
+					var fileFormats = { ascii: 0, unicode: -1, 'default': -2 };
+					FILEFMT = fileFormats[ m[1].toLowerCase() ];
+					return 1;
+				}
+			})() ) {
 				continue;
 			}
 
