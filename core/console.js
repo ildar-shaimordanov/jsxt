@@ -128,8 +128,9 @@ var console = console || (function() {
 			return String(object);
 
 		case 'function':
-			var m = String(object).match(/function\s*([^\s(]*)/);
-			var result = m[1]
+			// Comprehensive function name lookup
+			var m = String(object).match(/function\b(?:\s|\/\*[\s\S]*?\*\/|\/\/[^\r\n]*[\r\n]+)*([^\s/(]*)/);
+			var result = m && m[1]
 				? '[Function: ' + m[1] + ']'
 				: '[Function]';
 			for (var p in object) {

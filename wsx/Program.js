@@ -326,16 +326,25 @@ var Program = {
 		WScript.Echo(s.join('\n'));
 	},
 
+	// Run the "optimized" code
 	run: function() {
-		var modules = this.modules.join(';\n');
-		var vars = this.vars.join(';\n');
-		var script = this.script.join(';\n');
-		var begin = this.begin.join(';\n');
-		var beginfile = this.beginfile.join(';\n');
-		var main = this.main.join(';\n');
-		var endfile = this.endfile.join(';\n');
-		var end = this.end.join(';\n');
+		eval('(function() { return ' + this.prepare() + '})()').apply(this);
+	},
 
+	// "Optimize" the code:
+	// find each    : eval(this.SOMETHING.join(";"))
+	// replace with : this.SOMETHING.join(";")
+	prepare: function() {
+		var that = this;
+		return this.runner.toString().replace(
+			/^(\s*)eval\(this\.(\w+)\.join\(";"\)\)/gm,
+			function(chunk, space, name) {
+				return space + that[name].join(';');
+			}
+		);
+	},
+
+	runner: function() {
 		/*
 		The following variables are declared without the keyword "var". So
 		they become global and available for all codes in JScript and VBScript.
@@ -367,18 +376,18 @@ var Program = {
 		/*
 		Load provided modules
 		*/
-		eval(modules);
+		eval(this.modules.join(";"));
 
 		/*
 		Set user-defined variables
 		*/
-		eval(vars);
+		eval(this.vars.join(";"));
 
 		if ( this.script.length ) {
 			/*
 			Load and run the external script and do nothing more.
 			*/
-			eval(script);
+			eval(this.script.join(";"));
 			return;
 		}
 
@@ -395,9 +404,9 @@ var Program = {
 			/*
 			Load the main script and do nothing more.
 			*/
-			eval(begin);
-			eval(main);
-			eval(end);
+			eval(this.begin.join(";"));
+			eval(this.main.join(";"));
+			eval(this.end.join(";"));
 			return;
 		}
 
@@ -431,7 +440,7 @@ var Program = {
 		Execute the code before starting to process any file.
 		This is good place to initialize.
 		*/
-		eval(begin);
+		eval(this.begin.join(";"));
 
 		if ( ! ARGV.length ) {
 			ARGV.push('con');
@@ -458,7 +467,7 @@ var Program = {
 			Execute the code before starting to process the file.
 			We can do here something while the file is not opened.
 			*/
-			eval(beginfile);
+			eval(this.beginfile.join(";"));
 
 			try {
 				STREAM = FILE.toLowerCase() == 'con'
@@ -492,7 +501,7 @@ var Program = {
 				Execute the main code per each input line.
 				*/
 				try {
-					eval(main);
+					eval(this.main.join(";"));
 				} catch (ERROR) {
 					if ( ERROR instanceof EvalError && ERROR.message == 'next' ) {
 						continue;
@@ -516,13 +525,13 @@ var Program = {
 			Execute the code when the file is already closed. We can do
 			some finalization (i.e.: print the number of lines in the file).
 			*/
-			eval(endfile);
+			eval(this.endfile.join(";"));
 		}
 
 		/*
 		Execute the code when everything is completed.
 		We can finalize the processing (i.e.: print the total number of lines).
 		*/
-		eval(end);
+		eval(this.end.join(";"));
 	}
 };
