@@ -16,7 +16,7 @@ var Program = {
 	quiet: false,
 	inLoop: 0,
 
-	engine: "js",
+	lang: "js",
 
 	modules: [],
 	vars: [],
@@ -29,23 +29,45 @@ var Program = {
 	beginfile: [],
 	endfile: [],
 
+	print: (function() {
+		var printCScript = function(streamId, msg) {
+			WScript[streamId].WriteLine(msg);
+		};
+
+		var printWScript = function(streamId, msg) {
+			WScript.Echo(msg);
+		};
+
+		return WScript.FullName.match(/cscript\.exe$/i)
+			? printCScript
+			: printWScript;
+	})(),
+
 	showHelp: function() {
 		WScript.Arguments.ShowUsage();
 	},
+
 	showVersion: (function() {
-		var me = WScript.ScriptName.replace(/(\.[^.]+\?)?\.[^.]+$/, '');
-		var name = typeof NAME == 'string' ? NAME : me;
-		var version = typeof VERSION == 'string' ? VERSION : '0.0.1';
+		var me = WScript.ScriptName;
+		var versionStr = [
+			typeof NAME == 'string' ? NAME + ' (' + me + ')' : me
+		,	': Version '
+		,	typeof VERSION == 'string' ? VERSION : '0.0.1'
+		,	'\n'
+		,	WScript.Name
+		,	': Version '
+		,	WScript.Version
+		,	', Build '
+		,	WScript.BuildVersion
+		].join('');
+
 		return function() {
-			WScript.Echo(name + ' (' + me + '): Version ' + version
-			+ '\n' + WScript.Name
-			+ ': Version ' + WScript.Version
-			+ ', Build ' + WScript.BuildVersion);
+			this.print('StdOut', versionStr);
 		};
 	})(),
 
-	getEngine: function(engine) {
-		return (engine || this.engine).toLowerCase();
+	getLang: function(lang) {
+		return (lang || this.lang).toLowerCase();
 	},
 
 	setInLoop: function(mode) {
@@ -53,18 +75,19 @@ var Program = {
 		this.inLoop = loopTypes[ mode.toLowerCase() ];
 	},
 
-	addScript: function(engine, name) {
+	addScript: function(lang, name) {
 		name = name.replace(/\\/g, '\\\\');
 		var result = '';
-		if ( this.getEngine(engine) == "vbs" ) {
+		if ( this.getLang(lang) == "vbs" ) {
 			result = 'require.vbs("' + name + '")';
 		} else {
 			result = 'require("' + name + '")';
 		}
 		return result;
 	},
-	addModule: function(engine, name, imports) {
-		var s = this.addScript(engine, name);
+
+	addModule: function(lang, name, imports) {
+		var s = this.addScript(lang, name);
 
 		var r = [];
 
@@ -86,8 +109,7 @@ var Program = {
 	validateStringAsRegexp: function(str) {
 		var m = str.match(/^\/(.+)\/([igm]*)$|^((?!\/).+(?!\/))$/);
 		if ( ! m ) {
-			WScript.Echo('Bad regexp: ' + str);
-			WScript.Quit(1);
+			throw new Error('StdErr', 'Bad regexp: ' + str);
 		}
 		return {
 			pattern: m[1] || m[3],
@@ -95,6 +117,7 @@ var Program = {
 			origin: str
 		};
 	},
+
 	vbsVar: function(name, value, setter) {
 		var result = 'Dim ' + name;
 		switch( setter.toLowerCase() ) {
@@ -121,6 +144,7 @@ var Program = {
 		}
 		return 'require.vbs.exporter.Execute("' + result + '")';
 	},
+
 	jsVar: function(name, value, setter) {
 		//var result = 'var ' + name;
 		var result = name;
@@ -135,9 +159,10 @@ var Program = {
 		}
 		return result;
 	},
-	addVar: function(engine, name, value, setter) {
+
+	addVar: function(lang, name, value, setter) {
 		var result;
-		if ( this.getEngine(engine) == "vbs" ) {
+		if ( this.getLang(lang) == "vbs" ) {
 			result = this.vbsVar(name, value, setter);
 		} else {
 			result = this.jsVar(name, value, setter);
@@ -145,9 +170,9 @@ var Program = {
 		this.vars.push(result);
 	},
 
-	addCode: function(engine, code, region) {
+	addCode: function(lang, code, region) {
 		var result = '';
-		if ( this.getEngine(engine) == "vbs" ) {
+		if ( this.getLang(lang) == "vbs" ) {
 			result = 'require.vbs.exporter.Execute("' + code + '")';
 		} else {
 			result = code;
@@ -171,8 +196,8 @@ var Program = {
 			scriptFile = './' + scriptFile;
 		}
 		var m = scriptFile.match(/\.(vbs|js)$/i);
-		var engine = m ? m[1].toLowerCase() : this.engine;
-		this.script.push(this.addScript(engine, scriptFile));
+		var lang = m ? m[1].toLowerCase() : this.lang;
+		this.script.push(this.addScript(lang, scriptFile));
 	},
 
 	parseArguments: function() {
@@ -222,7 +247,7 @@ var Program = {
 
 			m = arg.match(/^\/use:(js|vbs)$/i);
 			if ( m ) {
-				this.engine = m[1];
+				this.lang = m[1];
 				continue;
 			}
 
@@ -323,7 +348,7 @@ var Program = {
 			s.push.apply(s, this.end);
 		}
 
-		WScript.Echo(s.join('\n'));
+		this.print('StdOut', s.join('\n'));
 	},
 
 	// Run the "optimized" code
@@ -471,7 +496,7 @@ var Program = {
 					? STDIN
 					: FSO.OpenTextFile(FILE, 1, false, FILEFMT);
 			} catch (ERROR) {
-				WScript.Echo(ERROR.message + ': ' + FILE);
+				this.print('StdErr', ERROR.message + ': ' + FILE);
 				continue;
 			}
 
@@ -510,7 +535,7 @@ var Program = {
 				}
 
 				if ( this.inLoop == 2 ) {
-					WScript.Echo(LINE);
+					this.print('StdOut', LINE);
 				}
 			}
 
