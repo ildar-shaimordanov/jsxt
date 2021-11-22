@@ -449,15 +449,12 @@ var Program = {
 		while ( ARGV.length ) {
 			FILE = ARGV.shift();
 
-			if ( (function() {
-				var m = FILE.match(/^\/f:(ascii|unicode|default)$/i);
-
-				if ( m ) {
-					var fileFormats = { ascii: 0, unicode: -1, 'default': -2 };
-					FILEFMT = fileFormats[ m[1].toLowerCase() ];
-					return 1;
-				}
-			})() ) {
+			if ( FILE.match(/^\/f:(ascii|unicode|default)$/i) ) {
+				FILEFMT = ({
+					'/f:ascii': 0,
+					'/f:unicode': -1,
+					'/f:default': -2
+				})[ FILE.toLowerCase() ];
 				continue;
 			}
 
