@@ -16,6 +16,7 @@ There are standalone applications:
   * [Network Calculator](https://github.com/ildar-shaimordanov/jsxt/blob/master/wiki/NetCalc.md)
   * [doc2html](https://github.com/ildar-shaimordanov/jsxt/blob/master/wiki/doc2html.md)
   * [Windows Scripting Commander (beta version)](https://github.com/ildar-shaimordanov/jsxt/blob/master/wiki/wscmd.md)
+  * [wsx (WSX Simulating eXecutable)](https://github.com/ildar-shaimordanov/jsxt/blob/master/wiki/wsx.md)
 
 # History
 
