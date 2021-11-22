@@ -68,7 +68,6 @@ Functions:
 * `sleep(n)`                     - Sleep n milliseconds
 * `clip()`                       - Read from or write to clipboard
 * `enableVT()`                   - Enable Virtual Terminal
-* `gc()`                         - Run the JScript garbage collector
 
 Objects:
 

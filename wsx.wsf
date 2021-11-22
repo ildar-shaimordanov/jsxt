@@ -14,7 +14,7 @@ goto :EOF
 <script language="javascript"><![CDATA[
 
 var NAME    = 'WSX';
-var VERSION = '1.0.15 Alpha';
+var VERSION = '1.0.16 Alpha';
 
 ]]></script>
 
@@ -72,7 +72,6 @@ Functions:
 * `sleep(n)`                     - Sleep n milliseconds
 * `clip()`                       - Read from or write to clipboard
 * `enableVT()`                   - Enable Virtual Terminal
-* `gc()`                         - Run the JScript garbage collector
 
 Objects:
 

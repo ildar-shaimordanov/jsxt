@@ -26,7 +26,6 @@ var usage = help = (function() {
 		, 'sleep(n)                 Sleep n milliseconds'
 		, 'clip()                   Read from or write to clipboard'
 		, 'enableVT()               Enable Virtual Terminal'
-		, 'gc()                     Run the JScript garbage collector'
 	].join('\n');
 
 	return function() {
@@ -146,8 +145,6 @@ var enableVT = function() {
 	}
 };
 
-var gc = CollectGarbage;
-
 if ( typeof exports != "undefined" ) {
 	exports.FSO = FSO;
 	exports.SHELL = SHELL;
@@ -172,5 +169,4 @@ if ( typeof exports != "undefined" ) {
 	exports.sleep = sleep;
 	exports.clip = clip;
 	exports.enableVT = enableVT;
-	exports.gc = gc;
 }
