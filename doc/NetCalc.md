@@ -19,7 +19,7 @@ Simply change the extension from `.hta` to `.htm` or `.html` and try to open it 
 
 The main window consists of three logical parts. Let's consider all parts separately.
 
-![https://raw.githubusercontent.com/ildar-shaimordanov/jsxt/master/wiki/NetCalc.jpg](https://raw.githubusercontent.com/ildar-shaimordanov/jsxt/master/wiki/NetCalc.jpg)
+![https://raw.githubusercontent.com/ildar-shaimordanov/jsxt/master/doc/NetCalc.jpg](https://raw.githubusercontent.com/ildar-shaimordanov/jsxt/master/doc/NetCalc.jpg)
 
 ## Request ##
 

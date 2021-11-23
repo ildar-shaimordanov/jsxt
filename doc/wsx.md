@@ -68,6 +68,7 @@ Functions:
 * `sleep(n)`                     - Sleep n milliseconds
 * `clip()`                       - Read from or write to clipboard
 * `enableVT()`                   - Enable Virtual Terminal
+* `gc()`                         - Run the JScript garbage collector
 
 Objects:
 
@@ -191,7 +192,7 @@ Load the module `ansi` and import the identifier `ansi` as `p`
 
 The following command generates a markdown file available as a part of the repository. Any changes in the script and its parts are supposed to be replicated to this file also.
 
-    wsx /? | git-md-toc -cut > wiki/wsx.md
+    wsx /? | git-md-toc -cut > doc/wsx.md
 
 Also the documentation can be seen as HTML:
 
