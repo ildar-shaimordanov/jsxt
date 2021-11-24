@@ -130,6 +130,10 @@ var require = require || (function(exporter) {
 			throw new Error('require.resolve(): The "id" argument must be a non-empty string. Received ""');
 		}
 
+		if ( ! /\.[^.\\\/]+$/.test(id) ) {
+			id += ".js";
+		}
+
 		options = options || {};
 
 		var file;
@@ -137,12 +141,12 @@ var require = require || (function(exporter) {
 		// ../path, ./path, /path, drive:/path
 		if ( /^\.?\.?[\\\/]|^[A-Z]:/i.test(id) ) {
 			// module looks like a path
-			file = absolutePath(/\.[^.\\\/]+$/.test(id) ? id : id + ".js")
+			file = absolutePath(id)
 		} else {
 			// attempt to find a library module
 			var paths = [].concat(options.paths || [], require.paths);
 			for (var i = 0; i < paths.length; i++) {
-				var file = absolutePath(paths[i] + "\\" + id + ".js");
+				file = absolutePath(paths[i] + "\\" + id);
 				if ( file ) {
 					break;
 				}
@@ -186,12 +190,31 @@ var require = require || (function(exporter) {
 	To this moment the module content is already loaded and stored
 	temporarily as the `require.text` property which will be deleted
 	immediately after its reading.
+
+	If the file is detected as JSON (the filename ends with ".json"),
+	try to parse it using JSON.parse() if the last one is established
+	or simply store its content to module.exports even this way is
+	not 100% reliable.
 	*/
 	function(module, __filename, __dirname) {
 		var exports = module.exports;
 		eval((function() {
 			var text = require.text;
 			delete require.text;
+
+			// What if it's JSON file?
+			if ( /\.json$/i.test(__filename) ) {
+				// We have JSON.parse()? Use it!
+				if ( typeof JSON === 'object'
+				&& typeof JSON.parse === 'function' ) {
+					module.exports = JSON.parse(text);
+					return;
+				}
+
+				// It's acceptable as a first simple approach
+				text = 'module.exports = ' + text;
+			}
+
 			return text;
 		})());
 	}
