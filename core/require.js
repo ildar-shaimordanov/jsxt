@@ -31,6 +31,9 @@ https://nodejs.org/api/modules.html
 
 var require = require || (function(exporter) {
 
+	// Stack for dirname of each required module
+	var requireStack = [];
+
 	/**
 	 * require()
 	 *
@@ -42,7 +45,12 @@ var require = require || (function(exporter) {
 	 *
 	 * Available options:
 	 * - paths	<Array>		Paths to resolve the module location
-	 * - format	<Integer>	format of the opened file (-2 - system default, -1 - Unicode file, 0 - ASCII file)
+	 * - format	<Integer>	format of the opened file
+	 *
+	 * Available formats:
+	 *  0 - ASCII file
+	 * -1 - Unicode file
+	 * -2 - system default
 	 */
 	var require = function require(id, options) {
 		var filename = require.resolve(id, options);
@@ -65,8 +73,12 @@ var require = require || (function(exporter) {
 				exports: {}
 			};
 
+			requireStack.push(dirname);
+
 			// Load the module and populate the module.exports
 			exporter(require.cache[filename], filename, dirname);
+
+			requireStack.pop();
 
 			// Set the flag, when loading is finished
 			require.cache[filename].loaded = true;
@@ -87,7 +99,12 @@ var require = require || (function(exporter) {
 	 * @return	<Object>	the file content
 	 *
 	 * Available options:
-	 * - format	<Integer>	format of the opened file (-2 - system default, -1 - Unicode file, 0 - ASCII file)
+	 * - format	<Integer>	format of the opened file
+	 *
+	 * Available formats:
+	 *  0 - ASCII file
+	 * -1 - Unicode file
+	 * -2 - system default
 	 */
 	require.loadFile = function loadFile(file, options) {
 		options = options || {};
@@ -99,7 +116,7 @@ var require = require || (function(exporter) {
 		return text;
 	};
 
-	function absolutePath(file) {
+	function resolveFilename(file) {
 		if ( fso.FileExists(file) ) {
 			return fso.GetAbsolutePathName(file);
 		}
@@ -120,14 +137,16 @@ var require = require || (function(exporter) {
 	require.resolve = function resolve(id, options) {
 		var type = typeof id;
 		if ( type != 'string' ) {
-			throw new Error('require.resolve(): The "id" argument must be of type string. Received ' + (
+			throw new Error('require.resolve(): ' +
+			'Expected a string argument. Received ' + (
 				id === undefined ? 'undefined' :
 				id === null ? 'null' :
 				'type ' + type
 			));
 		}
 		if ( id == '' ) {
-			throw new Error('require.resolve(): The "id" argument must be a non-empty string. Received ""');
+			throw new Error('require.resolve(): ' +
+			'Expected a non-empty string. Received ""');
 		}
 
 		if ( ! /\.[^.\\\/]+$/.test(id) ) {
@@ -138,45 +157,38 @@ var require = require || (function(exporter) {
 
 		var file;
 
-		// ../path, ./path, /path, drive:/path
-		if ( /^\.?\.?[\\\/]|^[A-Z]:/i.test(id) ) {
-			// module looks like a path
-			file = absolutePath(id)
-		} else {
-			// attempt to find a library module
-			var paths = [].concat(options.paths || [], require.paths);
-			for (var i = 0; i < paths.length; i++) {
-				file = absolutePath(paths[i] + "\\" + id);
-				if ( file ) {
-					break;
-				}
+		// drive:/path/module, /path/module
+		if ( /^(?:[A-Z]:)?[\\\/]/i.test(id) ) {
+			return resolveFilename(id);
+		}
+
+		// ./path/module, ../path/module
+		if ( /^\.\.?[\\\/]/.test(id) ) {
+			var cp = requireStack[ requireStack.length - 1 ];
+			return resolveFilename(cp ? cp + '\\' + id : id);
+		}
+
+		// attempt to find a library module
+		var paths = [].concat(options.paths || [], require.paths);
+		for (var i = 0; i < paths.length; i++) {
+			var file = resolveFilename(paths[i] + "\\" + id);
+			if ( file ) {
+				return file;
 			}
 		}
 
-		if ( ! file ) {
-			throw new Error('require.resolve(): Cannot find module "' + id + '"');
-		}
-
-		return file;
+		throw new Error('require.resolve(): Module not found: ' + id);
 	};
 
 	var myDir = fso.GetParentFolderName(WScript.ScriptFullName);
 	var me = WScript.ScriptName.replace(/(\.[^.]+\?)?\.[^.]+$/, '');
-
-	var shell = WScript.CreateObject ("WScript.Shell");
-	var cwd = shell.CurrentDirectory;
 
 	require.paths = [
 		  myDir + "\\js"
 		, myDir + "\\" + me
 		, myDir + "\\" + me + "\\js"
 		, myDir + "\\lib"
-		, cwd
 	];
-
-	if ( fso.GetBaseName(myDir) == "bin" ) {
-		require.paths.push(myDir + "\\..\\lib");
-	}
 
 	return require;
 })(
