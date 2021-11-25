@@ -361,7 +361,8 @@ var Program = {
 	// replace with : this.SOMETHING.join(";")
 	prepare: function() {
 		var that = this;
-		return this.runner.toString().replace(
+		return this.runner.toString()
+		.replace(
 			/^(\s*)eval\(this\.(\w+)\.join\(";"\)\)/gm,
 			function(chunk, space, name) {
 				return space + that[name].join(';');
@@ -369,10 +370,19 @@ var Program = {
 		);
 	},
 
+	/*
+	Usage of "new Function()" instead "eval()" could be good
+	approach. However any declared function becomes local and is not
+	visible out of "new Function()". Also this method prohibits the
+	"var" keyword. Again, because variables declared with "var"
+	are local for their scope.
+	*/
 	runner: function() {
 		/*
-		The following variables are declared without the keyword "var". So
-		they become global and available for all codes in JScript and VBScript.
+		The following variables are declared without the "var"
+		keyword. So they become global and available for all
+		one-line programs and script files both written in
+		JScript and VBScript.
 		*/
 
 		// Helper to simplify VBS importing
@@ -393,42 +403,44 @@ var Program = {
 			require.vbs.exporter.PathInsert(this.libs)
 		}
 
-		// Turn on VT
+		/*
+		Turn on VT
+		*/
 		if ( this.vt ) {
 			enableVT();
 		}
 
 		/*
-		Load provided modules
+		Load provided modules.
 		*/
 		eval(this.modules.join(";"));
 
 		/*
-		Set user-defined variables
+		Set user-defined variables.
 		*/
 		eval(this.vars.join(";"));
 
+		/*
+		Load and run the external script.
+		*/
 		if ( this.script.length ) {
-			/*
-			Load and run the external script and do nothing more.
-			*/
 			eval(this.script.join(";"));
 			return;
 		}
 
+		/*
+		Run REPL
+		*/
 		if ( this.main.length == 0 && ! this.inLoop ) {
-			/*
-			Run REPL
-			*/
 			REPL.quiet = this.quiet;
 			REPL();
 			return;
 		}
 
+		/*
+		Load the main one-line program.
+		*/
 		if ( ! this.inLoop ) {
-			/*
-			Load the main script and do nothing more.
-			*/
 			eval(this.begin.join(";"));
 			eval(this.main.join(";"));
 			eval(this.end.join(";"));
@@ -462,8 +474,8 @@ var Program = {
 		};
 
 		/*
-		Execute the code before starting to process any file.
-		This is good place to initialize.
+		Execute some code before starting to process any file.
+		This is good place to initialize something.
 		*/
 		eval(this.begin.join(";"));
 
@@ -471,7 +483,11 @@ var Program = {
 			ARGV.push('con');
 		}
 
+		/*
+		This is the main loop over the list of files
+		*/
 		while ( ARGV.length ) {
+
 			FILE = ARGV.shift();
 
 			if ( FILE.match(/^\/f:(ascii|unicode|default)$/i) ) {
@@ -485,10 +501,10 @@ var Program = {
 
 			FLN = 0;
 
-			/*
-			Execute the code before starting to process the file.
-			We can do here something while the file is not opened.
-			*/
+		/*
+		Execute the code before starting to process the file. We
+		can do here something while the file is not opened.
+		*/
 			eval(this.beginfile.join(";"));
 
 			try {
@@ -500,16 +516,16 @@ var Program = {
 				continue;
 			}
 
-			/*
-			Prevent failure of reading out of STDIN stream
-			The real exception number is 800a005b (-2146828197)
-			"Object variable or With block variable not set"
-			*/
+		/*
+		Prevent failure of reading out of STDIN stream. The
+		real exception number is 800a005b (-2146828197) "Object
+		variable or With block variable not set".
+		*/
 			//// NEED MORE INVESTIGATION
 			//try {
-			//	stream.AtEndOfStream;
+			//	STREAM.AtEndOfStream;
 			//} catch (ERROR) {
-			//	WScript.StdErr.WriteLine('Out of stream: ' + file);
+			//	this.print('StdErr', 'Out of stream: ' + FILE);
 			//	continue;
 			//}
 
@@ -519,16 +535,18 @@ var Program = {
 
 				LINE = STREAM.ReadLine();
 
-				/*
-				Execute the main code per each input line.
-				*/
+		/*
+		Perform the main one-line program per each input line.
+		*/
 				try {
 					eval(this.main.join(";"));
 				} catch (ERROR) {
-					if ( ERROR instanceof EvalError && ERROR.message == 'next' ) {
+					if ( ERROR instanceof EvalError
+					&& ERROR.message == 'next' ) {
 						continue;
 					}
-					if ( ERROR instanceof EvalError && ERROR.message == 'last' ) {
+					if ( ERROR instanceof EvalError
+					&& ERROR.message == 'last' ) {
 						break;
 					}
 					throw ERROR;
@@ -537,22 +555,25 @@ var Program = {
 				if ( this.inLoop == 2 ) {
 					this.print('StdOut', LINE);
 				}
-			}
+			} // while ( ! STREAM.AtEndOfStream )
 
 			if ( STREAM != STDIN ) {
 				STREAM.Close();
 			}
 
-			/*
-			Execute the code when the file is already closed. We can do
-			some finalization (i.e.: print the number of lines in the file).
-			*/
+		/*
+		Execute the code when the file is already closed. We can
+		do some finalization (i.e.: print the number of lines
+		in the file).
+		*/
 			eval(this.endfile.join(";"));
-		}
+
+		} // while ( ARGV.length )
 
 		/*
-		Execute the code when everything is completed.
-		We can finalize the processing (i.e.: print the total number of lines).
+		Execute the code when everything is completed. We can
+		finalize the processing (i.e.: print the total number
+		of lines).
 		*/
 		eval(this.end.join(";"));
 	}
