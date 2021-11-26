@@ -159,8 +159,6 @@ var require = require || (function(exporter) {
 
 		options = options || {};
 
-		var file;
-
 		// drive:/path/module, /path/module
 		if ( /^(?:[A-Z]:)?[\\\/]/i.test(id) ) {
 			return resolveFilename(id);
