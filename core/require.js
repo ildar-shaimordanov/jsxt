@@ -31,7 +31,15 @@ https://nodejs.org/api/modules.html
 
 var require = require || (function(exporter) {
 
-	// Stack for dirname of each required module
+	/*
+	Stack is used to store and use information about require() calls.
+
+	require(): stores the module's filename and dirname before running
+	the module and releases after the module execution is completed.
+
+	require.resolve(): uses the stack to properly invoke another
+	modules by relative paths.
+	*/
 	var requireStack = [];
 
 	/**
@@ -79,7 +87,7 @@ var require = require || (function(exporter) {
 			});
 
 			// Load the module and populate the module.exports
-			exporter(require.cache[filename], filename, dirname);
+			exporter(require.cache[filename]);
 
 			requireStack.pop();
 
@@ -213,8 +221,11 @@ var require = require || (function(exporter) {
 	or simply store its content to module.exports even this way is
 	not 100% reliable.
 	*/
-	function(module, __filename, __dirname) {
+	function(module) {
 		var exports = module.exports;
+		var __filename = module.filename;
+		var __dirname = module.path;
+
 		eval((function() {
 			var text = require.text;
 			delete require.text;
