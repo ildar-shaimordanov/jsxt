@@ -73,7 +73,10 @@ var require = require || (function(exporter) {
 				exports: {}
 			};
 
-			requireStack.push(dirname);
+			requireStack.push({
+				filename: filename,
+				dirname: dirname
+			});
 
 			// Load the module and populate the module.exports
 			exporter(require.cache[filename], filename, dirname);
@@ -116,7 +119,8 @@ var require = require || (function(exporter) {
 		return text;
 	};
 
-	function resolveFilename(file) {
+	function resolveFilename(dir, file) {
+		file = fso.BuildPath(dir, file);
 		if ( fso.FileExists(file) ) {
 			return fso.GetAbsolutePathName(file);
 		}
@@ -164,14 +168,17 @@ var require = require || (function(exporter) {
 
 		// ./path/module, ../path/module
 		if ( /^\.\.?[\\\/]/.test(id) ) {
-			var cp = requireStack[ requireStack.length - 1 ];
-			return resolveFilename(cp ? cp + '\\' + id : id);
+			var cp = '';
+			if ( requireStack.length ) {
+				cp = requireStack[ requireStack.length - 1 ].dirname;
+			}
+			return resolveFilename(cp, id);
 		}
 
 		// attempt to find a library module
 		var paths = [].concat(options.paths || [], require.paths);
 		for (var i = 0; i < paths.length; i++) {
-			var file = resolveFilename(paths[i] + "\\" + id);
+			var file = resolveFilename(paths[i], id);
 			if ( file ) {
 				return file;
 			}
