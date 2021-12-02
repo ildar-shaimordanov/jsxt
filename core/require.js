@@ -150,10 +150,22 @@ var require = require || (function(exporter) {
 		}
 	}
 
-	function resolveFilename(dir, file) {
-		file = fso.BuildPath(dir, file);
-		if ( fso.FileExists(file) ) {
-			return fso.GetAbsolutePathName(file);
+	function resolveFilename(dir, id) {
+		var index = fso.BuildPath(dir, id);
+
+		var files = [
+			index
+		,	index + '.js'
+		,	index + '.json'
+		,	fso.BuildPath(index, 'index.js')
+		,	fso.BuildPath(index, 'index.json')
+		];
+
+		for (var i = 0; i < files.length; i++) {
+			var file = files[i];
+			if ( fso.FileExists(file) ) {
+				return fso.GetAbsolutePathName(file);
+			}
 		}
 	}
 
@@ -172,23 +184,21 @@ var require = require || (function(exporter) {
 	require.resolve = function resolve(id, options) {
 		validate(id);
 
-		var name = id + ( /\.[^.\\\/]+$/.test(id) ? '' : '.js' );
-
 		options = options || {};
 
 		var file;
 
 		if ( /^(?:[A-Z]:)?[\\\/]/i.test(id) ) {
 			// drive:/path/module, /path/module
-			file = resolveFilename('', name);
+			file = resolveFilename('', id);
 		} else if ( /^\.\.?[\\\/]/.test(id) ) {
 			// ./path/module, ../path/module
-			file = resolveFilename(resolveParentPath(), name);
+			file = resolveFilename(resolveParentPath(), id);
 		} else {
 			// attempt to find a library module
 			var paths = [].concat(options.paths || [], require.paths);
 			for (var i = 0; i < paths.length; i++) {
-				file = resolveFilename(paths[i], name);
+				file = resolveFilename(paths[i], id);
 				if ( file ) {
 					break;
 				}
