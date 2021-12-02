@@ -42,6 +42,13 @@ var require = require || (function(exporter) {
 	*/
 	var requireStack = [];
 
+	function resolveParentPath() {
+		var parent = requireStack[ requireStack.length - 1 ];
+		if ( parent ) {
+			return parent.dirname;
+		}
+	}
+
 	/**
 	 * require()
 	 *
@@ -130,7 +137,7 @@ var require = require || (function(exporter) {
 	function validate(id) {
 		var type = typeof id;
 		if ( type != 'string' ) {
-			throw new Error('require.resolve(): ' +
+			throw new Error(
 			'Expected a string argument. Received ' + (
 				id === undefined ? 'undefined' :
 				id === null ? 'null' :
@@ -138,7 +145,7 @@ var require = require || (function(exporter) {
 			));
 		}
 		if ( id == '' ) {
-			throw new Error('require.resolve(): ' +
+			throw new Error(
 			'Expected a non-empty string. Received ""');
 		}
 	}
@@ -165,36 +172,34 @@ var require = require || (function(exporter) {
 	require.resolve = function resolve(id, options) {
 		validate(id);
 
-		if ( ! /\.[^.\\\/]+$/.test(id) ) {
-			id += ".js";
-		}
+		var name = id + ( /\.[^.\\\/]+$/.test(id) ? '' : '.js' );
 
 		options = options || {};
 
-		// drive:/path/module, /path/module
+		var file;
+
 		if ( /^(?:[A-Z]:)?[\\\/]/i.test(id) ) {
-			return resolveFilename(id);
-		}
-
-		// ./path/module, ../path/module
-		if ( /^\.\.?[\\\/]/.test(id) ) {
-			var cp = '';
-			if ( requireStack.length ) {
-				cp = requireStack[ requireStack.length - 1 ].dirname;
-			}
-			return resolveFilename(cp, id);
-		}
-
-		// attempt to find a library module
-		var paths = [].concat(options.paths || [], require.paths);
-		for (var i = 0; i < paths.length; i++) {
-			var file = resolveFilename(paths[i], id);
-			if ( file ) {
-				return file;
+			// drive:/path/module, /path/module
+			file = resolveFilename('', name);
+		} else if ( /^\.\.?[\\\/]/.test(id) ) {
+			// ./path/module, ../path/module
+			file = resolveFilename(resolveParentPath(), name);
+		} else {
+			// attempt to find a library module
+			var paths = [].concat(options.paths || [], require.paths);
+			for (var i = 0; i < paths.length; i++) {
+				file = resolveFilename(paths[i], name);
+				if ( file ) {
+					break;
+				}
 			}
 		}
 
-		throw new Error('require.resolve(): Module not found: ' + id);
+		if ( file ) {
+			return file;
+		}
+
+		throw new Error('Module not found: ' + id);
 	};
 
 	var myDir = fso.GetParentFolderName(WScript.ScriptFullName);
