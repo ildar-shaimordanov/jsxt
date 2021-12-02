@@ -127,6 +127,22 @@ var require = require || (function(exporter) {
 		return text;
 	};
 
+	function validate(id) {
+		var type = typeof id;
+		if ( type != 'string' ) {
+			throw new Error('require.resolve(): ' +
+			'Expected a string argument. Received ' + (
+				id === undefined ? 'undefined' :
+				id === null ? 'null' :
+				'type ' + type
+			));
+		}
+		if ( id == '' ) {
+			throw new Error('require.resolve(): ' +
+			'Expected a non-empty string. Received ""');
+		}
+	}
+
 	function resolveFilename(dir, file) {
 		file = fso.BuildPath(dir, file);
 		if ( fso.FileExists(file) ) {
@@ -147,19 +163,7 @@ var require = require || (function(exporter) {
 	 * - paths	<Array>		Paths to resolve the module location
 	 */
 	require.resolve = function resolve(id, options) {
-		var type = typeof id;
-		if ( type != 'string' ) {
-			throw new Error('require.resolve(): ' +
-			'Expected a string argument. Received ' + (
-				id === undefined ? 'undefined' :
-				id === null ? 'null' :
-				'type ' + type
-			));
-		}
-		if ( id == '' ) {
-			throw new Error('require.resolve(): ' +
-			'Expected a non-empty string. Received ""');
-		}
+		validate(id);
 
 		if ( ! /\.[^.\\\/]+$/.test(id) ) {
 			id += ".js";
