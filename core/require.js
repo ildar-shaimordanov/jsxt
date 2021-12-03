@@ -43,9 +43,10 @@ var require = require || (function(exporter) {
 	var requireStack = [];
 
 	function resolveParentPath() {
-		var parent = requireStack[ requireStack.length - 1 ];
-		if ( parent ) {
-			return parent.dirname;
+		for (var i = requireStack.length; i--; ) {
+			if ( ! requireStack[i].error ) {
+				return requireStack[i].dirname;
+			}
 		}
 	}
 
