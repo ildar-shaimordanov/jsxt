@@ -1,3 +1,3 @@
 @echo off
 
-wsx c.js
+call wsx c.js
