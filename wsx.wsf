@@ -152,24 +152,15 @@ Numerate lines of each input file (similar to `cat -n` in Unix):
     wsx /p /e:"LINE = LN + ':' + LINE"
     wsx /let:delim=":" /p /e:vbs:"LINE = LN & delim & LINE"
 
-Print first 10 lines (similar to `head -n 10` in Unix):
+Print first 5 lines (similar to `head -n 5` in Unix):
 
-    wsx /let:limit=10 /p /e:"LN > limit && quit()"
-    wsx /use:vbs /let:limit=10 /p /e:"if LN > limit then quit : end if"
+    wsx /let:limit=5 /p /e:"LN > limit && quit()"
+    wsx /use:vbs /let:limit=5 /p /e:"if LN > limit then quit : end if"
 
-Print last 10 lines (similar to `tail -n 10` in Unix;
-the example is separated on two lines for better readability):
+Print last 5 lines (similar to `tail -n 5` in Unix; the example is separated on two lines for better readability):
 
-    wsx /let:limit=10 /n /begin:"L=[]" /end:"echo(L.join('\n'))" ^
+    wsx /let:limit=5 /n /begin:"L=[]" /end:"echo(L.join('\n'))" ^
         /e:"L.push(LINE); L.length > limit && L.shift()"
-
-Load the module `ansi` and import the identifier `ansi` as `p`
-(the example is separated on few lines for better readability):
-
-    ( echo \e[107m    \e[0m ^
-    & echo \e[104m    \e[0m ^
-    & echo \e[101m    \e[0m ^
-    ) | wsx /vt /m:ansi=p:ansi /e:"s=STDIN.ReadAll(); print(p(s))"
 
 The following command generates a markdown file available as a part of the repository. Any changes in the script and its parts are supposed to be replicated to this file also.
 
