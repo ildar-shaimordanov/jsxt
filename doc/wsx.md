@@ -32,11 +32,11 @@ If the tool is launched with the one line program, everything after is assumed a
 
 The tool supplies set of predefined objects to make its own functionality closer to NodeJS, Rhino and other modern and powerful JavaScript engines.
 
-For more convenience they are presented below.
+For more convenience they are presented separately in the sections below.
 
 ## CommonJS
 
-NodeJS-like specialties and WSH extensions:
+This script implements few features suggested by CommonJS extending them with WSH specialties.
 
 * `console.log()` and friends - display messages
 * `require()`                 - load a JS module in RT
@@ -68,7 +68,6 @@ Functions:
 * `sleep(n)`                     - Sleep n milliseconds
 * `clip()`                       - Read from or write to clipboard
 * `enableVT()`                   - Enable Virtual Terminal
-* `gc()`                         - Run the JScript garbage collector
 
 Objects:
 
@@ -77,7 +76,7 @@ Objects:
 
 ## Loop mode
 
-The following objects are available when the tool is executed in loop mode as `wsx /n /e:...` or `wsx /p /e:...`.
+The following objects are available when the tool is executed in the loop mode as `wsx /n /e:...` or `wsx /p /e:...`.
 
 * `STREAM`  - The reference to the stream of the current file
 * `FILE`    - The name of the current file
@@ -160,23 +159,23 @@ arguments  : Other arguments to be passed to the program
 
 # EXAMPLES
 
-Count the number of lines (similar to `wc -l` in Unix):
+Count the number of lines (similar to `wc -l` in Unix).
 
     wsx /n /endfile:"echo(FLN, FILE)" /end:"echo(LN)"
     wsx /n /endfile:vbs:"echo FLN, FILE" /end:vbs:"echo LN"
     wsx /use:vbs /n /endfile:"echo FLN, FILE" /end:"echo LN"
 
-Numerate lines of each input file (similar to `cat -n` in Unix):
+Numerate lines of each input file (similar to `cat -n` in Unix).
 
     wsx /p /e:"LINE = LN + ':' + LINE"
     wsx /let:delim=":" /p /e:vbs:"LINE = LN & delim & LINE"
 
-Print first 5 lines (similar to `head -n 5` in Unix):
+Print first 5 lines (similar to `head -n 5` in Unix). Due to VBScript specifics and necessity of str-to-int conversion, the one-line program is almost twice longer.
 
-    wsx /let:limit=5 /p /e:"LN > limit && quit()"
-    wsx /use:vbs /let:limit=5 /p /e:"if LN > limit then quit : end if"
+    wsx /let:limit=5 /p /e:"LN > limit && last()"
+    wsx /use:vbs /let:limit=5 /begin:"limit = cint(limit)" /p /e:"if LN > limit then last"
 
-Print last 5 lines (similar to `tail -n 5` in Unix; the example is separated on two lines for better readability):
+Print last 5 lines (similar to `tail -n 5` in Unix). The example is splitted on two lines for better readability.
 
     wsx /let:limit=5 /n /begin:"L=[]" /end:"echo(L.join('\n'))" ^
         /e:"L.push(LINE); L.length > limit && L.shift()"
@@ -185,15 +184,15 @@ The following command generates a markdown file available as a part of the repos
 
     wsx /? | git-md-toc -cut > doc/wsx.md
 
-Also the documentation can be seen as HTML:
+Also the documentation can be seen as HTML.
 
     wsx /? | git-md-toc -cut | git-md-html | 2 html
 
-* `git-md-toc` - a Perl script for creating Table of Content.
+* `git-md-toc` - the Perl script for creating Table of Content.
   It's hosted at https://github.com/ildar-shaimordanov/git-markdown-toc
-* `git-md-html` - Set of scripts for converting markdown to HTML.
+* `git-md-html` - the set of scripts for converting markdown to HTML.
   They are hosted at https://github.com/ildar-shaimordanov/git-markdown-html
-* `2` - a batch script for redirecting STDIN to any GUI application.
+* `2` - the batch script for redirecting STDOUT to any GUI application.
   It's hosted at https://github.com/ildar-shaimordanov/cmd.scripts
 
 # AUTHORS and CONTRIBUTORS
