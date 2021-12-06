@@ -42,6 +42,8 @@ var require = require || (function(exporter) {
 	*/
 	var requireStack = [];
 
+	requireStack.calls = 0;
+
 	function resolveParentPath() {
 		for (var i = requireStack.length; i--; ) {
 			if ( ! requireStack[i].error ) {
@@ -56,9 +58,46 @@ var require = require || (function(exporter) {
 			dirname: module.path
 		});
 
-		exporter(module);
+		requireStack.calls++;
 
-		requireStack.pop();
+		var e;
+		try {
+			exporter(module);
+		} catch(e) {
+		}
+
+		requireStack.calls--;
+
+		if ( ! ( e instanceof Error ) ) {
+			while ( requireStack.length &&
+			requireStack.pop().filename != module.filename ) {
+			}
+
+			module.loaded = true;
+
+			return;
+		}
+
+		if ( requireStack.calls ) {
+			requireStack[ requireStack.calls ].error = e;
+
+			return e;
+		}
+
+		var s = [];
+
+		for (var i = 0; i < requireStack.length; i++) {
+			var e2 = requireStack[i].error;
+			if ( e2 && e2 !== e ) {
+				break;
+			}
+			s.push('- ' + requireStack[i].filename);
+		}
+
+		s.push('Module loading stack:');
+		s.push(e.name + ': ' + e.message);
+
+		throw new Error(s.reverse().join('\n'));
 	}
 
 	function Module(id, filename) {
@@ -102,10 +141,13 @@ var require = require || (function(exporter) {
 			require.cache[filename] = new Module(id, filename);
 
 			// Load the module and populate the module.exports
-			importer(require.cache[filename]);
+			var e = importer(require.cache[filename]);
 
-			// Set the flag, when loading is finished
-			require.cache[filename].loaded = true;
+			// Module loading failed. Remove it from the cache.
+			if ( e instanceof Error ) {
+				delete require.cache[filename];
+				throw e;
+			}
 		}
 
 		return require.cache[filename].exports;
