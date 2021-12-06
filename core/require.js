@@ -50,6 +50,25 @@ var require = require || (function(exporter) {
 		}
 	}
 
+	function importer(module) {
+		requireStack.push({
+			filename: module.filename,
+			dirname: module.path
+		});
+
+		exporter(module);
+
+		requireStack.pop();
+	}
+
+	function Module(id, filename) {
+		this.id = id;
+		this.filename = filename;
+		this.path = filename.replace(/[\\\/][^\\\/]+$/, '');
+		this.exports = {};
+		this.loaded = false;
+	}
+
 	/**
 	 * require()
 	 *
@@ -69,10 +88,9 @@ var require = require || (function(exporter) {
 	 * -2 - system default
 	 */
 	var require = function require(id, options) {
-		var filename = require.resolve(id, options);
-		var dirname = filename.replace(/[\\\/][^\\\/]+$/, '')
-
 		require.cache = require.cache || {};
+
+		var filename = require.resolve(id, options);
 
 		// https://nodejs.org/api/modules.html#cycles
 		// "In order to prevent an infinite loop..."
@@ -81,23 +99,10 @@ var require = require || (function(exporter) {
 			require.text = require.loadFile(filename, options);
 
 			// Prepare the cache
-			require.cache[filename] = {
-				id: id,
-				filename: filename,
-				path: dirname,
-				loaded: false,
-				exports: {}
-			};
-
-			requireStack.push({
-				filename: filename,
-				dirname: dirname
-			});
+			require.cache[filename] = new Module(id, filename);
 
 			// Load the module and populate the module.exports
-			exporter(require.cache[filename]);
-
-			requireStack.pop();
+			importer(require.cache[filename]);
 
 			// Set the flag, when loading is finished
 			require.cache[filename].loaded = true;
