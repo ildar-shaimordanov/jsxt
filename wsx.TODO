@@ -10,3 +10,10 @@ add compiler with /COMPILE
 create and WSC as another way to embed both VBS and JS scripts
 
 ===========================================================================
+
+enable setting the `require.main` property for
+- main script
+- REPL
+- one-line program
+
+===========================================================================
