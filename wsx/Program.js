@@ -78,6 +78,18 @@ var Program = {
 		this.inLoop = loopTypes[ mode.toLowerCase() ];
 	},
 
+	setAutosplit: function(pattern) {
+		this.setInLoop('n');
+		this.autosplit = true;
+		if ( ! pattern ) {
+			return;
+		}
+		var v = this.validateStringAsRegexp(pattern);
+		this.splitBy = v.pattern == v.origin
+			? '"' + v.pattern + '"'
+			: '/' + v.pattern + '/' + v.modifiers;
+	},
+
 	addScript: function(lang, name) {
 		name = name.replace(/\\/g, '\\\\');
 		var result = '';
@@ -274,10 +286,7 @@ var Program = {
 
 			m = arg.match(/^\/a(?::(.*))?$/i);
 			if ( m ) {
-				this.autosplit = true;
-//				if ( m[1] ) {
-//					this.splitBy = this.jsVar('', m[1], 're');
-//				}
+				this.setAutosplit(m[1]);
 				continue;
 			}
 
