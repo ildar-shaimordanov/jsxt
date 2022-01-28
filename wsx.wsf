@@ -86,6 +86,7 @@ The following objects are available when the tool is executed in the loop mode a
 * `FILE`    - The name of the current file
 * `FILEFMT` - The format to open files (`ascii`, `unicode` or system `default`)
 * `LINE`    - The current line
+* `FIELDS`  - The array of fields of each LINE read in when autosplit mode is turned on (see the `/a` option).
 * `FLN`     - The line number in the current file
 * `LN`      - The total line number
 
@@ -263,6 +264,12 @@ MIT
 <named
 	name="re"
 	helpstring="Assign the regular expression: &#34;name=regexp&#34; or &#34;name=/regexp/igm&#34;"
+	type="string"
+	required="false"
+	/>
+<named
+	name="a"
+	helpstring="Autosplit a line to the &#34;FIELDS&#34; array. The value is string or regexp to split on (defaults to &#34;/\s+/&#34;)"
 	type="string"
 	required="false"
 	/>

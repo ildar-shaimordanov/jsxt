@@ -29,6 +29,9 @@ var Program = {
 	beginfile: [],
 	endfile: [],
 
+	autosplit: false,
+	splitBy: '/\\s+/',
+
 	print: (function() {
 		var printCScript = function(streamId, msg) {
 			WScript[streamId].WriteLine(msg);
@@ -269,6 +272,15 @@ var Program = {
 				continue;
 			}
 
+			m = arg.match(/^\/a(?::(.*))?$/i);
+			if ( m ) {
+				this.autosplit = true;
+//				if ( m[1] ) {
+//					this.splitBy = this.jsVar('', m[1], 're');
+//				}
+				continue;
+			}
+
 			m = arg.match(/^\/([np])$/i);
 			if ( m ) {
 				this.setInLoop(m[1]);
@@ -284,6 +296,10 @@ var Program = {
 			*/
 			break;
 
+		}
+
+		if ( this.autosplit && this.inLoop ) {
+			this.main.unshift('FIELDS = LINE.split(' + this.splitBy + ')');
 		}
 
 		// Now the rest of arguments goes to user scripts
@@ -459,6 +475,9 @@ var Program = {
 
 		// The line number in the current file
 		FLN = 0;
+
+		// The list of fields of each line
+		FIELDS = [];
 
 		// The total line number
 		LN = 0;
