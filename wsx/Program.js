@@ -45,6 +45,7 @@ var Program = {
 
 	showHelp: function() {
 		WScript.Arguments.ShowUsage();
+		this.print('StdOut', getResource('help'));
 	},
 
 	showVersion: (function() {
