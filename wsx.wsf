@@ -14,7 +14,7 @@ goto :EOF
 <script language="javascript"><![CDATA[
 
 var NAME    = 'WSX';
-var VERSION = '1.0.17 Alpha';
+var VERSION = '1.0.18 Alpha';
 
 ]]></script>
 
@@ -180,7 +180,7 @@ Also the documentation can be seen as HTML.
 
 Ildar Shaimordanov is the main author maintaining the tool since 2009. Initially it was JSCmd.js, the simple jscript file able to perform REPL. Later it evolved to wscmd.bat, the more powerful and configurable BAT+JS hybrid script creating a temporary WSF-file and executing it.
 
-Copyright (C) 2009-2015, 2019-2021 Ildar Shaimordanov
+Copyright (C) 2009-2015, 2019-2022 Ildar Shaimordanov
 
 # LICENSE
 
@@ -238,7 +238,7 @@ MIT
 	/>
 <named
 	name="m"
-	helpstring="Load the module and import identifiers &#34;module[=[alias:]id,...]&#34;"
+	helpstring="Load the module and import identifiers &#34;module[:id[:alias],...]&#34;"
 	type="string"
 	required="false"
 	/>

@@ -91,10 +91,10 @@ var Program = {
 
 		var r = [];
 
-		var re = /([^:,;]+)(?::([^:,;]+))?/g;
+		var re = /([^:,]+)(?::([^:,]+))?/g;
 		var m;
 		while ( m = re.exec(imports) ) {
-			r.push(m[1] + ' = exports.' + ( m[2] || m[1] ) + ';');
+			r.push(( m[2] || m[1] ) + ' = exports.' + m[1] + ';');
 		}
 
 		if ( r.length ) {
@@ -251,7 +251,7 @@ var Program = {
 				continue;
 			}
 
-			m = arg.match(/^\/m(?::(js|vbs))?:([^=]+)(?:=(.*))?$/i);
+			m = arg.match(/^\/m(?::(js|vbs))?:([^:]+)(?::(.*))?$/i);
 			if ( m ) {
 				this.addModule(m[1], m[2], m[3]);
 				continue;
