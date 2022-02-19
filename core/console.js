@@ -2,7 +2,7 @@
 // console.js
 // Imitation of the NodeJS console in the Windows Scripting Host
 //
-// Copyright (c) 2012, 2013, 2019-2021 by Ildar Shaimordanov
+// Copyright (c) 2012, 2013, 2019-2022 by Ildar Shaimordanov
 //
 
 /*
@@ -145,8 +145,13 @@ var console = console || (function() {
 			}
 
 			// Assume win32 COM objects
-			if ( object instanceof ActiveXObject ) {
+			if ( typeof ActiveXObject == 'function' && object instanceof ActiveXObject ) {
 				return '[ActiveXObject]';
+			}
+
+			// Assume Enumerator objects
+			if ( typeof Enumerator == 'function' && object instanceof Enumerator ) {
+				return '[Enumerator]';
 			}
 
 			var t = Object.prototype.toString.call(object);
