@@ -10,26 +10,30 @@ Introduction to WMI (Russian text)
 http://www.script-coding.com/WMI.html
 
 Windows Management Instrumentation
-http://msdn.microsoft.com/en-us/library/windows/desktop/aa394582%28v=VS.85%29.aspx
+https://docs.microsoft.com/en-us/windows/win32/wmisdk/wmi-start-page
 
 Scripting API Objects
-http://msdn.microsoft.com/en-us/library/windows/desktop/aa393259%28v=VS.85%29.aspx
+https://docs.microsoft.com/en-us/windows/win32/wmisdk/scripting-api-objects
 
 SWbemSink object
-http://msdn.microsoft.com/en-us/library/windows/desktop/aa393877%28v=vs.85%29.aspx
+https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemsink
 
 SWbemObjectSet object
-http://msdn.microsoft.com/en-us/library/windows/desktop/aa393762%28v=vs.85%29.aspx
+https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemobjectset
 
 SWbemServices/SWbemServicesEx object
-http://msdn.microsoft.com/en-us/library/windows/desktop/aa393854%28v=vs.85%29.aspx
-http://msdn.microsoft.com/en-us/library/windows/desktop/aa393855(v=VS.85).aspx
+https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemservices
+https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemservicesex
 
 SWbemObject/SWbemObjectEx object
-http://msdn.microsoft.com/en-us/library/windows/desktop/aa393741%28v=vs.85%29.aspx
-http://msdn.microsoft.com/en-us/library/windows/desktop/aa393742%28v=VS.85%29.aspx
+https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemobject
+https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemobjectex
+
+WMI moniker
+https://docs.microsoft.com/en-us/previous-versions/tn-archive/ee156574(v=technet.10)
 
 */
+
 function Wmi(options) {
 	return Wmi.create(options);
 };
@@ -99,25 +103,38 @@ Wmi.getMoniker = function(options) {
 		security.push('authority=' + options.authority);
 	}
 	if ( options.privileges ) {
-		security.push('(' + [].concat(options.privileges).join(', ') + ')');
+		security.push('(' + [].concat(options.privileges).join(',') + ')');
 	}
 
-	var moniker = ['WinMgmts:'];
+	var moniker = [ 'winmgmts:' ];
 	if ( security.length ) {
 		moniker.push('{' + security.join(',') + '}');
 	}
+
 	if ( options.locale ) {
 		moniker.push('[locale=' + options.locale + ']');
 	}
-	if ( ( security.length || options.locale ) && options.computer ) {
+
+	if ( ( security.length || options.locale )
+	&& ( options.computer || options.namespace || options.className ) ) {
 		moniker.push('!');
 	}
+
 	if ( options.computer ) {
 		moniker.push('\\\\' + options.computer);
 	}
+
 	if ( options.namespace ) {
-		moniker.push('\\' + options.namespace);
+		var namespace = options.namespace
+			.replace(/^[\/]+/, '')
+			.replace(/[/]/g, '\\')
+			;
+		if ( options.computer ) {
+			namespace = '\\' + namespace;
+		}
+		moniker.push(namespace);
 	}
+
 	if ( options.className ) {
 		if ( ( options.computer || options.namespace ) ) {
 			moniker.push(':');
@@ -246,14 +263,17 @@ Wmi.create = function(options) {
 		wbemObject = options;
 	} else if ( options instanceof Wmi.Common ) {
 		wbemObject = options.wbemObject;
-	} else if ( typeof options == 'string' || options.moniker ) {
-		moniker = options || options.moniker;
-		wbemObject = GetObject(moniker);
 	} else if ( options.user || options.useLocator ) {
 		wbemLocator = Wmi.getLocator(options);
 		wbemObject = Wmi.connectServer(wbemLocator, options);
 	} else {
-		moniker = Wmi.getMoniker(options);
+		if ( typeof options == 'string' ) {
+			moniker = options;
+		} else if ( typeof options.moniker == 'string' ) {
+			moniker = options || options.moniker;
+		} else {
+			moniker = Wmi.getMoniker(options);
+		}
 		wbemObject = GetObject(moniker);
 	}
 
