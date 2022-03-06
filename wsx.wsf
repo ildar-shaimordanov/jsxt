@@ -14,7 +14,7 @@ goto :EOF
 <script language="javascript"><![CDATA[
 
 var NAME    = 'WSX';
-var VERSION = '1.0.20 Alpha';
+var VERSION = '1.0.21 Alpha';
 
 ]]></script>
 
@@ -241,7 +241,7 @@ file. This description is available by the proper command line option.
 	/>
 </runtime>
 
-<resource id="help"><![CDATA[
+<resource id="HELP"><![CDATA[
 # DESCRIPTION
 
 **WSX** stands for the recursive acronym **WSX Simulating eXecutable**.
