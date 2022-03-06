@@ -30,9 +30,17 @@ http://msdn.microsoft.com/en-us/library/windows/desktop/aa393741%28v=vs.85%29.as
 http://msdn.microsoft.com/en-us/library/windows/desktop/aa393742%28v=VS.85%29.aspx
 
 */
-var Wmi = function(options) {
+function Wmi(options) {
 	return Wmi.create(options);
 };
+
+// ========================================================================
+
+// for supporting module system provided by require()
+// https://github.com/ildar-shaimordanov/jsxt/blob/master/core/require.js
+if ( typeof module != "undefined" ) {
+	module.exports = Wmi;
+}
 
 // ========================================================================
 
