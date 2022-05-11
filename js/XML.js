@@ -1,0 +1,378 @@
+/*
+
+WSH-based extension to simplify XML processing and AJAX queries
+
+Copyright (c) 2009-2022 Ildar Shaimordanov
+
+*/
+
+/*
+Program with DOM in JScript
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms761349(v=vs.85)
+XML DOM Properties
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms763798(v=vs.85)
+Second-Level DOM Properties
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms766391(v=vs.85)
+XML DOM Methods
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms757828(v=vs.85)
+XML DOM Events
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms764697(v=vs.85)
+*/
+
+var XML = {};
+
+// for supporting module system provided by require()
+// https://github.com/ildar-shaimordanov/jsxt/blob/master/core/require.js
+if ( typeof module != "undefined" ) {
+	module.exports = XML;
+}
+
+/*
+Create an XmlHttp object for processing AJAX requests.
+
+var xmlhttp = XML.createHTTP();
+*/
+XML.createHTTP = function(options) {
+	if ( typeof XMLHttpRequest != 'undefined' ) {
+		return new XMLHttpRequest();
+	}
+	return this.create([
+		'Msxml2.XMLHTTP.6.0',
+		'Msxml2.XMLHTTP.5.0',
+		'Msxml2.XMLHTTP.4.0',
+		'Msxml2.XMLHTTP.3.0',
+		'Msxml2.XMLHTTP',
+		'Microsoft.XMLHTTP'
+	], options);
+};
+
+/*
+Create an XmlHttp object and make an AJAX request.
+
+Available options:
+* method	`GET`, `POST`, etc
+* async		true means sending asynchronously
+* username	username for authorization
+* password	password for authorization
+* noCache	don't cache (add the `If-Modified-Since` header implicitly)
+* continueAt	the starting position to continue downloading. It adds (without
+		overwriting) the header `Range: bytes={range-start}-`, where
+		`{range-start}` means the current file size
+* body		request body (it will be URL-encoded first, then the length of
+		the result is estimated and the `Content-Length` is initialized.
+		If no `Content-Type` header specified, sends 
+		`Content-Type: application/x-www-form-urlencoded`
+* headers	request headers
+* onreadystatechange
+		use-defined callback. It can return the query result
+* onload	non-standard use-defined callback. It's almost the same as
+		onreadystatechange but it's invoked when and only when
+		`xmlhttp.readyState == 4`. It has higher priority.
+
+var xml = XML.queryURL('http://example.com/download/somefile.xml', {
+	onload: function(xmlhttp) {
+		return xmlhttp.responseXML;
+	}
+});
+*/
+XML.queryURL = function(url, options) {
+	options = options || {};
+	options.headers = options.headers || {};
+
+	var xmlhttp = this.createHTTP({ progID: options.progID });
+	var result = null;
+
+	if ( ! /^\w+:\/\//.test(url) ) {
+		url = 'file:///' + url;
+	}
+
+	xmlhttp.open(options.method || 'GET', url, !! options.async,
+		options.username, options.password);
+
+	if ( typeof options.onload == 'function' ) {
+		xmlhttp.onreadystatechange = function() {
+			if ( xmlhttp.readyState != 4 ) {
+				return;
+			}
+			result = options.onload(xmlhttp);
+		};
+	} else if ( typeof options.onreadystatechange == 'function' ) {
+		xmlhttp.onreadystatechange = function() {
+			result = options.onreadystatechange(xmlhttp);
+		};
+	}
+
+	if ( options.noCache ) {
+		options.headers['If-Modified-Since'] = new Date(0).toUTCString();
+	}
+
+	if ( options.continueAt ) {
+		options.headers['Range'] = options.headers['Range']
+			|| 'bytes=' + options.continueAt + '-';
+	}
+
+	if ( options.body ) {
+		options.body = this.encode(options.body);
+
+		options.headers['Content-Length'] = options.body.length;
+		options.headers['Content-Type'] = options.headers['Content-Type']
+			|| 'application/x-www-form-urlencoded';
+	}
+
+	if ( options.headers ) {
+		for (var p in options.headers) {
+			xmlhttp.setRequestHeader(p, options.headers[p]);
+		}
+	}
+
+	xmlhttp.send(options.body);
+
+	return result;
+};
+
+/*
+Create an XML document.
+
+var xml = XML.createXML();
+*/
+XML.createXML = function(options, properties) {
+	return this.create([
+		'Msxml2.DOMDocument.6.0', 
+		'Msxml2.DOMDocument.5.0', 
+		'Msxml2.DOMDocument.4.0', 
+		'Msxml2.DOMDocument.3.0', 
+		'Msxml2.DOMDocument', 
+		'Microsoft.XMLDOM'
+	], options, properties);
+};
+
+/*
+Load an XML document from a file.
+
+var xml = XML.load('example.xml');
+*/
+XML.load = function(filename, options, properties) {
+	var xml = this.createXML(options, properties);
+	xml.load(filename);
+	this.checkXML(xml);
+	return xml;
+};
+
+/*
+Load an XML document from a text.
+
+var xml = XML.loadXML('<a />');
+*/
+XML.loadXML = function(text, options, properties) {
+	var xml = this.createXML(options, properties);
+	xml.loadXML(text);
+	this.checkXML(xml);
+	return xml;
+};
+
+/*
+Validate XML document accordingly the provided namespace and XSD.
+Returns the valid XML document.
+
+var xml = XML.validate('', 'example.xsd', XML.load('example.xml'))
+*/
+XML.validate = function(nsURI, xsd, xml) {
+	xml.schemas = XML.loadSchemaCache(nsURI, xsd);
+
+	var error = xml.validate();
+	if ( error.errorCode == 0 ) {
+		return xml;
+	}
+
+	throw new Error('Document not valid.' +
+		' Reason: ' + error.reason +
+		' Source: ' + error.srcText +
+		' Line: ' + error.line);
+};
+
+/*
+Check parsing errors in an XML document.
+
+In most cases you don't need to call it directly.
+*/
+XML.checkXML = function(xml) {
+	if ( xml.parseError.errorCode == 0 ) {
+		return xml;
+	}
+	var e = xml.parseError;
+	throw new Error('Parsing error at line ' + e.line +
+		'. Reason: ' + e.reason);
+};
+
+/*
+Based on the forum thread:
+http://forum.script-coding.com/viewtopic.php?id=9277
+
+var xml = XML.loadXML('<a><b/><b><c/><c id="1"/></b></a>');
+var node = xml.selectSingleNode('//c[@id="1"]');
+var path = XML.selectXPath(node); // path == /a/b[2]/c[2]
+*/
+XML.selectXPath = function(xmlNode) {
+	var result = [];
+
+	var ancestors = xmlNode.selectNodes('ancestor-or-self::*')
+	for (var i = 0; i < ancestors.length; i++) {
+		var node = ancestors[i];
+		var nodeName = node.nodeName;
+		var baseName = node.baseName;
+
+		var L = node.selectNodes('preceding-sibling::' + baseName).length;
+		var R = node.selectNodes('following-sibling::' + baseName).length;
+		if ( L || R ) {
+			nodeName += '[' + ( L + 1 ) + ']';
+		}
+		result.push(nodeName);
+	}
+
+	// It's xml attribute. Store its name manually, because the code
+	// above doesn't work for xml attributes.
+	if ( xmlNode.nodeType == 2 ) {
+		result.push('@' + xmlNode.name);
+	}
+
+	return '/' + result.join('/')
+};
+
+/*
+Based on the answer to the question:
+How to get xpath from an XmlNode instance
+https://stackoverflow.com/a/18184670/3627676
+
+var xml = XML.loadXML('<a><b/><b><c/><c id="1"/></b></a>');
+var node = xml.selectSingleNode('//c[@id="1"]');
+var path = XML.getXPath(node); // path == /a[1]/b[2]/c[2]
+*/
+XML.getXPath = function(xmlNode) {
+	// It's xml attribute. Take its owner and continue.
+	if ( xmlNode.nodeType == 2 ) {
+		return arguments.callee(xmlNode.selectSingleNode('..')) +
+			'/@' + xmlNode.name;
+	}
+
+	if ( xmlNode.parentNode == null ) {
+		return '';
+	}
+
+	var i = 1;
+	for (var sibling = xmlNode; sibling = sibling.previousSibling; ) {
+		if ( sibling.nodeName == xmlNode.nodeName ) {
+			i++;
+		}
+	}
+
+	return arguments.callee(xmlNode.parentNode) +
+		'/' + xmlNode.nodeName + '[' + i + ']';
+};
+
+/*
+Create XML Schema Cache.
+
+var cache = XML.createSchemaCache();
+*/
+XML.createSchemaCache = function(options, properties) {
+	return this.create([
+		'Msxml2.XMLSchemaCache.6.0',
+		'Msxml2.XMLSchemaCache.5.0',
+		'Msxml2.XMLSchemaCache.4.0',
+		'Msxml2.XMLSchemaCache.3.0',
+		'Msxml2.XMLSchemaCache'
+	], options, properties);
+};
+
+/*
+Initialize an XML Schema Cache.
+
+var xml = XML.load('example.xml');
+xml.schemas = XML.loadSchemaCache('', 'example.xsd');
+*/
+XML.loadSchemaCache = function(nsURI, xsd, options, properties) {
+	var cache = this.createSchemaCache(options, properties);
+	cache.add(nsURI, xsd);
+	return cache;
+};
+
+/*
+Partner for encodeURIComponent().
+
+In most cases you don't need to call it directly.
+*/
+XML.encode = function(data) {
+	if ( typeof data == 'string' ) {
+		return encodeURIComponent(data);
+	}
+
+	var result = [];
+	for (var p in data) {
+		var part = encodeURIComponent(p) + '=' + encodeURIComponent(data[p]);
+	}
+	return result.join('&');
+};
+
+/*
+Partner for decodeURIComponent().
+
+In most cases you don't need to call it directly.
+*/
+XML.decode = function(data) {
+	var result = {};
+	var parts = String(data).split(/&(amp;)?/);
+	for (var i = 0; i < parts.length; i++) {
+		var m = parts[i].match(/^([^=]+)=(.*)$/);
+		result[ decodeURIComponent(m[1]) ] = decodeURIComponent(m[2]);
+	}
+	return result;
+};
+
+/*
+Create an MSXML object based on the progID list and set options and properties.
+
+It's used internally. You don't need to call it directly.
+*/
+XML.create = function(ids, options, properties) {
+	var errors = [];
+
+	ids = [].concat(options && options.progID || [], ids || []);
+	for (var i = 0; i < ids.length; i++) {
+		var e;
+		try {
+			var obj = new ActiveXObject(ids[i]);
+			this.setOptions(obj, options);
+			this.setProperties(obj, properties);
+			return obj;
+		} catch(e) {
+			errors.push(ids[i] + ': ' + e.description);
+		}
+	}
+
+	throw new Error('Unable to create ActiveX. Reasons: ' + errors.join('; '));
+};
+
+/*
+Set the options available only for the document.
+
+It's used internally. You don't need to call it directly.
+*/
+XML.setOptions = function(obj, options) {
+	var has = Object.prototype.hasOwnProperty;
+	for (var p in options) {
+		if ( has.call(obj, p) ) {
+			obj[p] = options[p];
+		}
+	}
+};
+
+/*
+Set the second-level DOM properties.
+
+It's used internally. You don't need to call it directly.
+*/
+XML.setProperties = function(obj, properties) {
+	for (var p in properties) {
+		obj.setProperty(p, properties[p]);
+	}
+};
