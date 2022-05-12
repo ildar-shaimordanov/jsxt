@@ -64,10 +64,21 @@ Available options:
 		`Content-Type: application/x-www-form-urlencoded`
 * headers	request headers
 * onreadystatechange
-		use-defined callback. It can return the query result
+		extended version of the standard use-defined callback.
+		It accepts the reference to the xmlhttp object created by
+		XML.createHTTP(). Also it can return the query result.
 * onload	non-standard use-defined callback. It's almost the same as
 		onreadystatechange but it's invoked when and only when
-		`xmlhttp.readyState == 4`. It has higher priority.
+		`xmlhttp.readyState == 4`. It has higher priority against
+		onreadystatechange.
+
+var xml = XML.queryURL('http://example.com/download/somefile.xml', {
+	onreadystatechange: function(xmlhttp) {
+		if ( xmlhttp.readState == 4 ) {
+			return xmlhttp.responseXML;
+		}
+	}
+});
 
 var xml = XML.queryURL('http://example.com/download/somefile.xml', {
 	onload: function(xmlhttp) {
@@ -80,6 +91,7 @@ XML.queryURL = function(url, options) {
 	options.headers = options.headers || {};
 
 	var xmlhttp = this.createHTTP({ progID: options.progID });
+	var body = null;
 	var result = null;
 
 	if ( ! /^\w+:\/\//.test(url) ) {
@@ -103,20 +115,24 @@ XML.queryURL = function(url, options) {
 	}
 
 	if ( options.noCache ) {
-		options.headers['If-Modified-Since'] = new Date(0).toUTCString();
+		options.headers['If-Modified-Since'] =
+		options.headers['If-Modified-Since'] ||
+		new Date(0).toUTCString();
 	}
 
 	if ( options.continueAt ) {
-		options.headers['Range'] = options.headers['Range']
-			|| 'bytes=' + options.continueAt + '-';
+		options.headers['Range'] =
+		options.headers['Range'] ||
+		'bytes=' + options.continueAt + '-';
 	}
 
 	if ( options.body ) {
-		options.body = this.encode(options.body);
+		body = this.encode(options.body);
 
 		options.headers['Content-Length'] = options.body.length;
-		options.headers['Content-Type'] = options.headers['Content-Type']
-			|| 'application/x-www-form-urlencoded';
+		options.headers['Content-Type'] =
+		options.headers['Content-Type'] ||
+		'application/x-www-form-urlencoded';
 	}
 
 	if ( options.headers ) {
@@ -125,7 +141,7 @@ XML.queryURL = function(url, options) {
 		}
 	}
 
-	xmlhttp.send(options.body);
+	xmlhttp.send(body);
 
 	return result;
 };
