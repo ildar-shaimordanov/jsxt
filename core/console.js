@@ -382,36 +382,39 @@ var console = console || (function() {
 		log(name + ': ' + t + 'ms');
 	};
 
+	var notImplemented = function() {
+		throw new Error('Function not implemented');
+	};
 
 	return {
 		// Implemented methods
-		log: log, 
-		debug: debug, 
-		info: info, 
-		warn: warn, 
-		error: error, 
+		log: log,
+		debug: debug,
+		info: info,
+		warn: warn,
+		error: error,
 
-		assert: assert, 
+		assert: assert,
 
-		time: timeStart, 
-		timeEnd: timeEnd, 
+		time: timeStart,
+		timeEnd: timeEnd,
 
 		// Not implemented methods
-		clear: function() {}, 
+		clear: notImplemented,
 
-		dir: function() {}, 
-		dirxml: function() {}, 
+		dir: notImplemented,
+		dirxml: notImplemented,
 
-		group: function() {}, 
-		groupCollapsed: function() {}, 
-		groupEnd: function() {}, 
+		group: notImplemented,
+		groupCollapsed: notImplemented,
+		groupEnd: notImplemented,
 
-		profile: function() {}, 
-		profileEnd: function() {}, 
+		profile: notImplemented,
+		profileEnd: notImplemented,
 
-		table: function() {}, 
+		table: notImplemented,
 
-		trace: function() {}, 
+		trace: notImplemented,
 
 		// Customizing the console
 		fn: {
