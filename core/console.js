@@ -359,28 +359,28 @@ var console = console || (function() {
 	};
 
 
-	// Processing of timers start/stop
-	var timeNames = {};
+	// Processing start/stop timers
+	var timers = {};
 
 	var timeStart = function(name) {
 		name = name || 'default';
 
-		if ( name in timeNames ) {
+		if ( name in timers ) {
 			throw new Error('Label "' + name + '" already in use');
 		}
 
-		timeNames[name] = new Date();
+		timers[name] = new Date();
 	};
 
 	var timeEnd = function(name) {
 		name = name || 'default';
 
-		if ( ! ( name in timeNames ) ) {
+		if ( ! ( name in timers ) ) {
 			throw new Error('Label "' + name + '" not in use');
 		}
 
-		var t = new Date() - timeNames[name];
-		delete timeNames[name];
+		var t = new Date() - timers[name];
+		delete timers[name];
 
 		log('%s: %dms', name, t);
 	};
