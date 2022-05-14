@@ -187,8 +187,8 @@ XML.loadXML = function(text, options, properties) {
 };
 
 /*
-Validate XML document accordingly the provided namespace and XSD.
-Returns the valid XML document.
+Simple validation for the XML document against the provided namespace
+and XSD. Returns the valid XML document.
 
 var xml = XML.validate('', 'example.xsd', XML.load('example.xml'))
 */
@@ -305,10 +305,18 @@ Initialize an XML Schema Cache.
 
 var xml = XML.load('example.xml');
 xml.schemas = XML.loadSchemaCache('', 'example.xsd');
+xml.validate();
+
+var xml = XML.load('example.xml', {
+	async: false,
+	validateOnParse: true,
+	resolveExternals: true,
+	schemas: XML.loadSchemaCache('', 'example.xsd')
+});
 */
 XML.loadSchemaCache = function(nsURI, xsd, options, properties) {
 	var cache = this.createSchemaCache(options, properties);
-	cache.add(nsURI, xsd);
+	cache.add(nsURI || '', xsd);
 	return cache;
 };
 
