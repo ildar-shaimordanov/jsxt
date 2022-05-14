@@ -363,23 +363,26 @@ var console = console || (function() {
 	var timeNames = {};
 
 	var timeStart = function(name) {
-		if ( ! name ) {
-			return;
+		name = name || 'default';
+
+		if ( name in timeNames ) {
+			throw new Error('Label "' + name + '" already in use');
 		}
 
 		timeNames[name] = new Date();
-		log(name + ': Timer started');
 	};
 
 	var timeEnd = function(name) {
-		if ( ! name || ! timeNames.hasOwnProperty(name) ) {
-			return;
+		name = name || 'default';
+
+		if ( ! ( name in timeNames ) ) {
+			throw new Error('Label "' + name + '" not in use');
 		}
 
 		var t = new Date() - timeNames[name];
 		delete timeNames[name];
 
-		log(name + ': ' + t + 'ms');
+		log('%s: %dms', name, t);
 	};
 
 	var notImplemented = function() {
