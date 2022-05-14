@@ -332,7 +332,8 @@ XML.encode = function(data) {
 
 	var result = [];
 	for (var p in data) {
-		var part = encodeURIComponent(p) + '=' + encodeURIComponent(data[p]);
+		var r = encodeURIComponent(p) + '=' + encodeURIComponent(data[p]);
+		result.push(r);
 	}
 	return result.join('&');
 };
