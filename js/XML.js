@@ -54,6 +54,15 @@ Available options:
 * async		true means sending asynchronously
 * username	username for authorization
 * password	password for authorization
+* proxy		proxy settings
+  * type	proxy configuration
+		0 - configuration is taken from yteh Windows registry
+		1 - for direct access
+		2 - to specify one or more proxy servers
+  * servers	names or names of proxy servers
+  * bypassList	the list of host names of IP addresses to bypass proxies
+  * username	the name of the user
+  * password	the password for the user
 * noCache	don't cache (add the `If-Modified-Since` header implicitly)
 * continueAt	the starting position to continue downloading. It adds (without
 		overwriting) the header `Range: bytes={range-start}-`, where
@@ -100,6 +109,16 @@ XML.queryURL = function(url, options) {
 
 	xmlhttp.open(options.method || 'GET', url, !! options.async,
 		options.username, options.password);
+
+	if ( options.proxy ) {
+		xmlhttp.setProxy(
+			options.proxy.type,
+			options.proxy.servers,
+			options.proxy.bypassList);
+		xmlhttp.setProxyCredentials(
+			options.proxy.username,
+			options.proxy.password);
+	}
 
 	if ( typeof options.onload == 'function' ) {
 		xmlhttp.onreadystatechange = function() {
