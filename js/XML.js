@@ -189,7 +189,7 @@ var xml = XML.load('example.xml');
 XML.load = function(filename, options, properties) {
 	var xml = this.createXML(options, properties);
 	xml.load(filename);
-	this.checkXML(xml);
+	this.checkParseError(xml);
 	return xml;
 };
 
@@ -201,42 +201,37 @@ var xml = XML.loadXML('<a />');
 XML.loadXML = function(text, options, properties) {
 	var xml = this.createXML(options, properties);
 	xml.loadXML(text);
-	this.checkXML(xml);
+	this.checkParseError(xml);
 	return xml;
 };
 
 /*
-Simple validation for the XML document against the provided namespace
-and XSD. Returns the valid XML document.
+Validate the XML document against the provided schema and namespace.
+Return the valid XML document.
 
-var xml = XML.validate('', 'example.xsd', XML.load('example.xml'))
+// Example 1
+var xml = XML.load('example.xml', {
+	async: false,
+	validateOnParse: true,
+	resolveExternals: true,
+	schemas: XML.loadSchemaCache('', 'example.xsd')
+});
+XML.validate(xml);
+
+// Example 2
+var xml = XML.validate(
+	XML.load('example.xml', {
+		async: false,
+		validateOnParse: true,
+		resolveExternals: true,
+		schemas: XML.loadSchemaCache('', 'example.xsd')
+	})
+);
 */
-XML.validate = function(nsURI, xsd, xml) {
-	xml.schemas = XML.loadSchemaCache(nsURI, xsd);
-
-	var error = xml.validate();
-	if ( error.errorCode == 0 ) {
-		return xml;
-	}
-
-	throw new Error('Document not valid.' +
-		' Reason: ' + error.reason +
-		' Source: ' + error.srcText +
-		' Line: ' + error.line);
-};
-
-/*
-Check parsing errors in an XML document.
-
-In most cases you don't need to call it directly.
-*/
-XML.checkXML = function(xml) {
-	if ( xml.parseError.errorCode == 0 ) {
-		return xml;
-	}
-	var e = xml.parseError;
-	throw new Error('Parsing error at line ' + e.line +
-		'. Reason: ' + e.reason);
+XML.validate = function(xml) {
+	var err = xml.validate();
+	this.checkParseError(err);
+	return xml;
 };
 
 /*
@@ -419,4 +414,26 @@ XML.setProperties = function(obj, properties) {
 	for (var p in properties) {
 		obj.setProperty(p, properties[p]);
 	}
+};
+
+/*
+Check the parsing error. If error is in place throws the expection.
+
+It's used internally. You don't need to call it directly.
+*/
+XML.checkParseError = function(obj) {
+	if ( 'parseError' in obj ) {
+		obj = obj.parseError;
+	}
+
+	var code = obj.errorCode;
+	if ( code == 0 ) {
+		return;
+	}
+
+	throw new Error('XML document error ' +
+		( code < 0 ? code + 0x100000000 : code ).toString(16) +
+		' [' + code.toString(16) + ']' +
+		( obj.line ? ' at line ' + obj.line : '' ) +
+		'. Reason: ' + obj.reason);
 };
