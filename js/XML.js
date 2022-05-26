@@ -30,6 +30,7 @@ if ( typeof module != "undefined" ) {
 /*
 Create an XmlHttp object for processing AJAX requests.
 
+// Example 1
 var xmlhttp = XML.createHTTP();
 */
 XML.createHTTP = function(options) {
@@ -81,6 +82,7 @@ Available options:
 		`xmlhttp.readyState == 4`. It has higher priority against
 		onreadystatechange.
 
+// Example 1
 var xml = XML.queryURL('http://example.com/download/somefile.xml', {
 	onreadystatechange: function(xmlhttp) {
 		if ( xmlhttp.readState == 4 ) {
@@ -89,11 +91,25 @@ var xml = XML.queryURL('http://example.com/download/somefile.xml', {
 	}
 });
 
+// Example 2
 var xml = XML.queryURL('http://example.com/download/somefile.xml', {
 	onload: function(xmlhttp) {
 		return xmlhttp.responseXML;
 	}
 });
+
+See also:
+onreadystatechange (IXMLHTTPRequest)
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms762767(v=vs.85)
+open (IXMLHTTPRequest)
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms757849(v=vs.85)
+send (IXMLHTTPRequest)
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms763706(v=vs.85)
+setRequestHeader (IXMLHTTPRequest)
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms766589(v=vs.85)
+setProxy/setProxyCredentials
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms760236(v=vs.85)
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms763680(v=vs.85)
 */
 XML.queryURL = function(url, options) {
 	options = options || {};
@@ -168,6 +184,7 @@ XML.queryURL = function(url, options) {
 /*
 Create an XML document.
 
+// Example 1
 var xml = XML.createXML();
 */
 XML.createXML = function(options, properties) {
@@ -184,7 +201,11 @@ XML.createXML = function(options, properties) {
 /*
 Load an XML document from a file.
 
+// Example 1
 var xml = XML.load('example.xml');
+
+See also:
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms762722(v=vs.85)
 */
 XML.load = function(filename, options, properties) {
 	var xml = this.createXML(options, properties);
@@ -196,7 +217,11 @@ XML.load = function(filename, options, properties) {
 /*
 Load an XML document from a text.
 
+// Example 1
 var xml = XML.loadXML('<a />');
+
+See also:
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms754585(v=vs.85)
 */
 XML.loadXML = function(text, options, properties) {
 	var xml = this.createXML(options, properties);
@@ -227,6 +252,9 @@ var xml = XML.validate(
 		schemas: XML.loadSchemaCache('', 'example.xsd')
 	})
 );
+
+See also:
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms756003(v=vs.85)
 */
 XML.validate = function(xml) {
 	var err = xml.validate();
@@ -238,6 +266,7 @@ XML.validate = function(xml) {
 Based on the forum thread:
 http://forum.script-coding.com/viewtopic.php?id=9277
 
+// Example 1
 var xml = XML.loadXML('<a><b/><b><c/><c id="1"/></b></a>');
 var node = xml.selectSingleNode('//c[@id="1"]');
 var path = XML.selectXPath(node); // path == /a/b[2]/c[2]
@@ -273,6 +302,7 @@ Based on the answer to the question:
 How to get xpath from an XmlNode instance
 https://stackoverflow.com/a/18184670/3627676
 
+// Example 1
 var xml = XML.loadXML('<a><b/><b><c/><c id="1"/></b></a>');
 var node = xml.selectSingleNode('//c[@id="1"]');
 var path = XML.getXPath(node); // path == /a[1]/b[2]/c[2]
@@ -302,6 +332,7 @@ XML.getXPath = function(xmlNode) {
 /*
 Create XML Schema Cache.
 
+// Example 1
 var cache = XML.createSchemaCache();
 */
 XML.createSchemaCache = function(options, properties) {
@@ -317,16 +348,21 @@ XML.createSchemaCache = function(options, properties) {
 /*
 Initialize an XML Schema Cache.
 
+// Example 1
 var xml = XML.load('example.xml');
 xml.schemas = XML.loadSchemaCache('', 'example.xsd');
 xml.validate();
 
+// Example 2
 var xml = XML.load('example.xml', {
 	async: false,
 	validateOnParse: true,
 	resolveExternals: true,
 	schemas: XML.loadSchemaCache('', 'example.xsd')
 });
+
+See also:
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms766451(v=vs.85)
 */
 XML.loadSchemaCache = function(nsURI, xsd, options, properties) {
 	var cache = this.createSchemaCache(options, properties);
@@ -371,6 +407,14 @@ XML.decode = function(data) {
 Create an MSXML object based on the progID list and set options and properties.
 
 It's used internally. You don't need to call it directly.
+
+See also:
+XML DOM Properties
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms763798(v=vs.85)
+Second-Level DOM Properties
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms766391(v=vs.85)
+setProperty
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms760290(v=vs.85)
 */
 XML.create = function(ids, options, properties) {
 	var errors = [];
@@ -395,6 +439,10 @@ XML.create = function(ids, options, properties) {
 Set the options available only for the document.
 
 It's used internally. You don't need to call it directly.
+
+See also:
+XML DOM Properties
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms763798(v=vs.85)
 */
 XML.setOptions = function(obj, options) {
 	var has = Object.prototype.hasOwnProperty;
@@ -409,6 +457,12 @@ XML.setOptions = function(obj, options) {
 Set the second-level DOM properties.
 
 It's used internally. You don't need to call it directly.
+
+See also:
+Second-Level DOM Properties
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms766391(v=vs.85)
+setProperty
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms760290(v=vs.85)
 */
 XML.setProperties = function(obj, properties) {
 	for (var p in properties) {
@@ -420,6 +474,9 @@ XML.setProperties = function(obj, properties) {
 Check the parsing error. If error is in place throws the expection.
 
 It's used internally. You don't need to call it directly.
+
+See also:
+https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms756041(v=vs.85)
 */
 XML.checkParseError = function(obj) {
 	if ( 'parseError' in obj ) {
