@@ -16,7 +16,6 @@
 * [LICENSE](#license)
 <!-- toc-end -->
 
-
 # NAME
 
 **WSX** - execute external scripts, one-line programs and run REPL
@@ -63,7 +62,7 @@ lib        : Prepend directories to the search path for modules ("/l" shortcut)
 vt         : Enable Virtual Terminal ANSI-escape sequences in this run
 quiet      : Be quiet in the interactive mode ("/q" shortcut)
 use        : Use (switch to) the language ("js" or "vbs")
-m          : Load the module and import identifiers "module[:id[:alias],...]"
+m          : Load the module and import identifiers "[alias=]module[,[alias=]id,...]"
 let        : Assign the value: "name=value"
 set        : Create the object: "name=CreateObject(object)"
 get        : Get the object: "name=GetObject(object)"
