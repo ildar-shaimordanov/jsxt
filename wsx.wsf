@@ -14,7 +14,7 @@ goto :EOF
 <script language="javascript"><![CDATA[
 
 var NAME    = 'WSX';
-var VERSION = '1.0.21 Alpha';
+var VERSION = '1.0.22 Alpha';
 
 ]]></script>
 
@@ -145,7 +145,7 @@ file. This description is available by the proper command line option.
 	/>
 <named
 	name="m"
-	helpstring="Load the module and import identifiers &#34;module[:id[:alias],...]&#34;"
+	helpstring="Load the module and import identifiers &#34;[alias=]module[,[alias=]id,...]&#34;"
 	type="string"
 	required="false"
 	/>
