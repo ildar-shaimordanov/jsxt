@@ -313,7 +313,8 @@ var console = console || (function() {
 		} else {
 			result = [];
 			for (var i = 0; i < objects.length; i++) {
-				result.push(inspect(objects[i]));
+				var o = objects[i];
+				result.push(typeof o == 'string' ? o : inspect(o));
 			}
 			result = result.join(sep);
 		}
