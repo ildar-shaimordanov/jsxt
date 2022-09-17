@@ -25,7 +25,7 @@ var usage = help = (function() {
 		, '                         (callback handles StdIn/StdOut/StdErr)'
 		, 'sleep(n)                 Sleep n milliseconds'
 		, 'clip()                   Read from or write to clipboard'
-		, 'enableVT()               Enable Virtual Terminal'
+		, 'enableVT()               Enable VT globally, for all outputs
 	].join('\n');
 
 	return function() {
@@ -127,23 +127,48 @@ var clip = function(text) {
 	msie = null;
 };
 
-var enableVT = function() {
-	// the idea is borrowed from this thread:
-	// https://www.dostips.com/forum/viewtopic.php?p=63393#p63393
-	var shell = new ActiveXObject('WScript.Shell');
-	var proc = shell.Exec('powershell -nop -ep bypass -c exit');
-	while ( proc.Status == 0 ) {
-		WScript.Sleep(50);
-	}
+var enableVT = (function() {
+	var colorsEnabled = false;
 
-	// Ugly but reliable from user perspective, because we are sure
-	// that nothing fails and user's settings are not be overwritten
-	if ( console && console.fn && console.fn.colorer
-	&& typeof console.fn.colorer.preprint == 'function'
-	&& typeof console.fn.preprint != 'function' ) {
-		console.fn.preprint = console.fn.colorer.preprint;
-	}
-};
+	return function() {
+		if ( colorsEnabled ) {
+			return;
+		}
+
+		colorsEnabled = true;
+
+		// The trick is borrowed from this thread:
+		// https://www.dostips.com/forum/viewtopic.php?p=63393#p63393
+
+		var shell = new ActiveXObject('WScript.Shell');
+		var proc = shell.Exec('powershell -nop -ep bypass -c exit');
+
+		while ( proc.Status == 0 ) {
+			WScript.Sleep(50);
+		}
+
+		// Ugly but reliable from user perspective, because we
+		// are sure that nothing fails and user's settings are
+		// not overwritten.
+
+		if ( typeof util == 'undefined' ) {
+			return;
+		}
+
+		if ( util === null ) {
+			return;
+		}
+
+		if ( typeof util.enableColors == 'function' ) {
+			util.enableColors(true);
+		}
+
+		if ( typeof util.inspect == 'function'
+		&& util.inspect.defaultOptions != null ) {
+			util.inspect.defaultOptions.colors = true;
+		}
+	};
+})();
 
 if ( typeof exports != "undefined" ) {
 	exports.FSO = FSO;
