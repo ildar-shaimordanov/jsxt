@@ -16,6 +16,10 @@
 // console.timeEnd
 // console.timeLog
 //
+// More information about API for console:
+// https://console.spec.whatwg.org/
+// https://nodejs.org/api/console.html
+//
 // Copyright (c) 2012, 2013, 2019-2022 by Ildar Shaimordanov
 //
 

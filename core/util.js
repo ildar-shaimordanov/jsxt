@@ -21,6 +21,9 @@
 // Non-standard extension
 // util.enableColors
 //
+// More information about API for util:
+// https://nodejs.org/api/util.html
+//
 // Copyright (c) 2012, 2013, 2019-2022 by Ildar Shaimordanov
 //
 
