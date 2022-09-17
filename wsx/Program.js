@@ -29,7 +29,7 @@ var Program = {
 	beginfile: [],
 	endfile: [],
 
-	autosplit: false,
+	splitMode: false,
 	splitBy: '/\\s+/',
 
 	print: (function() {
@@ -79,9 +79,9 @@ var Program = {
 		this.inLoop = loopTypes[ mode.toLowerCase() ];
 	},
 
-	setAutosplit: function(pattern) {
+	setSplitMode: function(pattern) {
 		this.setInLoop('n');
-		this.autosplit = true;
+		this.splitMode = true;
 		if ( ! pattern ) {
 			return;
 		}
@@ -290,9 +290,9 @@ var Program = {
 				continue;
 			}
 
-			m = arg.match(/^\/a(?::(.*))?$/i);
+			m = arg.match(/^\/split(?::(.*))?$/i);
 			if ( m ) {
-				this.setAutosplit(m[1]);
+				this.setSplitMode(m[1]);
 				continue;
 			}
 
@@ -313,7 +313,7 @@ var Program = {
 
 		}
 
-		if ( this.autosplit && this.inLoop ) {
+		if ( this.splitMode && this.inLoop ) {
 			this.main.unshift('FIELDS = LINE.split(' + this.splitBy + ')');
 		}
 

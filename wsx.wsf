@@ -14,7 +14,7 @@ goto :EOF
 <script language="javascript"><![CDATA[
 
 var NAME    = 'WSX';
-var VERSION = '1.0.23 Alpha';
+var VERSION = '1.0.24 Alpha';
 
 ]]></script>
 
@@ -174,14 +174,8 @@ file. This description is available by the proper command line option.
 	required="false"
 	/>
 <named
-	name="a"
-	helpstring="Autosplit a line to the &#34;FIELDS&#34; array. The value is string or regexp to split on (defaults to &#34;/\s+/&#34;)"
-	type="string"
-	required="false"
-	/>
-<named
-	name="e"
-	helpstring="One line program (multiple &#34;/e&#34;'s supported)"
+	name="split"
+	helpstring="Split &#34;LINE&#34; to &#34;FIELDS&#34; by a pattern (string or regexp; defaults to &#34;/\s+/&#34;)"
 	type="string"
 	required="false"
 	/>
@@ -195,6 +189,12 @@ file. This description is available by the proper command line option.
 	name="p"
 	helpstring="Apply a program in the loop like &#34;while read LINE { ... print }&#34;"
 	type="simple"
+	required="false"
+	/>
+<named
+	name="e"
+	helpstring="One line program (multiple &#34;/e&#34;'s supported)"
+	type="string"
 	required="false"
 	/>
 <named
@@ -317,6 +317,10 @@ The following objects are available when the tool is executed in the loop mode a
 * `LINE`    - The current line
 * `FLN`     - The line number in the current file
 * `LN`      - The total line number
+
+The following array is available when the split mode is turned on with the `/split:...` option.
+
+* `FIELDS`  - The array of fields
 
 These special functions can be used in the loop mode only to cover the issue when we can't use `continue` and `break`.
 
