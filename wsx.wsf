@@ -14,14 +14,14 @@ goto :EOF
 <script language="javascript"><![CDATA[
 
 var NAME    = 'WSX';
-var VERSION = '1.0.22 Alpha';
+var VERSION = '1.0.23 Alpha';
 
 ]]></script>
 
 <script language="javascript" src="./wsx/Helpers.js"></script>
 
+<script language="javascript" src="./core/util.js"></script>
 <script language="javascript" src="./core/console.js"></script>
-<script language="javascript" src="./core/console-colorer.js"></script>
 
 <script language="javascript" src="./core/require.js"></script>
 <script language="vbscript" src="./core/exporter.vbs"></script>
@@ -127,7 +127,7 @@ file. This description is available by the proper command line option.
 	/>
 <named
 	name="vt"
-	helpstring="Enable Virtual Terminal ANSI-escape sequences in this run"
+	helpstring="Enable VT globally, for all outputs"
 	type="simple"
 	required="false"
 	/>
@@ -294,7 +294,7 @@ Functions:
                                    (callback handles StdIn/StdOut/StdErr)
 * `sleep(n)`                     - Sleep n milliseconds
 * `clip()`                       - Read from or write to clipboard
-* `enableVT()`                   - Enable Virtual Terminal
+* `enableVT()`                   - Enable VT globally, for all outputs
 
 Objects:
 
