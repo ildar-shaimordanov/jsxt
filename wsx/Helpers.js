@@ -25,7 +25,7 @@ var usage = help = (function() {
 		, '                         (callback handles StdIn/StdOut/StdErr)'
 		, 'sleep(n)                 Sleep n milliseconds'
 		, 'clip()                   Read from or write to clipboard'
-		, 'enableVT()               Enable VT globally, for all outputs
+		, 'enableVT()               Enable VT globally, for all outputs'
 	].join('\n');
 
 	return function() {
