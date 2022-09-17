@@ -14,94 +14,39 @@ goto :EOF
 <script language="javascript"><![CDATA[
 
 var NAME    = 'WSX';
-var VERSION = '1.0.17 Alpha';
+var VERSION = '1.0.23 Alpha';
+
+]]></script>
+
+<script language="javascript" src="./wsx/Helpers.js"></script>
+
+<script language="javascript" src="./core/util.js"></script>
+<script language="javascript" src="./core/console.js"></script>
+
+<script language="javascript" src="./core/require.js"></script>
+<script language="vbscript" src="./core/exporter.vbs"></script>
+
+<script language="javascript" src="./wsx/REPL.js"></script>
+<script language="javascript" src="./wsx/Program.js"></script>
+
+<script language="javascript"><![CDATA[
+
+Program.parseArguments();
+
+if ( Program.check ) {
+	Program.showPseudoCode();
+} else {
+	Program.run();
+}
 
 ]]></script>
 
 <runtime>
 <description><![CDATA[
-# DESCRIPTION
+# NAME
 
-**WSX** stands for the recursive acronym **WSX Simulating eXecutable**.
+**WSX** - execute external scripts, one-line programs and run REPL
 
-It runs an external script file in the same way as it can be done traditionally via CScript or WScript with additional benefits making its usage closer to NodeJS, Perl, Python etc.
-
-Run itself in the interactive mode. Type in the prompt any JS or VBS commands and execute them immediately. In this mode each entered line is evaluated immediately. To enable many lines executed as one you need to surround them with the double colons `::`. The first double colon turns on the multiline mode, the second one turns it off. After that everything entered will be executed.
-
-It runs a one-line program from CLI and apply it on inputstream and other files. One-line program allows to estimate some code on the fly, without creating a temporary file. Writing it, you focus on the most important parts of the program implementation. Even if some implementation stuff -- like objects initialization, preliminary I/O operations etc -- are hidden off your eyes, they are still executed implicitly.
-
-If the tool is launched with the one line program, everything after is assumed as a file name. Each argument is opened as a file and processed line by line until the end of file. Otherwise, if no any one line program is entered, the first item of the argument list is the script file and the rest of arguments are arguments for the script file. They could be everything and the script can use them accordingly its functionality.
-
-# VARIABLES, FUNCTIONS and OBJECTS
-
-The tool supplies set of predefined objects to make its own functionality closer to NodeJS, Rhino and other modern and powerful JavaScript engines.
-
-For more convenience they are presented separately in the sections below.
-
-## CommonJS
-
-This script implements few features suggested by CommonJS extending them with WSH specialties.
-
-* `console.log()` and friends - display messages
-* `require()`                 - load a JS module in RT
-* `require.vbs()`             - ditto for VBS (extension)
-
-For details see these links:
-
-* https://nodejs.org/api/console.html
-* https://nodejs.org/api/modules.html
-
-## Frequently used WSH objects
-
-* `FSO`     - The object `Scripting.FileSystemObject`
-* `SHELL`   - The object `WScript.Shell`
-* `STDIN`   - The reference to `WScript.StdIn`
-* `STDOUT`  - The reference to `WScript.StdOut`
-* `STDERR`  - The reference to `WScript.StdErr`
-
-## General purpose objects
-
-Functions:
-
-* `usage()`, `help()`            - Display this help
-* `echo()`, `print()`, `alert()` - Print expressions
-* `quit()`, `exit()`             - Quit this shell
-* `cmd()`, `shell()`             - Run a command or DOS-session
-* `exec()`                       - Run a command in a child shell
-                                   (callback handles StdIn/StdOut/StdErr)
-* `sleep(n)`                     - Sleep n milliseconds
-* `clip()`                       - Read from or write to clipboard
-* `enableVT()`                   - Enable Virtual Terminal
-
-Objects:
-
-* `ERROR`   - The variable keeping the last error
-* `ARGV`    - The CLI arguments
-
-## Loop mode
-
-The following objects are available when the tool is executed in the loop mode as `wsx /n /e:...` or `wsx /p /e:...`.
-
-* `STREAM`  - The reference to the stream of the current file
-* `FILE`    - The name of the current file
-* `FILEFMT` - The format to open files (`ascii`, `unicode` or system `default`)
-* `LINE`    - The current line
-* `FIELDS`  - The array of fields of each LINE read in when autosplit mode is turned on (see the `/a` option).
-* `FLN`     - The line number in the current file
-* `LN`      - The total line number
-
-These special functions can be used in the loop mode only to cover the issue when we can't use `continue` and `break`.
-
-* `next()`  - acts as the `continue` operator
-* `last()`  - acts as the `break` operator
-
-## REPL mode
-
-The interactive mode provides the following useful properties for referencing to the history of the commands and REPL mode:
-
-* `REPL.number`  - the current line number
-* `REPL.history` - the list of all commands entered in the current session
-* `REPL.quiet`   - the current session mode
 
 # USAGE
 
@@ -134,62 +79,23 @@ The [options] above refer to the other options not mentioned explicitly (see bel
 ```
 ]]></description>
 <!--
-We are sure that the full text of usage will be placed here: immediately after the <description> section and before the <example> section. As a result, it will become placed between two code fencings (first one ends <description> and the second one begins <example>. So it will be correctly rendered as the code block in markdown.
+We are sure that the full usage is generated automatically from the
+<named> and <unnamed> tags below and will be placed here: immediately
+after the <description> section and before the <example> section. As
+a result, it will become placed between two code fencings (first one
+ends <description> and the second one begins <example>. So it will be
+correctly rendered as the code block in markdown.
+
+The more detailed description of the program and its internal objects
+is placed within the <resource> tag that can be found at the end of the
+file. This description is available by the proper command line option.
 -->
 <example><![CDATA[
 ```
-
-# EXAMPLES
-
-Count the number of lines (similar to `wc -l` in Unix).
-
-    wsx /n /endfile:"echo(FLN, FILE)" /end:"echo(LN)"
-    wsx /n /endfile:vbs:"echo FLN, FILE" /end:vbs:"echo LN"
-    wsx /use:vbs /n /endfile:"echo FLN, FILE" /end:"echo LN"
-
-Numerate lines of each input file (similar to `cat -n` in Unix).
-
-    wsx /p /e:"LINE = LN + ':' + LINE"
-    wsx /let:delim=":" /p /e:vbs:"LINE = LN & delim & LINE"
-
-Print first 5 lines (similar to `head -n 5` in Unix). Due to VBScript specifics and necessity of str-to-int conversion, the one-line program is almost twice longer.
-
-    wsx /let:limit=5 /p /e:"LN > limit && last()"
-    wsx /use:vbs /let:limit=5 /begin:"limit = cint(limit)" /p /e:"if LN > limit then last"
-
-Print last 5 lines (similar to `tail -n 5` in Unix). The example is splitted on two lines for better readability.
-
-    wsx /let:limit=5 /n /begin:"L=[]" /end:"echo(L.join('\n'))" ^
-        /e:"L.push(LINE); L.length > limit && L.shift()"
-
-The following command generates a markdown file available as a part of the repository. Any changes in the script and its parts are supposed to be replicated to this file also.
-
-    wsx /? | git-md-toc -cut > doc/wsx.md
-
-Also the documentation can be seen as HTML.
-
-    wsx /? | git-md-toc -cut | git-md-html | 2 html
-
-* `git-md-toc` - the Perl script for creating Table of Content.
-  It's hosted at https://github.com/ildar-shaimordanov/git-markdown-toc
-* `git-md-html` - the set of scripts for converting markdown to HTML.
-  They are hosted at https://github.com/ildar-shaimordanov/git-markdown-html
-* `2` - the batch script for redirecting STDOUT to any GUI application.
-  It's hosted at https://github.com/ildar-shaimordanov/cmd.scripts
-
-# AUTHORS and CONTRIBUTORS
-
-Ildar Shaimordanov is the main author maintaining the tool since 2009. Initially it was JSCmd.js, the simple jscript file able to perform REPL. Later it evolved to wscmd.bat, the more powerful and configurable BAT+JS hybrid script creating a temporary WSF-file and executing it.
-
-Copyright (C) 2009-2015, 2019-2021 Ildar Shaimordanov
-
-# LICENSE
-
-MIT
 ]]></example>
 <named
 	name="help"
-	helpstring="Print this help and exit (&#34;/?&#34; and &#34;/h&#34; shortcuts)"
+	helpstring="Print full description and exit (&#34;/h&#34; shortcut)"
 	type="simple"
 	required="false"
 	/>
@@ -221,7 +127,7 @@ MIT
 	/>
 <named
 	name="vt"
-	helpstring="Enable Virtual Terminal ANSI-escape sequences in this run"
+	helpstring="Enable VT globally, for all outputs"
 	type="simple"
 	required="false"
 	/>
@@ -239,7 +145,7 @@ MIT
 	/>
 <named
 	name="m"
-	helpstring="Load the module and import identifiers &#34;module[=[alias:]id,...]&#34;"
+	helpstring="Load the module and import identifiers &#34;[alias=]module[,[alias=]id,...]&#34;"
 	type="string"
 	required="false"
 	/>
@@ -341,28 +247,141 @@ MIT
 	/>
 </runtime>
 
-<script language="javascript" src="./wsx/Helpers.js"></script>
+<resource id="HELP"><![CDATA[
+# DESCRIPTION
 
-<script language="javascript" src="./core/console.js"></script>
-<script language="javascript" src="./core/console-colorer.js"></script>
+**WSX** stands for the recursive acronym **WSX Simulating eXecutable**.
 
-<script language="javascript" src="./core/require.js"></script>
-<script language="vbscript" src="./core/exporter.vbs"></script>
+It runs an external script file in the same way as it can be done traditionally via CScript or WScript with additional benefits making its usage closer to NodeJS, Perl, Python etc.
 
-<script language="javascript" src="./wsx/REPL.js"></script>
-<script language="javascript" src="./wsx/Program.js"></script>
+Run itself in the interactive mode. Type in the prompt any JS or VBS commands and execute them immediately. In this mode each entered line is evaluated immediately. To enable many lines executed as one you need to surround them with the double colons `::`. The first double colon turns on the multiline mode, the second one turns it off. After that everything entered will be executed.
 
-<script language="javascript"><![CDATA[
+It runs a one-line program from CLI and apply it on inputstream and other files. One-line program allows to estimate some code on the fly, without creating a temporary file. Writing it, you focus on the most important parts of the program implementation. Even if some implementation stuff -- like objects initialization, preliminary I/O operations etc -- are hidden off your eyes, they are still executed implicitly.
 
-Program.parseArguments();
+If the tool is launched with the one line program, everything after is assumed as a file name. Each argument is opened as a file and processed line by line until the end of file. Otherwise, if no any one line program is entered, the first item of the argument list is the script file and the rest of arguments are arguments for the script file. They could be everything and the script can use them accordingly its functionality.
 
-if ( Program.check ) {
-	Program.showPseudoCode();
-} else {
-	Program.run();
-}
 
-]]></script>
+# VARIABLES, FUNCTIONS and OBJECTS
+
+The tool supplies set of predefined objects to make its own functionality closer to NodeJS, Rhino and other modern and powerful JavaScript engines.
+
+For more convenience they are presented separately in the sections below.
+
+## CommonJS
+
+This script implements few features suggested by CommonJS extending them with WSH specialties.
+
+* `console.log()` and friends - display messages
+* `require()`                 - load a JS module in RT
+* `require.vbs()`             - ditto for VBS (extension)
+
+For details see these links:
+
+* https://nodejs.org/api/console.html
+* https://nodejs.org/api/modules.html
+
+## Frequently used WSH objects
+
+* `FSO`     - The object `Scripting.FileSystemObject`
+* `SHELL`   - The object `WScript.Shell`
+* `STDIN`   - The reference to `WScript.StdIn`
+* `STDOUT`  - The reference to `WScript.StdOut`
+* `STDERR`  - The reference to `WScript.StdErr`
+
+## General purpose objects
+
+Functions:
+
+* `usage()`, `help()`            - Display this help
+* `echo()`, `print()`, `alert()` - Print expressions
+* `quit()`, `exit()`             - Quit this shell
+* `cmd()`, `shell()`             - Run a command or DOS-session
+* `exec()`                       - Run a command in a child shell
+                                   (callback handles StdIn/StdOut/StdErr)
+* `sleep(n)`                     - Sleep n milliseconds
+* `clip()`                       - Read from or write to clipboard
+* `enableVT()`                   - Enable VT globally, for all outputs
+
+Objects:
+
+* `ERROR`   - The variable keeping the last error
+* `ARGV`    - The CLI arguments
+
+## Loop mode
+
+The following objects are available when the tool is executed in the loop mode as `wsx /n /e:...` or `wsx /p /e:...`.
+
+* `STREAM`  - The reference to the stream of the current file
+* `FILE`    - The name of the current file
+* `FILEFMT` - The format to open files (`ascii`, `unicode` or system `default`)
+* `LINE`    - The current line
+* `FLN`     - The line number in the current file
+* `LN`      - The total line number
+
+These special functions can be used in the loop mode only to cover the issue when we can't use `continue` and `break`.
+
+* `next()`  - acts as the `continue` operator
+* `last()`  - acts as the `break` operator
+
+## REPL mode
+
+The interactive mode provides the following useful properties for referencing to the history of the commands and REPL mode:
+
+* `REPL.number`  - the current line number
+* `REPL.history` - the list of all commands entered in the current session
+* `REPL.quiet`   - the current session mode
+
+
+# EXAMPLES
+
+Count the number of lines (similar to `wc -l` in Unix).
+
+    wsx /n /endfile:"echo(FLN, FILE)" /end:"echo(LN)"
+    wsx /n /endfile:vbs:"echo FLN, FILE" /end:vbs:"echo LN"
+    wsx /use:vbs /n /endfile:"echo FLN, FILE" /end:"echo LN"
+
+Numerate lines of each input file (similar to `cat -n` in Unix).
+
+    wsx /p /e:"LINE = LN + ':' + LINE"
+    wsx /let:delim=":" /p /e:vbs:"LINE = LN & delim & LINE"
+
+Print first 5 lines (similar to `head -n 5` in Unix). Due to VBScript specifics and necessity of str-to-int conversion, the one-line program is almost twice longer.
+
+    wsx /let:limit=5 /p /e:"LN > limit && last()"
+    wsx /use:vbs /let:limit=5 /begin:"limit = cint(limit)" /p /e:"if LN > limit then last"
+
+Print last 5 lines (similar to `tail -n 5` in Unix). The example is splitted on two lines for better readability.
+
+    wsx /let:limit=5 /n /begin:"L=[]" /end:"echo(L.join('\n'))" ^
+        /e:"L.push(LINE); L.length > limit && L.shift()"
+
+The following command generates a markdown file available as a part of the repository. Any changes in the script and its parts are supposed to be replicated to this file also.
+
+    wsx /help | git-md-toc -cut > doc/wsx.md
+
+Also the documentation can be seen as HTML.
+
+    wsx /help | git-md-toc -cut | git-md-html | 2 html
+
+* `git-md-toc` - the Perl script for creating Table of Content.
+  It's hosted at https://github.com/ildar-shaimordanov/git-markdown-toc
+* `git-md-html` - the set of scripts for converting markdown to HTML.
+  They are hosted at https://github.com/ildar-shaimordanov/git-markdown-html
+* `2` - the batch script for redirecting STDOUT to any GUI application.
+  It's hosted at https://github.com/ildar-shaimordanov/cmd.scripts
+
+
+# AUTHORS and CONTRIBUTORS
+
+Ildar Shaimordanov is the main author maintaining the tool since 2009. Initially it was JSCmd.js, the simple jscript file able to perform REPL. Later it evolved to wscmd.bat, the more powerful and configurable BAT+JS hybrid script creating a temporary WSF-file and executing it.
+
+Copyright (C) 2009-2015, 2019-2022 Ildar Shaimordanov
+
+
+# LICENSE
+
+    MIT
+]]></resource>
 
 </job>
 </package>

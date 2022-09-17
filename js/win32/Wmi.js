@@ -1,8 +1,7 @@
 //
-// JavaScript unit
-// Add-on for WMI (Windows Management Instrumentation)
+// JScript wrapper for WMI (Windows Management Instrumentation)
 //
-// Copyright (c) 2010, 2011 by Ildar Shaimordanov
+// Copyright (c) 2010, 2011, 2022 by Ildar Shaimordanov
 //
 
 /*
@@ -11,33 +10,45 @@ Introduction to WMI (Russian text)
 http://www.script-coding.com/WMI.html
 
 Windows Management Instrumentation
-http://msdn.microsoft.com/en-us/library/windows/desktop/aa394582%28v=VS.85%29.aspx
+https://docs.microsoft.com/en-us/windows/win32/wmisdk/wmi-start-page
 
 Scripting API Objects
-http://msdn.microsoft.com/en-us/library/windows/desktop/aa393259%28v=VS.85%29.aspx
+https://docs.microsoft.com/en-us/windows/win32/wmisdk/scripting-api-objects
 
 SWbemSink object
-http://msdn.microsoft.com/en-us/library/windows/desktop/aa393877%28v=vs.85%29.aspx
+https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemsink
 
 SWbemObjectSet object
-http://msdn.microsoft.com/en-us/library/windows/desktop/aa393762%28v=vs.85%29.aspx
+https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemobjectset
 
 SWbemServices/SWbemServicesEx object
-http://msdn.microsoft.com/en-us/library/windows/desktop/aa393854%28v=vs.85%29.aspx
-http://msdn.microsoft.com/en-us/library/windows/desktop/aa393855(v=VS.85).aspx
+https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemservices
+https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemservicesex
 
 SWbemObject/SWbemObjectEx object
-http://msdn.microsoft.com/en-us/library/windows/desktop/aa393741%28v=vs.85%29.aspx
-http://msdn.microsoft.com/en-us/library/windows/desktop/aa393742%28v=VS.85%29.aspx
+https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemobject
+https://docs.microsoft.com/en-us/windows/win32/wmisdk/swbemobjectex
+
+WMI moniker
+https://docs.microsoft.com/en-us/previous-versions/tn-archive/ee156574(v=technet.10)
 
 */
-var Wmi = function(options)
-{
+
+function Wmi(options) {
 	return Wmi.create(options);
 };
 
-Wmi.setSecurity = function(wbemObject, options)
-{
+// ========================================================================
+
+// for supporting module system provided by require()
+// https://github.com/ildar-shaimordanov/jsxt/blob/master/core/require.js
+if ( typeof module != "undefined" ) {
+	module.exports = Wmi;
+}
+
+// ========================================================================
+
+Wmi.setSecurity = function(wbemObject, options) {
 	var sec = wbemObject.Security_;
 	if ( options.impersonationLevel ) {
 		sec.ImpersonationLevel = options.impersonationLevel;
@@ -56,15 +67,13 @@ Wmi.setSecurity = function(wbemObject, options)
 	return wbemObject;
 };
 
-Wmi.getLocator = function(options)
-{
+Wmi.getLocator = function(options) {
 	var wbemLocator = new ActiveXObject('WbemScripting.SWbemLocator');
 	Wmi.setSecurity(wbemLocator, options);
 	return wbemLocator;
 };
 
-Wmi.connectServer = function(wbemLocator, options)
-{
+Wmi.connectServer = function(wbemLocator, options) {
 	options = options || {};
 
 	wbemLocator = wbemLocator || Wmi.getLocator(options);
@@ -80,8 +89,7 @@ Wmi.connectServer = function(wbemLocator, options)
 		options.wbemNamedValueSet || null);
 };
 
-Wmi.getMoniker = function(options)
-{
+Wmi.getMoniker = function(options) {
 	options = options || {};
 
 	var security = [];
@@ -95,25 +103,38 @@ Wmi.getMoniker = function(options)
 		security.push('authority=' + options.authority);
 	}
 	if ( options.privileges ) {
-		security.push('(' + [].concat(options.privileges).join(', ') + ')');
+		security.push('(' + [].concat(options.privileges).join(',') + ')');
 	}
 
-	var moniker = ['WinMgmts:'];
+	var moniker = [ 'winmgmts:' ];
 	if ( security.length ) {
 		moniker.push('{' + security.join(',') + '}');
 	}
+
 	if ( options.locale ) {
 		moniker.push('[locale=' + options.locale + ']');
 	}
-	if ( ( security.length || options.locale ) && options.computer ) {
+
+	if ( ( security.length || options.locale )
+	&& ( options.computer || options.namespace || options.className ) ) {
 		moniker.push('!');
 	}
+
 	if ( options.computer ) {
 		moniker.push('\\\\' + options.computer);
 	}
+
 	if ( options.namespace ) {
-		moniker.push('\\' + options.namespace);
+		var namespace = options.namespace
+			.replace(/^[\/]+/, '')
+			.replace(/[/]/g, '\\')
+			;
+		if ( options.computer ) {
+			namespace = '\\' + namespace;
+		}
+		moniker.push(namespace);
 	}
+
 	if ( options.className ) {
 		if ( ( options.computer || options.namespace ) ) {
 			moniker.push(':');
@@ -126,17 +147,14 @@ Wmi.getMoniker = function(options)
 
 Wmi.defaultSinkPrefix = 'SINK_';
 
-Wmi.getSinkPrefix = function()
-{
+Wmi.getSinkPrefix = function() {
 	return 'SINK' + (new Date()).getTime() + '_';
 };
 
-Wmi.getSink = (function()
-{
+Wmi.getSink = (function() {
 	var defaultSinkEventNames = 'onCompleted onObjectPut onObjectReady onProgress'.split(' ');
 
-	var setSinkEvents = function(sinkPrefix, events)
-	{
+	var setSinkEvents = function(sinkPrefix, events) {
 		var global = (function() { return this; })();
 
 		if ( typeof events == 'function' ) {
@@ -163,15 +181,13 @@ Wmi.getSink = (function()
 */
 	};
 
-	return function(sinkPrefix, events)
-	{
+	return function(sinkPrefix, events) {
 		setSinkEvents(sinkPrefix, events);
 		return WScript.CreateObject('WbemScripting.SWbemSink', sinkPrefix);
 	};
 })();
 
-Wmi.getNamedValueSet = function(namedValueSet)
-{
+Wmi.getNamedValueSet = function(namedValueSet) {
 	// nothing has been passed
 	if ( ! namedValueSet ) {
 		return null;
@@ -191,8 +207,7 @@ Wmi.getNamedValueSet = function(namedValueSet)
 	return wbemNamedValueSet;
 };
 
-Wmi.prepareQuery = function(className, whereClause, selectors, withinClause)
-{
+Wmi.prepareQuery = function(className, whereClause, selectors, withinClause) {
 	var query = 'SELECT ' + [].concat(selectors || '*').join(',') + ' FROM ' + className;
 	if ( withinClause ) {
 		query += ' WITHIN ' + withinClause;
@@ -204,8 +219,7 @@ Wmi.prepareQuery = function(className, whereClause, selectors, withinClause)
 	return query;
 };
 
-Wmi.forEach = function(collection, func, before)
-{
+Wmi.forEach = function(collection, func, before) {
 	var e = new Enumerator(collection);
 	if ( before ) {
 		before(e.item());
@@ -216,8 +230,7 @@ Wmi.forEach = function(collection, func, before)
 	}
 };
 
-Wmi.map = function(collection, func, before)
-{
+Wmi.map = function(collection, func, before) {
 	var result = [];
 	var e = new Enumerator(collection);
 	if ( before ) {
@@ -230,8 +243,7 @@ Wmi.map = function(collection, func, before)
 	return result;
 };
 
-Wmi.defaultFlags = function(options, n)
-{
+Wmi.defaultFlags = function(options, n) {
 	var f = Number((options || {}).flags);
 	return f == 0 ? 0 : f || n;
 };
@@ -240,8 +252,7 @@ Wmi.extendMethods = false;
 
 Wmi.extendSubclasses = false;
 
-Wmi.create = function(options)
-{
+Wmi.create = function(options) {
 	options = options || {};
 
 	var moniker;
@@ -252,14 +263,17 @@ Wmi.create = function(options)
 		wbemObject = options;
 	} else if ( options instanceof Wmi.Common ) {
 		wbemObject = options.wbemObject;
-	} else if ( typeof options == 'string' || options.moniker ) {
-		moniker = options || options.moniker;
-		wbemObject = GetObject(moniker);
 	} else if ( options.user || options.useLocator ) {
 		wbemLocator = Wmi.getLocator(options);
 		wbemObject = Wmi.connectServer(wbemLocator, options);
 	} else {
-		moniker = Wmi.getMoniker(options);
+		if ( typeof options == 'string' ) {
+			moniker = options;
+		} else if ( typeof options.moniker == 'string' ) {
+			moniker = options || options.moniker;
+		} else {
+			moniker = Wmi.getMoniker(options);
+		}
 		wbemObject = GetObject(moniker);
 	}
 
@@ -284,8 +298,9 @@ Wmi.create = function(options)
 	return wmi;
 };
 
-Wmi.inherit = function(base, proto)
-{
+// ========================================================================
+
+Wmi.inherit = function(base, proto) {
 	base = base || function() {};
 	proto = proto || {};
 
@@ -296,8 +311,7 @@ Wmi.inherit = function(base, proto)
 	var F = function() {};
 	F.prototype = base.prototype;
 
-	constructor.prototype = (function(dst, src)
-	{
+	constructor.prototype = (function(dst, src) {
 		for (var prop in src) {
 			if ( ! src.hasOwnProperty(prop) ) {
 				continue;
@@ -321,14 +335,14 @@ Wmi.inherit = function(base, proto)
 	return constructor;
 };
 
+// ========================================================================
+
 Wmi.Common = Wmi.inherit(null, {
-	constructor: function(wbemObject, wbemLocator)
-	{
+	constructor: function(wbemObject, wbemLocator) {
 		this.wbemObject = wbemObject;
 		this.wbemLocator = wbemLocator || null;
 	}, 
-	callMethod: function(wrapMethod, wrapMethodAsync, useForEach, options)
-	{
+	callMethod: function(wrapMethod, wrapMethodAsync, useForEach, options) {
 		var wbemNamedValueSet = Wmi.getNamedValueSet(options.namedValueSet);
 		var wbemObject = this.valueOf();
 
@@ -360,20 +374,17 @@ Wmi.Common = Wmi.inherit(null, {
 			}
 		}
 	}, 
-	getCollection: function(collection)
-	{
+	getCollection: function(collection) {
 		var wbemObject = this.valueOf();
 
 		var t = typeof collection;
 		if ( t == 'string' ) {
 			// Convert name-of-property to NameOfProperty_
 			var prop = collection
-				.replace(/(?:^|-)([a-z])/g, function($0, $1)
-				{
+				.replace(/(?:^|-)([a-z])/g, function($0, $1) {
 					return $1.toUpperCase();
 				})
-				.replace(/[^_]$/, function($0)
-				{
+				.replace(/[^_]$/, function($0) {
 					return $0 + '_';
 				})
 				;
@@ -386,34 +397,30 @@ Wmi.Common = Wmi.inherit(null, {
 
 		return collection;
 	}, 
-	forEach: function(collection, func, before)
-	{
+	forEach: function(collection, func, before) {
 		var c = this.getCollection(collection);
 		Wmi.forEach(c, func, before);
 	}, 
-	map: function(collection, func, before)
-	{
+	map: function(collection, func, before) {
 		var c = this.getCollection(collection);
 		return Wmi.map(c, func, before);
 	}, 
-	notImplemented: function()
-	{
+	notImplemented: function() {
 		throw new Error('Not implemented method');
 	}, 
-	valueOf: function()
-	{
+	valueOf: function() {
 		return this.wbemObject;
 	}
 });
 
+// ========================================================================
+
 Wmi.Namespace = Wmi.inherit(Wmi.Common, {
-	associatorsOf: function(objectPath, options)
-	{
+	associatorsOf: function(objectPath, options) {
 		options = options || {};
 
 		return this.callMethod(
-			function(wbemObject, wbemNamedValueSet)
-			{
+			function(wbemObject, wbemNamedValueSet) {
 				return wbemObject.AssociatorsOf(
 					objectPath, 
 					options.assocClass || null, 
@@ -427,8 +434,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 					Wmi.defaultFlags(options, 16), 
 					wbemNamedValueSet);
 			}, 
-			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
-			{
+			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext) {
 				wbemObject.AssociatorsOfAsync(
 					wbemSink, 
 					objectPath, 
@@ -447,20 +453,17 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 			true, 
 			options);
 	}, 
-	deleteClass: function(objectPath, options)
-	{
+	deleteClass: function(objectPath, options) {
 		options = options || {};
 
 		return this.callMethod(
-			function(wbemObject, wbemNamedValueSet)
-			{
+			function(wbemObject, wbemNamedValueSet) {
 				wbemObject.Delete(
 					objectPath, 
 					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet);
 			}, 
-			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
-			{
+			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext) {
 				wbemObject.DeleteAsync(
 					wbemSink, 
 					objectPath, 
@@ -471,15 +474,13 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 			false, 
 			options);
 	}, 
-	execMethod: function(objectPath, methodName, inParams, options)
-	{
+	execMethod: function(objectPath, methodName, inParams, options) {
 		options = options || {};
 
 		var wbemInParams = this.getInParams(objectPath, methodName, inParams);
 
 		return this.callMethod(
-			function(wbemObject, wbemNamedValueSet)
-			{
+			function(wbemObject, wbemNamedValueSet) {
 				return wbemObject.ExecMethod(
 					objectPath, 
 					methodName, 
@@ -487,8 +488,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet);
 			}, 
-			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
-			{
+			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext) {
 				wbemObject.ExecMethodAsync(
 					wbemSink, 
 					objectPath, 
@@ -501,13 +501,11 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 			false, 
 			options);
 	}, 
-	execNotificationQuery: function(query, options)
-	{
+	execNotificationQuery: function(query, options) {
 		options = options || {};
 
 		return this.callMethod(
-			function(wbemObject, wbemNamedValueSet)
-			{
+			function(wbemObject, wbemNamedValueSet) {
 				var wbemEventSource = wbemObject.ExecNotificationQuery(
 					query, 
 					options.queryLanguage || 'WQL', 
@@ -515,8 +513,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 					wbemNamedValueSet);
 				return wbemEventSource.NextEvent();
 			}, 
-			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
-			{
+			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext) {
 				wbemObject.ExecNotificationQueryAsync(
 					wbemSink, 
 					query, 
@@ -528,21 +525,18 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 			false, 
 			options);
 	}, 
-	execQuery: function(query, options)
-	{
+	execQuery: function(query, options) {
 		options = options || {};
 
 		return this.callMethod(
-			function(wbemObject, wbemNamedValueSet)
-			{
+			function(wbemObject, wbemNamedValueSet) {
 				return wbemObject.ExecQuery(
 					query, 
 					options.queryLanguage || 'WQL', 
 					Wmi.defaultFlags(options, 16), 
 					wbemNamedValueSet);
 			}, 
-			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
-			{
+			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext) {
 				return wbemObject.ExecQueryAsync(
 					wbemSink, 
 					query, 
@@ -554,20 +548,17 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 			true, 
 			options);
 	}, 
-	getClass: function(objectPath, options)
-	{
+	getClass: function(objectPath, options) {
 		options = options || {};
 
 		return this.callMethod(
-			function(wbemObject, wbemNamedValueSet)
-			{
+			function(wbemObject, wbemNamedValueSet) {
 				return wbemObject.Get(
 					objectPath, 
 					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet);
 			}, 
-			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
-			{
+			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext) {
 				wbemObject.GetAsync(
 					wbemSink, 
 					objectPath, 
@@ -578,20 +569,17 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 			false, 
 			options);
 	}, 
-	instancesOf: function(className, options)
-	{
+	instancesOf: function(className, options) {
 		options = options || {};
 
 		return this.callMethod(
-			function(wbemObject, wbemNamedValueSet)
-			{
+			function(wbemObject, wbemNamedValueSet) {
 				return wbemObject.InstancesOf(
 					className, 
 					Wmi.defaultFlags(options, 16), 
 					wbemNamedValueSet);
 			}, 
-			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
-			{
+			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext) {
 				wbemObject.InstancesOfAsync(
 					wbemSink, 
 					className, 
@@ -602,20 +590,17 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 			true, 
 			options);
 	}, 
-	putClass: function(wbemInObject, options)
-	{
+	putClass: function(wbemInObject, options) {
 		options = options || {};
 
 		return this.callMethod(
-			function(wbemObject, wbemNamedValueSet)
-			{
+			function(wbemObject, wbemNamedValueSet) {
 				return wbemObject.Put(
 					wbemInObject, 
 					Wmi.defaultFlags(options, 16), 
 					wbemNamedValueSet);
 			}, 
-			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
-			{
+			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext) {
 				wbemObject.PutAsync(
 					wbemSink, 
 					wbemInObject, 
@@ -626,13 +611,11 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 			true, 
 			options);
 	}, 
-	referencesTo: function(objectPath, options)
-	{
+	referencesTo: function(objectPath, options) {
 		options = options || {};
 
 		return this.callMethod(
-			function(wbemObject, wbemNamedValueSet)
-			{
+			function(wbemObject, wbemNamedValueSet) {
 				return wbemObject.ReferencesTo(
 					objectPath, 
 					options.resultClass || null, 
@@ -643,8 +626,7 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 					Wmi.defaultFlags(options, 16), 
 					wbemNamedValueSet);
 			}, 
-			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
-			{
+			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext) {
 				wbemObject.ReferencesToAsync(
 					wbemSink, 
 					objectPath, 
@@ -660,20 +642,17 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 			true, 
 			options);
 	}, 
-	subclassesOf: function(superClass, options)
-	{
+	subclassesOf: function(superClass, options) {
 		options = options || {};
 
 		return this.callMethod(
-			function(wbemObject, wbemNamedValueSet)
-			{
+			function(wbemObject, wbemNamedValueSet) {
 				return wbemObject.SubclassesOf(
 					superClass || '', 
 					Wmi.defaultFlags(options, 16), 
 					wbemNamedValueSet);
 			}, 
-			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
-			{
+			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext) {
 				wbemObject.SubclassesOfAsync(
 					wbemSink, 
 					superClass || '', 
@@ -684,48 +663,45 @@ Wmi.Namespace = Wmi.inherit(Wmi.Common, {
 			true, 
 			options);
 	}, 
-	extendSubclasses: function()
-	{
+	extendSubclasses: function() {
 		var that = this;
 		this.subclassesOf('', {
-			onObjectReady: function(p)
-			{
+			onObjectReady: function(p) {
 				var className = p.Path_.Class;
 				if ( that[className] ) {
 					return;
 				}
 
-				that[className] = function(whereClause, selectors, options)
-				{
+				that[className] = function(whereClause, selectors, options) {
 					var query = Wmi.prepareQuery(className, whereClause, selectors);
 					return that.execQuery(query, options);
 				};
 			}
 		});
 	}, 
-	getInParams: function(objectPath, methodName, inParams)
-	{
+	getInParams: function(objectPath, methodName, inParams) {
 		var wmi = this.getClass(objectPath);
 		return wmi.getInParams(methodName, inParams);
 	}, 
-	getPropertyNames: function(objectPath)
-	{
+	getPropertyNames: function(objectPath) {
 		var wmi = this.getClass(objectPath);
 		return wmi.getPropertyNames();
 	}
 });
 
+// ========================================================================
+
 Wmi.ObjectSet = Wmi.inherit(Wmi.Common, {
 });
 
+// ========================================================================
+
 Wmi.Object = Wmi.inherit(Wmi.Common, {
-	associatorsOf: function(options)
-	{
+	associatorsOf: function(options) {
 		options = options || {};
 
 		return this.callMethod(
-			function(wbemObject, wbemNamedValueSet)
-			{
+			function(wbemObject, wbemNamedValueSet) {
 				return wbemObject.Associators_(
 					options.assocClass || null, 
 					options.resultClass || null, 
@@ -738,8 +714,7 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 					Wmi.defaultFlags(options, 16), 
 					wbemNamedValueSet);
 			}, 
-			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
-			{
+			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext) {
 				wbemObject.AssociatorsAsync_(
 					wbemSink, 
 					options.assocClass || null, 
@@ -757,31 +732,26 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 			true, 
 			options);
 	}, 
-	clone: function(options)
-	{
+	clone: function(options) {
 		var wbemObject = this.valueOf().Clone_();
 		return Wmi.create(wbemObject);
 	}, 
-	compareTo: function(object, options)
-	{
+	compareTo: function(object, options) {
 		if ( object instanceof Wmi.Common ) {
 			object = object.valueOf();
 		}
 		return this.valueOf().CompareTo_(object, Wmi.defaultFlags(options, 0));
 	}, 
-	deleteClass: function(options)
-	{
+	deleteClass: function(options) {
 		options = options || {};
 
 		return this.callMethod(
-			function(wbemObject, wbemNamedValueSet)
-			{
+			function(wbemObject, wbemNamedValueSet) {
 				wbemObject.Delete_(
 					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet);
 			}, 
-			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
-			{
+			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext) {
 				wbemObject.DeleteAsync_(
 					wbemSink, 
 					Wmi.defaultFlags(options, 0), 
@@ -791,23 +761,20 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 			false, 
 			options);
 	}, 
-	execMethod: function(methodName, inParams, options)
-	{
+	execMethod: function(methodName, inParams, options) {
 		options = options || {};
 
 		var wbemInParams = this.getInParams(methodName, inParams);
 
 		return this.callMethod(
-			function(wbemObject, wbemNamedValueSet)
-			{
+			function(wbemObject, wbemNamedValueSet) {
 				return wbemObject.ExecMethod_(
 					methodName, 
 					wbemInParams, 
 					Wmi.defaultFlags(options, 0), 
 					wbemNamedValueSet);
 			}, 
-			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
-			{
+			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext) {
 				wbemObject.ExecMethodAsync_(
 					wbemSink, 
 					methodName, 
@@ -819,8 +786,7 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 			false, 
 			options);
 	}, 
-	getText: function(textFormat, options)
-	{
+	getText: function(textFormat, options) {
 		options = options || {};
 
 		return this.valueOf().GetText_(
@@ -828,23 +794,19 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 			Wmi.defaultFlags(options, 0), 
 			Wmi.getNamedValueSet(options.namedValueSet));
 	}, 
-	getObjectText: function(options)
-	{
+	getObjectText: function(options) {
 		return this.valueOf().GetObjectText_(Wmi.defaultFlags(options, 0));
 	}, 
-	instancesOf: function(options)
-	{
+	instancesOf: function(options) {
 		options = options || {};
 
 		return this.callMethod(
-			function(wbemObject, wbemNamedValueSet)
-			{
+			function(wbemObject, wbemNamedValueSet) {
 				return wbemObject.Instances_(
 					Wmi.defaultFlags(options, 16), 
 					wbemNamedValueSet);
 			}, 
-			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
-			{
+			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext) {
 				wbemObject.InstancesAsync_(
 					wbemSink, 
 					Wmi.defaultFlags(options, 0), 
@@ -854,19 +816,16 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 			true, 
 			options);
 	}, 
-	putClass: function(options)
-	{
+	putClass: function(options) {
 		options = options || {};
 
 		return this.callMethod(
-			function(wbemObject, wbemNamedValueSet)
-			{
+			function(wbemObject, wbemNamedValueSet) {
 				return wbemObject.Put_(
 					Wmi.defaultFlags(options, 16), 
 					wbemNamedValueSet);
 			}, 
-			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
-			{
+			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext) {
 				wbemObject.PutAsync_(
 					wbemSink, 
 					Wmi.defaultFlags(options, 0), 
@@ -876,13 +835,11 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 			false, 
 			options);
 	}, 
-	referencesTo: function(options)
-	{
+	referencesTo: function(options) {
 		options = options || {};
 
 		return this.callMethod(
-			function(wbemObject, wbemNamedValueSet)
-			{
+			function(wbemObject, wbemNamedValueSet) {
 				return wbemObject.References_(
 					options.resultClass || null, 
 					options.role || null, 
@@ -892,8 +849,7 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 					Wmi.defaultFlags(options, 16), 
 					wbemNamedValueSet);
 			}, 
-			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
-			{
+			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext) {
 				wbemObject.ReferencesAsync_(
 					wbemSink, 
 					options.resultClass || null, 
@@ -908,21 +864,18 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 			true, 
 			options);
 	}, 
-	refresh: function(options)
-	{
+	refresh: function(options) {
 		options = options || {};
 
 		this.valueOf().Refresh_(
 			Wmi.defaultFlags(options, 0), 
 			Wmi.getNamedValueSet(options.namedValueSet));
 	}, 
-	spawnDerivedClass: function(options)
-	{
+	spawnDerivedClass: function(options) {
 		var wbemObject = this.valueOf().SpawnDerivedClass_(Wmi.defaultFlags(options, 0));
 		return Wmi.create(wbemObject);
 	}, 
-	spawnInstance: function(inParams, options)
-	{
+	spawnInstance: function(inParams, options) {
 		var wbemObject = this.valueOf().SpawnInstance_(Wmi.defaultFlags(options, 0));
 		for (var p in inParams) {
 			if ( ! inParams.hasOwnProperty(p) ) {
@@ -932,19 +885,16 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 		}
 		return Wmi.create(wbemObject);
 	}, 
-	subclassesOf: function(superClass, options)
-	{
+	subclassesOf: function(superClass, options) {
 		options = options || {};
 
 		return this.callMethod(
-			function(wbemObject, wbemNamedValueSet)
-			{
+			function(wbemObject, wbemNamedValueSet) {
 				return wbemObject.Subclasses_(
 					Wmi.defaultFlags(options, 1), 
 					wbemNamedValueSet);
 			}, 
-			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext)
-			{
+			function(wbemObject, wbemSink, wbemNamedValueSet, wbemAsyncContext) {
 				wbemObject.SubclassesAsync_(
 					wbemSink, 
 					Wmi.defaultFlags(options, 0), 
@@ -954,20 +904,17 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 			true, 
 			options);
 	}, 
-	extendMethods: function()
-	{
+	extendMethods: function() {
 		var that = this;
 		this.forEach(
 			'methods', 
-			function(method)
-			{
+			function(method) {
 				var methodName = method.Name;
 				if ( that[methodName] ) {
 					return;
 				}
 
-				that[methodName] = function(inParams, options)
-				{
+				that[methodName] = function(inParams, options) {
 					return that.execMethod(methodName, inParams, options);
 				};
 
@@ -978,8 +925,7 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 			}
 		);
 	}, 
-	getInParams: function(methodName, inParams)
-	{
+	getInParams: function(methodName, inParams) {
 		var wbemInParams = this.valueOf().Methods_(methodName).InParameters;
 		// this method does not support input parameters
 		if ( ! wbemInParams ) {
@@ -1003,8 +949,11 @@ Wmi.Object = Wmi.inherit(Wmi.Common, {
 		}
 		return wbemInParams;
 	}, 
-	getPropertyNames: function()
-	{
+	getPropertyNames: function() {
 		return this.map('properties', function(p) { return p.Name; });
 	}
 });
+
+// ========================================================================
+
+// EOF

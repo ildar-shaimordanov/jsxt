@@ -48,6 +48,7 @@ var Program = {
 
 	showHelp: function() {
 		WScript.Arguments.ShowUsage();
+		this.print('StdOut', getResource('HELP'));
 	},
 
 	showVersion: (function() {
@@ -101,15 +102,20 @@ var Program = {
 		return result;
 	},
 
-	addModule: function(lang, name, imports) {
-		var s = this.addScript(lang, name);
+	addModule: function(lang, imports) {
+		var re = /(?:([^=,]+)=)?([^=,]+)(?:,|$)/g;
 
+		var m = re.exec(imports);
+
+		var s = this.addScript(lang, m[2]);
 		var r = [];
 
-		var re = /([^:,;]+)(?::([^:,;]+))?/g;
-		var m;
+		if ( m[1] ) {
+			r.push(m[1] + ' = exports;');
+		}
+
 		while ( m = re.exec(imports) ) {
-			r.push(m[1] + ' = exports.' + ( m[2] || m[1] ) + ';');
+			r.push(( m[1] || m[2] ) + ' = exports.' + m[2] + ';');
 		}
 
 		if ( r.length ) {
@@ -266,9 +272,9 @@ var Program = {
 				continue;
 			}
 
-			m = arg.match(/^\/m(?::(js|vbs))?:([^=]+)(?:=(.*))?$/i);
+			m = arg.match(/^\/m(?::(js|vbs))?:(.+)?$/i);
 			if ( m ) {
-				this.addModule(m[1], m[2], m[3]);
+				this.addModule(m[1], m[2]);
 				continue;
 			}
 

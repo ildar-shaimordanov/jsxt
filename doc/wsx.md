@@ -1,5 +1,9 @@
-<!-- md-toc-begin -->
+<!-- toc-begin -->
 # Table of Content
+* [NAME](#name)
+* [USAGE](#usage)
+  * [Usage (briefly)](#usage-briefly)
+  * [Usage (in details)](#usage-in-details)
 * [DESCRIPTION](#description)
 * [VARIABLES, FUNCTIONS and OBJECTS](#variables-functions-and-objects)
   * [CommonJS](#commonjs)
@@ -7,13 +11,74 @@
   * [General purpose objects](#general-purpose-objects)
   * [Loop mode](#loop-mode)
   * [REPL mode](#repl-mode)
-* [USAGE](#usage)
-  * [Usage (briefly)](#usage-briefly)
-  * [Usage (in details)](#usage-in-details)
 * [EXAMPLES](#examples)
 * [AUTHORS and CONTRIBUTORS](#authors-and-contributors)
 * [LICENSE](#license)
-<!-- md-toc-end -->
+<!-- toc-end -->
+
+# NAME
+
+**WSX** - execute external scripts, one-line programs and run REPL
+
+
+# USAGE
+
+The CLI options supplying the program codes for execution could be infixed with the language identifier (`js` or `vbs`) supposed to be used for processing these options. See examples below.
+
+## Usage (briefly)
+
+Run the script file
+
+    wsx [options] scriptfile [arguments]
+
+Run in the interactive mode
+
+    wsx [options] [/quiet]
+    wsx [options] [/q]
+
+Run the one line program
+
+    wsx [options] [/begin:...] [/end:...] /e:... [arguments]
+
+Run the program in a loop
+
+    wsx [options] [/begin:...] [/end:...] [/beginfile:...] [/endfile:...] /n [/e:...] [arguments]
+    wsx [options] [/begin:...] [/end:...] [/beginfile:...] [/endfile:...] /p [/e:...] [arguments]
+
+The [options] above refer to the other options not mentioned explicitly (see below).
+
+## Usage (in details)
+
+```
+
+Usage: wsx.wsf [/help] [/version] [/check] [/lib:value] [/vt] [/quiet] [/use:value] [/m:value] [/let:value] [/set:value] [/get:value] [/re:value] [/e:value] [/n] [/p] [/begin:value] [/end:value] [/beginfile:value] [/endfile:value] [scriptfile] [/f:value] [arguments]
+
+Options:
+
+help       : Print full description and exit ("/h" shortcut)
+version    : Print version information and exit
+check      : Show in pseudo-code what is assumed to be executed
+lib        : Prepend directories to the search path for modules ("/l" shortcut)
+vt         : Enable Virtual Terminal ANSI-escape sequences in this run
+quiet      : Be quiet in the interactive mode ("/q" shortcut)
+use        : Use (switch to) the language ("js" or "vbs")
+m          : Load the module and import identifiers "[alias=]module[,[alias=]id,...]"
+let        : Assign the value: "name=value"
+set        : Create the object: "name=CreateObject(object)"
+get        : Get the object: "name=GetObject(object)"
+re         : Assign the regular expression: "name=regexp" or "name=/regexp/igm"
+e          : One line program (multiple "/e"'s supported)
+n          : Apply a program in the loop like "while read LINE { ... }"
+p          : Apply a program in the loop like "while read LINE { ... print }"
+begin      : The code for executing before the loop or main program
+end        : The code for executing after the loop or main program
+beginfile  : The code for executing before processing the input file
+endfile    : The code for executing after processing the input file
+scriptfile : The script file
+f          : Open a file as "ascii", "unicode" or using system "default"
+arguments  : Other arguments to be passed to the program
+
+```
 
 
 # DESCRIPTION
@@ -27,6 +92,7 @@ Run itself in the interactive mode. Type in the prompt any JS or VBS commands an
 It runs a one-line program from CLI and apply it on inputstream and other files. One-line program allows to estimate some code on the fly, without creating a temporary file. Writing it, you focus on the most important parts of the program implementation. Even if some implementation stuff -- like objects initialization, preliminary I/O operations etc -- are hidden off your eyes, they are still executed implicitly.
 
 If the tool is launched with the one line program, everything after is assumed as a file name. Each argument is opened as a file and processed line by line until the end of file. Otherwise, if no any one line program is entered, the first item of the argument list is the script file and the rest of arguments are arguments for the script file. They could be everything and the script can use them accordingly its functionality.
+
 
 # VARIABLES, FUNCTIONS and OBJECTS
 
@@ -98,64 +164,6 @@ The interactive mode provides the following useful properties for referencing to
 * `REPL.history` - the list of all commands entered in the current session
 * `REPL.quiet`   - the current session mode
 
-# USAGE
-
-The CLI options supplying the program codes for execution could be infixed with the language identifier (`js` or `vbs`) supposed to be used for processing these options. See examples below.
-
-## Usage (briefly)
-
-Run the script file
-
-    wsx [options] scriptfile [arguments]
-
-Run in the interactive mode
-
-    wsx [options] [/quiet]
-    wsx [options] [/q]
-
-Run the one line program
-
-    wsx [options] [/begin:...] [/end:...] /e:... [arguments]
-
-Run the program in a loop
-
-    wsx [options] [/begin:...] [/end:...] [/beginfile:...] [/endfile:...] /n [/e:...] [arguments]
-    wsx [options] [/begin:...] [/end:...] [/beginfile:...] [/endfile:...] /p [/e:...] [arguments]
-
-The [options] above refer to the other options not mentioned explicitly (see below).
-
-## Usage (in details)
-
-```
-
-Usage: wsx.wsf [/help] [/version] [/check] [/lib:value] [/vt] [/quiet] [/use:value] [/m:value] [/let:value] [/set:value] [/get:value] [/re:value] [/e:value] [/n] [/p] [/begin:value] [/end:value] [/beginfile:value] [/endfile:value] [scriptfile] [/f:value] [arguments]
-
-Options:
-
-help       : Print this help and exit ("/?" and "/h" shortcuts)
-version    : Print version information and exit
-check      : Show in pseudo-code what is assumed to be executed
-lib        : Prepend directories to the search path for modules ("/l" shortcut)
-vt         : Enable Virtual Terminal ANSI-escape sequences in this run
-quiet      : Be quiet in the interactive mode ("/q" shortcut)
-use        : Use (switch to) the language ("js" or "vbs")
-m          : Load the module and import identifiers "module[=[alias:]id,...]"
-let        : Assign the value: "name=value"
-set        : Create the object: "name=CreateObject(object)"
-get        : Get the object: "name=GetObject(object)"
-re         : Assign the regular expression: "name=regexp" or "name=/regexp/igm"
-e          : One line program (multiple "/e"'s supported)
-n          : Apply a program in the loop like "while read LINE { ... }"
-p          : Apply a program in the loop like "while read LINE { ... print }"
-begin      : The code for executing before the loop or main program
-end        : The code for executing after the loop or main program
-beginfile  : The code for executing before processing the input file
-endfile    : The code for executing after processing the input file
-scriptfile : The script file
-f          : Open a file as "ascii", "unicode" or using system "default"
-arguments  : Other arguments to be passed to the program
-
-```
 
 # EXAMPLES
 
@@ -182,11 +190,11 @@ Print last 5 lines (similar to `tail -n 5` in Unix). The example is splitted on 
 
 The following command generates a markdown file available as a part of the repository. Any changes in the script and its parts are supposed to be replicated to this file also.
 
-    wsx /? | git-md-toc -cut > doc/wsx.md
+    wsx /help | git-md-toc -cut > doc/wsx.md
 
 Also the documentation can be seen as HTML.
 
-    wsx /? | git-md-toc -cut | git-md-html | 2 html
+    wsx /help | git-md-toc -cut | git-md-html | 2 html
 
 * `git-md-toc` - the Perl script for creating Table of Content.
   It's hosted at https://github.com/ildar-shaimordanov/git-markdown-toc
@@ -195,13 +203,15 @@ Also the documentation can be seen as HTML.
 * `2` - the batch script for redirecting STDOUT to any GUI application.
   It's hosted at https://github.com/ildar-shaimordanov/cmd.scripts
 
+
 # AUTHORS and CONTRIBUTORS
 
 Ildar Shaimordanov is the main author maintaining the tool since 2009. Initially it was JSCmd.js, the simple jscript file able to perform REPL. Later it evolved to wscmd.bat, the more powerful and configurable BAT+JS hybrid script creating a temporary WSF-file and executing it.
 
-Copyright (C) 2009-2015, 2019-2021 Ildar Shaimordanov
+Copyright (C) 2009-2015, 2019-2022 Ildar Shaimordanov
+
 
 # LICENSE
 
-MIT
+    MIT
 
