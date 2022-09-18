@@ -107,7 +107,7 @@ file. This description is available by the proper command line option.
 	/>
 <named
 	name="check"
-	helpstring="Show in pseudo-code what is assumed to be executed"
+	helpstring="Show in pseudo-code what is assumed to be executed and exit"
 	type="simple"
 	required="false"
 	/>
@@ -187,7 +187,7 @@ file. This description is available by the proper command line option.
 	/>
 <named
 	name="p"
-	helpstring="Apply a program in the loop like &#34;while read LINE { ... print }&#34;"
+	helpstring="Apply a program in the loop like &#34;while read LINE { ... print LINE }&#34;"
 	type="simple"
 	required="false"
 	/>
