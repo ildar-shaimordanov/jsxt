@@ -14,7 +14,7 @@ goto :EOF
 <script language="javascript"><![CDATA[
 
 var NAME    = 'WSX';
-var VERSION = '1.0.24 Alpha';
+var VERSION = '1.0.25 Alpha';
 
 ]]></script>
 
@@ -45,7 +45,7 @@ if ( Program.check ) {
 <description><![CDATA[
 # NAME
 
-**WSX** - execute external scripts, one-line programs and run REPL
+**WSX** - execute external scripts, one-liner programs or run in REPL mode
 
 
 # USAGE
@@ -72,9 +72,11 @@ Run the program in a loop
     wsx [options] [/begin:...] [/end:...] [/beginfile:...] [/endfile:...] /n [/e:...] [arguments]
     wsx [options] [/begin:...] [/end:...] [/beginfile:...] [/endfile:...] /p [/e:...] [arguments]
 
-The [options] above refer to the other options not mentioned explicitly (see below).
+The [options] above refers to other options not mentioned explicitly (see below).
 
 ## Usage (in details)
+
+Be aware: the options following after the script file or after the options declaring the one-liner program parts are considered as the arguments of the program and will be passed respectively.
 
 ```
 ]]></description>
@@ -107,7 +109,7 @@ file. This description is available by the proper command line option.
 	/>
 <named
 	name="check"
-	helpstring="Show in pseudo-code what is assumed to be executed and exit"
+	helpstring="Show in pseudo-code what is assumed to be executed and exit. It MUST preface other options"
 	type="simple"
 	required="false"
 	/>
@@ -120,6 +122,12 @@ file. This description is available by the proper command line option.
 	/>
 -->
 <named
+	name="quiet"
+	helpstring="Be quiet in the interactive mode (&#34;/q&#34; shortcut)"
+	type="simple"
+	required="false"
+	/>
+<named
 	name="lib"
 	helpstring="Prepend directories to the search path for modules (&#34;/l&#34; shortcut)"
 	type="string"
@@ -128,12 +136,6 @@ file. This description is available by the proper command line option.
 <named
 	name="vt"
 	helpstring="Enable VT globally, for all outputs"
-	type="simple"
-	required="false"
-	/>
-<named
-	name="quiet"
-	helpstring="Be quiet in the interactive mode (&#34;/q&#34; shortcut)"
 	type="simple"
 	required="false"
 	/>
@@ -256,9 +258,9 @@ It runs an external script file in the same way as it can be done traditionally 
 
 Run itself in the interactive mode. Type in the prompt any JS or VBS commands and execute them immediately. In this mode each entered line is evaluated immediately. To enable many lines executed as one you need to surround them with the double colons `::`. The first double colon turns on the multiline mode, the second one turns it off. After that everything entered will be executed.
 
-It runs a one-line program from CLI and apply it on inputstream and other files. One-line program allows to estimate some code on the fly, without creating a temporary file. Writing it, you focus on the most important parts of the program implementation. Even if some implementation stuff -- like objects initialization, preliminary I/O operations etc -- are hidden off your eyes, they are still executed implicitly.
+It runs the one-liner program from CLI and apply it on inputstream and other files. The one-line program allows to estimate some code on the fly, without creating a temporary file. Writing it, you focus on the most important parts of the program implementation. Even if some implementation stuff -- like objects initialization, preliminary I/O operations etc -- are hidden off your eyes, they are still executed implicitly.
 
-If the tool is launched with the one line program, everything after is assumed as a file name. Each argument is opened as a file and processed line by line until the end of file. Otherwise, if no any one line program is entered, the first item of the argument list is the script file and the rest of arguments are arguments for the script file. They could be everything and the script can use them accordingly its functionality.
+If the tool is launched with the one-liner program, everything after is assumed as a file name. Each argument is opened as a file and processed line by line until the end of file. Otherwise, if no any one-liner program is entered, the first item of the argument list is the script file and the rest of arguments are arguments for the script file. They could be everything and the script can use them accordingly its functionality.
 
 
 # VARIABLES, FUNCTIONS and OBJECTS
@@ -349,7 +351,7 @@ Numerate lines of each input file (similar to `cat -n` in Unix).
     wsx /p /e:"LINE = LN + ':' + LINE"
     wsx /let:delim=":" /p /e:vbs:"LINE = LN & delim & LINE"
 
-Print first 5 lines (similar to `head -n 5` in Unix). Due to VBScript specifics and necessity of str-to-int conversion, the one-line program is almost twice longer.
+Print first 5 lines (similar to `head -n 5` in Unix). Due to VBScript specifics and necessity of str-to-int conversion, the one-liner program is almost twice longer.
 
     wsx /let:limit=5 /p /e:"LN > limit && last()"
     wsx /use:vbs /let:limit=5 /begin:"limit = cint(limit)" /p /e:"if LN > limit then last"

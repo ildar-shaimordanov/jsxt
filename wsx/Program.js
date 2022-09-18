@@ -222,6 +222,8 @@ var Program = {
 	},
 
 	parseArguments: function() {
+		var optionsDisabled = false;
+
 		// Walk through all named and unnamed arguments because
 		// we have to handle each of them even if they duplicate
 		for (var i = 0; i < WScript.Arguments.length; i++) {
@@ -229,6 +231,23 @@ var Program = {
 			var arg = WScript.Arguments.Item(i);
 
 			var m;
+
+			m = arg.match(/^\/(?:e|((?:begin|end)(?:file)?))(?::(js|vbs))?(?::(.*))?$/i);
+			if ( m ) {
+				this.addCode(m[2], m[3], m[1]);
+				optionsDisabled = true;
+				continue;
+			}
+
+			/*
+			Any other options specified after the options
+			declaring a one-liner program are considered
+			as arguments for the program and will be passed
+			without processing.
+			*/
+			if ( optionsDisabled ) {
+				break;
+			}
 
 			m = arg.match(/^\/h(?:elp)?$/i);
 			if ( m ) {
@@ -284,12 +303,6 @@ var Program = {
 				continue;
 			}
 
-			m = arg.match(/^\/(?:e|((?:begin|end)(?:file)?))(?::(js|vbs))?(?::(.*))?$/i);
-			if ( m ) {
-				this.addCode(m[2], m[3], m[1]);
-				continue;
-			}
-
 			m = arg.match(/^\/split(?::(.*))?$/i);
 			if ( m ) {
 				this.setSplitMode(m[1]);
@@ -303,11 +316,10 @@ var Program = {
 			}
 
 			/*
-			This looks like ugly, but it works and reliable
-			enough to stop looping over the rest of the CLI
-			options. From this point we allow end users to
-			specify their own options even, if their names
-			intersect with names of our options.
+			If nothing more matching our options, we pass
+			them to the program or script. This looks a bit
+			ugly, but it is reliable enough to stop looping
+			over the rest of the CLI options.
 			*/
 			break;
 
@@ -412,7 +424,7 @@ var Program = {
 		/*
 		The following variables are declared without the "var"
 		keyword. So they become global and available for all
-		one-line programs and script files both written in
+		one-liner programs and script files both written in
 		JScript and VBScript.
 		*/
 
@@ -469,7 +481,7 @@ var Program = {
 		}
 
 		/*
-		Load the main one-line program.
+		Load the main one-liner program.
 		*/
 		if ( ! this.inLoop ) {
 			eval(this.begin.join(";"));
@@ -570,7 +582,7 @@ var Program = {
 				LINE = STREAM.ReadLine();
 
 		/*
-		Perform the main one-line program per each input line.
+		Perform the main one-liner program per each input line.
 		*/
 				try {
 					eval(this.main.join(";"));
