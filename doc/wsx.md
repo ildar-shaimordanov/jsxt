@@ -16,9 +16,10 @@
 * [LICENSE](#license)
 <!-- toc-end -->
 
+
 # NAME
 
-**WSX** - execute external scripts, one-line programs and run REPL
+**WSX** - execute external scripts, one-liner programs or run in REPL mode
 
 
 # USAGE
@@ -45,31 +46,34 @@ Run the program in a loop
     wsx [options] [/begin:...] [/end:...] [/beginfile:...] [/endfile:...] /n [/e:...] [arguments]
     wsx [options] [/begin:...] [/end:...] [/beginfile:...] [/endfile:...] /p [/e:...] [arguments]
 
-The [options] above refer to the other options not mentioned explicitly (see below).
+The [options] above refers to other options not mentioned explicitly (see below).
 
 ## Usage (in details)
 
+Be aware: the options following after the script file or after the options declaring the one-liner program parts are considered as the arguments of the program and will be passed respectively.
+
 ```
 
-Usage: wsx.wsf [/help] [/version] [/check] [/lib:value] [/vt] [/quiet] [/use:value] [/m:value] [/let:value] [/set:value] [/get:value] [/re:value] [/e:value] [/n] [/p] [/begin:value] [/end:value] [/beginfile:value] [/endfile:value] [scriptfile] [/f:value] [arguments]
+Usage: wsx.wsf [/help] [/version] [/check] [/quiet] [/lib:value] [/vt] [/use:value] [/m:value] [/let:value] [/set:value] [/get:value] [/re:value] [/split:value] [/n] [/p] [/e:value] [/begin:value] [/end:value] [/beginfile:value] [/endfile:value] [scriptfile] [/f:value] [arguments]
 
 Options:
 
 help       : Print full description and exit ("/h" shortcut)
 version    : Print version information and exit
-check      : Show in pseudo-code what is assumed to be executed
-lib        : Prepend directories to the search path for modules ("/l" shortcut)
-vt         : Enable Virtual Terminal ANSI-escape sequences in this run
+check      : Show in pseudo-code what is assumed to be executed and exit. It MUST preface other options
 quiet      : Be quiet in the interactive mode ("/q" shortcut)
+lib        : Prepend directories to the search path for modules ("/l" shortcut)
+vt         : Enable VT globally, for all outputs
 use        : Use (switch to) the language ("js" or "vbs")
 m          : Load the module and import identifiers "[alias=]module[,[alias=]id,...]"
 let        : Assign the value: "name=value"
 set        : Create the object: "name=CreateObject(object)"
 get        : Get the object: "name=GetObject(object)"
 re         : Assign the regular expression: "name=regexp" or "name=/regexp/igm"
-e          : One line program (multiple "/e"'s supported)
+split      : Split "LINE" to "FIELDS" by a pattern (string or regexp; defaults to "/\s+/")
 n          : Apply a program in the loop like "while read LINE { ... }"
-p          : Apply a program in the loop like "while read LINE { ... print }"
+p          : Apply a program in the loop like "while read LINE { ... print LINE }"
+e          : One line program (multiple "/e"'s supported)
 begin      : The code for executing before the loop or main program
 end        : The code for executing after the loop or main program
 beginfile  : The code for executing before processing the input file
@@ -89,9 +93,9 @@ It runs an external script file in the same way as it can be done traditionally 
 
 Run itself in the interactive mode. Type in the prompt any JS or VBS commands and execute them immediately. In this mode each entered line is evaluated immediately. To enable many lines executed as one you need to surround them with the double colons `::`. The first double colon turns on the multiline mode, the second one turns it off. After that everything entered will be executed.
 
-It runs a one-line program from CLI and apply it on inputstream and other files. One-line program allows to estimate some code on the fly, without creating a temporary file. Writing it, you focus on the most important parts of the program implementation. Even if some implementation stuff -- like objects initialization, preliminary I/O operations etc -- are hidden off your eyes, they are still executed implicitly.
+It runs the one-liner program from CLI and apply it on inputstream and other files. The one-line program allows to estimate some code on the fly, without creating a temporary file. Writing it, you focus on the most important parts of the program implementation. Even if some implementation stuff -- like objects initialization, preliminary I/O operations etc -- are hidden off your eyes, they are still executed implicitly.
 
-If the tool is launched with the one line program, everything after is assumed as a file name. Each argument is opened as a file and processed line by line until the end of file. Otherwise, if no any one line program is entered, the first item of the argument list is the script file and the rest of arguments are arguments for the script file. They could be everything and the script can use them accordingly its functionality.
+If the tool is launched with the one-liner program, everything after is assumed as a file name. Each argument is opened as a file and processed line by line until the end of file. Otherwise, if no any one-liner program is entered, the first item of the argument list is the script file and the rest of arguments are arguments for the script file. They could be everything and the script can use them accordingly its functionality.
 
 
 # VARIABLES, FUNCTIONS and OBJECTS
@@ -133,7 +137,7 @@ Functions:
                                    (callback handles StdIn/StdOut/StdErr)
 * `sleep(n)`                     - Sleep n milliseconds
 * `clip()`                       - Read from or write to clipboard
-* `enableVT()`                   - Enable Virtual Terminal
+* `enableVT()`                   - Enable VT globally, for all outputs
 
 Objects:
 
@@ -150,6 +154,10 @@ The following objects are available when the tool is executed in the loop mode a
 * `LINE`    - The current line
 * `FLN`     - The line number in the current file
 * `LN`      - The total line number
+
+The following array is available when the split mode is turned on with the `/split:...` option.
+
+* `FIELDS`  - The array of fields
 
 These special functions can be used in the loop mode only to cover the issue when we can't use `continue` and `break`.
 
@@ -178,7 +186,7 @@ Numerate lines of each input file (similar to `cat -n` in Unix).
     wsx /p /e:"LINE = LN + ':' + LINE"
     wsx /let:delim=":" /p /e:vbs:"LINE = LN & delim & LINE"
 
-Print first 5 lines (similar to `head -n 5` in Unix). Due to VBScript specifics and necessity of str-to-int conversion, the one-line program is almost twice longer.
+Print first 5 lines (similar to `head -n 5` in Unix). Due to VBScript specifics and necessity of str-to-int conversion, the one-liner program is almost twice longer.
 
     wsx /let:limit=5 /p /e:"LN > limit && last()"
     wsx /use:vbs /let:limit=5 /begin:"limit = cint(limit)" /p /e:"if LN > limit then last"
