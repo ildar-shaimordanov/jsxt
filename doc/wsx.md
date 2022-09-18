@@ -209,7 +209,7 @@ Also the documentation can be seen as HTML.
 * `git-md-html` - the set of scripts for converting markdown to HTML.
   They are hosted at https://github.com/ildar-shaimordanov/git-markdown-html
 * `2` - the batch script for redirecting STDOUT to any GUI application.
-  It's hosted at https://github.com/ildar-shaimordanov/cmd.scripts
+  It's hosted at https://github.com/ildar-shaimordanov/my-scripts
 
 
 # AUTHORS and CONTRIBUTORS
