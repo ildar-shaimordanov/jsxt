@@ -56,7 +56,7 @@ var util = util || (function() {
 	}
 
 	// Emulate array.includes(value)
-	function includes(array, value) {
+	function arrayIncludes(array, value) {
 		for (var i = 0; i < array.length; i++) {
 			if ( value === array[i] ) {
 				return true;
@@ -66,7 +66,7 @@ var util = util || (function() {
 	}
 
 	// Emulate array.indexOf(value)
-	function indexOf(array, value) {
+	function arrayIndexOf(array, value) {
 		for (var i = 0; i < array.length; i++) {
 			if ( value === array[i] ) {
 				return i;
@@ -295,7 +295,7 @@ var util = util || (function() {
 			post = '}';
 		}
 
-		var index = 1 + indexOf(ctx.circular, object);
+		var index = 1 + arrayIndexOf(ctx.circular, object);
 		if ( index ) {
 			var ref = ctx.stylize('< ref *' + index + '>', 'special');
 			pred = ref + ' ' + pred;
@@ -327,12 +327,12 @@ var util = util || (function() {
 			return formatPrimitive(ctx, object);
 		}
 
-		if ( ! includes(ctx.seen, object) ) {
+		if ( ! arrayIncludes(ctx.seen, object) ) {
 			return formatObject(ctx, object);
 		}
 
 		ctx.circular.push(object);
-		var index = 1 + indexOf(ctx.circular, object);
+		var index = 1 + arrayIndexOf(ctx.circular, object);
 		return ctx.stylize('[Circular *' + index + ']', 'special');
 	}
 
