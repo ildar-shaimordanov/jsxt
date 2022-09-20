@@ -226,6 +226,17 @@ var util = util || (function() {
 		return ctx.stylize(s, 'special');
 	}
 
+	// A duck typing test extending this answer:
+	// https://stackoverflow.com/a/34296945/3627676
+	// https://lodash.com/docs/4.17.15#isArguments
+	function isArguments(object) {
+		return !! object
+			&& typeof object == 'object'
+			&& object.hasOwnProperty('callee')
+			&& ! object.propertyIsEnumerable('callee')
+			&& typeof object.callee == 'function';
+	}
+
 	var indentSpace = '  ';
 
 	function formatObject(ctx, object, asType) {
