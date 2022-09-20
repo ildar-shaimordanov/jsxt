@@ -237,6 +237,21 @@ var util = util || (function() {
 			&& typeof object.callee == 'function';
 	}
 
+	function formatObjectItems(ctx, object) {
+		var result = [];
+		for (var k in object) {
+			if ( ! object.hasOwnProperty(k) ) {
+				continue;
+			}
+			var v = formatValue(ctx, object[k]);
+			if ( k === '' || k.match(/\W/) ) {
+				k = ctx.stylize(quote(k), 'string');
+			}
+			result.push(k + ': ' + v);
+		}
+		return result;
+	}
+
 	var indentSpace = '  ';
 
 	function formatObject(ctx, object, asType) {
@@ -270,24 +285,15 @@ var util = util || (function() {
 			return ctx.stylize(objectType, 'special');
 		}
 
-		var result = [];
-
 		ctx.seen.push(object);
 		ctx.currentDepth++;
 
 		var saveIndent = ctx.indent;
 		ctx.indent += indentSpace;
 
-		for (var k in object) {
-			if ( ! object.hasOwnProperty(k) ) {
-				continue;
-			}
-			var v = formatValue(ctx, object[k]);
-			if ( k === '' || k.match(/\W/) ) {
-				k = ctx.stylize(quote(k), 'string');
-			}
-			result.push(k + ': ' + v);
-		}
+		var result = [];
+
+		result = formatObjectItems(ctx, object);
 
 		var pred = '';
 		var post = '';
