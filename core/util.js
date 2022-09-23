@@ -237,6 +237,15 @@ var util = util || (function() {
 			&& typeof object.callee == 'function';
 	}
 
+	function formatArrayLikeItems(ctx, object) {
+		var result = [];
+		for (var i = 0; i < object.length; i++) {
+			var v = formatValue(ctx, object[i]);
+			result.push(i + ': ' + v);
+		}
+		return result;
+	}
+
 	function formatObjectItems(ctx, object) {
 		var result = [];
 		for (var k in object) {
