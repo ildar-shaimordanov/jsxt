@@ -119,7 +119,7 @@ var util = util || (function() {
 
 	var reFormat = /%([%sdifjoOc])/g;
 
-	function formatArguments(options, args) {
+	function formatArgsWithOptions(options, args) {
 		var pattern = args[0];
 
 		var result = [];
@@ -157,13 +157,13 @@ var util = util || (function() {
 // https://nodejs.org/api/util.html#utilformatwithoptionsinspectoptions-format-args
 
 	function formatWithOptions(options) {
-		return formatArguments(options, arraySlice.call(arguments, 1));
+		return formatArgsWithOptions(options, arraySlice.call(arguments, 1));
 	}
 
 // https://nodejs.org/api/util.html#utilformatformat-args
 
 	function format() {
-		return formatArguments({}, arguments);
+		return formatArgsWithOptions({}, arguments);
 	}
 
 	var reEscapeChar = /[\x00-\x1F\"\\]/g;
@@ -220,7 +220,7 @@ var util = util || (function() {
 
 	var reFunction = /function\b(?:\s|\/\*[\S\s]*?\*\/|\/\/[^\n\r]*[\n\r]+)*([^\s(/]*)/;
 
-	function formatFunction(ctx, object) {
+	function formatFunctionName(ctx, object) {
 		var m = String(object).match(reFunction);
 		var s = m && m[1] ? '[Function: ' + m[1] + ']' : '[Function]';
 		return ctx.stylize(s, 'special');
@@ -308,7 +308,7 @@ var util = util || (function() {
 		var post = '';
 
 		if ( objectType == '[object Function]' ) {
-			var pred = formatFunction(ctx, object);
+			var pred = formatFunctionName(ctx, object);
 			if ( result.length ) {
 				pred += ' {';
 				post = '}';
