@@ -290,6 +290,10 @@ var util = util || (function() {
 
 		var objectType = objectToString.call(object);
 
+		if ( objectType == '[object Array]' && object.length == 0 ) {
+			return '[]';
+		}
+
 		if ( ctx.depth !== null && ctx.currentDepth > ctx.depth ) {
 			return ctx.stylize(objectType, 'special');
 		}
@@ -300,22 +304,29 @@ var util = util || (function() {
 		var saveIndent = ctx.indent;
 		ctx.indent += indentSpace;
 
+		var isArgs = isArguments(object);
+
 		var result = [];
 
-		result = formatObjectItems(ctx, object);
+		result = isArgs
+			? formatArrayLikeItems(ctx, object)
+			: formatObjectItems(ctx, object);
 
 		var pred = '';
 		var post = '';
 
-		if ( objectType == '[object Function]' ) {
+		if ( isArgs ) {
+			pred = 'Arguments {';
+			post = '}';
+		} else if ( objectType == '[object Array]' ) {
+			pred = 'Array(' + object.length + ') [';
+			post = ']';
+		} else if ( objectType == '[object Function]' ) {
 			var pred = formatFunctionName(ctx, object);
 			if ( result.length ) {
 				pred += ' {';
 				post = '}';
 			}
-		} else if ( objectType == '[object Array]' ) {
-			pred = 'Array(' + object.length + ') [';
-			post = ']';
 		} else {
 			pred = 'Object {';
 			post = '}';
