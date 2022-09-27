@@ -166,9 +166,7 @@ var util = util || (function() {
 		return formatArguments({}, arguments);
 	}
 
-	var reEscapeChar = /[\x00-\x1F\"\\]/g;
-
-	var quoted = {
+	var escaped = {
 		'"': '\\"',
 		'\r': '\\r',
 		'\n': '\\n',
@@ -178,9 +176,11 @@ var util = util || (function() {
 		'\\': '\\\\'
 	};
 
-	function quote(value) {
-		var result = value.replace(reEscapeChar, function($0) {
-			return quoted[$0] || '\\x' + $0.charCodeAt(0).toString(16);
+	var reEscaped = /[\x00-\x1F\"\\]/g;
+
+	function formatString(value) {
+		var result = value.replace(reEscaped, function($0) {
+			return escaped[$0] || '\\x' + $0.charCodeAt(0).toString(16);
 		});
 		return '"' + result + '"';
 	};
@@ -213,7 +213,7 @@ var util = util || (function() {
 	function formatPrimitive(ctx, object) {
 		var t = typeof object
 		if ( t == 'string' ) {
-			object = quote(object);
+			object = formatString(object);
 		}
 		return ctx.stylize(object, t);
 	}
@@ -273,7 +273,7 @@ var util = util || (function() {
 			}
 			var v = formatValue(ctx, object[k]);
 			if ( k === '' || k.match(/\W/) ) {
-				k = ctx.stylize(quote(k), 'string');
+				k = ctx.stylize(formatString(k), 'string');
 			}
 			result.push(k + ': ' + v);
 		}
