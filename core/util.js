@@ -166,25 +166,6 @@ var util = util || (function() {
 		return formatArguments({}, arguments);
 	}
 
-	var escaped = {
-		'"': '\\"',
-		'\r': '\\r',
-		'\n': '\\n',
-		'\t': '\\t',
-		'\b': '\\b',
-		'\f': '\\f',
-		'\\': '\\\\'
-	};
-
-	var reEscaped = /[\x00-\x1F\"\\]/g;
-
-	function formatString(value) {
-		var result = value.replace(reEscaped, function($0) {
-			return escaped[$0] || '\\x' + $0.charCodeAt(0).toString(16);
-		});
-		return '"' + result + '"';
-	};
-
 	function colorless(object) {
 		return String(object);
 	}
@@ -209,6 +190,25 @@ var util = util || (function() {
 
 		return String(object);
 	}
+
+	var escaped = {
+		'"': '\\"',
+		'\r': '\\r',
+		'\n': '\\n',
+		'\t': '\\t',
+		'\b': '\\b',
+		'\f': '\\f',
+		'\\': '\\\\'
+	};
+
+	var reEscaped = /[\x00-\x1F\"\\]/g;
+
+	function formatString(value) {
+		var result = value.replace(reEscaped, function($0) {
+			return escaped[$0] || '\\x' + $0.charCodeAt(0).toString(16);
+		});
+		return '"' + result + '"';
+	};
 
 	function formatPrimitive(ctx, object) {
 		var t = typeof object
