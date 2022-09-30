@@ -166,25 +166,6 @@ var util = util || (function() {
 		return formatArgsWithOptions({}, arguments);
 	}
 
-	var reEscapeChar = /[\x00-\x1F\"\\]/g;
-
-	var quoted = {
-		'"': '\\"',
-		'\r': '\\r',
-		'\n': '\\n',
-		'\t': '\\t',
-		'\b': '\\b',
-		'\f': '\\f',
-		'\\': '\\\\'
-	};
-
-	function quote(value) {
-		var result = value.replace(reEscapeChar, function($0) {
-			return quoted[$0] || '\\x' + $0.charCodeAt(0).toString(16);
-		});
-		return '"' + result + '"';
-	};
-
 	function colorless(object) {
 		return String(object);
 	}
@@ -210,10 +191,39 @@ var util = util || (function() {
 		return String(object);
 	}
 
+	var escaped = {
+		'\r': '\\r',
+		'\n': '\\n',
+		'\t': '\\t',
+		'\b': '\\b',
+		'\f': '\\f',
+		'\\': '\\\\'
+	};
+
+	var reEscaped = /[\x00-\x1F\'\\]/g;
+
+	var apos = {
+		0: { quote: "'" },		// '   '
+		1: { quote: '"', "'": "'" },	// " ' "
+		2: { quote: "'", "'": "\\'" }	// ' \' " '
+	};
+
+	function formatString(value) {
+		var i = value.indexOf("'") == -1 ? 0 :
+			value.indexOf('"') == -1 ? 1 : 2;
+		var q = apos[i].quote;
+		var result = value.replace(reEscaped, function($0) {
+			return escaped[$0]
+				|| apos[i][$0]
+				|| '\\x' + $0.charCodeAt(0).toString(16);
+		});
+		return q + result + q;
+	};
+
 	function formatPrimitive(ctx, object) {
 		var t = typeof object
 		if ( t == 'string' ) {
-			object = quote(object);
+			object = formatString(object);
 		}
 		return ctx.stylize(object, t);
 	}
