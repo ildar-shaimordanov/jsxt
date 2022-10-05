@@ -1,0 +1,24 @@
+
+:: Call "foo"; "foo/bar" is called automatically
+Module foo living in C:\PROGS\var\git\jsxt\t\wsx-module-usage\mylib\foo\index.js
+Module ./bar living in C:\PROGS\var\git\jsxt\t\wsx-module-usage\mylib\foo\bar.js
+
+:: Call "foo/bar" then call "foo"
+Module foo/bar living in C:\PROGS\var\git\jsxt\t\wsx-module-usage\mylib\foo\bar.js
+Module foo living in C:\PROGS\var\git\jsxt\t\wsx-module-usage\mylib\foo\index.js
+
+:: Call "foo" and then try call "foo/bar"
+Module foo living in C:\PROGS\var\git\jsxt\t\wsx-module-usage\mylib\foo\index.js
+Module ./bar living in C:\PROGS\var\git\jsxt\t\wsx-module-usage\mylib\foo\bar.js
+
+:: Load modules "foo"; "foo/bar" is called automatically
+Module foo living in C:\PROGS\var\git\jsxt\t\wsx-module-usage\mylib\foo\index.js
+Module ./bar living in C:\PROGS\var\git\jsxt\t\wsx-module-usage\mylib\foo\bar.js
+
+:: Load "foo/bar" then call "foo"
+Module foo/bar living in C:\PROGS\var\git\jsxt\t\wsx-module-usage\mylib\foo\bar.js
+Module foo living in C:\PROGS\var\git\jsxt\t\wsx-module-usage\mylib\foo\index.js
+
+:: Load "foo" and then try load "foo/bar"
+Module foo living in C:\PROGS\var\git\jsxt\t\wsx-module-usage\mylib\foo\index.js
+Module ./bar living in C:\PROGS\var\git\jsxt\t\wsx-module-usage\mylib\foo\bar.js

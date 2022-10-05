@@ -1,8 +1,8 @@
-"main starting"
-"a starting"
-"b starting"
+main starting
+a starting
+b starting
 in b, a.done = false
-"b done"
+b done
 in a, b.done = true
-"a done"
+a done
 in main, a.done = true, b.done = true

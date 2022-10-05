@@ -29,7 +29,7 @@
 	echo \e[107m    \e[0m
 	echo \e[104m    \e[0m
 	echo \e[101m    \e[0m
-) | call wsx /vt /begin:"p = require('./ansi').ansi" /n /e:"print(p(LINE))"
+) | call wsx /vt /n /begin:"p = require('./ansi').ansi" /e:"print(p(LINE))"
 
 (
 	echo \e[107m    \e[0m
@@ -43,7 +43,7 @@
 	echo \e[107m    \e[0m
 	echo \e[104m    \e[0m
 	echo \e[101m    \e[0m
-) | call wsx /vt /begin:"p = require('./ansi').ansi" /p /e:"LINE = p(LINE)"
+) | call wsx /vt /p /begin:"p = require('./ansi').ansi" /e:"LINE = p(LINE)"
 
 (
 	echo \e[107m    \e[0m
