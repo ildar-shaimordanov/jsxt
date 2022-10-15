@@ -119,7 +119,7 @@ var util = util || (function() {
 
 	var reFormat = /%([%sdifjoOc])/g;
 
-	function formatArguments(options, args) {
+	function formatArgsWithOptions(options, args) {
 		var pattern = args[0];
 
 		var result = [];
@@ -157,13 +157,13 @@ var util = util || (function() {
 // https://nodejs.org/api/util.html#utilformatwithoptionsinspectoptions-format-args
 
 	function formatWithOptions(options) {
-		return formatArguments(options, arraySlice.call(arguments, 1));
+		return formatArgsWithOptions(options, arraySlice.call(arguments, 1));
 	}
 
 // https://nodejs.org/api/util.html#utilformatformat-args
 
 	function format() {
-		return formatArguments({}, arguments);
+		return formatArgsWithOptions({}, arguments);
 	}
 
 	function colorless(object) {
@@ -230,10 +230,45 @@ var util = util || (function() {
 
 	var reFunction = /function\b(?:\s|\/\*[\S\s]*?\*\/|\/\/[^\n\r]*[\n\r]+)*([^\s(/]*)/;
 
-	function formatFunction(ctx, object) {
+	function formatFunctionName(ctx, object) {
 		var m = String(object).match(reFunction);
 		var s = m && m[1] ? '[Function: ' + m[1] + ']' : '[Function]';
 		return ctx.stylize(s, 'special');
+	}
+
+	// A duck typing test extending this answer:
+	// https://stackoverflow.com/a/34296945/3627676
+	// https://lodash.com/docs/4.17.15#isArguments
+	function isArguments(object) {
+		return !! object
+			&& typeof object == 'object'
+			&& object.hasOwnProperty('callee')
+			&& ! object.propertyIsEnumerable('callee')
+			&& typeof object.callee == 'function';
+	}
+
+	function formatArrayLikeItems(ctx, object) {
+		var result = [];
+		for (var i = 0; i < object.length; i++) {
+			var v = formatValue(ctx, object[i]);
+			result.push(i + ': ' + v);
+		}
+		return result;
+	}
+
+	function formatObjectItems(ctx, object) {
+		var result = [];
+		for (var k in object) {
+			if ( ! object.hasOwnProperty(k) ) {
+				continue;
+			}
+			var v = formatValue(ctx, object[k]);
+			if ( k === '' || k.match(/\W/) ) {
+				k = ctx.stylize(quote(k), 'string');
+			}
+			result.push(k + ': ' + v);
+		}
+		return result;
 	}
 
 	var indentSpace = '  ';
@@ -265,11 +300,13 @@ var util = util || (function() {
 
 		var objectType = objectToString.call(object);
 
+		if ( objectType == '[object Array]' && object.length == 0 ) {
+			return '[]';
+		}
+
 		if ( ctx.depth !== null && ctx.currentDepth > ctx.depth ) {
 			return ctx.stylize(objectType, 'special');
 		}
-
-		var result = [];
 
 		ctx.seen.push(object);
 		ctx.currentDepth++;
@@ -277,29 +314,29 @@ var util = util || (function() {
 		var saveIndent = ctx.indent;
 		ctx.indent += indentSpace;
 
-		for (var k in object) {
-			if ( ! object.hasOwnProperty(k) ) {
-				continue;
-			}
-			var v = formatValue(ctx, object[k]);
-			if ( k === '' || k.match(/\W/) ) {
-				k = ctx.stylize(formatString(k), 'string');
-			}
-			result.push(k + ': ' + v);
-		}
+		var isArgs = isArguments(object);
+
+		var result = [];
+
+		result = isArgs
+			? formatArrayLikeItems(ctx, object)
+			: formatObjectItems(ctx, object);
 
 		var pred = '';
 		var post = '';
 
-		if ( objectType == '[object Function]' ) {
-			var pred = formatFunction(ctx, object);
+		if ( isArgs ) {
+			pred = 'Arguments {';
+			post = '}';
+		} else if ( objectType == '[object Array]' ) {
+			pred = 'Array(' + object.length + ') [';
+			post = ']';
+		} else if ( objectType == '[object Function]' ) {
+			var pred = formatFunctionName(ctx, object);
 			if ( result.length ) {
 				pred += ' {';
 				post = '}';
 			}
-		} else if ( objectType == '[object Array]' ) {
-			pred = 'Array(' + object.length + ') [';
-			post = ']';
 		} else {
 			pred = 'Object {';
 			post = '}';
