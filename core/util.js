@@ -230,10 +230,9 @@ var util = util || (function() {
 
 	var reFunction = /function\b(?:\s|\/\*[\S\s]*?\*\/|\/\/[^\n\r]*[\n\r]+)*([^\s(/]*)/;
 
-	function formatFunctionName(ctx, object) {
+	function getFunctionName(object) {
 		var m = String(object).match(reFunction);
-		var s = m && m[1] ? '[Function: ' + m[1] + ']' : '[Function]';
-		return ctx.stylize(s, 'special');
+		return m && m[1] || '';
 	}
 
 	// A duck typing test extending this answer:
@@ -274,37 +273,53 @@ var util = util || (function() {
 	var indentSpace = '  ';
 
 	function formatObject(ctx, object, asType) {
-		// Assume win32 COM objects
-		if ( typeof ActiveXObject == 'function'
-		&& object instanceof ActiveXObject ) {
-			return ctx.stylize('[ActiveXObject]', 'special');
-		}
+		var prefix;
+		var style;
 
-		// Assume Enumerator objects
-		if ( typeof Enumerator == 'function'
-		&& object instanceof Enumerator ) {
-			return ctx.stylize('[Enumerator]', 'special');
-		}
+		var brLeft = '{';
+		var brRight = '}';
+		var brOptional;
 
-		// Assume the RegExp object
-		if ( typeof RegExp == 'function'
+		var isArgs;
+
+		if ( typeof Array == 'function'
+		&& object instanceof Array ) {
+			prefix = 'Array(' + object.length + ')';
+			brLeft = '[';
+			brRight = ']';
+		} else if ( typeof RegExp == 'function'
 		&& object instanceof RegExp ) {
-			return ctx.stylize(object, 'regexp');
-		}
-
-		// Assume the Date object
-		if ( typeof Date == 'function'
+			prefix = object;
+			style = 'regexp';
+			brOptional = 1;
+		} else if ( typeof Date == 'function'
 		&& object instanceof Date ) {
-			return ctx.stylize(object.toUTCString(), 'date');
-		}
-
-		var objectType = objectToString.call(object);
-
-		if ( objectType == '[object Array]' && object.length == 0 ) {
-			return '[]';
+			prefix = object.toUTCString();
+			style = 'date';
+			brOptional = 1;
+		} else if ( typeof ActiveXObject == 'function'
+		&& object instanceof ActiveXObject ) {
+			prefix = '[ActiveXObject]';
+			style = 'special';
+			brOptional = 1;
+		} else if ( isArguments(object) ) {
+			prefix = 'Arguments';
+			isArgs = 1;
+		} else if ( typeof object == 'function' ) {
+			prefix = getFunctionName(object);
+			prefix = prefix
+				? '[Function: ' + prefix + ']'
+				: '[Function]';
+			style = 'special';
+			brOptional = 1;
+		} else if ( object.constructor && object.constructor !== Object ) {
+			prefix = getFunctionName(object.constructor);
+		} else {
+			prefix = 'Object';
 		}
 
 		if ( ctx.depth !== null && ctx.currentDepth > ctx.depth ) {
+			var objectType = objectToString.call(object);
 			return ctx.stylize(objectType, 'special');
 		}
 
@@ -314,54 +329,43 @@ var util = util || (function() {
 		var saveIndent = ctx.indent;
 		ctx.indent += indentSpace;
 
-		var isArgs = isArguments(object);
-
-		var result = [];
-
-		result = isArgs
-			? formatArrayLikeItems(ctx, object)
-			: formatObjectItems(ctx, object);
-
-		var pred = '';
-		var post = '';
-
+		var items = formatObjectItems(ctx, object);
 		if ( isArgs ) {
-			pred = 'Arguments {';
-			post = '}';
-		} else if ( objectType == '[object Array]' ) {
-			pred = 'Array(' + object.length + ') [';
-			post = ']';
-		} else if ( objectType == '[object Function]' ) {
-			var pred = formatFunctionName(ctx, object);
-			if ( result.length ) {
-				pred += ' {';
-				post = '}';
-			}
-		} else {
-			pred = 'Object {';
-			post = '}';
-		}
-
-		var index = 1 + arrayIndexOf(ctx.circular, object);
-		if ( index ) {
-			var ref = ctx.stylize('< ref *' + index + '>', 'special');
-			pred = ref + ' ' + pred;
+			items = formatArrayLikeItems(ctx, object).concat(items);
 		}
 
 		ctx.currentDepth--;
 		ctx.seen.pop();
 
-		for (var i = 0; i < result.length; i++) {
-			result[i] = '\n' + ctx.indent + result[i];
+		for (var i = 0; i < items.length; i++) {
+			items[i] = '\n' + ctx.indent + items[i];
 		}
-		result = result.join('');
-		if ( result ) {
-			result += '\n' + saveIndent;
+
+		var itemsStr = items.join('');
+		if ( itemsStr ) {
+			itemsStr += '\n' + saveIndent;
 		}
 
 		ctx.indent = saveIndent;
 
-		return pred + result + post;
+		var index = 1 + arrayIndexOf(ctx.circular, object);
+		var reference = index
+			? ctx.stylize('<ref *' + index + '>', 'special')
+			: '';
+
+		if ( items.length == 0 && index == 0 && style ) {
+			prefix = ctx.stylize(prefix, style);
+		}
+
+		if ( items.length == 0 && brOptional ) {
+			brLeft = '';
+			brRight = '';
+		}
+
+		return ( reference ? reference + ' ' : '' ) + prefix +
+			( brLeft ? ' ' + brLeft : '' ) +
+			itemsStr +
+			brRight;
 	}
 
 	function formatValue(ctx, object) {
