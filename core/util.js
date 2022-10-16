@@ -228,7 +228,8 @@ var util = util || (function() {
 		return ctx.stylize(object, t);
 	}
 
-	var reFunction = /function\b(?:\s|\/\*[\S\s]*?\*\/|\/\/[^\n\r]*[\n\r]+)*([^\s(/]*)/;
+	var reFunction =
+	/function\b(?:\s|\/\*[\S\s]*?\*\/|\/\/[^\n\r]*[\n\r]+)*([^\s(/]*)/;
 
 	function getFunctionName(object) {
 		var m = String(object).match(reFunction);
@@ -246,17 +247,15 @@ var util = util || (function() {
 			&& typeof object.callee == 'function';
 	}
 
-	function formatArrayLikeItems(ctx, object) {
-		var result = [];
+	function formatArrayLikeItems(ctx, object, items) {
 		for (var i = 0; i < object.length; i++) {
 			var v = formatValue(ctx, object[i]);
-			result.push(i + ': ' + v);
+			items.push(i + ': ' + v);
 		}
-		return result;
+		return items;
 	}
 
-	function formatObjectItems(ctx, object) {
-		var result = [];
+	function formatObjectItems(ctx, object, items) {
 		for (var k in object) {
 			if ( ! object.hasOwnProperty(k) ) {
 				continue;
@@ -265,9 +264,9 @@ var util = util || (function() {
 			if ( k === '' || k.match(/\W/) ) {
 				k = ctx.stylize(quote(k), 'string');
 			}
-			result.push(k + ': ' + v);
+			items.push(k + ': ' + v);
 		}
-		return result;
+		return items;
 	}
 
 	var indentSpace = '  ';
@@ -329,10 +328,11 @@ var util = util || (function() {
 		var saveIndent = ctx.indent;
 		ctx.indent += indentSpace;
 
-		var items = formatObjectItems(ctx, object);
+		var items = [];
 		if ( isArgs ) {
-			items = formatArrayLikeItems(ctx, object).concat(items);
+			formatArrayLikeItems(ctx, object, items);
 		}
+		formatObjectItems(ctx, object, items);
 
 		ctx.currentDepth--;
 		ctx.seen.pop();
