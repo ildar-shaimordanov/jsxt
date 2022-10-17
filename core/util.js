@@ -221,7 +221,7 @@ var util = util || (function() {
 	};
 
 	function formatPrimitive(ctx, object) {
-		var t = typeof object
+		var t = typeof object;
 		if ( t == 'string' ) {
 			object = formatString(object);
 		}
@@ -262,7 +262,7 @@ var util = util || (function() {
 			}
 			var v = formatValue(ctx, object[k]);
 			if ( k === '' || k.match(/\W/) ) {
-				k = ctx.stylize(quote(k), 'string');
+				k = ctx.stylize(formatString(k), 'string');
 			}
 			items.push(k + ': ' + v);
 		}
