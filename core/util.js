@@ -255,6 +255,26 @@ var util = util || (function() {
 		return items;
 	}
 
+	function stylizeUnknown(ctx) {
+		return ctx.stylize('[Unknown]', 'special');
+	}
+
+	function formatWshObjectItems(ctx, object, items) {
+		for (var k in object) {
+			var v;
+			if ( typeof object[k] == 'unknown' ) {
+				v = stylizeUnknown(ctx);
+			} else {
+				v = formatValue(ctx, object[k]);
+			}
+			if ( k === '' || k.match(/\W/) ) {
+				k = ctx.stylize(formatString(k), 'string');
+			}
+			items.push(k + ': ' + v);
+		}
+		return items;
+	}
+
 	function formatObjectItems(ctx, object, items) {
 		for (var k in object) {
 			if ( ! object.hasOwnProperty(k) ) {
@@ -279,6 +299,7 @@ var util = util || (function() {
 		var brRight = '}';
 		var brOptional;
 
+		var isWsh;
 		var isArgs;
 
 		if ( typeof Array == 'function'
@@ -300,6 +321,7 @@ var util = util || (function() {
 		&& object instanceof ActiveXObject ) {
 			prefix = '[ActiveXObject]';
 			style = 'special';
+			isWsh = 1;
 			brOptional = 1;
 		} else if ( isArguments(object) ) {
 			prefix = 'Arguments';
@@ -332,7 +354,11 @@ var util = util || (function() {
 		if ( isArgs ) {
 			formatArrayLikeItems(ctx, object, items);
 		}
-		formatObjectItems(ctx, object, items);
+		if ( isWsh ) {
+			formatWshObjectItems(ctx, object, items);
+		} else {
+			formatObjectItems(ctx, object, items);
+		}
 
 		ctx.currentDepth--;
 		ctx.seen.pop();
@@ -371,6 +397,10 @@ var util = util || (function() {
 	function formatValue(ctx, object) {
 		if ( object === null ) {
 			return ctx.stylize('null', 'null');
+		}
+
+		if ( typeof object == 'unknown' ) {
+			return stylizeUnknown(ctx);
 		}
 
 		if ( typeof object != 'object'
