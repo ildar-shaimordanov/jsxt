@@ -37,6 +37,10 @@ var util = util || (function() {
 
 	var objectToString = Object.prototype.toString;
 
+	var objectHasOwnProperty = Object.prototype.hasOwnProperty;
+
+	var objectPropertyIsEnumerable = Object.prototype.propertyIsEnumerable;
+
 	// Emulate Object.create(object)
 	function objectCreate(object) {
 		var F = function() {};
@@ -242,8 +246,8 @@ var util = util || (function() {
 	function isArguments(object) {
 		return !! object
 			&& typeof object == 'object'
-			&& object.hasOwnProperty('callee')
-			&& ! object.propertyIsEnumerable('callee')
+			&& objectHasOwnProperty.call(object, 'callee')
+			&& ! objectPropertyIsEnumerable.call(object, 'callee')
 			&& typeof object.callee == 'function';
 	}
 
@@ -259,28 +263,14 @@ var util = util || (function() {
 		return ctx.stylize('[Unknown]', 'special');
 	}
 
-	function formatWshObjectItems(ctx, object, items) {
-		for (var k in object) {
-			var v;
-			if ( typeof object[k] == 'unknown' ) {
-				v = stylizeUnknown(ctx);
-			} else {
-				v = formatValue(ctx, object[k]);
-			}
-			if ( k === '' || k.match(/\W/) ) {
-				k = ctx.stylize(formatString(k), 'string');
-			}
-			items.push(k + ': ' + v);
-		}
-		return items;
-	}
-
 	function formatObjectItems(ctx, object, items) {
 		for (var k in object) {
-			if ( ! object.hasOwnProperty(k) ) {
+			if ( ! objectHasOwnProperty.call(object, k) ) {
 				continue;
 			}
-			var v = formatValue(ctx, object[k]);
+			var v = typeof object[k] == 'unknown'
+				? stylizeUnknown(ctx)
+				: formatValue(ctx, object[k]);
 			if ( k === '' || k.match(/\W/) ) {
 				k = ctx.stylize(formatString(k), 'string');
 			}
@@ -354,11 +344,7 @@ var util = util || (function() {
 		if ( isArgs ) {
 			formatArrayLikeItems(ctx, object, items);
 		}
-		if ( isWsh ) {
-			formatWshObjectItems(ctx, object, items);
-		} else {
-			formatObjectItems(ctx, object, items);
-		}
+		formatObjectItems(ctx, object, items);
 
 		ctx.currentDepth--;
 		ctx.seen.pop();
