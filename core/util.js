@@ -253,6 +253,9 @@ var util = util || (function() {
 
 	function formatArrayLikeItems(ctx, object, items) {
 		for (var i = 0; i < object.length; i++) {
+			if ( ! ( i in object ) ) {
+				continue;
+			}
 			var v = formatValue(ctx, object[i]);
 			items.push(i + ': ' + v);
 		}
