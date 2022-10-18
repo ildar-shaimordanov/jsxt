@@ -59,7 +59,7 @@ var util = util || (function() {
 		return target;
 	}
 
-	// Emulate array.includes(value)
+	// Emulate Array.prototype.includes(value)
 	function arrayIncludes(array, value) {
 		for (var i = 0; i < array.length; i++) {
 			if ( value === array[i] ) {
@@ -69,7 +69,7 @@ var util = util || (function() {
 		return false;
 	}
 
-	// Emulate array.indexOf(value)
+	// Emulate Array.prototype.indexOf(value)
 	function arrayIndexOf(array, value) {
 		for (var i = 0; i < array.length; i++) {
 			if ( value === array[i] ) {
@@ -77,6 +77,15 @@ var util = util || (function() {
 			}
 		}
 		return -1;
+	}
+
+	// Emulate Function.prototype.name
+	var reFunction =
+	/function\b(?:\s|\/\*[\S\s]*?\*\/|\/\/[^\n\r]*[\n\r]+)*([^\s(/]*)/;
+
+	function functionName(object) {
+		var m = String(object).match(reFunction);
+		return m && m[1] || '';
 	}
 
 	var formatters = {};
@@ -232,14 +241,6 @@ var util = util || (function() {
 		return ctx.stylize(object, t);
 	}
 
-	var reFunction =
-	/function\b(?:\s|\/\*[\S\s]*?\*\/|\/\/[^\n\r]*[\n\r]+)*([^\s(/]*)/;
-
-	function getFunctionName(object) {
-		var m = String(object).match(reFunction);
-		return m && m[1] || '';
-	}
-
 	// A duck typing test extending this answer:
 	// https://stackoverflow.com/a/34296945/3627676
 	// https://lodash.com/docs/4.17.15#isArguments
@@ -292,7 +293,6 @@ var util = util || (function() {
 		var brRight = '}';
 		var brOptional;
 
-		var isWsh;
 		var isArgs;
 
 		if ( typeof Array == 'function'
@@ -314,22 +314,21 @@ var util = util || (function() {
 		&& object instanceof ActiveXObject ) {
 			prefix = '[ActiveXObject]';
 			style = 'special';
-			isWsh = 1;
 			brOptional = 1;
 		} else if ( isArguments(object) ) {
 			prefix = 'Arguments';
 			isArgs = 1;
 		} else if ( typeof object == 'function' ) {
-			prefix = getFunctionName(object);
+			prefix = functionName(object);
 			prefix = prefix
 				? '[Function: ' + prefix + ']'
 				: '[Function]';
 			style = 'special';
 			brOptional = 1;
-		} else if ( object.constructor && object.constructor !== Object ) {
-			prefix = getFunctionName(object.constructor);
+		} else if ( typeof object.constructor == 'function' ) {
+			prefix = functionName(object.constructor);
 		} else {
-			prefix = 'Object';
+			prefix = '[Object]';
 		}
 
 		if ( ctx.depth !== null && ctx.currentDepth > ctx.depth ) {
