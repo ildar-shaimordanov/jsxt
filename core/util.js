@@ -376,8 +376,8 @@ var util = util || (function() {
 			brRight = '';
 		}
 
-		return ( reference ? reference + ' ' : '' ) +
-			( prefix ? prefix + ' ' : '' ) +
+		return ( reference ? reference + ' ' : '' ) + prefix +
+			( prefix && brLeft ? ' ' : '' ) +
 			brLeft +
 			itemsStr +
 			brRight;
