@@ -41,13 +41,6 @@ var util = util || (function() {
 
 	var objectPropertyIsEnumerable = Object.prototype.propertyIsEnumerable;
 
-	// Emulate Object.create(object)
-	function objectCreate(object) {
-		var F = function() {};
-		F.prototype = object;
-		return new F();
-	}
-
 	// Emulate Object.assign(target, source)
 	function objectAssign(target) {
 		for (var i = 1; i < arguments.length; i++) {
@@ -197,11 +190,7 @@ var util = util || (function() {
 			color = inspect.colors[style];
 		}
 
-		if ( color ) {
-			return colorer(object, color);
-		}
-
-		return String(object);
+		return color ? colorer(object, color) : String(object);
 	}
 
 	var escaped = {
