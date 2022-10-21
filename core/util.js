@@ -241,12 +241,12 @@ var util = util || (function() {
 			&& typeof object.callee == 'function';
 	}
 
-	function formatArrayLikeItems(ctx, object, items) {
+	function formatArrayLikeItems(ctx, object, indent, items) {
 		for (var i = 0; i < object.length; i++) {
 			if ( ! ( i in object ) ) {
 				continue;
 			}
-			var v = formatValue(ctx, object[i]);
+			var v = formatValue(ctx, object[i], indent);
 			items.push(i + ': ' + v);
 		}
 		return items;
@@ -256,14 +256,14 @@ var util = util || (function() {
 		return ctx.stylize('[Unknown]', 'special');
 	}
 
-	function formatObjectItems(ctx, object, items) {
+	function formatObjectItems(ctx, object, indent, items) {
 		for (var k in object) {
 			if ( ! objectHasOwnProperty.call(object, k) ) {
 				continue;
 			}
 			var v = typeof object[k] == 'unknown'
 				? stylizeUnknown(ctx)
-				: formatValue(ctx, object[k]);
+				: formatValue(ctx, object[k], indent);
 			if ( k === '' || k.match(/\W/) ) {
 				k = ctx.stylize(formatString(k), 'string');
 			}
@@ -274,7 +274,7 @@ var util = util || (function() {
 
 	var indentSpace = '  ';
 
-	function formatObject(ctx, object, asType) {
+	function formatObject(ctx, object, indent) {
 		var prefix;
 		var style;
 
@@ -328,28 +328,25 @@ var util = util || (function() {
 		ctx.seen.push(object);
 		ctx.currentDepth++;
 
-		var saveIndent = ctx.indent;
-		ctx.indent += indentSpace;
+		var innerIndent = indent + indentSpace;
 
 		var items = [];
 		if ( isArgs ) {
-			formatArrayLikeItems(ctx, object, items);
+			formatArrayLikeItems(ctx, object, innerIndent, items);
 		}
-		formatObjectItems(ctx, object, items);
+		formatObjectItems(ctx, object, innerIndent, items);
 
 		ctx.currentDepth--;
 		ctx.seen.pop();
 
 		for (var i = 0; i < items.length; i++) {
-			items[i] = '\n' + ctx.indent + items[i];
+			items[i] = '\n' + innerIndent + items[i];
 		}
 
 		var itemsStr = items.join('');
 		if ( itemsStr ) {
-			itemsStr += '\n' + saveIndent;
+			itemsStr += '\n' + indent;
 		}
-
-		ctx.indent = saveIndent;
 
 		var index = 1 + arrayIndexOf(ctx.circular, object);
 		var reference = index
@@ -372,7 +369,7 @@ var util = util || (function() {
 			brRight;
 	}
 
-	function formatValue(ctx, object) {
+	function formatValue(ctx, object, indent) {
 		if ( object === null ) {
 			return ctx.stylize('null', 'null');
 		}
@@ -387,7 +384,7 @@ var util = util || (function() {
 		}
 
 		if ( ! arrayIncludes(ctx.seen, object) ) {
-			return formatObject(ctx, object);
+			return formatObject(ctx, object, indent);
 		}
 
 		ctx.circular.push(object);
@@ -400,7 +397,6 @@ var util = util || (function() {
 
 	function inspect(object, options) {
 		var ctx = objectAssign({}, inspect.defaultOptions, {
-			indent: '',
 			circular: [],
 			seen: [],
 			currentDepth: 0,
@@ -426,7 +422,7 @@ var util = util || (function() {
 			enableColors();
 		}
 
-		return formatValue(ctx, object, 0);
+		return formatValue(ctx, object, '');
 	}
 
 	var colorsEnabled = false;
