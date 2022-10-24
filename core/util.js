@@ -18,7 +18,14 @@
 // util.formatWithOptions
 // util.inspect
 //
+// The following options are supported:
+//
+// depth
+// colors
+// sorted
+//
 // Non-standard extension
+//
 // util.enableColors
 //
 // More information about API for util:
@@ -338,6 +345,11 @@ var util = util || (function() {
 
 		ctx.currentDepth--;
 		ctx.seen.pop();
+
+		if ( ctx.sorted ) {
+			var compare = ctx.sorted === true ? null : ctx.sorted;
+			items.sort(compare);
+		}
 
 		for (var i = 0; i < items.length; i++) {
 			items[i] = '\n' + innerIndent + items[i];
