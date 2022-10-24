@@ -240,12 +240,26 @@ var util = util || (function() {
 	// A duck typing test extending this answer:
 	// https://stackoverflow.com/a/34296945/3627676
 	// https://lodash.com/docs/4.17.15#isArguments
-	function isArguments(object) {
+
+	function isObject(object) {
 		return !! object
-			&& typeof object == 'object'
-			&& objectHasOwnProperty.call(object, 'callee')
-			&& ! objectPropertyIsEnumerable.call(object, 'callee')
-			&& typeof object.callee == 'function';
+			&& typeof object == 'object';
+	}
+
+	function hasSpecialProperty(object, name, type) {
+		return objectHasOwnProperty.call(object, name)
+			&& ! objectPropertyIsEnumerable.call(object, name)
+			&& typeof object[name] == type;
+	}
+
+	function isArrayLike(object) {
+		return isObject(object)
+			&& hasSpecialProperty(object, 'length', 'number');
+	}
+
+	function isArguments(object) {
+		return isArrayLike(object)
+			&& hasSpecialProperty(object, 'callee', 'function');
 	}
 
 	function formatArrayLikeItems(ctx, object, indent, items) {
