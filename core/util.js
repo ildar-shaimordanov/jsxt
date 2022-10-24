@@ -312,7 +312,7 @@ var util = util || (function() {
 			style = 'special';
 			brOptional = 1;
 		} else if ( isArguments(object) ) {
-			prefix = 'Arguments';
+			prefix = '[Arguments]';
 			isArgs = 1;
 		} else if ( typeof object == 'function' ) {
 			prefix = functionName(object);
