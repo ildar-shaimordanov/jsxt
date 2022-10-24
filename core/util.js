@@ -34,10 +34,6 @@
 // Copyright (c) 2012, 2013, 2019-2022 by Ildar Shaimordanov
 //
 
-/*
-
-*/
-
 var util = util || (function() {
 
 	var arraySlice = Array.prototype.slice;
@@ -305,7 +301,14 @@ var util = util || (function() {
 
 		var isArgs;
 
-		if ( typeof Array == 'function'
+		if ( typeof object == 'function' ) {
+			prefix = functionName(object);
+			prefix = prefix
+				? '[Function: ' + prefix + ']'
+				: '[Function]';
+			style = 'special';
+			brOptional = 1;
+		} else if ( typeof Array == 'function'
 		&& object instanceof Array ) {
 			prefix = 'Array(' + object.length + ')';
 			brLeft = '[';
@@ -325,16 +328,14 @@ var util = util || (function() {
 			prefix = '[ActiveXObject]';
 			style = 'special';
 			brOptional = 1;
+		} else if ( typeof Enumerator == 'function'
+		&& object instanceof Enumerator ) {
+			prefix = '[Enumerator]';
+			style = 'special';
+			brOptional = 1;
 		} else if ( isArguments(object) ) {
 			prefix = '[Arguments]';
 			isArgs = 1;
-		} else if ( typeof object == 'function' ) {
-			prefix = functionName(object);
-			prefix = prefix
-				? '[Function: ' + prefix + ']'
-				: '[Function]';
-			style = 'special';
-			brOptional = 1;
 		} else if ( typeof object.constructor == 'function' ) {
 			prefix = functionName(object.constructor);
 		} else {
@@ -346,10 +347,10 @@ var util = util || (function() {
 			return ctx.stylize(objectType, 'special');
 		}
 
+		var innerIndent = indent + indentSpace;
+
 		ctx.seen.push(object);
 		ctx.currentDepth++;
-
-		var innerIndent = indent + indentSpace;
 
 		var items = [];
 		if ( isArgs ) {
