@@ -68,10 +68,11 @@ Available options:
 * continueAt	the starting position to continue downloading. It adds (without
 		overwriting) the header `Range: bytes={range-start}-`, where
 		`{range-start}` means the current file size
-* body		request body (it will be URL-encoded first, then the length of
-		the result is estimated and the `Content-Length` is initialized.
-		If no `Content-Type` header specified, sends 
-		`Content-Type: application/x-www-form-urlencoded`
+* body		request body (if required it can be URL-encoded manually).
+		If request body is specified, its length is estimated and
+		the `Content-Length` is initialized, respectively.
+		If no `Content-Type` header specified, set it to the value
+		`application/x-www-form-urlencoded`.
 * headers	request headers
 * onreadystatechange
 		extended version of the standard use-defined callback.
@@ -162,8 +163,6 @@ XML.queryURL = function(url, options) {
 	}
 
 	if ( options.body ) {
-		body = this.encode(options.body);
-
 		options.headers['Content-Length'] = options.body.length;
 		options.headers['Content-Type'] =
 		options.headers['Content-Type'] ||
