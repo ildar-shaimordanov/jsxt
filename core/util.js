@@ -243,9 +243,18 @@ var util = util || (function() {
 	}
 
 	function hasSpecialProperty(object, name, type) {
-		return objectHasOwnProperty.call(object, name)
+		var r = false;
+
+		// Let's be safer. 'objectPropertyIsEnumerable' throws an
+		// exception if it's called for WSH objects.
+		var e;
+		try {
+			r = objectHasOwnProperty.call(object, name)
 			&& ! objectPropertyIsEnumerable.call(object, name)
 			&& typeof object[name] == type;
+		} catch(e) {}
+
+		return r;
 	}
 
 	function isArrayLike(object) {
