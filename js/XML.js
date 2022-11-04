@@ -114,10 +114,8 @@ https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms763680(v=vs
 */
 XML.queryURL = function(url, options) {
 	options = options || {};
-	options.headers = options.headers || {};
 
 	var xmlhttp = XML.createHTTP({ progIds: options.progIds });
-	var body = null;
 	var result = null;
 
 	if ( ! /^\w+:\/\//.test(url) ) {
@@ -150,31 +148,36 @@ XML.queryURL = function(url, options) {
 		};
 	}
 
+	var headers = {};
+	for (var p in options.headers) {
+		headers[p] = options.headers[p];
+	}
+
 	if ( options.noCache ) {
-		options.headers['If-Modified-Since'] =
-		options.headers['If-Modified-Since'] ||
+		headers['If-Modified-Since'] =
+		headers['If-Modified-Since'] ||
 		new Date(0).toUTCString();
 	}
 
 	if ( options.continueAt ) {
-		options.headers['Range'] =
-		options.headers['Range'] ||
+		headers['Range'] =
+		headers['Range'] ||
 		'bytes=' + options.continueAt + '-';
 	}
+
+	var body = null;
 
 	if ( options.body ) {
 		body = options.body;
 
-		options.headers['Content-Length'] = body.length;
-		options.headers['Content-Type'] =
-		options.headers['Content-Type'] ||
+		headers['Content-Length'] = body.length;
+		headers['Content-Type'] =
+		headers['Content-Type'] ||
 		'application/x-www-form-urlencoded';
 	}
 
-	if ( options.headers ) {
-		for (var p in options.headers) {
-			xmlhttp.setRequestHeader(p, options.headers[p]);
-		}
+	for (var p in headers) {
+		xmlhttp.setRequestHeader(p, headers[p]);
 	}
 
 	xmlhttp.send(body);
