@@ -163,7 +163,9 @@ XML.queryURL = function(url, options) {
 	}
 
 	if ( options.body ) {
-		options.headers['Content-Length'] = options.body.length;
+		body = options.body;
+
+		options.headers['Content-Length'] = body.length;
 		options.headers['Content-Type'] =
 		options.headers['Content-Type'] ||
 		'application/x-www-form-urlencoded';
