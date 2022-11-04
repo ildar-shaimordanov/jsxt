@@ -37,7 +37,7 @@ XML.createHTTP = function(options) {
 	if ( typeof XMLHttpRequest != 'undefined' ) {
 		return new XMLHttpRequest();
 	}
-	return this.create([
+	return XML.create([
 		'Msxml2.XMLHTTP.6.0',
 		'Msxml2.XMLHTTP.5.0',
 		'Msxml2.XMLHTTP.4.0',
@@ -116,7 +116,7 @@ XML.queryURL = function(url, options) {
 	options = options || {};
 	options.headers = options.headers || {};
 
-	var xmlhttp = this.createHTTP({ progID: options.progID });
+	var xmlhttp = XML.createHTTP({ progID: options.progID });
 	var body = null;
 	var result = null;
 
@@ -189,7 +189,7 @@ Create an XML document.
 var xml = XML.createXML();
 */
 XML.createXML = function(options, properties) {
-	return this.create([
+	return XML.create([
 		'Msxml2.DOMDocument.6.0', 
 		'Msxml2.DOMDocument.5.0', 
 		'Msxml2.DOMDocument.4.0', 
@@ -209,9 +209,9 @@ See also:
 https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms762722(v=vs.85)
 */
 XML.load = function(filename, options, properties) {
-	var xml = this.createXML(options, properties);
+	var xml = XML.createXML(options, properties);
 	xml.load(filename);
-	this.checkParseError(xml);
+	XML.checkParseError(xml);
 	return xml;
 };
 
@@ -225,9 +225,9 @@ See also:
 https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms754585(v=vs.85)
 */
 XML.loadXML = function(text, options, properties) {
-	var xml = this.createXML(options, properties);
+	var xml = XML.createXML(options, properties);
 	xml.loadXML(text);
-	this.checkParseError(xml);
+	XML.checkParseError(xml);
 	return xml;
 };
 
@@ -259,7 +259,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms756003(v=vs
 */
 XML.validate = function(xml) {
 	var err = xml.validate();
-	this.checkParseError(err);
+	XML.checkParseError(err);
 	return xml;
 };
 
@@ -337,7 +337,7 @@ Create XML Schema Cache.
 var cache = XML.createSchemaCache();
 */
 XML.createSchemaCache = function(options, properties) {
-	return this.create([
+	return XML.create([
 		'Msxml2.XMLSchemaCache.6.0',
 		'Msxml2.XMLSchemaCache.5.0',
 		'Msxml2.XMLSchemaCache.4.0',
@@ -366,7 +366,7 @@ See also:
 https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms766451(v=vs.85)
 */
 XML.loadSchemaCache = function(nsURI, xsd, options, properties) {
-	var cache = this.createSchemaCache(options, properties);
+	var cache = XML.createSchemaCache(options, properties);
 	cache.add(nsURI || '', xsd);
 	return cache;
 };
@@ -425,8 +425,8 @@ XML.create = function(ids, options, properties) {
 		var e;
 		try {
 			var obj = new ActiveXObject(ids[i]);
-			this.setOptions(obj, options);
-			this.setProperties(obj, properties);
+			XML.setOptions(obj, options);
+			XML.setProperties(obj, properties);
 			return obj;
 		} catch(e) {
 			errors.push(ids[i] + ': ' + e.description);
