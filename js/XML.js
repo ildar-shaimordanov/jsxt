@@ -116,7 +116,7 @@ XML.queryURL = function(url, options) {
 	options = options || {};
 	options.headers = options.headers || {};
 
-	var xmlhttp = XML.createHTTP({ progID: options.progID });
+	var xmlhttp = XML.createHTTP({ progIds: options.progIds });
 	var body = null;
 	var result = null;
 
@@ -405,7 +405,7 @@ XML.decode = function(data) {
 };
 
 /*
-Create an MSXML object based on the progID list and set options and properties.
+Create an MSXML object based on the progIds list and set options and properties.
 
 It's used internally. You don't need to call it directly.
 
@@ -420,7 +420,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms760290(v=vs
 XML.create = function(ids, options, properties) {
 	var errors = [];
 
-	ids = [].concat(options && options.progID || [], ids || []);
+	ids = [].concat(options && options.progIds || [], ids || []);
 	for (var i = 0; i < ids.length; i++) {
 		var e;
 		try {
