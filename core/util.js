@@ -36,14 +36,6 @@
 
 var util = util || (function() {
 
-	var arraySlice = Array.prototype.slice;
-
-	var objectToString = Object.prototype.toString;
-
-	var objectHasOwnProperty = Object.prototype.hasOwnProperty;
-
-	var objectPropertyIsEnumerable = Object.prototype.propertyIsEnumerable;
-
 	// Emulate Object.assign(target, source)
 	function objectAssign(target) {
 		for (var i = 1; i < arguments.length; i++) {
@@ -166,7 +158,8 @@ var util = util || (function() {
 // https://nodejs.org/api/util.html#utilformatwithoptionsinspectoptions-format-args
 
 	function formatWithOptions(options) {
-		return formatArgsWithOptions(options, arraySlice.call(arguments, 1));
+		return formatArgsWithOptions(options,
+			Array.prototype.slice.call(arguments, 1));
 	}
 
 // https://nodejs.org/api/util.html#utilformatformat-args
@@ -238,23 +231,14 @@ var util = util || (function() {
 	// https://lodash.com/docs/4.17.15#isArguments
 
 	function isObject(object) {
-		return !! object
-			&& typeof object == 'object';
+		return !! object && typeof object == 'object';
 	}
 
 	function hasSpecialProperty(object, name, type) {
-		var r = false;
-
-		// Let's be safer. 'objectPropertyIsEnumerable' throws an
-		// exception if it's called for WSH objects.
-		var e;
-		try {
-			r = objectHasOwnProperty.call(object, name)
-			&& ! objectPropertyIsEnumerable.call(object, name)
+		return Object.prototype.hasOwnProperty.call(object, name)
+			&& typeof object.propertyIsEnumerable == 'function'
+			&& ! Object.prototype.propertyIsEnumerable.call(object, name)
 			&& typeof object[name] == type;
-		} catch(e) {}
-
-		return r;
 	}
 
 	function isArrayLike(object) {
@@ -284,7 +268,7 @@ var util = util || (function() {
 
 	function formatObjectItems(ctx, object, indent, items) {
 		for (var k in object) {
-			if ( ! objectHasOwnProperty.call(object, k) ) {
+			if ( ! Object.prototype.hasOwnProperty.call(object, k) ) {
 				continue;
 			}
 			var v = typeof object[k] == 'unknown'
@@ -352,7 +336,7 @@ var util = util || (function() {
 		}
 
 		if ( ctx.depth !== null && ctx.currentDepth > ctx.depth ) {
-			var objectType = objectToString.call(object);
+			var objectType = Object.prototype.toString.call(object);
 			return ctx.stylize(objectType, 'special');
 		}
 
