@@ -7,6 +7,41 @@
 // @see	http://wiki.ecmascript.org/doku.php?id=harmony:more_math_functions
 //
 
+if ( ! Math.cbrt ) {
+
+/**
+ * Returns the cubic root of a number.
+ *
+ * @param	Number
+ * @return	Number
+ * @access	static
+ */
+Math.cbrt = function(x)
+{
+//	return Math.sign(x) * Math.pow(Math.abs(x), 1 / 3);
+	var r = x && Math.pow(Math.abs(x), 1 / 3);
+	return x < 0 ? -r : r;
+};
+
+}
+
+if ( ! Math.clz32 ) {
+
+/**
+ * The Math.clz32() function returns the number of leading zero bits in
+ * the 32-bit binary representation of a number.
+ *
+ * @param	Number
+ * @return	Number
+ * @access	static
+ */
+Math.clz32 = function(x) {
+	var n = x >>> 0;
+	return n ? 31 - Math.floor(Math.log(n + 0.5) * Math.LOG2E) : 32;
+};
+
+}
+
 if ( ! Math.log10 ) {
 
 /**

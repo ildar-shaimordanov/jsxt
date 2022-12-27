@@ -189,20 +189,6 @@ Math.cube = function(x)
 };
 
 /**
- * Returns the cubic root of a number.
- *
- * @param	Number
- * @return	Number
- * @access	static
- */
-Math.cubt = function(x)
-{
-//	return Math.sign(x) * Math.pow(Math.abs(x), 1 / 3);
-	var r = x && Math.pow(Math.abs(x), 1 / 3);
-	return x < 0 ? -r : r;
-};
-
-/**
  * Returns the summa of supplied numeric expressions.
  *
  * @param	multiple
