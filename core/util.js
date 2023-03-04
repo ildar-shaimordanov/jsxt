@@ -266,7 +266,20 @@ var util = util || (function() {
 		return ctx.stylize('[Unknown]', 'special');
 	}
 
+	function objectCanForIn(object) {
+		var e;
+		try {
+			for (var k in object) { return true };
+		} catch(e) {
+			return false;
+		}
+	}
+
 	function formatObjectItems(ctx, object, indent, items) {
+		if ( ! objectCanForIn(object) ) {
+			return items;
+		}
+
 		for (var k in object) {
 			if ( ! Object.prototype.hasOwnProperty.call(object, k) ) {
 				continue;
