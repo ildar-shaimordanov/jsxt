@@ -31,7 +31,7 @@
 // More information about API for util:
 // https://nodejs.org/api/util.html
 //
-// Copyright (c) 2012, 2013, 2019-2022 by Ildar Shaimordanov
+// Copyright (c) 2012, 2013, 2019-2023 by Ildar Shaimordanov
 //
 
 var util = util || (function() {

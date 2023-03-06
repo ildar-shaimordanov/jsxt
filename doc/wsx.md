@@ -216,7 +216,7 @@ Also the documentation can be seen as HTML.
 
 Ildar Shaimordanov is the author maintaining the tool since 2009. This script was risen from JSCmd.js, the simple jscript file able to perform REPL. Later it evolved to wscmd.bat, the more powerful and configurable BAT+JS hybrid script creating a temporary WSF-file and executing it.
 
-Copyright (C) 2009-2015, 2019-2022 Ildar Shaimordanov
+Copyright (C) 2009-2015, 2019-2023 Ildar Shaimordanov
 
 
 # LICENSE
