@@ -43,20 +43,20 @@ Run the one line program
 
 Run the program in a loop
 
-    wsx [options] [/begin:...] [/end:...] [/beginfile:...] [/endfile:...] /n [/e:...] [arguments]
-    wsx [options] [/begin:...] [/end:...] [/beginfile:...] [/endfile:...] /p [/e:...] [arguments]
+    wsx [options] /n [/begin:...] [/end:...] [/beginfile:...] [/endfile:...] [/e:...] [arguments]
+    wsx [options] /p [/begin:...] [/end:...] [/beginfile:...] [/endfile:...] [/e:...] [arguments]
 
 The [options] above refers to other options not mentioned explicitly (see below).
 
 ## Usage (in details)
 
-Be aware: the options following after the script file or after the options declaring the one-liner program parts are considered as the arguments of the program and will be passed respectively.
+Be aware: the options following after the script file or after the options declaring the parts of the one-liner program are considered as the arguments of the program and will be passed respectively.
 
 ```
 
-Usage: wsx.wsf [/help] [/version] [/check] [/quiet] [/lib:value] [/vt] [/use:value] [/m:value] [/let:value] [/set:value] [/get:value] [/re:value] [/split:value] [/n] [/p] [/e:value] [/begin:value] [/end:value] [/beginfile:value] [/endfile:value] [scriptfile] [/f:value] [arguments]
+Использование: wsx.wsf [/help] [/version] [/check] [/quiet] [/lib:value] [/vt] [/use:value] [/m:value] [/let:value] [/set:value] [/get:value] [/re:value] [/split:value] [/n] [/p] [/e:value] [/begin:value] [/end:value] [/beginfile:value] [/endfile:value] [scriptfile] [/f:value] [arguments]
 
-Options:
+Параметры:
 
 help       : Print full description and exit ("/h" shortcut)
 version    : Print version information and exit
@@ -198,11 +198,11 @@ Print last 5 lines (similar to `tail -n 5` in Unix). The example is splitted on 
 
 The following command generates a markdown file available as a part of the repository. Any changes in the script and its parts are supposed to be replicated to this file also.
 
-    wsx /help | git-md-toc -cut > doc/wsx.md
+    cscript //nologo ./wsx.wsf /help | git-md-toc -cut > doc/wsx.md
 
 Also the documentation can be seen as HTML.
 
-    wsx /help | git-md-toc -cut | git-md-html | 2 html
+    cscript //nologo ./wsx.wsf /help | git-md-toc -cut | git-md-html | 2 html
 
 * `git-md-toc` - the Perl script for creating Table of Content.
   It's hosted at https://github.com/ildar-shaimordanov/git-markdown-toc
@@ -214,7 +214,7 @@ Also the documentation can be seen as HTML.
 
 # AUTHORS and CONTRIBUTORS
 
-Ildar Shaimordanov is the main author maintaining the tool since 2009. Initially it was JSCmd.js, the simple jscript file able to perform REPL. Later it evolved to wscmd.bat, the more powerful and configurable BAT+JS hybrid script creating a temporary WSF-file and executing it.
+Ildar Shaimordanov is the author maintaining the tool since 2009. This script was risen from JSCmd.js, the simple jscript file able to perform REPL. Later it evolved to wscmd.bat, the more powerful and configurable BAT+JS hybrid script creating a temporary WSF-file and executing it.
 
 Copyright (C) 2009-2015, 2019-2022 Ildar Shaimordanov
 
