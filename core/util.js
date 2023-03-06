@@ -127,7 +127,7 @@ var util = util || (function() {
 
 		var i = 0;
 
-		if ( typeof pattern == 'string' && pattern.match(reFormat) ) {
+		if ( typeof pattern == 'string' && reFormat.test(pattern) ) {
 			if ( args.length == 1 ) {
 				return pattern;
 			}
@@ -287,7 +287,7 @@ var util = util || (function() {
 			var v = typeof object[k] == 'unknown'
 				? stylizeUnknown(ctx)
 				: formatValue(ctx, object[k], indent);
-			if ( k === '' || k.match(/\W/) ) {
+			if ( k === '' || /^\d/.test(k) || /W/.test(k) ) {
 				k = ctx.stylize(formatString(k), 'string');
 			}
 			items.push(k + ': ' + v);
