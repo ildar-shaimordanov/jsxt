@@ -54,9 +54,9 @@ Be aware: the options following after the script file or after the options decla
 
 ```
 
-Использование: wsx.wsf [/help] [/version] [/check] [/quiet] [/lib:value] [/vt] [/use:value] [/m:value] [/let:value] [/set:value] [/get:value] [/re:value] [/split:value] [/n] [/p] [/e:value] [/begin:value] [/end:value] [/beginfile:value] [/endfile:value] [scriptfile] [/f:value] [arguments]
+Usage: wsx.wsf [/help] [/version] [/check] [/quiet] [/lib:value] [/vt] [/use:value] [/m:value] [/let:value] [/set:value] [/get:value] [/re:value] [/split:value] [/n] [/p] [/e:value] [/begin:value] [/end:value] [/beginfile:value] [/endfile:value] [scriptfile] [/f:value] [arguments]
 
-Параметры:
+Options:
 
 help       : Print full description and exit ("/h" shortcut)
 version    : Print version information and exit
@@ -195,21 +195,6 @@ Print last 5 lines (similar to `tail -n 5` in Unix). The example is splitted on 
 
     wsx /let:limit=5 /n /begin:"L=[]" /end:"echo(L.join('\n'))" ^
         /e:"L.push(LINE); L.length > limit && L.shift()"
-
-The following command generates a markdown file available as a part of the repository. Any changes in the script and its parts are supposed to be replicated to this file also.
-
-    cscript //nologo ./wsx.wsf /help | git-md-toc -cut > doc/wsx.md
-
-Also the documentation can be seen as HTML.
-
-    cscript //nologo ./wsx.wsf /help | git-md-toc -cut | git-md-html | 2 html
-
-* `git-md-toc` - the Perl script for creating Table of Content.
-  It's hosted at https://github.com/ildar-shaimordanov/git-markdown-toc
-* `git-md-html` - the set of scripts for converting markdown to HTML.
-  They are hosted at https://github.com/ildar-shaimordanov/git-markdown-html
-* `2` - the batch script for redirecting STDOUT to any GUI application.
-  It's hosted at https://github.com/ildar-shaimordanov/my-scripts
 
 
 # AUTHORS and CONTRIBUTORS

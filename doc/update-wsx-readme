@@ -1,0 +1,11 @@
+#!/bin/sh
+
+mydir="$( dirname "$0" )"
+
+chcp="$( cmd /c chcp | dos2unix | awk '{ print $NF }' )"
+
+trap 'cmd /c chcp $chcp' EXIT
+
+cmd /c chcp 65001
+
+cscript //nologo "$mydir/../wsx.wsf" /help | git-md-toc -cut > "$mydir/wsx.md"
