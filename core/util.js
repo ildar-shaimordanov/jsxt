@@ -287,7 +287,7 @@ var util = util || (function() {
 			var v = typeof object[k] == 'unknown'
 				? stylizeUnknown(ctx)
 				: formatValue(ctx, object[k], indent);
-			if ( k === '' || /^\d/.test(k) || /W/.test(k) ) {
+			if ( k === '' || /^\d/.test(k) || /\W/.test(k) ) {
 				k = ctx.stylize(formatString(k), 'string');
 			}
 			items.push(k + ': ' + v);
