@@ -2,7 +2,7 @@
 
 WSH-based extension to simplify XML processing and AJAX queries
 
-Copyright (c) 2009-2022 Ildar Shaimordanov
+Copyright (c) 2009-2023 Ildar Shaimordanov
 
 */
 
@@ -29,6 +29,8 @@ if ( typeof module != "undefined" ) {
 
 /*
 Create an XmlHttp object for processing AJAX requests.
+
+See also: XML.create, XML.queryURL
 
 // Example 1
 var xmlhttp = XML.createHTTP();
@@ -83,6 +85,8 @@ Available options:
 		`xmlhttp.readyState == 4`. It has higher priority against
 		onreadystatechange.
 
+See also: XML.create
+
 // Example 1
 var xml = XML.queryURL('http://example.com/download/somefile.xml', {
 	onreadystatechange: function(xmlhttp) {
@@ -94,6 +98,21 @@ var xml = XML.queryURL('http://example.com/download/somefile.xml', {
 
 // Example 2
 var xml = XML.queryURL('http://example.com/download/somefile.xml', {
+	onload: function(xmlhttp) {
+		return xmlhttp.responseXML;
+	}
+});
+
+// Example 3
+XML.queryURL(url, {
+	method: 'POST',
+	activex: {
+		ids: [ 'WinHttp.WinHttpRequest', 'Msxml2.ServerXMLHTTP' ]
+	},
+	body: XML.encode({
+		username: username,
+		password: password
+	}),
 	onload: function(xmlhttp) {
 		return xmlhttp.responseXML;
 	}
@@ -115,7 +134,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms763680(v=vs
 XML.queryURL = function(url, options) {
 	options = options || {};
 
-	var xmlhttp = XML.createHTTP({ progIds: options.progIds });
+	var xmlhttp = XML.createHTTP(options);
 	var result = null;
 
 	if ( ! /^\w+:\/\//.test(url) ) {
@@ -188,10 +207,12 @@ XML.queryURL = function(url, options) {
 /*
 Create an XML document.
 
+See also: XML.create
+
 // Example 1
 var xml = XML.createXML();
 */
-XML.createXML = function(options, properties) {
+XML.createXML = function(options) {
 	return XML.create([
 		'Msxml2.DOMDocument.6.0', 
 		'Msxml2.DOMDocument.5.0', 
@@ -199,7 +220,7 @@ XML.createXML = function(options, properties) {
 		'Msxml2.DOMDocument.3.0', 
 		'Msxml2.DOMDocument', 
 		'Microsoft.XMLDOM'
-	], options, properties);
+	], options);
 };
 
 /*
@@ -211,8 +232,8 @@ var xml = XML.load('example.xml');
 See also:
 https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms762722(v=vs.85)
 */
-XML.load = function(filename, options, properties) {
-	var xml = XML.createXML(options, properties);
+XML.load = function(filename, options) {
+	var xml = XML.createXML(options);
 	xml.load(filename);
 	XML.checkParseError(xml);
 	return xml;
@@ -227,8 +248,8 @@ var xml = XML.loadXML('<a />');
 See also:
 https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms754585(v=vs.85)
 */
-XML.loadXML = function(text, options, properties) {
-	var xml = XML.createXML(options, properties);
+XML.loadXML = function(text, options) {
+	var xml = XML.createXML(options);
 	xml.loadXML(text);
 	XML.checkParseError(xml);
 	return xml;
@@ -336,17 +357,19 @@ XML.getXPath = function(xmlNode) {
 /*
 Create XML Schema Cache.
 
+See also: XML.create
+
 // Example 1
 var cache = XML.createSchemaCache();
 */
-XML.createSchemaCache = function(options, properties) {
+XML.createSchemaCache = function(options) {
 	return XML.create([
 		'Msxml2.XMLSchemaCache.6.0',
 		'Msxml2.XMLSchemaCache.5.0',
 		'Msxml2.XMLSchemaCache.4.0',
 		'Msxml2.XMLSchemaCache.3.0',
 		'Msxml2.XMLSchemaCache'
-	], options, properties);
+	], options);
 };
 
 /*
@@ -368,8 +391,8 @@ var xml = XML.load('example.xml', {
 See also:
 https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms766451(v=vs.85)
 */
-XML.loadSchemaCache = function(nsURI, xsd, options, properties) {
-	var cache = XML.createSchemaCache(options, properties);
+XML.loadSchemaCache = function(nsURI, xsd, options) {
+	var cache = XML.createSchemaCache(options);
 	cache.add(nsURI || '', xsd);
 	return cache;
 };
@@ -408,7 +431,18 @@ XML.decode = function(data) {
 };
 
 /*
-Create an MSXML object based on the progIds list and set options and properties.
+Create an MSXML object based on a list of ActiveX classes
+and set up the object's options and properties.
+
+Arguments:
+* ids		the list of predefined ActiveX classes
+* options	other options for configuring the object
+
+Available options:
+* activex
+  * ids		a user-custom list of ActiveX classes
+  * options	options for setting the object
+  * properties	second level DOM properties
 
 It's used internally. You don't need to call it directly.
 
@@ -420,16 +454,19 @@ https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms766391(v=vs
 setProperty
 https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms760290(v=vs.85)
 */
-XML.create = function(ids, options, properties) {
+XML.create = function(ids, options) {
+	options = options || {};
+
+	var activex = options.activex || {};
 	var errors = [];
 
-	ids = [].concat(options && options.progIds || [], ids || []);
+	ids = [].concat(activex.ids || [], ids || []);
 	for (var i = 0; i < ids.length; i++) {
 		var e;
 		try {
 			var obj = new ActiveXObject(ids[i]);
-			XML.setOptions(obj, options);
-			XML.setProperties(obj, properties);
+			XML.setOptions(obj, activex.options);
+			XML.setProperties(obj, activex.properties);
 			return obj;
 		} catch(e) {
 			errors.push(ids[i] + ': ' + e.description);
