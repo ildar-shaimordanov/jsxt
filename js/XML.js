@@ -104,6 +104,7 @@ var xml = XML.queryURL('http://example.com/download/somefile.xml', {
 });
 
 // Example 3
+// https://stackoverflow.com/questions/11605613/differences-between-xmlhttp-and-serverxmlhttp
 XML.queryURL(url, {
 	method: 'POST',
 	activex: {
