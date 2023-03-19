@@ -107,9 +107,7 @@ var xml = XML.queryURL('http://example.com/download/somefile.xml', {
 // https://stackoverflow.com/questions/11605613/differences-between-xmlhttp-and-serverxmlhttp
 XML.queryURL(url, {
 	method: 'POST',
-	activex: {
-		ids: [ 'WinHttp.WinHttpRequest', 'Msxml2.ServerXMLHTTP' ]
-	},
+	progIds: [ 'WinHttp.WinHttpRequest', 'Msxml2.ServerXMLHTTP' ],
 	body: XML.encode({
 		username: username,
 		password: password
@@ -135,7 +133,7 @@ https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms763680(v=vs
 XML.queryURL = function(url, options) {
 	options = options || {};
 
-	var xmlhttp = XML.createHTTP(options);
+	var xmlhttp = XML.createHTTP({ progIds: options.progIds });
 	var result = null;
 
 	if ( ! /^\w+:\/\//.test(url) ) {
@@ -213,7 +211,7 @@ See also: XML.create
 // Example 1
 var xml = XML.createXML();
 */
-XML.createXML = function(options) {
+XML.createXML = function(options, properties) {
 	return XML.create([
 		'Msxml2.DOMDocument.6.0', 
 		'Msxml2.DOMDocument.5.0', 
@@ -221,7 +219,7 @@ XML.createXML = function(options) {
 		'Msxml2.DOMDocument.3.0', 
 		'Msxml2.DOMDocument', 
 		'Microsoft.XMLDOM'
-	], options);
+	], options, properties);
 };
 
 /*
@@ -233,8 +231,8 @@ var xml = XML.load('example.xml');
 See also:
 https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms762722(v=vs.85)
 */
-XML.load = function(filename, options) {
-	var xml = XML.createXML(options);
+XML.load = function(filename, options, properties) {
+	var xml = XML.createXML(options, properties);
 	xml.load(filename);
 	XML.checkParseError(xml);
 	return xml;
@@ -249,8 +247,8 @@ var xml = XML.loadXML('<a />');
 See also:
 https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms754585(v=vs.85)
 */
-XML.loadXML = function(text, options) {
-	var xml = XML.createXML(options);
+XML.loadXML = function(text, options, properties) {
+	var xml = XML.createXML(options, properties);
 	xml.loadXML(text);
 	XML.checkParseError(xml);
 	return xml;
@@ -363,14 +361,14 @@ See also: XML.create
 // Example 1
 var cache = XML.createSchemaCache();
 */
-XML.createSchemaCache = function(options) {
+XML.createSchemaCache = function(options, properties) {
 	return XML.create([
 		'Msxml2.XMLSchemaCache.6.0',
 		'Msxml2.XMLSchemaCache.5.0',
 		'Msxml2.XMLSchemaCache.4.0',
 		'Msxml2.XMLSchemaCache.3.0',
 		'Msxml2.XMLSchemaCache'
-	], options);
+	], options, properties);
 };
 
 /*
@@ -392,8 +390,8 @@ var xml = XML.load('example.xml', {
 See also:
 https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms766451(v=vs.85)
 */
-XML.loadSchemaCache = function(nsURI, xsd, options) {
-	var cache = XML.createSchemaCache(options);
+XML.loadSchemaCache = function(nsURI, xsd, options, properties) {
+	var cache = XML.createSchemaCache(options, properties);
 	cache.add(nsURI || '', xsd);
 	return cache;
 };
@@ -438,12 +436,10 @@ and set up the object's options and properties.
 Arguments:
 * ids		the list of predefined ActiveX classes
 * options	other options for configuring the object
+* properties	the second level DOM properties
 
 Available options:
-* activex
-  * ids		a user-custom list of ActiveX classes
-  * options	options for setting the object
-  * properties	second level DOM properties
+* progIds	a user-custom list of ActiveX classes
 
 It's used internally. You don't need to call it directly.
 
@@ -455,19 +451,16 @@ https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms766391(v=vs
 setProperty
 https://docs.microsoft.com/en-us/previous-versions/windows/desktop/ms760290(v=vs.85)
 */
-XML.create = function(ids, options) {
-	options = options || {};
-
-	var activex = options.activex || {};
+XML.create = function(ids, options, properties) {
 	var errors = [];
 
-	ids = [].concat(activex.ids || [], ids || []);
+	ids = [].concat(options && options.progIds || [], ids || []);
 	for (var i = 0; i < ids.length; i++) {
 		var e;
 		try {
 			var obj = new ActiveXObject(ids[i]);
-			XML.setOptions(obj, activex.options);
-			XML.setProperties(obj, activex.properties);
+			XML.setOptions(obj, options);
+			XML.setProperties(obj, properties);
 			return obj;
 		} catch(e) {
 			errors.push(ids[i] + ': ' + e.description);
