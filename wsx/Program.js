@@ -2,7 +2,7 @@
 // Program
 // This script is the part of the wsx
 //
-// Copyright (c) 2019-2021 by Ildar Shaimordanov
+// Copyright (c) 2019-2023 by Ildar Shaimordanov
 //
 
 var Program = {
@@ -107,21 +107,23 @@ var Program = {
 
 		var m = re.exec(imports);
 
+		if ( ! m ) {
+			return;
+		}
+
 		var s = this.addScript(lang, m[2]);
 		var r = [];
 
-		if ( m[1] ) {
-			r.push(m[1] + ' = exports;');
-		}
+		var aliasName = m[1];
+		var alias = aliasName || 'imports';
 
 		while ( m = re.exec(imports) ) {
-			r.push(( m[1] || m[2] ) + ' = exports.' + m[2] + ';');
+			r.push(( m[1] || m[2] ) + ' = ' + alias + '.' + m[2]);
 		}
 
-		if ( r.length ) {
-			r.unshift('(function(exports) {');
-			r.push('})(' + s + ' || {})');
-			s = r.join(' ');
+		if ( r.length || aliasName ) {
+			r.unshift(alias + ' = ' + s);
+			s = r.join('; ');
 		}
 
 		this.modules.push(s);
