@@ -88,7 +88,10 @@ Available options:
 See also: XML.create
 
 // Example 1
-var xml = XML.queryURL('http://example.com/download/somefile.xml', {
+var text = XML.queryURL(url);
+
+// Example 2
+var xml = XML.queryURL(url, {
 	onreadystatechange: function(xmlhttp) {
 		if ( xmlhttp.readState == 4 ) {
 			return xmlhttp.responseXML;
@@ -96,14 +99,14 @@ var xml = XML.queryURL('http://example.com/download/somefile.xml', {
 	}
 });
 
-// Example 2
-var xml = XML.queryURL('http://example.com/download/somefile.xml', {
+// Example 3
+var xml = XML.queryURL(url, {
 	onload: function(xmlhttp) {
 		return xmlhttp.responseXML;
 	}
 });
 
-// Example 3
+// Example 4
 // https://stackoverflow.com/questions/11605613/differences-between-xmlhttp-and-serverxmlhttp
 XML.queryURL(url, {
 	method: 'POST',
@@ -153,17 +156,23 @@ XML.queryURL = function(url, options) {
 			options.proxy.password);
 	}
 
+	var fn;
+
 	if ( typeof options.onload == 'function' ) {
-		xmlhttp.onreadystatechange = function() {
+		fn = function() {
 			if ( xmlhttp.readyState != 4 ) {
 				return;
 			}
 			result = options.onload(xmlhttp);
 		};
 	} else if ( typeof options.onreadystatechange == 'function' ) {
-		xmlhttp.onreadystatechange = function() {
+		fn = function() {
 			result = options.onreadystatechange(xmlhttp);
 		};
+	}
+
+	if ( fn ) {
+		xmlhttp.onreadystatechange = fn;
 	}
 
 	var headers = {};
@@ -200,7 +209,7 @@ XML.queryURL = function(url, options) {
 
 	xmlhttp.send(body);
 
-	return result;
+	return !! options.async || fn ? result : xmlhttp.responseText;
 };
 
 /*
