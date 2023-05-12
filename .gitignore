@@ -1,2 +1,5 @@
+# the core-js stuff
+lib/*
+
 # test scripts etc...
 z*
