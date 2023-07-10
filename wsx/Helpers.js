@@ -81,37 +81,24 @@ var sleep = function(time) {
 };
 
 var clip = function(text) {
-	if ( typeof text == 'undefined' ) {
-		return new ActiveXObject('htmlfile').parentWindow.clipboardData.getData('Text');
-	}
+	return text === undefined ? clip.paste() : clip.copy(text);
+}
 
-	// Validate a value is integer in the range 1..100
-	// Otherwise, defaults to 20
-	var clamp = function(x) {
-		x = Number(x);
-		if ( isNaN(x) || x < 1 || x > 100 ) {
-			x = 20;
-		}
-		return x;
-	};
-
-	var WAIT1 = clamp(clip.WAIT_READY);
-	var WAIT2 = clamp(clip.WAIT_LOADED);
-
+clip.copyUsingMsie = function(text) {
 	// Borrowed from https://stackoverflow.com/a/16216602/3627676
 	var msie = new ActiveXObject('InternetExplorer.Application');
-	msie.silent = true;
+	msie.Silent = true;
 	msie.Visible = false;
 	msie.Navigate('about:blank');
 
 	// Wait until MSIE ready
 	while ( msie.ReadyState != 4 ) {
-		WScript.Sleep(WAIT1);
+		WScript.Sleep(50);
 	}
 
 	// Wait until document loaded
 	while ( msie.document.readyState != 'complete' ) {
-		WScript.Sleep(WAIT2);
+		WScript.Sleep(50);
 	}
 
 	msie.document.body.innerHTML = '<textarea id="area" wrap="off" />';
@@ -120,11 +107,47 @@ var clip = function(text) {
 	area.select();
 	area = null;
 
-	// 12 - "Edit" menu, "Copy" command
-	//  0 - the default behavior
-	msie.ExecWB(12, 0);
+	msie.document.execCommand('copy');
+
 	msie.Quit();
 	msie = null;
+};
+
+clip.copyUsingFile = function(text) {
+	var fso = new ActiveXObject('Scripting.FileSystemObject');
+	var shell = new ActiveXObject('WScript.Shell');
+	var env = shell.Environment('PROCESS');
+
+	// theoretically can be changed, but anyway we keep it here
+	var tmpdir = env.Item('TEMP');
+	//var tmpdir = '.'; // for testing
+
+	// computed every time
+	var tmpfile = tmpdir + '/.clip.' + new Date().getTime();
+	var cmdline = 'cmd /c clip < "' + tmpfile + '"';
+
+	// open a file for writing
+	// create, if it doesn't exist
+	// use the system default
+	var f = fso.OpenTextFile(tmpfile, 2, true, -2);
+	f.Write(text);
+	f.Close();
+
+	var proc = shell.Exec(cmdline);
+	while ( proc.Status == 0 ) {
+		WScript.Sleep(50);
+	}
+
+	fso.DeleteFile(tmpfile, true);
+};
+
+clip.copy = clip.copyUsingFile;
+
+clip.paste = function() {
+	return new ActiveXObject('htmlfile')
+	.parentWindow
+	.clipboardData
+	.getData('Text');
 };
 
 var enableVT = (function() {
