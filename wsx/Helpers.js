@@ -84,21 +84,23 @@ var clip = function(text) {
 	return text === undefined ? clip.paste() : clip.copy(text);
 }
 
-clip.copyUsingMsie = function(text) {
+clip.copyUsingMsie = function(text, opts) {
+	opts = opts || clip.copyOptions || {};
+
 	// Borrowed from https://stackoverflow.com/a/16216602/3627676
 	var msie = new ActiveXObject('InternetExplorer.Application');
-	msie.Silent = true;
-	msie.Visible = false;
+	msie.Silent = 'msieSilent' in opts ? opts.msieSilent : true;
+	msie.Visible = !! opts.msieVisible;
 	msie.Navigate('about:blank');
 
 	// Wait until MSIE ready
 	while ( msie.ReadyState != 4 ) {
-		WScript.Sleep(50);
+		WScript.Sleep(opts.msieReadyTimeout || 50);
 	}
 
 	// Wait until document loaded
 	while ( msie.document.readyState != 'complete' ) {
-		WScript.Sleep(50);
+		WScript.Sleep(opts.msieLoadedTimeout || 50);
 	}
 
 	msie.document.body.innerHTML = '<textarea id="area" wrap="off" />';
@@ -113,41 +115,60 @@ clip.copyUsingMsie = function(text) {
 	msie = null;
 };
 
-clip.copyUsingFile = function(text) {
+clip.copyUsingFile = function(text, opts) {
+	opts = opts || clip.copyOptions || {};
+
 	var fso = new ActiveXObject('Scripting.FileSystemObject');
 	var shell = new ActiveXObject('WScript.Shell');
 	var env = shell.Environment('PROCESS');
 
-	// theoretically can be changed, but anyway we keep it here
-	var tmpdir = env.Item('TEMP');
-	//var tmpdir = '.'; // for testing
-
 	// computed every time
+	var tmpdir = opts.fileTempDir || env.Item('TEMP');
 	var tmpfile = tmpdir + '/.clip.' + new Date().getTime();
 	var cmdline = 'cmd /c clip < "' + tmpfile + '"';
 
-	// open a file for writing
-	// create, if it doesn't exist
-	// use the system default
-	var f = fso.OpenTextFile(tmpfile, 2, true, -2);
+	// open a file for writing (2)
+	// create, if it doesn't exist (true)
+	// use the system default (-2)
+	var m = 'fileOpenMode' in opts ? opts.fileOpenMode : -2;
+	var f = fso.OpenTextFile(tmpfile, 2, true, m);
 	f.Write(text);
 	f.Close();
 
 	var proc = shell.Exec(cmdline);
 	while ( proc.Status == 0 ) {
-		WScript.Sleep(50);
+		WScript.Sleep(opts.fileExecTimeout || 50);
 	}
 
-	fso.DeleteFile(tmpfile, true);
+	opts.fileDontDelete || fso.DeleteFile(tmpfile, true);
 };
 
-clip.copy = clip.copyUsingFile;
+clip.copy = function(text, opts) {
+	var useMsie = opts && opts.useMsie
+	|| clip.copyOptions && clip.copyOptions.useMsie;
+
+	clip[useMsie ? 'copyUsingMsie' : 'copyUsingFile'](text, opts);
+};
 
 clip.paste = function() {
 	return new ActiveXObject('htmlfile')
 	.parentWindow
 	.clipboardData
 	.getData('Text');
+};
+
+clip.copyOptions = {
+	msieSilent: true,
+	msieVisible: false,
+	msieReadyTimeout: 50,
+	msieLoadedTimeout: 50,
+
+	fileTempDir: '',
+	fileOpenMode: -2,
+	fileExecTimeout: 50,
+	fileDontDelete: false,
+
+	useMsie: false
 };
 
 var enableVT = (function() {
