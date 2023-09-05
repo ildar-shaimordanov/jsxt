@@ -26,7 +26,7 @@
 //
 // Non-standard extension
 //
-// util.enableColors
+// util.inspect.enableColors
 //
 // More information about API for util:
 // https://nodejs.org/api/util.html
@@ -429,13 +429,10 @@ var util = util || (function() {
 // https://nodejs.org/api/util.html#utilinspectobject-showhidden-depth-colors
 
 	function inspect(object, options) {
-		var ctx = objectAssign({}, inspect.defaultOptions, {
-			circular: [],
-			seen: [],
-			currentDepth: 0,
-			stylize: colorless
-		});
+		// 1. initialize the context with the global settings
+		var ctx = objectAssign({}, inspect.defaultOptions);
 
+		// 2. modify the context with the user defined settings
 		if ( options && typeof options == 'object' ) {
 			objectAssign(ctx, options);
 		} else {
@@ -449,6 +446,14 @@ var util = util || (function() {
 				ctx.colors = arguments[3];
 			}
 		}
+
+		// 3. initialize the internally used stuff
+		objectAssign(ctx, {
+			circular: [],
+			seen: [],
+			currentDepth: 0,
+			stylize: colorless
+		});
 
 		if ( ctx.colors ) {
 			ctx.stylize = colorful;
@@ -473,6 +478,7 @@ var util = util || (function() {
 
 		// The trick is borrowed from this thread:
 		// https://www.dostips.com/forum/viewtopic.php?p=63393#p63393
+
 		var shell = new ActiveXObject('WScript.Shell');
 		var proc = shell.Exec('powershell -nop -ep bypass -c exit');
 
@@ -480,6 +486,8 @@ var util = util || (function() {
 			WScript.Sleep(50);
 		}
 	}
+
+	inspect.enableColors = enableColors;
 
 // Borrowed with modifications from
 // https://github.com/nodejs/node/blob/950a4411facdcaf6450cf3943f034177d0e21e3d/lib/internal/util/inspect.js#L365-L416
@@ -611,10 +619,7 @@ var util = util || (function() {
 	return {
 		format: format,
 		formatWithOptions: formatWithOptions,
-		inspect: inspect,
-
-		// Non-standard extension
-		enableColors: enableColors
+		inspect: inspect
 	};
 
 })();

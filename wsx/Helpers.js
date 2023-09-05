@@ -2,7 +2,7 @@
 // Set of useful and convenient definitions
 // This script is the part of the wsx
 //
-// Copyright (c) 2019, 2020 by Ildar Shaimordanov
+// Copyright (c) 2019, 2020-2023 by Ildar Shaimordanov
 //
 
 var FSO = new ActiveXObject('Scripting.FileSystemObject');
@@ -45,27 +45,25 @@ var quit = exit = function(exitCode) {
 	WScript.Quit(exitCode);
 };
 
+var sleep = function(time) {
+	return WScript.Sleep(time);
+};
+
 var cmd = shell = function(command) {
 	var shell = new ActiveXObject('WScript.Shell');
 	shell.Run(command || '%COMSPEC%');
 };
 
 var exec = function(command, cb) {
-	var shell = new ActiveXObject('WScript.Shell');
-	var proc = shell.Exec(command);
-
-	if ( cb === true ) {
-		cb = function(proc) {
-			WScript.Sleep(50);
-		}
-	}
-
 	if ( typeof cb == 'number' && cb > 0 ) {
 		var timeout = cb;
 		cb = function(proc) {
 			WScript.Sleep(timeout);
 		};
 	}
+
+	var shell = new ActiveXObject('WScript.Shell');
+	var proc = shell.Exec(command);
 
 	if ( typeof cb != 'function' ) {
 		return proc;
@@ -74,10 +72,6 @@ var exec = function(command, cb) {
 	while ( proc.Status == 0 ) {
 		cb(proc);
 	}
-};
-
-var sleep = function(time) {
-	return WScript.Sleep(time);
 };
 
 var clip = function(text) {
@@ -203,12 +197,15 @@ var enableVT = (function() {
 			return;
 		}
 
-		if ( typeof util.enableColors == 'function' ) {
+		if ( typeof util.inspect != 'function' ) {
+			return;
+		}
+
+		if ( typeof util.inspect.enableColors == 'function' ) {
 			util.enableColors(true);
 		}
 
-		if ( typeof util.inspect == 'function'
-		&& util.inspect.defaultOptions != null ) {
+		if ( util.inspect.defaultOptions != null ) {
 			util.inspect.defaultOptions.colors = true;
 		}
 	};
@@ -230,12 +227,11 @@ if ( typeof exports != "undefined" ) {
 
 	exports.quit = quit;
 	exports.exit = exit;
-
+	exports.sleep = sleep;
 	exports.cmd = cmd;
 	exports.shell = shell;
 	exports.exec = exec;
 
-	exports.sleep = sleep;
 	exports.clip = clip;
 	exports.enableVT = enableVT;
 }
