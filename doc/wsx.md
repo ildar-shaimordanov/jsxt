@@ -129,15 +129,14 @@ For details see these links:
 
 Functions:
 
-* `usage()`, `help()`            - Display this help
-* `echo()`, `print()`, `alert()` - Print expressions
-* `quit()`, `exit()`             - Quit this shell
-* `cmd()`, `shell()`             - Run a command or DOS-session
-* `exec()`                       - Run a command in a child shell
-                                   (callback handles StdIn/StdOut/StdErr)
-* `sleep(n)`                     - Sleep n milliseconds
-* `clip()`                       - Read from or write to clipboard
-* `enableVT()`                   - Enable VT globally, for all outputs
+* `print()`, `warn()`, `sprintf()` - Print expressions
+* `exit()`                         - Quit this shell
+* `sleep(n)`                       - Sleep n milliseconds
+* `cmd()`,                         - Run a command or DOS-session
+* `exec()`                         - Run a command in a child shell
+                                     (callback handles StdIn/StdOut/StdErr)
+* `enableVT()`                     - Enable VT globally, for all outputs
+* `clip()`                         - Read from or write to clipboard
 
 Objects:
 
