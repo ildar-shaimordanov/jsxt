@@ -14,7 +14,7 @@ goto :EOF
 <script language="javascript"><![CDATA[
 
 var NAME    = 'WSX';
-var VERSION = '1.1.0 Alpha';
+var VERSION = '1.1.1 Alpha';
 
 ]]></script>
 
@@ -273,9 +273,9 @@ For more convenience they are presented separately in the sections below.
 
 This script implements few features suggested by CommonJS extending them with WSH specialties.
 
-* `console.log()` and friends - display messages
-* `require()`                 - load a JS module in RT
-* `require.vbs()`             - ditto for VBS (extension)
+* `console.log()`	- display messages
+* `require()`		- load a JS module in RT
+* `require.vbs()`	- ditto for VBS (extension)
 
 For details see these links:
 
@@ -284,57 +284,59 @@ For details see these links:
 
 ## Frequently used WSH objects
 
-* `FSO`     - The object `Scripting.FileSystemObject`
-* `SHELL`   - The object `WScript.Shell`
-* `STDIN`   - The reference to `WScript.StdIn`
-* `STDOUT`  - The reference to `WScript.StdOut`
-* `STDERR`  - The reference to `WScript.StdErr`
+* `FSO`			- The object `Scripting.FileSystemObject`
+* `SHELL`		- The object `WScript.Shell`
+* `STDIN`		- The reference to `WScript.StdIn`
+* `STDOUT`		- The reference to `WScript.StdOut`
+* `STDERR`		- The reference to `WScript.StdErr`
 
 ## General purpose objects
 
 Functions:
 
-* `print()`, `warn()`, `sprintf()` - Print expressions
-* `exit()`                         - Quit this shell
-* `sleep(n)`                       - Sleep n milliseconds
-* `cmd()`,                         - Run a command or DOS-session
-* `exec()`                         - Run a command in a child shell
-                                     (callback handles StdIn/StdOut/StdErr)
-* `enableVT()`                     - Enable VT globally, for all outputs
-* `clip()`                         - Read from or write to clipboard
+* `print()`, `warn()`	- Print expressions
+* `sprintf()`		- Format the arguments in a C-like style
+* `exit(n)`		- Quit this shell
+* `sleep(n)`		- Sleep n milliseconds
+* `cmd(command)`	- Run a command or DOS-session
+* `exec(command, cb)`	- Run a command in a child shell
+			  (a callback can handle StdIn/StdOut/StdErr)
+* `enableVT()`		- Enable VT globally, for all outputs
+* `clip()`		- Read from or write to clipboard
 
 Objects:
 
-* `ERROR`   - The variable keeping the last error
-* `ARGV`    - The CLI arguments
+* `ERROR`		- The variable keeping the last error
+* `ARGV`		- The CLI arguments
 
 ## Loop mode
 
 The following objects are available when the tool is executed in the loop mode as `wsx /n /e:...` or `wsx /p /e:...`.
 
-* `STREAM`  - The reference to the stream of the current file
-* `FILE`    - The name of the current file
-* `FILEFMT` - The format to open files (`ascii`, `unicode` or system `default`)
-* `LINE`    - The current line
-* `FLN`     - The line number in the current file
-* `LN`      - The total line number
+* `STREAM`		- The reference to the stream of the current file
+* `FILE`		- The name of the current file
+* `FILEFMT`		- The format to open files
+			  (`ascii`, `unicode` or system `default`)
+* `LINE`		- The current line
+* `FLN`			- The line number in the current file
+* `LN`			- The total line number
 
 The following array is available when the split mode is turned on with the `/split:...` option.
 
-* `FIELDS`  - The array of fields
+* `FIELDS`		- The array of fields
 
 These special functions can be used in the loop mode only to cover the issue when we can't use `continue` and `break`.
 
-* `next()`  - acts as the `continue` operator
-* `last()`  - acts as the `break` operator
+* `next()`		- acts as the `continue` operator
+* `last()`		- acts as the `break` operator
 
 ## REPL mode
 
 The interactive mode provides the following useful properties for referencing to the history of the commands and REPL mode:
 
-* `REPL.number`  - the current line number
-* `REPL.history` - the list of all commands entered in the current session
-* `REPL.quiet`   - the current session mode
+* `REPL.number`		- the current line number
+* `REPL.history`	- the list of all commands entered in the current session
+* `REPL.quiet`		- the current session mode
 
 
 # EXAMPLES
