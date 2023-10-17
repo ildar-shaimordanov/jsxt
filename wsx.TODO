@@ -1,3 +1,7 @@
+The list of the future changes
+
+===========================================================================
+
 Make "require()" compliant to the NodeJS standard
 https://nodejs.org/api/modules.html#modules_all_together
 
@@ -17,3 +21,8 @@ enable setting the `require.main` property for
 - one-line program
 
 ===========================================================================
+
+Fix difference between this for REPL and script. Compare:
+
+    echo console.log(this) | wsx
+    wsx /e:console.log(this)
