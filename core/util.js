@@ -127,6 +127,8 @@ var util = util || (function() {
 
 		var i = 0;
 
+		reFormat.lastIndex = 0;
+
 		if ( typeof pattern == 'string' && reFormat.test(pattern) ) {
 			if ( args.length == 1 ) {
 				return pattern;
