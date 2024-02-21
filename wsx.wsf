@@ -14,7 +14,7 @@ goto :EOF
 <script language="javascript"><![CDATA[
 
 var NAME    = 'WSX';
-var VERSION = '1.1.1 Alpha';
+var VERSION = '1.1.2 Alpha';
 
 ]]></script>
 
@@ -27,16 +27,16 @@ var VERSION = '1.1.1 Alpha';
 <script language="vbscript" src="./core/exporter.vbs"></script>
 
 <script language="javascript" src="./core/REPL.js"></script>
-<script language="javascript" src="./core/Program.js"></script>
+<script language="javascript" src="./core/program.js"></script>
 
 <script language="javascript"><![CDATA[
 
-Program.parseArguments();
+program.parseArguments();
 
-if ( Program.check ) {
-	Program.showPseudoCode();
+if ( program.check ) {
+	program.showPseudoCode();
 } else {
-	Program.run();
+	program.run();
 }
 
 ]]></script>
@@ -367,7 +367,7 @@ Print last 5 lines (similar to `tail -n 5` in Unix). The example is splitted on 
 
 Ildar Shaimordanov is the author maintaining the tool since 2009. This script was risen from JSCmd.js, the simple jscript file able to perform REPL. Later it evolved to wscmd.bat, the more powerful and configurable BAT+JS hybrid script creating a temporary WSF-file and executing it.
 
-Copyright (C) 2009-2015, 2019-2023 Ildar Shaimordanov
+Copyright (C) 2009-2015, 2019-2024 Ildar Shaimordanov
 
 
 # LICENSE

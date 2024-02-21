@@ -1,11 +1,11 @@
 //
-// Program
+// program.js
 // This script is the part of the wsx
 //
-// Copyright (c) 2019-2023 by Ildar Shaimordanov
+// Copyright (c) 2019-2024 by Ildar Shaimordanov
 //
 
-var Program = {
+var program = {
 	argv: [],
 
 	libs: [],
@@ -396,33 +396,18 @@ var Program = {
 		this.print('StdOut', s.join('\n'));
 	},
 
-	// Run the "optimized" code
+	// Run the code in the global scope
 	run: function() {
-		eval('(function() { return ' + this.prepare() + '})()').apply(this);
-	},
-
-	// "Optimize" the code:
-	// find each    : eval(this.SOMETHING.join(";"))
-	// replace with : this.SOMETHING.join(";")
-	prepare: function() {
-		var that = this;
-		return this.runner.toString()
-		.replace(
-			/^(\s*)eval\(this\.(\w+)\.join\(";"\)\)/gm,
-			function(chunk, space, name) {
-				return space + that[name].join(';');
-			}
-		);
+		this.runner.call(null, this);
 	},
 
 	/*
-	Usage of "new Function()" instead "eval()" could be good
-	approach. However any declared function becomes local and is not
-	visible out of "new Function()". Also this method prohibits the
-	"var" keyword. Again, because variables declared with "var"
-	are local for their scope.
+	This method itself is executed in the global scope. Thus, "this"
+	refers to the global object. Everything is declared and executed
+	within the scope of this method. So everything is visible to
+	each other.
 	*/
-	runner: function() {
+	runner: function(program) {
 		/*
 		The following variables are declared without the "var"
 		keyword. So they become global and available for all
@@ -430,54 +415,62 @@ var Program = {
 		JScript and VBScript.
 		*/
 
-		// Helper to simplify VBS importing
+		/*
+		Helper to simplify VBS importing
+		*/
 		require.vbs = function(id) {
 			require.vbs.exporter.IncludeFile(id);
 		};
 		require.vbs.exporter = CreateExporter();
 
-		// Keep a last exception
+		/*
+		Keep the latest exception
+		*/
 		ERROR = null;
 
-		// Reference to CLI arguments
-		ARGV = this.argv;
+		/*
+		Reference to the CLI arguments
+		*/
+		ARGV = program.argv;
 
-		// Prepend directories to the search path for modules
-		if ( this.libs.length ) {
-			require.paths.unshift.apply(require.paths, this.libs);
-			require.vbs.exporter.PathInsert(this.libs)
+		/*
+		Prepend directories to the search path for modules
+		*/
+		if ( program.libs.length ) {
+			require.paths.unshift.apply(require.paths, program.libs);
+			require.vbs.exporter.PathInsert(program.libs)
 		}
 
 		/*
 		Turn on VT
 		*/
-		if ( this.vt ) {
+		if ( program.vt ) {
 			enableVT();
 		}
 
 		/*
 		Load provided modules.
 		*/
-		eval(this.modules.join(";"));
+		eval(program.modules.join(";"));
 
 		/*
 		Set user-defined variables.
 		*/
-		eval(this.vars.join(";"));
+		eval(program.vars.join(";"));
 
 		/*
 		Load and run the external script.
 		*/
-		if ( this.script.length ) {
-			eval(this.script.join(";"));
+		if ( program.script.length ) {
+			eval(program.script.join(";"));
 			return;
 		}
 
 		/*
 		Run REPL
 		*/
-		if ( this.main.length == 0 && ! this.inLoop ) {
-			REPL.quiet = this.quiet;
+		if ( program.main.length == 0 && ! program.inLoop ) {
+			REPL.quiet = program.quiet;
 			REPL();
 			return;
 		}
@@ -485,38 +478,54 @@ var Program = {
 		/*
 		Load the main one-liner program.
 		*/
-		if ( ! this.inLoop ) {
-			eval(this.begin.join(";"));
-			eval(this.main.join(";"));
-			eval(this.end.join(";"));
+		if ( ! program.inLoop ) {
+			eval(program.begin.join(";"));
+			eval(program.main.join(";"));
+			eval(program.end.join(";"));
 			return;
 		}
 
-		// The currently open stream
+		/*
+		The currently open stream
+		*/
 		STREAM = null;
 
-		// The current filename, file format and file number
+		/*
+		The current filename, file format and file number
+		*/
 		FILE = '';
 		FILEFMT = 0;
 
-		// The current line read from the stream
+		/*
+		The current line read from the stream
+		*/
 		LINE = '';
 
-		// The line number in the current file
+		/*
+		The line number in the current file
+		*/
 		FLN = 0;
 
-		// The list of fields of each line
+		/*
+		The list of fields of each line
+		*/
 		FIELDS = [];
 
-		// The total line number
+		/*
+		The total line number
+		*/
 		LN = 0;
 
-		// Emulate the "continue" operator
+		/*
+		Emulate the "continue" operator
+		*/
 		next = function() {
 			throw new EvalError('next');
 		};
 
-		// Emulate the "break" operator
+		/*
+		Emulate the "break" operator
+		*/
 		last = function() {
 			throw new EvalError('last');
 		};
@@ -525,7 +534,7 @@ var Program = {
 		Execute some code before starting to process any file.
 		This is good place to initialize something.
 		*/
-		eval(this.begin.join(";"));
+		eval(program.begin.join(";"));
 
 		if ( ! ARGV.length ) {
 			ARGV.push('con');
@@ -553,14 +562,14 @@ var Program = {
 		Execute the code before starting to process the file. We
 		can do here something while the file is not opened.
 		*/
-			eval(this.beginfile.join(";"));
+			eval(program.beginfile.join(";"));
 
 			try {
 				STREAM = FILE.toLowerCase() == 'con'
 					? STDIN
 					: FSO.OpenTextFile(FILE, 1, false, FILEFMT);
 			} catch (ERROR) {
-				this.print('StdErr', ERROR.message + ': ' + FILE);
+				program.print('StdErr', ERROR.message + ': ' + FILE);
 				continue;
 			}
 
@@ -573,7 +582,7 @@ var Program = {
 			//try {
 			//	STREAM.AtEndOfStream;
 			//} catch (ERROR) {
-			//	this.print('StdErr', 'Out of stream: ' + FILE);
+			//	program.print('StdErr', 'Out of stream: ' + FILE);
 			//	continue;
 			//}
 
@@ -587,7 +596,7 @@ var Program = {
 		Perform the main one-liner program per each input line.
 		*/
 				try {
-					eval(this.main.join(";"));
+					eval(program.main.join(";"));
 				} catch (ERROR) {
 					if ( ERROR instanceof EvalError
 					&& ERROR.message == 'next' ) {
@@ -600,8 +609,8 @@ var Program = {
 					throw ERROR;
 				}
 
-				if ( this.inLoop == 2 ) {
-					this.print('StdOut', LINE);
+				if ( program.inLoop == 2 ) {
+					program.print('StdOut', LINE);
 				}
 			} // while ( ! STREAM.AtEndOfStream )
 
@@ -614,7 +623,7 @@ var Program = {
 		do some finalization (i.e.: print the number of lines
 		in the file).
 		*/
-			eval(this.endfile.join(";"));
+			eval(program.endfile.join(";"));
 
 		} // while ( ARGV.length )
 
@@ -623,6 +632,6 @@ var Program = {
 		finalize the processing (i.e.: print the total number
 		of lines).
 		*/
-		eval(this.end.join(";"));
+		eval(program.end.join(";"));
 	}
 };
