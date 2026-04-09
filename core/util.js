@@ -76,121 +76,6 @@ var util = util || (function() {
 		return m && m[1] || '';
 	}
 
-	var formatters = {};
-
-	formatters.s = function(v, options) {
-		return typeof v != 'object' ? String(v) : inspect(v, {
-			compact: 3,
-			colors: false,
-			depth: 0
-		});
-	};
-
-	formatters.d = function(v, options) {
-		return Number(v);
-	};
-
-	formatters.i = function(v, options) {
-		return parseInt(v);
-	};
-
-	formatters.f = function(v, options) {
-		return parseFloat(v);
-	};
-
-	formatters.j = function(v, options) {
-		return typeof JSON == 'undefined' ? String(v) : JSON.stringify(v);
-	};
-
-	formatters.o = function(v, options) {
-		return inspect(v, objectAssign({}, options, {
-			showHidden: true,
-			showProxy: true,
-			depth: 4
-		}));
-	};
-
-	formatters.O = function(v, options) {
-		return inspect(v, options);
-	};
-
-	formatters.c = function(v, options) {
-		return '';
-	};
-
-	var reFormat = /%([%sdifjoOc])/g;
-
-	function formatArgsWithOptions(options, args) {
-		var pattern = args[0];
-
-		var result = [];
-
-		var i = 0;
-
-		reFormat.lastIndex = 0;
-
-		if ( typeof pattern == 'string' && reFormat.test(pattern) ) {
-			if ( args.length == 1 ) {
-				return pattern;
-			}
-
-			i = 1;
-			var s = pattern.replace(reFormat, function(format, id) {
-				if ( id == '%' ) {
-					return '%';
-				}
-
-				if ( i >= args.length ) {
-					return format;
-				}
-
-				return formatters[id](args[i++], options);
-			});
-			result.push(s);
-		}
-
-		for (; i < args.length; i++) {
-			var v = args[i];
-			result.push(typeof v == 'string' ? v : inspect(v, options));
-		}
-
-		return result.join(' ');
-	}
-
-// https://nodejs.org/api/util.html#utilformatwithoptionsinspectoptions-format-args
-
-	function formatWithOptions(options) {
-		return formatArgsWithOptions(options,
-			Array.prototype.slice.call(arguments, 1));
-	}
-
-// https://nodejs.org/api/util.html#utilformatformat-args
-
-	function format() {
-		return formatArgsWithOptions({}, arguments);
-	}
-
-	function colorless(object) {
-		return String(object);
-	}
-
-	var E = String.fromCharCode(27);
-
-	function colorer(object, color) {
-		return E + '[' + color[0] + 'm' + object + E + '[' + color[1] + 'm';
-	}
-
-	function colorful(object, styleType) {
-		var style = inspect.styles[styleType];
-		var color;
-
-		if ( style ) {
-			color = inspect.colors[style];
-		}
-
-		return color ? colorer(object, color) : String(object);
-	}
-
 	var escaped = {
 		'\r': '\\r',
 		'\n': '\\n',
@@ -415,8 +300,127 @@ var util = util || (function() {
 		return ctx.stylize('[Circular *' + index + ']', 'special');
 	}
 
+	var formatters = {};
+
+	formatters.s = function(v, options) {
+		return typeof v != 'object' ? String(v) : inspect(v, {
+			compact: 3,
+			colors: false,
+			depth: 0
+		});
+	};
+
+	formatters.d = function(v, options) {
+		return Number(v);
+	};
+
+	formatters.i = function(v, options) {
+		return parseInt(v);
+	};
+
+	formatters.f = function(v, options) {
+		return parseFloat(v);
+	};
+
+	formatters.j = function(v, options) {
+		return typeof JSON == 'undefined' ? String(v) : JSON.stringify(v);
+	};
+
+	formatters.o = function(v, options) {
+		return inspect(v, objectAssign({}, options, {
+			showHidden: true,
+			showProxy: true,
+			depth: 4
+		}));
+	};
+
+	formatters.O = function(v, options) {
+		return inspect(v, options);
+	};
+
+	formatters.c = function(v, options) {
+		return '';
+	};
+
+	var reFormat = /%([%sdifjoOc])/g;
+
+	function formatArgsWithOptions(options, args) {
+		var pattern = args[0];
+
+		var result = [];
+
+		var i = 0;
+
+		reFormat.lastIndex = 0;
+
+		if ( typeof pattern == 'string' && reFormat.test(pattern) ) {
+			if ( args.length == 1 ) {
+				return pattern;
+			}
+
+			i = 1;
+			var s = pattern.replace(reFormat, function(format, id) {
+				if ( id == '%' ) {
+					return '%';
+				}
+
+				if ( i >= args.length ) {
+					return format;
+				}
+
+				return formatters[id](args[i++], options);
+			});
+			result.push(s);
+		}
+
+		for (; i < args.length; i++) {
+			var v = args[i];
+			result.push(typeof v == 'string' ? v : inspect(v, options));
+		}
+
+		return result.join(' ');
+	}
+
+// https://nodejs.org/api/util.html#utilformatformat-args
+
+	function format() {
+		return formatArgsWithOptions({}, arguments);
+	}
+
+// https://nodejs.org/api/util.html#utilformatwithoptionsinspectoptions-format-args
+
+	function formatWithOptions(options) {
+		return formatArgsWithOptions(options,
+			Array.prototype.slice.call(arguments, 1));
+	}
+
 // https://nodejs.org/api/util.html#utilinspectobject-options
 // https://nodejs.org/api/util.html#utilinspectobject-showhidden-depth-colors
+
+	function colorless(object) {
+		return String(object);
+	}
+
+	var E = String.fromCharCode(27);
+
+	function ansiColor(color) {
+		return E + '[' + color + 'm';
+	}
+
+	function colorer(object, color) {
+		return ansiColor(color[0]) + object + ansiColor(color[1]);
+	}
+
+	function colorful(object, styleType) {
+		var style = inspect.styles[styleType];
+		var color;
+
+		if ( style ) {
+			color = inspect.colors[style];
+		}
+
+		return color ? colorer(object, color) : String(object);
+	}
 
 	function inspect(object, options) {
 		// 1. initialize the context with the global settings
@@ -455,7 +459,7 @@ var util = util || (function() {
 
 	var colorsEnabled = false;
 
-	function enableColors(skip) {
+	inspect.enableColors = function enableColors(skip) {
 		if ( colorsEnabled ) {
 			return;
 		}
@@ -476,8 +480,6 @@ var util = util || (function() {
 			WScript.Sleep(50);
 		}
 	}
-
-	inspect.enableColors = enableColors;
 
 // Borrowed with modifications from
 // https://github.com/nodejs/node/blob/950a4411facdcaf6450cf3943f034177d0e21e3d/lib/internal/util/inspect.js#L365-L416
