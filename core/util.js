@@ -31,7 +31,7 @@
 // More information about API for util:
 // https://nodejs.org/api/util.html
 //
-// Copyright (c) 2012, 2013, 2019-2023 by Ildar Shaimordanov
+// Copyright (c) 2012, 2013, 2019-2023, 2026 by Ildar Shaimordanov
 //
 
 var util = util || (function() {
@@ -253,17 +253,6 @@ var util = util || (function() {
 			&& hasSpecialProperty(object, 'callee', 'function');
 	}
 
-	function formatArrayLikeItems(ctx, object, indent, items) {
-		for (var i = 0; i < object.length; i++) {
-			if ( ! ( i in object ) ) {
-				continue;
-			}
-			var v = formatValue(ctx, object[i], indent);
-			items.push(i + ': ' + v);
-		}
-		return items;
-	}
-
 	function stylizeUnknown(ctx) {
 		return ctx.stylize('[Unknown]', 'special');
 	}
@@ -277,7 +266,9 @@ var util = util || (function() {
 		}
 	}
 
-	function formatObjectItems(ctx, object, indent, items) {
+	function formatObjectItems(ctx, object, isArray, indent) {
+		var items = [];
+
 		if ( ! objectCanForIn(object) ) {
 			return items;
 		}
@@ -289,7 +280,8 @@ var util = util || (function() {
 			var v = typeof object[k] == 'unknown'
 				? stylizeUnknown(ctx)
 				: formatValue(ctx, object[k], indent);
-			if ( k === '' || /^\d/.test(k) || /\W/.test(k) ) {
+			if ( ! ( isArray && /^\d+$/.test(k) )
+			&& ! /^[A-Za-z_]\w*$/.test(k) ) {
 				k = ctx.stylize(formatString(k), 'string');
 			}
 			items.push(k + ': ' + v);
@@ -307,7 +299,7 @@ var util = util || (function() {
 		var brRight = '}';
 		var brOptional;
 
-		var isArgs;
+		var isArray;
 
 		if ( typeof object == 'function' ) {
 			prefix = functionName(object);
@@ -321,6 +313,7 @@ var util = util || (function() {
 			prefix = 'Array(' + object.length + ')';
 			brLeft = '[';
 			brRight = ']';
+			isArray = 1;
 		} else if ( typeof RegExp == 'function'
 		&& object instanceof RegExp ) {
 			prefix = object;
@@ -343,7 +336,6 @@ var util = util || (function() {
 			brOptional = 1;
 		} else if ( isArguments(object) ) {
 			prefix = '[Arguments]';
-			isArgs = 1;
 		} else if ( typeof object.constructor == 'function' ) {
 			prefix = functionName(object.constructor);
 		} else {
@@ -360,11 +352,7 @@ var util = util || (function() {
 		ctx.seen.push(object);
 		ctx.currentDepth++;
 
-		var items = [];
-		if ( isArgs ) {
-			formatArrayLikeItems(ctx, object, innerIndent, items);
-		}
-		formatObjectItems(ctx, object, innerIndent, items);
+		var items = formatObjectItems(ctx, object, isArray, innerIndent);
 
 		ctx.currentDepth--;
 		ctx.seen.pop();
