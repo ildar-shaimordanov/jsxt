@@ -105,12 +105,12 @@ var util = util || (function() {
 		return q + result + q;
 	};
 
-	function formatPrimitive(ctx, object) {
+	function formatPrimitive(fn, ctx, object) {
 		var t = typeof object;
 		if ( t == 'string' ) {
 			object = formatString(object);
 		}
-		return ctx.stylize(object, t);
+		return fn(object, t);
 	}
 
 	// A duck typing test extending this answer:
@@ -174,6 +174,21 @@ var util = util || (function() {
 		return items;
 	}
 
+	function formatPrimitiveObject(ctx, object, ctor, canForIn) {
+		var v = formatPrimitive(colorless, ctx, object.valueOf());
+		var f = '[' + ctor + ': ' + v + ']';
+		if ( ! canForIn ) {
+			f = ctx.stylize(f, ctor.toLowerCase());
+		}
+		return f;
+	}
+
+	var primitiveObjects = {
+		'Boolean': 1,
+		'Number': 1,
+		'String': 1
+	};
+
 	var indentSpace = '  ';
 
 	function formatObject(ctx, object, indent) {
@@ -182,7 +197,7 @@ var util = util || (function() {
 
 		var brLeft = '{';
 		var brRight = '}';
-		var brOptional;
+		var brRequired;
 
 		var isArray;
 
@@ -192,39 +207,47 @@ var util = util || (function() {
 				? '[Function: ' + prefix + ']'
 				: '[Function]';
 			style = 'special';
-			brOptional = 1;
 		} else if ( typeof Array == 'function'
 		&& object instanceof Array ) {
 			prefix = 'Array(' + object.length + ')';
 			brLeft = '[';
 			brRight = ']';
+			brRequired = 1;
 			isArray = 1;
 		} else if ( typeof RegExp == 'function'
 		&& object instanceof RegExp ) {
 			prefix = object;
 			style = 'regexp';
-			brOptional = 1;
 		} else if ( typeof Date == 'function'
 		&& object instanceof Date ) {
 			prefix = object.toUTCString();
 			style = 'date';
-			brOptional = 1;
 		} else if ( typeof ActiveXObject == 'function'
 		&& object instanceof ActiveXObject ) {
 			prefix = '[ActiveXObject]';
 			style = 'special';
-			brOptional = 1;
 		} else if ( typeof Enumerator == 'function'
 		&& object instanceof Enumerator ) {
 			prefix = '[Enumerator]';
 			style = 'special';
-			brOptional = 1;
 		} else if ( isArguments(object) ) {
 			prefix = '[Arguments]';
+			brRequired = 1;
 		} else if ( typeof object.constructor == 'function' ) {
-			prefix = functionName(object.constructor);
+			var b = functionName(object.constructor);
+			var f = objectCanForIn(object);
+			if ( primitiveObjects[b] ) {
+				prefix = formatPrimitiveObject(ctx, object, b, f);
+				if ( ! f ) {
+					return prefix;
+				}
+			} else {
+				prefix = b;
+				brRequired = 1;
+			}
 		} else {
 			prefix = '[Object]';
+			brRequired = 1;
 		}
 
 		if ( ctx.depth !== null && ctx.currentDepth > ctx.depth ) {
@@ -247,13 +270,10 @@ var util = util || (function() {
 			items.sort(compare);
 		}
 
-		for (var i = 0; i < items.length; i++) {
-			items[i] = '\n' + innerIndent + items[i];
-		}
-
-		var itemsStr = items.join('');
+		var glue = '\n' + innerIndent;
+		var itemsStr = items.join(glue);
 		if ( itemsStr ) {
-			itemsStr += '\n' + indent;
+			itemsStr = glue + itemsStr + '\n' + indent;
 		}
 
 		var index = 1 + arrayIndexOf(ctx.circular, object);
@@ -265,7 +285,7 @@ var util = util || (function() {
 			prefix = ctx.stylize(prefix, style);
 		}
 
-		if ( items.length == 0 && brOptional ) {
+		if ( items.length == 0 && ! brRequired ) {
 			brLeft = '';
 			brRight = '';
 		}
@@ -288,7 +308,7 @@ var util = util || (function() {
 
 		if ( typeof object != 'object'
 		&& typeof object != 'function' ) {
-			return formatPrimitive(ctx, object);
+			return formatPrimitive(ctx.stylize, ctx, object);
 		}
 
 		if ( ! arrayIncludes(ctx.seen, object) ) {
