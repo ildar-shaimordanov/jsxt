@@ -2,7 +2,7 @@
 // require.js
 // Imitation of the NodeJS function require in the Windows Scripting Host
 //
-// Copyright (c) 2019-2021 by Ildar Shaimordanov
+// Copyright (c) 2019-2021, 2026 by Ildar Shaimordanov
 //
 
 /*
@@ -264,10 +264,11 @@ var require = require || (function(exporter) {
 	var me = WScript.ScriptName.replace(/(\.[^.]+\?)?\.[^.]+$/, '');
 
 	require.paths = [
-		  myDir + "\\js"
+		  myDir + "\\core"
+		, myDir + "\\js"
+		, myDir + "\\lib"
 		, myDir + "\\" + me
 		, myDir + "\\" + me + "\\js"
-		, myDir + "\\lib"
 	];
 
 	return require;
