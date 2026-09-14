@@ -2,7 +2,7 @@
 // Set of useful and convenient definitions
 // This script is the part of the wsx
 //
-// Copyright (c) 2019, 2020-2023 by Ildar Shaimordanov
+// Copyright (c) 2019, 2020-2023, 2026 by Ildar Shaimordanov
 //
 
 // Common purpose objects
@@ -23,6 +23,18 @@ function exit(exitCode) {
 
 function sleep(timeout) {
 	WScript.Sleep(timeout);
+}
+
+function sendKeys(keys) {
+	var shell = new ActiveXObject('WScript.Shell');
+	shell.SendKeys(keys);
+}
+
+function loop(callback, delay) {
+	while ( true ) {
+		sleep(delay);
+		callback();
+	}
 }
 
 function cmd(command) {
@@ -231,6 +243,8 @@ if ( typeof exports != "undefined" ) {
 
 	exports.exit = exit;
 	exports.sleep = sleep;
+	exports.sendKeys = sendKeys;
+	exports.loop = loop;
 	exports.cmd = cmd;
 	exports.exec = exec;
 	exports.enableVT = enableVT;

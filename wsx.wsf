@@ -14,7 +14,7 @@ goto :EOF
 <script language="javascript"><![CDATA[
 
 var NAME    = 'WSX';
-var VERSION = '1.1.2 Alpha';
+var VERSION = '1.1.3 Alpha';
 
 ]]></script>
 
@@ -298,6 +298,8 @@ Functions:
 * `sprintf()`		- Format the arguments in a C-like style
 * `exit(n)`		- Quit this shell
 * `sleep(n)`		- Sleep n milliseconds
+* `sendKeys()`		- Simulate a keypress
+* `loop(fn, n)`		- Run a function every n milliseconds
 * `cmd(command)`	- Run a command or DOS-session
 * `exec(command, cb)`	- Run a command in a child shell
 			  (a callback can handle StdIn/StdOut/StdErr)
@@ -362,12 +364,16 @@ Print last 5 lines (similar to `tail -n 5` in Unix). The example is splitted on 
     wsx /let:limit=5 /n /begin:"L=[]" /end:"echo(L.join('\n'))" ^
         /e:"L.push(LINE); L.length > limit && L.shift()"
 
+Prevent lock-screen activation and system hibernation periodically simulating an F15 keypress:
+
+    wsx /e:"while (1) { sleep(30000); sendKeys('{F15}'); console.log(new Date()) }"
+    wsx /e:"loop(function() { sendKeys('{F15}'); console.log(new Date()) }, 30000)"
 
 # AUTHORS and CONTRIBUTORS
 
 Ildar Shaimordanov is the author maintaining the tool since 2009. This script was risen from JSCmd.js, the simple jscript file able to perform REPL. Later it evolved to wscmd.bat, the more powerful and configurable BAT+JS hybrid script creating a temporary WSF-file and executing it.
 
-Copyright (C) 2009-2015, 2019-2024 Ildar Shaimordanov
+Copyright (C) 2009-2015, 2019-2026 Ildar Shaimordanov
 
 
 # LICENSE
