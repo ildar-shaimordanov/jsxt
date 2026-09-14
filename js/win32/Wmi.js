@@ -208,6 +208,9 @@ Wmi.getNamedValueSet = function(namedValueSet) {
 };
 
 Wmi.prepareQuery = function(className, whereClause, selectors, withinClause) {
+	if ( ! /^[A-Za-z_][A-Za-z0-9_]*$/.test(className) ) {
+		throw new Error('Invalid WMI class name: ' + className);
+	}
 	var query = 'SELECT ' + [].concat(selectors || '*').join(',') + ' FROM ' + className;
 	if ( withinClause ) {
 		query += ' WITHIN ' + withinClause;
