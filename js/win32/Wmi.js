@@ -1,7 +1,7 @@
 //
 // JScript wrapper for WMI (Windows Management Instrumentation)
 //
-// Copyright (c) 2010, 2011, 2022 by Ildar Shaimordanov
+// Copyright (c) 2010, 2011, 2022, 2026 by Ildar Shaimordanov
 //
 
 /*
