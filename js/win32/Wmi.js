@@ -207,6 +207,101 @@ Wmi.getNamedValueSet = function(namedValueSet) {
 	return wbemNamedValueSet;
 };
 
+/*
+
+A complete guide for Wmi.prepareQuery and whereClause
+
+
+SIMPLE STRING AS "value"
+
+If the whereClause is a string, it is treated as a single value for
+an exact comparison against the "Name" property and is automatically
+escaped for security reasons.
+
+Correct usage
+  var q = Wmi.prepareQuery('Win32_Process', "notepad.exe");
+  // SELECT * FROM Win32_Process WHERE Name = 'notepad.exe'
+
+Attempted attack
+  var q = Wmi.prepareQuery('Win32_Process', "calc.exe' OR '1'='1");
+  // SELECT * FROM Win32_Process WHERE Name = 'calc.exe\' OR \'1\'=\'1'
+
+
+SIMPLE OBJECT AS { name1: value1, ... }
+
+In this case, all properties are combined with AND, keys are validated,
+and values are escaped.
+
+  var q = Wmi.prepareQuery('Win32_Process', {
+      ExecutionState: "Running",
+      Priority: 8
+  });
+  // SELECT * FROM Win32_Process WHERE (ExecutionState = 'Running' AND Priority = 8)
+
+
+CHECKING FOR UNDEFINED VALUES (IS NULL / IS NOT NULL)
+
+There is no way to perform a direct comparison like "= NULL" in WQL.
+There are four ways to express comparisons that resolve to
+"IS NULL" or "IS NOT NULL":
+- { name: null }              -> name IS NULL
+- { name: { eq: null } }      -> name IS NULL
+- { name: { ne: null } }      -> name IS NOT NULL
+- { name: { notnull: true } } -> name IS NOT NULL
+
+  var q = Wmi.prepareQuery('Win32_Process', {
+      CommandLine: null,
+      ExecutablePath: { ne: null },
+      Description: { notnull: true }
+  });
+  // SELECT * FROM Win32_Process WHERE (CommandLine IS NULL AND ExecutablePath IS NOT NULL AND Description IS NOT NULL)
+
+
+EMULATING THE "IN" OPERATOR
+
+WQL does not natively support the IN operator. Our builder handles arrays
+of values and produces a safe, isolated group of OR'ed conditions.
+
+  var q = Wmi.prepareQuery('Win32_Process', {
+      ProcessId: [1024, 2048, 4096]
+  });
+  // SELECT * FROM Win32_Process WHERE ((ProcessId = 1024 OR ProcessId = 2048 OR ProcessId = 4096))
+
+
+COMPLEX (NESTED) CONDITIONS
+
+- Extended conditions using the Wmi.bool operator mapping.
+- Supported keys: 'eq', 'ne', 'gt', 'gte', 'lt', 'lte', 'like', 'isa'.
+
+  var q = Wmi.prepareQuery('Win32_Process', {
+      Caption: { like: "win%" },
+      KernelModeTime: { gte: 50000 }
+  });
+  // SELECT * FROM Win32_Process WHERE (Caption LIKE 'win%' AND KernelModeTime >= 50000)
+
+
+ADVANCED LOGIC WITH Wmi.and / Wmi.or
+
+- Allows building complex logical structures of any nesting depth.
+- Perfectly suited for system WMI events (WITHIN queries) where a class is
+  checked using the "ISA" operator along with "TargetInstance.*" properties.
+
+  var q = Wmi.prepareQuery(
+      '__InstanceCreationEvent',
+      Wmi.and(
+          { 'TargetInstance': { isa: 'Win32_Process' } },
+          Wmi.or(
+              { 'TargetInstance.Name': 'cmd.exe' },
+              { 'TargetInstance.Name': 'powershell.exe' }
+          )
+      ),
+      '*',
+      '2'
+  );
+  // SELECT * FROM __InstanceCreationEvent WITHIN 2 WHERE ((TargetInstance ISA 'Win32_Process') AND ((TargetInstance.Name = 'cmd.exe') OR (TargetInstance.Name = 'powershell.exe')))
+
+*/
+
 Wmi.prepareQuery = function(className, whereClause, selectors, withinClause) {
 	Wmi.validateClassName(className);
 
