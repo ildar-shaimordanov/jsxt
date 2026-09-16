@@ -208,15 +208,191 @@ Wmi.getNamedValueSet = function(namedValueSet) {
 };
 
 Wmi.prepareQuery = function(className, whereClause, selectors, withinClause) {
-	var query = 'SELECT ' + [].concat(selectors || '*').join(',') + ' FROM ' + className;
+	Wmi.validateClassName(className);
+
+	selectors = [].concat(selectors || '*');
+	for (var i = 0; i < selectors.length; i++) {
+		if ( selectors[i] == '*' ) {
+			continue;
+		}
+		Wmi.validateFieldName(selectors[i]);
+	}
+
+	var query = 'SELECT ' + selectors.join(',') + ' FROM ' + className;
+
 	if ( withinClause ) {
+		Wmi.validateWithinClause(withinClause);
 		query += ' WITHIN ' + withinClause;
 	}
-	if ( whereClause ) {
-		whereClause = [].concat(whereClause).join(') AND (');
-		query += ' WHERE (' + whereClause + ')';
+
+	if ( typeof whereClause == 'object' && whereClause !== null ) {
+		whereClause = Wmi.buildWhere(whereClause);
+	} else if ( typeof whereClause == 'string' && whereClause ) {
+		whereClause = "Name = '" + Wmi.escape(whereClause) + "'";
 	}
+	if ( whereClause ) {
+		query += ' WHERE ' + whereClause;
+	}
+
 	return query;
+};
+
+Wmi.validateClassName = function(value) {
+	if ( ! /^[A-Za-z_][A-Za-z0-9_]*$/.test(value) ) {
+		throw new Error('Invalid class name: ' + value);
+	}
+};
+
+Wmi.validateFieldName = function(value) {
+	if ( ! /^[A-Za-z_][A-Za-z0-9_]*(\.[A-Za-z_][A-Za-z0-9_]*)*$/.test(value) ) {
+		throw new Error('Invalid field name: ' + value);
+	}
+};
+
+Wmi.validateWithinClause = function(value) {
+	if ( ! /^\d+(\.\d+)?$/.test(value) ) {
+		throw new Error('Invalid WITHIN clause: ' + value);
+	}
+};
+
+Wmi.bool = {
+	'eq': '=',
+	'ne': '<>',
+	'gt': '>',
+	'gte': '>=',
+	'lt': '<',
+	'lte': '<=',
+	'like': 'LIKE',
+	'isa': 'ISA'
+};
+
+Wmi.and = function() {
+	return {
+		logical: 'AND',
+		rules: Array.prototype.slice.call(arguments)
+	};
+};
+
+Wmi.or = function() {
+	return {
+		logical: 'OR',
+		rules: Array.prototype.slice.call(arguments)
+	};
+};
+
+Wmi.escape = function(value) {
+	if ( typeof value != 'string' ) {
+		return value;
+	}
+	return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+};
+
+Wmi.buildValue = function(value) {
+	if (typeof value == 'number' || typeof value == 'boolean') {
+		return value.toString();
+	}
+	// Для строк оборачиваем в кавычки и экранируем спецсимволы
+	return "'" + Wmi.escape(value) + "'";
+};
+
+Wmi.buildWhere = function(expr) {
+	if ( ! expr ) {
+		return '';
+	}
+
+	// 1. parse logical AND/OR
+	if ( expr.logical ) {
+		var parts = [];
+		for (var i = 0; i < expr.rules.length; i++) {
+			var subRes = Wmi.buildWhere(expr.rules[i]);
+			if (subRes) {
+				parts.push(subRes);
+			}
+		}
+		if ( parts.length == 0 ) {
+			return '';
+		}
+		return '(' + parts.join(' ' + expr.logical + ' ') + ')';
+	}
+
+	var clauses = [];
+	for (var key in expr) {
+		if ( ! expr.hasOwnProperty(key) ) {
+			continue;
+		}
+
+		Wmi.validateFieldName(key);
+		var val = expr[key];
+
+		// 2.1. direct null
+		// { name: null } -> name is null
+		if ( val === null ) {
+			clauses.push(key + ' IS NULL');
+			continue;
+		}
+
+		// 2.2. regular equality
+		// { name: value } -> name='value'
+		if ( typeof val != 'object' ) {
+			clauses.push(key + ' = ' + Wmi.buildValue(val));
+			continue;
+		}
+
+		// 2.3. array handling (In-operator emulation)
+		// { name: [1, 2] } -> (name = 1 OR name = 2)
+		if ( val instanceof Array ) {
+			var arr = [];
+			for (var j = 0; j < val.length; j++) {
+				arr.push(key + ' = ' + Wmi.buildValue(val[j]));
+			}
+			if ( arr.length > 0 ) {
+				clauses.push('(' + arr.join(' OR ') + ')');
+			}
+			continue;
+		}
+
+		// 3. complicated cases
+		// { like: value } -> name LIKE 'value'
+		// { ne: null } -> name IS NOT NULL
+
+		// 4. regular conditions
+		// name: { ne: value } -> name <> 'value'
+		for (var opKey in val) {
+			if ( ! val.hasOwnProperty(opKey) ) {
+				continue;
+			}
+
+			var opLower = opKey.toLowerCase();
+			var opVal = val[opKey];
+
+			// 3.1: { notnull: true } -> name IS NOT NULL
+			if ( opLower == 'notnull' && opVal == true ) {
+				clauses.push(key + ' IS NOT NULL');
+				continue;
+			}
+
+			// 3.2: { ne: null } -> name IS NOT NULL
+			if ( opLower == 'ne' && opVal == null ) {
+				clauses.push(key + ' IS NOT NULL');
+				continue;
+			}
+
+			// 3.3: { eq: null } -> name IS NULL
+			if ( opLower == 'eq' && opVal == null ) {
+				clauses.push(key + ' IS NULL');
+				continue;
+			}
+
+			// 4. regular coditions
+			var opWql = Wmi.bool[opLower];
+			if ( ! opWql ) {
+				throw new Error('Unknown operator: ' + opKey);
+			}
+			clauses.push(key + ' ' + opWql + ' ' + Wmi.buildValue(opVal));
+		}
+	}
+
+	return clauses.length == 0 ? '' : '(' + clauses.join(' AND ') + ')';
 };
 
 Wmi.forEach = function(collection, func, before) {
