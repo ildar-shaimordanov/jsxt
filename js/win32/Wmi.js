@@ -271,11 +271,11 @@ of values and produces a safe, isolated group of OR'ed conditions.
 COMPLEX (NESTED) CONDITIONS
 
 - Extended conditions using the Wmi.bool operator mapping.
-- Supported keys: 'eq', 'ne', 'gt', 'gte', 'lt', 'lte', 'like', 'isa'.
+- Supported keys: 'eq', 'ne', 'gt', 'ge', 'lt', 'le', 'like', 'isa'.
 
   var q = Wmi.prepareQuery('Win32_Process', {
       Caption: { like: "win%" },
-      KernelModeTime: { gte: 50000 }
+      KernelModeTime: { ge: 50000 }
   });
   // SELECT * FROM Win32_Process WHERE (Caption LIKE 'win%' AND KernelModeTime >= 50000)
 
@@ -354,9 +354,9 @@ Wmi.bool = {
 	'eq': '=',
 	'ne': '<>',
 	'gt': '>',
-	'gte': '>=',
+	'ge': '>=',
 	'lt': '<',
-	'lte': '<=',
+	'le': '<=',
 	'like': 'LIKE',
 	'isa': 'ISA'
 };
@@ -383,10 +383,9 @@ Wmi.escape = function(value) {
 };
 
 Wmi.buildValue = function(value) {
-	if (typeof value == 'number' || typeof value == 'boolean') {
+	if ( typeof value == 'number' || typeof value == 'boolean' ) {
 		return value.toString();
 	}
-	// Для строк оборачиваем в кавычки и экранируем спецсимволы
 	return "'" + Wmi.escape(value) + "'";
 };
 
@@ -399,9 +398,9 @@ Wmi.buildWhere = function(expr) {
 	if ( expr.logical ) {
 		var parts = [];
 		for (var i = 0; i < expr.rules.length; i++) {
-			var subRes = Wmi.buildWhere(expr.rules[i]);
-			if (subRes) {
-				parts.push(subRes);
+			var part = Wmi.buildWhere(expr.rules[i]);
+			if ( part ) {
+				parts.push(part);
 			}
 		}
 		if ( parts.length == 0 ) {
@@ -420,7 +419,7 @@ Wmi.buildWhere = function(expr) {
 		var val = expr[key];
 
 		// 2.1. direct null
-		// { name: null } -> name is null
+		// { name: null } -> name IS NULL
 		if ( val === null ) {
 			clauses.push(key + ' IS NULL');
 			continue;
