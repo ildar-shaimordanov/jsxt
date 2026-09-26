@@ -208,7 +208,7 @@ Prevent lock-screen activation and system hibernation periodically simulating an
 
 Ildar Shaimordanov is the author maintaining the tool since 2009. This script was risen from JSCmd.js, the simple jscript file able to perform REPL. Later it evolved to wscmd.bat, the more powerful and configurable BAT+JS hybrid script creating a temporary WSF-file and executing it.
 
-Copyright (C) 2009-2015, 2019-2026 Ildar Shaimordanov
+Copyright (C) 2009-2026 Ildar Shaimordanov
 
 
 # LICENSE
