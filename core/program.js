@@ -1,9 +1,9 @@
-//
-// program.js
-// This script is the part of the wsx
-//
-// Copyright (c) 2019-2024 by Ildar Shaimordanov
-//
+/*
+
+This script is the part of the wsx
+Copyright (c) 2019-2026 by Ildar Shaimordanov
+
+*/
 
 var program = {
 	argv: [],
@@ -95,7 +95,7 @@ var program = {
 		name = name.replace(/\\/g, '\\\\');
 		var result = '';
 		if ( this.getLang(lang) == "vbs" ) {
-			result = 'require.vbs("' + name + '")';
+			result = 'VbsLoader.IncludeFile("' + name + '")';
 		} else {
 			result = 'require("' + name + '")';
 		}
@@ -165,7 +165,7 @@ var program = {
 
 			break;
 		}
-		return 'require.vbs.exporter.Execute("' + result + '")';
+		return 'VbsLoader.Execute("' + result + '")';
 	},
 
 	jsVar: function(name, value, setter) {
@@ -196,7 +196,7 @@ var program = {
 	addCode: function(lang, code, region) {
 		var result = '';
 		if ( this.getLang(lang) == "vbs" ) {
-			result = 'require.vbs.exporter.Execute("' + code + '")';
+			result = 'VbsLoader.Execute("' + code + '")';
 		} else {
 			result = code;
 		}
@@ -416,14 +416,6 @@ var program = {
 		*/
 
 		/*
-		Helper to simplify VBS importing
-		*/
-		require.vbs = function(id) {
-			require.vbs.exporter.IncludeFile(id);
-		};
-		require.vbs.exporter = CreateExporter();
-
-		/*
 		Keep the latest exception
 		*/
 		ERROR = null;
@@ -438,7 +430,7 @@ var program = {
 		*/
 		if ( program.libs.length ) {
 			require.paths.unshift.apply(require.paths, program.libs);
-			require.vbs.exporter.PathInsert(program.libs)
+			VbsLoader.PathInsert(program.libs)
 		}
 
 		/*

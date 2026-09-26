@@ -14,7 +14,7 @@ goto :EOF
 <script language="javascript"><![CDATA[
 
 var NAME    = 'WSX';
-var VERSION = '1.1.3 Alpha';
+var VERSION = '2026.09.1';
 
 ]]></script>
 
@@ -24,11 +24,17 @@ var VERSION = '1.1.3 Alpha';
 <script language="javascript" src="./core/console.js"></script>
 
 <script language="javascript" src="./core/require.js"></script>
-<script language="vbscript" src="./core/exporter.vbs"></script>
+<script language="vbscript" src="./core/vbs-module-loader.vbs"></script>
 
 <script language="javascript" src="./core/REPL.js"></script>
 <script language="javascript" src="./core/program.js"></script>
 
+<script language="vbscript"><![CDATA[
+
+Dim VbsLoader
+Set VbsLoader = New VbsModuleLoader
+
+]]></script>
 <script language="javascript"><![CDATA[
 
 program.parseArguments();
@@ -273,9 +279,9 @@ For more convenience they are presented separately in the sections below.
 
 This script implements few features suggested by CommonJS extending them with WSH specialties.
 
-* `console.log()`	- display messages
-* `require()`		- load a JS module in RT
-* `require.vbs()`	- ditto for VBS (extension)
+* `console.log()`		- display messages
+* `require()`			- load a JS module in RT
+* `VbsLoader.IncludeFile()`	- the same for VBS modules
 
 For details see these links:
 
@@ -284,11 +290,11 @@ For details see these links:
 
 ## Frequently used WSH objects
 
-* `FSO`			- The object `Scripting.FileSystemObject`
-* `SHELL`		- The object `WScript.Shell`
-* `STDIN`		- The reference to `WScript.StdIn`
-* `STDOUT`		- The reference to `WScript.StdOut`
-* `STDERR`		- The reference to `WScript.StdErr`
+* `FSO`		- The object `Scripting.FileSystemObject`
+* `SHELL`	- The object `WScript.Shell`
+* `STDIN`	- The reference to `WScript.StdIn`
+* `STDOUT`	- The reference to `WScript.StdOut`
+* `STDERR`	- The reference to `WScript.StdErr`
 
 ## General purpose objects
 
@@ -373,7 +379,7 @@ Prevent lock-screen activation and system hibernation periodically simulating an
 
 Ildar Shaimordanov is the author maintaining the tool since 2009. This script was risen from JSCmd.js, the simple jscript file able to perform REPL. Later it evolved to wscmd.bat, the more powerful and configurable BAT+JS hybrid script creating a temporary WSF-file and executing it.
 
-Copyright (C) 2009-2015, 2019-2026 Ildar Shaimordanov
+Copyright (C) 2009-2026 Ildar Shaimordanov
 
 
 # LICENSE

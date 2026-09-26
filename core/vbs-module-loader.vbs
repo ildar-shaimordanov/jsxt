@@ -1,8 +1,7 @@
 '
-' exporter.vbs
 ' Export modules by name or filename similar to the NodeJS "require"
 '
-' Copyright (c) 2019-2021 by Ildar Shaimordanov
+' Copyright (c) 2019-2026 by Ildar Shaimordanov
 '
 ' @see
 ' https://blog.ctglobalservices.com/scripting-development/jgs/include-other-files-in-vbscript/
@@ -14,16 +13,7 @@
 
 Option Explicit
 
-' Create and return an instance of the Exporter class
-' Can be useful to import VBScript modules to JScript
-'
-' @return	<Importer>
-Function CreateExporter
-	Set CreateExporter = New Exporter
-End Function
-
-
-Class Exporter
+Class VbsModuleLoader
 	' For caching already loaded modules
 	Private cache
 
@@ -37,7 +27,7 @@ Class Exporter
 	' (-2 - system default, -1 - Unicode file, 0 - ASCII file)
 	Public format
 
-	' Initialize exporter
+	' Initialize loader
 	Private Sub Class_Initialize
 		Set cache = CreateObject("Scripting.Dictionary")
 		Set fso = CreateObject("Scripting.FileSystemObject")
@@ -58,10 +48,9 @@ Class Exporter
 
 		paths = Array( _
 			  mydir & "\vbs" _
-			, mydir & "\" & myself _
 			, mydir & "\" & myself & "\vbs" _
 			, mydir & "\lib" _
-			, cwd _
+			, cwd & "\vbs" _
 		)
 		If fso.GetBaseName(mydir) = "bin" Then
 			ReDim Preserve paths(UBound(paths) + 1)
@@ -69,7 +58,7 @@ Class Exporter
 		End If
 	End Sub
 
-	' Destroy exporter
+	' Destroy loader
 	Private Sub Class_Terminate
 		Set paths = Nothing
 		Set fso = Nothing
