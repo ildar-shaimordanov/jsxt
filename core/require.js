@@ -261,14 +261,12 @@ var require = require || (function(exporter) {
 	};
 
 	var myDir = fso.GetParentFolderName(WScript.ScriptFullName);
-	var me = WScript.ScriptName.replace(/(\.[^.]+\?)?\.[^.]+$/, '');
+	var myself = WScript.ScriptName.replace(/(\.[^.]+\?)?\.[^.]+$/, '');
 
 	require.paths = [
-		  myDir + "\\core"
-		, myDir + "\\js"
+		  myDir + "\\js"
+		, myDir + "\\" + myself + "\\js"
 		, myDir + "\\lib"
-		, myDir + "\\" + me
-		, myDir + "\\" + me + "\\js"
 	];
 
 	return require;

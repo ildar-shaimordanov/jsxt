@@ -50,7 +50,6 @@ Class VbsModuleLoader
 			  mydir & "\vbs" _
 			, mydir & "\" & myself & "\vbs" _
 			, mydir & "\lib" _
-			, cwd & "\vbs" _
 		)
 		If fso.GetBaseName(mydir) = "bin" Then
 			ReDim Preserve paths(UBound(paths) + 1)
