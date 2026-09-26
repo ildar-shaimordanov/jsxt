@@ -108,9 +108,9 @@ For more convenience they are presented separately in the sections below.
 
 This script implements few features suggested by CommonJS extending them with WSH specialties.
 
-* `console.log()`	- display messages
-* `require()`		- load a JS module in RT
-* `require.vbs()`	- ditto for VBS (extension)
+* `console.log()`		- display messages
+* `require()`			- load a JS module in RT
+* `VbsLoader.IncludeFile()`	- the same for VBS modules
 
 For details see these links:
 
@@ -119,11 +119,11 @@ For details see these links:
 
 ## Frequently used WSH objects
 
-* `FSO`			- The object `Scripting.FileSystemObject`
-* `SHELL`		- The object `WScript.Shell`
-* `STDIN`		- The reference to `WScript.StdIn`
-* `STDOUT`		- The reference to `WScript.StdOut`
-* `STDERR`		- The reference to `WScript.StdErr`
+* `FSO`		- The object `Scripting.FileSystemObject`
+* `SHELL`	- The object `WScript.Shell`
+* `STDIN`	- The reference to `WScript.StdIn`
+* `STDOUT`	- The reference to `WScript.StdOut`
+* `STDERR`	- The reference to `WScript.StdErr`
 
 ## General purpose objects
 
@@ -133,6 +133,8 @@ Functions:
 * `sprintf()`		- Format the arguments in a C-like style
 * `exit(n)`		- Quit this shell
 * `sleep(n)`		- Sleep n milliseconds
+* `sendKeys()`		- Simulate a keypress
+* `loop(fn, n)`		- Run a function every n milliseconds
 * `cmd(command)`	- Run a command or DOS-session
 * `exec(command, cb)`	- Run a command in a child shell
 			  (a callback can handle StdIn/StdOut/StdErr)
@@ -197,12 +199,16 @@ Print last 5 lines (similar to `tail -n 5` in Unix). The example is splitted on 
     wsx /let:limit=5 /n /begin:"L=[]" /end:"echo(L.join('\n'))" ^
         /e:"L.push(LINE); L.length > limit && L.shift()"
 
+Prevent lock-screen activation and system hibernation periodically simulating an F15 keypress:
+
+    wsx /e:"while (1) { sleep(30000); sendKeys('{F15}'); console.log(new Date()) }"
+    wsx /e:"loop(function() { sendKeys('{F15}'); console.log(new Date()) }, 30000)"
 
 # AUTHORS and CONTRIBUTORS
 
 Ildar Shaimordanov is the author maintaining the tool since 2009. This script was risen from JSCmd.js, the simple jscript file able to perform REPL. Later it evolved to wscmd.bat, the more powerful and configurable BAT+JS hybrid script creating a temporary WSF-file and executing it.
 
-Copyright (C) 2009-2015, 2019-2023 Ildar Shaimordanov
+Copyright (C) 2009-2015, 2019-2026 Ildar Shaimordanov
 
 
 # LICENSE
