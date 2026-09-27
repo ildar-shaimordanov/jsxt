@@ -332,7 +332,7 @@ function initWin(network)
 NetIP.win32IPConfig = function()
 {
 	var WMI = GetObject('WinMgmts:');
-	var sql = 'SELECT * FROM Win32_NetworkAdapterConfiguration';
+	var sql = 'SELECT IPAddress, IPSubnet FROM Win32_NetworkAdapterConfiguration';
 
 	var query = WMI.ExecQuery(sql);
 	var enumer = new Enumerator(query);
